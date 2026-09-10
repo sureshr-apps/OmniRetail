@@ -1,0 +1,268 @@
+import { mockDelay } from '@/shared/utils/mockDelay';
+import {
+  OrganizationAdministrator,
+  CreateAdminInput,
+  UpdateAdminInput,
+  AdminStatus,
+} from '../types';
+
+export interface IOrganizationAdminService {
+  getAdministrators(organizationId: string): Promise<OrganizationAdministrator[]>;
+  createAdministrator(
+    organizationId: string,
+    input: CreateAdminInput
+  ): Promise<OrganizationAdministrator>;
+  updateAdministrator(
+    organizationId: string,
+    administratorId: string,
+    input: UpdateAdminInput
+  ): Promise<OrganizationAdministrator>;
+  changeAdministratorStatus(
+    organizationId: string,
+    administratorId: string,
+    status: AdminStatus
+  ): Promise<OrganizationAdministrator>;
+  resetPassword(
+    organizationId: string,
+    administratorId: string
+  ): Promise<{ success: boolean; message: string; temporaryOtpPreview?: string }>;
+}
+
+const INITIAL_ADMINISTRATORS: OrganizationAdministrator[] = [
+  // Punarva Fashion Hub (ORG-88219)
+  {
+    id: 'ADM-88201',
+    organizationId: 'ORG-88219',
+    name: 'Priya Patel',
+    username: 'ppatel',
+    email: 'priya@punarva.com',
+    phone: '+91 98201 44552',
+    status: 'active',
+    createdAt: '2024-10-14',
+    lastLoginAt: '2026-09-08 11:24 IST',
+  },
+  {
+    id: 'ADM-88202',
+    organizationId: 'ORG-88219',
+    name: 'Rohan Mehta',
+    username: 'rmehta',
+    email: 'rohan.m@punarva.com',
+    phone: '+91 98201 99182',
+    status: 'active',
+    createdAt: '2024-11-02',
+    lastLoginAt: '2026-09-09 18:45 IST',
+  },
+  {
+    id: 'ADM-88203',
+    organizationId: 'ORG-88219',
+    name: 'Kavita Rao',
+    username: 'krao',
+    email: 'kavita.ops@punarva.com',
+    phone: '+91 98201 33410',
+    status: 'inactive',
+    createdAt: '2025-01-18',
+    lastLoginAt: '2026-08-30 09:12 IST',
+  },
+
+  // FabSutra Silks & Sarees (ORG-41902)
+  {
+    id: 'ADM-41901',
+    organizationId: 'ORG-41902',
+    name: 'Rajesh Sharma',
+    username: 'rsharma',
+    email: 'rajesh@fabsutra.in',
+    phone: '+91 94440 18291',
+    status: 'active',
+    createdAt: '2024-08-20',
+    lastLoginAt: '2026-09-07 15:30 IST',
+  },
+  {
+    id: 'ADM-41902',
+    organizationId: 'ORG-41902',
+    name: 'Sundar Raman',
+    username: 'sraman',
+    email: 'sundar@fabsutra.in',
+    phone: '+91 94440 77123',
+    status: 'inactive',
+    createdAt: '2024-09-12',
+    lastLoginAt: null,
+  },
+
+  // Kalyan Heritage Jewelers (ORG-76134)
+  {
+    id: 'ADM-76101',
+    organizationId: 'ORG-76134',
+    name: 'Ananya Iyer',
+    username: 'aiyer',
+    email: 'ananya@kalyanheritage.com',
+    phone: '+91 98470 33119',
+    status: 'active',
+    createdAt: '2024-05-11',
+    lastLoginAt: '2026-09-10 08:15 IST',
+  },
+  {
+    id: 'ADM-76102',
+    organizationId: 'ORG-76134',
+    name: 'George Varghese',
+    username: 'gvarghese',
+    email: 'george@kalyanheritage.com',
+    phone: '+91 98470 44881',
+    status: 'active',
+    createdAt: '2024-06-03',
+    lastLoginAt: '2026-09-09 19:40 IST',
+  },
+
+  // Deccan Electronics World (ORG-65410)
+  {
+    id: 'ADM-65401',
+    organizationId: 'ORG-65410',
+    name: 'Vikram Reddy',
+    username: 'vreddy',
+    email: 'vikram@deccanelec.com',
+    phone: '+91 98490 55123',
+    status: 'active',
+    createdAt: '2024-03-19',
+    lastLoginAt: '2026-09-06 14:10 IST',
+  },
+
+  // BlueTokai Craft Coffee Hubs (ORG-98321)
+  {
+    id: 'ADM-98301',
+    organizationId: 'ORG-98321',
+    name: 'Aditya Varma',
+    username: 'avarma',
+    email: 'aditya@craftcoffeehubs.in',
+    phone: '+91 98110 99441',
+    status: 'active',
+    createdAt: '2024-11-15',
+    lastLoginAt: '2026-09-09 21:04 IST',
+  },
+];
+
+class MockOrganizationAdminService implements IOrganizationAdminService {
+  private admins: OrganizationAdministrator[] = [...INITIAL_ADMINISTRATORS];
+
+  async getAdministrators(organizationId: string): Promise<OrganizationAdministrator[]> {
+    await mockDelay(280);
+    return this.admins
+      .filter((a) => a.organizationId === organizationId)
+      .map((a) => ({ ...a }));
+  }
+
+  async createAdministrator(
+    organizationId: string,
+    input: CreateAdminInput
+  ): Promise<OrganizationAdministrator> {
+    await mockDelay(450);
+
+    const cleanUsername = input.username.trim().toLowerCase();
+    // Validate unique username across all organization administrators in mock scope
+    const existing = this.admins.find((a) => a.username.toLowerCase() === cleanUsername);
+    if (existing) {
+      throw new Error(`Username "${input.username.trim()}" is already assigned to an administrator.`);
+    }
+
+    // Check duplicate email in this organization
+    const duplicateEmail = this.admins.find(
+      (a) => a.organizationId === organizationId && a.email.toLowerCase() === input.email.trim().toLowerCase()
+    );
+    if (duplicateEmail) {
+      throw new Error(`An administrator with email "${input.email.trim()}" already exists in this organization.`);
+    }
+
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    const newAdminId = `ADM-${randomNum}`;
+    const today = new Date().toISOString().split('T')[0];
+
+    const newAdmin: OrganizationAdministrator = {
+      id: newAdminId,
+      organizationId,
+      name: input.name.trim(),
+      username: cleanUsername,
+      email: input.email.trim(),
+      phone: input.phone.trim(),
+      status: 'active',
+      createdAt: today,
+      lastLoginAt: null,
+    };
+
+    this.admins.unshift(newAdmin);
+    return { ...newAdmin };
+  }
+
+  async updateAdministrator(
+    organizationId: string,
+    administratorId: string,
+    input: UpdateAdminInput
+  ): Promise<OrganizationAdministrator> {
+    await mockDelay(380);
+
+    const index = this.admins.findIndex(
+      (a) => a.id === administratorId && a.organizationId === organizationId
+    );
+    if (index === -1) {
+      throw new Error(`Administrator ${administratorId} was not found in organization ${organizationId}.`);
+    }
+
+    const current = this.admins[index];
+    const updated: OrganizationAdministrator = {
+      ...current,
+      name: input.name.trim(),
+      email: input.email.trim(),
+      phone: input.phone.trim(),
+    };
+
+    this.admins[index] = updated;
+    return { ...updated };
+  }
+
+  async changeAdministratorStatus(
+    organizationId: string,
+    administratorId: string,
+    status: AdminStatus
+  ): Promise<OrganizationAdministrator> {
+    await mockDelay(300);
+
+    const index = this.admins.findIndex(
+      (a) => a.id === administratorId && a.organizationId === organizationId
+    );
+    if (index === -1) {
+      throw new Error(`Administrator ${administratorId} was not found in organization ${organizationId}.`);
+    }
+
+    const current = this.admins[index];
+    const updated: OrganizationAdministrator = {
+      ...current,
+      status,
+    };
+
+    this.admins[index] = updated;
+    return { ...updated };
+  }
+
+  async resetPassword(
+    organizationId: string,
+    administratorId: string
+  ): Promise<{ success: boolean; message: string; temporaryOtpPreview?: string }> {
+    await mockDelay(400);
+
+    const admin = this.admins.find(
+      (a) => a.id === administratorId && a.organizationId === organizationId
+    );
+    if (!admin) {
+      throw new Error(`Administrator ${administratorId} not found in this organization.`);
+    }
+
+    // Generate mock one-time provisional reset token code
+    const provisionalToken = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    return {
+      success: true,
+      message: `Password reset link and temporary security token sent to ${admin.email}.`,
+      temporaryOtpPreview: `RESET-${provisionalToken}`,
+    };
+  }
+}
+
+export const organizationAdminService: IOrganizationAdminService =
+  new MockOrganizationAdminService();

@@ -1,0 +1,6 @@
+{
+  "name": "OmniRetail POS Enterprise",
+  "description": "Precision retail operations and platform administration console.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

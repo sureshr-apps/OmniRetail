@@ -1,0 +1,13 @@
+specVersion: "v1"
+serviceId: "omniretail-platform"
+location: "asia-south1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "omniretail"
+      cloudSql:
+        instanceId: "omniretail-sql"
+        schemaValidation: "STRICT"
+connectorDirs:
+  - "./master-admin"

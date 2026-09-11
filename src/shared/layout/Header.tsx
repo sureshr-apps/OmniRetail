@@ -53,7 +53,7 @@ export function Header() {
             </div>
             <div className="flex flex-col items-start text-left">
               <span className="text-xs font-semibold text-text-primary leading-tight">{user?.name}</span>
-              <span className="text-[10px] text-text-muted leading-tight">Operations Lead</span>
+              <span className="text-[10px] text-text-muted leading-tight">{user?.roles[0]?.name ?? 'Authorized User'}</span>
             </div>
             <ChevronDown className="w-4 h-4 text-text-muted ml-1" />
           </button>
@@ -71,15 +71,13 @@ export function Header() {
               >
                 <UserIcon className="w-4 h-4" /> Profile
               </Link>
-              <button 
+              <Link
+                to="/profile#change-password"
                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-text-secondary hover:bg-surface-subdued hover:text-text-primary"
-                onClick={() => {
-                  /* Future: open change password modal or route */
-                  setIsProfileOpen(false);
-                }}
+                onClick={() => setIsProfileOpen(false)}
               >
                 <KeyRound className="w-4 h-4" /> Change Password
-              </button>
+              </Link>
               <div className="h-px bg-border-subdued my-1"></div>
               <button 
                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-critical hover:bg-red-50"

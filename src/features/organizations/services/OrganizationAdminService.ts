@@ -5,6 +5,9 @@ import {
   UpdateAdminInput,
   AdminStatus,
 } from '../types';
+import { listOrganizationAdministrators, updateOrganizationAdministrator } from '@omniretail/sql-connect';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { httpsCallable } from 'firebase/functions';
 
 export interface IOrganizationAdminService {
   getAdministrators(organizationId: string): Promise<OrganizationAdministrator[]>;
@@ -25,7 +28,7 @@ export interface IOrganizationAdminService {
   resetPassword(
     organizationId: string,
     administratorId: string
-  ): Promise<{ success: boolean; message: string; temporaryOtpPreview?: string }>;
+  ): Promise<{ success: boolean; message: string }>;
 }
 
 const INITIAL_ADMINISTRATORS: OrganizationAdministrator[] = [
@@ -143,18 +146,38 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
   private admins: OrganizationAdministrator[] = [...INITIAL_ADMINISTRATORS];
 
   async getAdministrators(organizationId: string): Promise<OrganizationAdministrator[]> {
-    await mockDelay(280);
-    return this.admins
-      .filter((a) => a.organizationId === organizationId)
-      .map((a) => ({ ...a }));
+    try {
+      const result = await listOrganizationAdministrators(getFirebaseClientServices().dataConnect, {
+        organizationId,
+      });
+      return result.data.organizationMemberships.map((membership) => ({
+        id: membership.user.id,
+        organizationId,
+        name: membership.user.displayName,
+        username: membership.user.username,
+        email: membership.user.email,
+        phone: membership.user.phone ?? '',
+        status: membership.user.status === 'ACTIVE' ? 'active' : 'inactive',
+        createdAt: membership.user.createdAt.slice(0, 10),
+        lastLoginAt: membership.user.lastLoginAt ?? null,
+      }));
+    } catch {
+      throw new Error('Unable to load organization administrators.');
+    }
   }
 
   async createAdministrator(
     organizationId: string,
     input: CreateAdminInput
   ): Promise<OrganizationAdministrator> {
-    await mockDelay(450);
+    const provision = httpsCallable<{ organizationId: string; displayName: string; username: string; email: string; phone: string; idempotencyKey: string }, OrganizationAdministrator>(getFirebaseClientServices().functions, 'provisionOrganizationAdministrator', { limitedUseAppCheckTokens: true });
+    try {
+      const result = await provision({ organizationId, displayName: input.name.trim(), username: input.username.trim().toLowerCase(), email: input.email.trim(), phone: input.phone.trim(), idempotencyKey: globalThis.crypto.randomUUID() });
+      return result.data;
+    } catch { throw new Error('Unable to create the organization administrator.'); }
 
+    /* Mock lifecycle fallback remains below for deferred operations. */
+    /*
     const cleanUsername = input.username.trim().toLowerCase();
     // Validate unique username across all organization administrators in mock scope
     const existing = this.admins.find((a) => a.username.toLowerCase() === cleanUsername);
@@ -188,6 +211,7 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
 
     this.admins.unshift(newAdmin);
     return { ...newAdmin };
+    */
   }
 
   async updateAdministrator(
@@ -195,6 +219,24 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
     administratorId: string,
     input: UpdateAdminInput
   ): Promise<OrganizationAdministrator> {
+    try {
+      await updateOrganizationAdministrator(getFirebaseClientServices().dataConnect, {
+        organizationId,
+        userId: administratorId,
+        displayName: input.name.trim(),
+        phone: input.phone.trim(),
+        auditId: globalThis.crypto.randomUUID(),
+        requestId: globalThis.crypto.randomUUID(),
+      });
+      const refreshed = await this.getAdministrators(organizationId);
+      const result = refreshed.find((admin) => admin.id === administratorId);
+      if (!result) throw new Error('Administrator not found.');
+      return result;
+    } catch {
+      throw new Error('Unable to update the organization administrator.');
+    }
+    /* Deferred mock fallback retained for future lifecycle work. */
+    /*
     await mockDelay(380);
 
     const index = this.admins.findIndex(
@@ -214,6 +256,7 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
 
     this.admins[index] = updated;
     return { ...updated };
+    */
   }
 
   async changeAdministratorStatus(
@@ -221,46 +264,30 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
     administratorId: string,
     status: AdminStatus
   ): Promise<OrganizationAdministrator> {
-    await mockDelay(300);
-
-    const index = this.admins.findIndex(
-      (a) => a.id === administratorId && a.organizationId === organizationId
-    );
-    if (index === -1) {
-      throw new Error(`Administrator ${administratorId} was not found in organization ${organizationId}.`);
+    try {
+      const callable = httpsCallable<
+        { organizationId: string; userId: string; status: AdminStatus },
+        { success: boolean }
+      >(getFirebaseClientServices().functions, 'changeOrganizationAdministratorStatus');
+      await callable({ organizationId, userId: administratorId, status });
+      const refreshed = await this.getAdministrators(organizationId);
+      const updated = refreshed.find((admin) => admin.id === administratorId);
+      if (!updated) throw new Error('Administrator not found.');
+      return updated;
+    } catch {
+      throw new Error('Unable to change the organization administrator status.');
     }
-
-    const current = this.admins[index];
-    const updated: OrganizationAdministrator = {
-      ...current,
-      status,
-    };
-
-    this.admins[index] = updated;
-    return { ...updated };
   }
 
   async resetPassword(
     organizationId: string,
     administratorId: string
-  ): Promise<{ success: boolean; message: string; temporaryOtpPreview?: string }> {
-    await mockDelay(400);
-
-    const admin = this.admins.find(
-      (a) => a.id === administratorId && a.organizationId === organizationId
-    );
-    if (!admin) {
-      throw new Error(`Administrator ${administratorId} not found in this organization.`);
-    }
-
-    // Generate mock one-time provisional reset token code
-    const provisionalToken = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-    return {
-      success: true,
-      message: `Password reset link and temporary security token sent to ${admin.email}.`,
-      temporaryOtpPreview: `RESET-${provisionalToken}`,
-    };
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const callable = httpsCallable<{ organizationId: string; administratorId: string }, { success: boolean }>(getFirebaseClientServices().functions, 'resetOrganizationAdministratorPassword');
+      await callable({ organizationId, administratorId });
+      return { success: true, message: 'Password reset instructions have been sent.' };
+    } catch { throw new Error('Unable to reset the administrator password.'); }
   }
 }
 

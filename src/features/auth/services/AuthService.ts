@@ -1,58 +1,202 @@
-import { mockDelay } from '@/shared/utils/mockDelay';
+import {
+  EmailAuthProvider,
+  User as FirebaseUser,
+  onIdTokenChanged,
+  reauthenticateWithCredential,
+  signInWithCustomToken,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword,
+} from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+
+export const GENERIC_AUTH_ERROR = 'Unable to sign in with the provided credentials.';
+const callableOptions = { limitedUseAppCheckTokens: true };
+
+export interface ApplicationRole {
+  code: string;
+  name: string;
+  scope: string;
+}
 
 export interface User {
   id: string;
+  firebaseUid: string;
   name: string;
+  displayName: string;
   email: string;
   username: string;
+  phone: string | null;
+  roles: ApplicationRole[];
+  capabilities: string[];
 }
 
 export interface LoginCredentials {
   username: string;
-  password?: string;
+  password: string;
+}
+
+export interface ProfileUpdate {
+  displayName: string;
+  phone: string;
+}
+
+export interface PasswordChange {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface IAuthService {
   login(credentials: LoginCredentials): Promise<User>;
   logout(): Promise<void>;
   getCurrentUser(): Promise<User | null>;
+  subscribe(listener: (user: User | null) => void): () => void;
+  updateProfile(update: ProfileUpdate): Promise<User>;
+  changePassword(change: PasswordChange): Promise<void>;
 }
 
-class MockAuthService implements IAuthService {
-  private currentUser: User | null = null;
+interface AuthorizedUserResponse {
+  id: string;
+  firebaseUid: string;
+  username: string;
+  email: string;
+  displayName: string;
+  phone: string | null;
+  roles: ApplicationRole[];
+  capabilities: string[];
+}
+
+function toUser(response: AuthorizedUserResponse): User {
+  return { ...response, name: response.displayName };
+}
+
+function isEmailIdentifier(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function validateAuthorizationResponse(value: unknown): AuthorizedUserResponse {
+  const candidate = value as Partial<AuthorizedUserResponse> | null;
+  if (
+    !candidate ||
+    typeof candidate.id !== 'string' ||
+    typeof candidate.firebaseUid !== 'string' ||
+    typeof candidate.username !== 'string' ||
+    typeof candidate.email !== 'string' ||
+    typeof candidate.displayName !== 'string' ||
+    !Array.isArray(candidate.roles) ||
+    !Array.isArray(candidate.capabilities) ||
+    !candidate.capabilities.includes('overview.read')
+  ) {
+    throw new Error(GENERIC_AUTH_ERROR);
+  }
+  return candidate as AuthorizedUserResponse;
+}
+
+export class FirebaseAuthService implements IAuthService {
+  private async bootstrap(firebaseUser: FirebaseUser, recordLogin: boolean): Promise<User> {
+    if (!firebaseUser.emailVerified) throw new Error(GENERIC_AUTH_ERROR);
+    const { functions } = getFirebaseClientServices();
+    const bootstrapUser = httpsCallable<{ recordLogin: boolean }, AuthorizedUserResponse>(
+      functions,
+      'bootstrapAuthenticatedUser',
+      callableOptions
+    );
+    const result = await bootstrapUser({ recordLogin });
+    const authorized = validateAuthorizationResponse(result.data);
+    if (authorized.firebaseUid !== firebaseUser.uid) throw new Error(GENERIC_AUTH_ERROR);
+    return toUser(authorized);
+  }
 
   async login(credentials: LoginCredentials): Promise<User> {
-    await mockDelay(800);
+    const identifier = credentials.username.trim();
+    const password = credentials.password;
+    const { auth, functions } = getFirebaseClientServices();
 
-    // Mock validation
-    if (!credentials.username || !credentials.password) {
-      throw new Error('Username and password are required.');
+    try {
+      const credential = isEmailIdentifier(identifier)
+        ? await signInWithEmailAndPassword(auth, identifier, password)
+        : await (async () => {
+            const loginByUsername = httpsCallable<
+              { username: string; password: string },
+              { customToken: string }
+            >(functions, 'usernameLogin', callableOptions);
+            const response = await loginByUsername({ username: identifier, password });
+            if (!response.data?.customToken) throw new Error(GENERIC_AUTH_ERROR);
+            return signInWithCustomToken(auth, response.data.customToken);
+          })();
+
+      return await this.bootstrap(credential.user, true);
+    } catch {
+      await signOut(auth).catch(() => undefined);
+      throw new Error(GENERIC_AUTH_ERROR);
     }
-    
-    // Simulate invalid credentials check
-    if (credentials.username === 'invalid' || credentials.password === 'invalid') {
-      throw new Error('Invalid username or password.');
-    }
-
-    this.currentUser = {
-      id: 'usr-admin-01',
-      name: 'Platform Admin',
-      email: credentials.username.includes('@') ? credentials.username : `${credentials.username}@example.com`,
-      username: credentials.username,
-    };
-
-    return this.currentUser;
   }
 
   async logout(): Promise<void> {
-    await mockDelay(400);
-    this.currentUser = null;
+    await signOut(getFirebaseClientServices().auth);
   }
 
   async getCurrentUser(): Promise<User | null> {
-    await mockDelay(200);
-    return this.currentUser;
+    const { auth } = getFirebaseClientServices();
+    await auth.authStateReady();
+    if (!auth.currentUser) return null;
+    try {
+      return await this.bootstrap(auth.currentUser, false);
+    } catch {
+      await signOut(auth).catch(() => undefined);
+      return null;
+    }
+  }
+
+  subscribe(listener: (user: User | null) => void): () => void {
+    const { auth } = getFirebaseClientServices();
+    let revision = 0;
+    return onIdTokenChanged(auth, async (firebaseUser) => {
+      const currentRevision = ++revision;
+      if (!firebaseUser) {
+        listener(null);
+        return;
+      }
+      try {
+        const user = await this.bootstrap(firebaseUser, false);
+        if (currentRevision === revision) listener(user);
+      } catch {
+        await signOut(auth).catch(() => undefined);
+        if (currentRevision === revision) listener(null);
+      }
+    });
+  }
+
+  async updateProfile(update: ProfileUpdate): Promise<User> {
+    const updateCurrentUserProfile = httpsCallable<ProfileUpdate, AuthorizedUserResponse>(
+      getFirebaseClientServices().functions,
+      'updateCurrentUserProfile',
+      callableOptions
+    );
+    const result = await updateCurrentUserProfile(update);
+    return toUser(validateAuthorizationResponse(result.data));
+  }
+
+  async changePassword(change: PasswordChange): Promise<void> {
+    const { auth, functions } = getFirebaseClientServices();
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser?.email || !firebaseUser.emailVerified) throw new Error('Unable to change password.');
+
+    try {
+      const credential = EmailAuthProvider.credential(firebaseUser.email, change.currentPassword);
+      await reauthenticateWithCredential(firebaseUser, credential);
+      await updatePassword(firebaseUser, change.newPassword);
+      const recordAudit = httpsCallable<Record<string, never>, { recorded: boolean }>(
+        functions,
+        'recordPasswordChange',
+        callableOptions
+      );
+      await recordAudit({});
+    } catch {
+      throw new Error('Unable to change password. Check your current password and try again.');
+    }
   }
 }
 
-export const authService = new MockAuthService();
+export const authService: IAuthService = new FirebaseAuthService();

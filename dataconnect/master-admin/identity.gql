@@ -1,0 +1,478 @@
+# Browser-visible authorization bootstrap. Firebase Authentication establishes
+# auth.uid; this operation resolves only the matching active application user.
+query GetCurrentUserAuthorization @auth(level: USER) {
+  appUsers(
+    where: {
+      firebaseUid: { eq_expr: "auth.uid" }
+      status: { eq: ACTIVE }
+    }
+    limit: 1
+  ) {
+    id
+    firebaseUid
+    username
+    email
+    displayName
+    phone
+    status
+    createdAt
+    updatedAt
+    userRoles_on_user {
+      role {
+        code
+        name
+        scope
+        rolePermissions_on_role {
+          permission {
+            code
+          }
+        }
+      }
+    }
+  }
+}
+
+# Trusted Cloud Functions and bootstrap tooling use Admin SDK operations. These
+# operations are never exported through the browser SDK's callable surface.
+query GetUserAuthorizationByFirebaseUid($firebaseUid: String!) @auth(level: NO_ACCESS) {
+  appUsers(where: { firebaseUid: { eq: $firebaseUid } }, limit: 1) {
+    id
+    firebaseUid
+    username
+    email
+    displayName
+    phone
+    status
+    createdAt
+    updatedAt
+    userRoles_on_user {
+      role {
+        code
+        name
+        scope
+        rolePermissions_on_role {
+          permission {
+            code
+          }
+        }
+      }
+    }
+  }
+}
+
+query ResolveUsernameLogin($username: String!) @auth(level: NO_ACCESS) {
+  appUsers(where: { username: { eq: $username } }, limit: 1) {
+    id
+    firebaseUid
+    email
+    status
+  }
+}
+
+mutation RecordSuccessfulLogin($userId: UUID!, $auditId: UUID!, $requestId: String!)
+  @auth(level: NO_ACCESS) @transaction {
+  appUser_update(id: $userId, data: {
+    lastLoginAt_expr: "request.time"
+    updatedAt_expr: "request.time"
+  })
+  auditEvent_insert(data: {
+    id: $auditId
+    actorId: $userId
+    action: "auth.login.success"
+    targetType: "AppUser"
+    targetId: $userId
+    requestId: $requestId
+  })
+}
+
+mutation UpdateAppUserProfile(
+  $userId: UUID!
+  $displayName: String!
+  $phone: String
+  $auditId: UUID!
+  $requestId: String!
+) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  appUser_update(id: $userId, data: {
+    displayName: $displayName
+    phone: $phone
+    updatedAt_expr: "request.time"
+  })
+  auditEvent_insert(data: {
+    id: $auditId
+    actorId: $userId
+    action: "profile.update"
+    targetType: "AppUser"
+    targetId: $userId
+    requestId: $requestId
+  })
+}
+
+mutation RecordPasswordChange($userId: UUID!, $auditId: UUID!, $requestId: String!)
+  @auth(level: NO_ACCESS) {
+  auditEvent_insert(data: {
+    id: $auditId
+    actorId: $userId
+    action: "profile.password_change"
+    targetType: "AppUser"
+    targetId: $userId
+    requestId: $requestId
+  })
+}
+
+query GetAppUserForBootstrap($firebaseUid: String!) @auth(level: NO_ACCESS) {
+  appUsers(where: { firebaseUid: { eq: $firebaseUid } }, limit: 1) {
+    id
+    firebaseUid
+    username
+    email
+    displayName
+    phone
+    status
+  }
+}
+
+mutation BootstrapMasterAdmin(
+  $userId: UUID!
+  $firebaseUid: String!
+  $username: String!
+  $email: String!
+  $displayName: String!
+  $phone: String
+  $roleId: UUID!
+  $auditId: UUID!
+  $requestId: String!
+) @auth(level: NO_ACCESS) @transaction {
+  appUser_upsert(data: {
+    id: $userId
+    firebaseUid: $firebaseUid
+    username: $username
+    email: $email
+    displayName: $displayName
+    phone: $phone
+    status: ACTIVE
+    updatedAt_expr: "request.time"
+  })
+  userRole_upsert(data: { userId: $userId, roleId: $roleId })
+  auditEvent_upsert(data: {
+    id: $auditId
+    actorId: $userId
+    actorFirebaseUid: $firebaseUid
+    action: "bootstrap.master_admin.success"
+    targetType: "AppUser"
+    targetId: $userId
+    requestId: $requestId
+  })
+}
+
+# Phase 1 compatibility operations remain available during the rollout.
+query GetCurrentAppUser @auth(level: USER) {
+  appUsers(
+    where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }
+    limit: 1
+  ) {
+    id
+    firebaseUid
+    username
+    email
+    displayName
+    phone
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+query GetAppUserByFirebaseUid($firebaseUid: String!) @auth(level: NO_ACCESS) {
+  appUsers(where: { firebaseUid: { eq: $firebaseUid } }, limit: 1) {
+    id
+    firebaseUid
+    username
+    email
+    displayName
+    phone
+    status
+  }
+}
+
+# License Plan catalog operations. The embedded active-user checks keep these
+# operations unavailable to inactive AppUsers while capability checks remain in
+# the trusted plan adapter/functions.
+query ListLicensePlans @auth(level: USER_EMAIL_VERIFIED) {
+  licensePlans(orderBy: [{ level: ASC }]) {
+    id
+    planCode
+    name
+    description
+    level
+    maxStores
+    maxUsers
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+query GetLicensePlan($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+  licensePlan(key: { id: $id }) {
+    id
+    planCode
+    name
+    description
+    level
+    maxStores
+    maxUsers
+    status
+    createdAt
+    updatedAt
+  }
+}
+
+mutation CreateLicensePlan(
+  $planCode: String!
+  $name: String!
+  $description: String
+  $level: Int!
+  $maxStores: Int!
+  $maxUsers: Int!
+  $auditId: UUID!
+  $requestId: String!
+) @auth(level: NO_ACCESS) @transaction {
+  licensePlan_insert(data: {
+    planCode: $planCode
+    name: $name
+    description: $description
+    level: $level
+    maxStores: $maxStores
+    maxUsers: $maxUsers
+    status: ACTIVE
+  })
+  auditEvent_insert(data: {
+    id: $auditId
+    actorFirebaseUid_expr: "auth.uid"
+    action: "plans.created"
+    targetType: "LicensePlan"
+    requestId: $requestId
+  })
+}
+
+mutation UpdateLicensePlan(
+  $id: UUID!
+  $name: String!
+  $description: String
+  $level: Int!
+  $maxStores: Int!
+  $maxUsers: Int!
+  $auditId: UUID!
+  $requestId: String!
+) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  licensePlan_update(id: $id, data: {
+    name: $name
+    description: $description
+    level: $level
+    maxStores: $maxStores
+    maxUsers: $maxUsers
+    updatedAt_expr: "request.time"
+  })
+  auditEvent_insert(data: {
+    id: $auditId
+    actorFirebaseUid_expr: "auth.uid"
+    action: "plans.updated"
+    targetType: "LicensePlan"
+    targetId: $id
+    requestId: $requestId
+  })
+}
+
+mutation ChangeLicensePlanStatus(
+  $id: UUID!
+  $status: LicensePlanStatus!
+  $action: String!
+  $auditId: UUID!
+  $requestId: String!
+) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  licensePlan_update(id: $id, data: {
+    status: $status
+    updatedAt_expr: "request.time"
+  })
+  auditEvent_insert(data: {
+    id: $auditId
+    actorFirebaseUid_expr: "auth.uid"
+    action: $action
+    targetType: "LicensePlan"
+    targetId: $id
+    requestId: $requestId
+  })
+}
+
+query ListOrganizations @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
+    userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
+  }
+  organizations(orderBy: [{ createdAt: DESC }, { id: ASC }]) {
+    id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt
+  }
+}
+
+query GetOrganization($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
+    userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
+  }
+  organization(key: { id: $id }) {
+    id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt
+  }
+}
+
+query ListOrganizationAdministrators($organizationId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(
+    where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }
+    limit: 1
+  ) @redact @check(
+    expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organization_admins.read'))"
+    message: "Administrator access is not available."
+  ) {
+    userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
+  }
+  organizationMemberships(
+    where: { organizationId: { eq: $organizationId }, status: { eq: ACTIVE } }
+    orderBy: [{ createdAt: ASC }]
+  ) {
+    createdAt
+    status
+    user { id username email displayName phone status createdAt updatedAt lastLoginAt }
+  }
+}
+
+query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(
+    where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }
+    limit: 1
+  ) @redact @check(
+    expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organization_admins.read'))"
+    message: "Administrator access is not available."
+  ) {
+    userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
+  }
+  organizationMemberships(where: { organizationId: { eq: $organizationId }, userId: { eq: $userId }, status: { eq: ACTIVE } }, limit: 1) {
+    createdAt
+    status
+    user { id username email displayName phone status createdAt updatedAt lastLoginAt }
+  }
+}
+
+mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String!, $organizationId: UUID!, $roleId: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: NO_ACCESS) @transaction {
+  appUser_insert(data: { id: $userId firebaseUid: $firebaseUid username: $username email: $email displayName: $displayName phone: $phone status: ACTIVE })
+  organizationMembership_insert(data: { organizationId: $organizationId userId: $userId roleId: $roleId status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $firebaseUid action: "organization_administrator.created" targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation UpdateOrganizationAdministrator($organizationId: UUID!, $userId: UUID!, $displayName: String!, $phone: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organization_admins.update'))", message: "Administrator updates are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+    organizationMembership(key: { organizationId: $organizationId, userId: $userId }) @check(expr: "this != null", message: "Administrator is not in this organization.") { organizationId userId }
+  }
+  appUser_update(id: $userId, data: { displayName: $displayName phone: $phone updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "organization_administrator.updated" targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeOrganizationAdministratorStatus($organizationId: UUID!, $userId: UUID!, $status: AppUserStatus!, $membershipStatus: MembershipStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String = "system", $action: String = "organization_administrator.status_changed") @auth(level: NO_ACCESS) @transaction {
+  appUser_update(id: $userId, data: { status: $status updatedAt_expr: "request.time" })
+  organizationMembership_update(key: { organizationId: $organizationId, userId: $userId }, data: { status: $membershipStatus updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: $action targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+query ResolveOrganizationAdministratorIdentity($organizationId: UUID!, $appUserId: UUID!) @auth(level: NO_ACCESS) {
+  organizationMembership(key: { organizationId: $organizationId, userId: $appUserId }) {
+    organizationId
+    userId
+    status
+    user { id firebaseUid status email }
+  }
+}
+
+mutation RecordAdministratorSecurityEvent($auditId: UUID!, $actorFirebaseUid: String!, $action: String!, $targetId: UUID!, $organizationId: UUID!, $requestId: String!) @auth(level: NO_ACCESS) {
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: $action targetType: "AppUser" targetId: $targetId requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+query GetLifecycleIdempotency($idempotencyKey: String!) @auth(level: NO_ACCESS) {
+  lifecycleIdempotency(key: { idempotencyKey: $idempotencyKey }) { idempotencyKey operationType status requestFingerprint resultReference createdAt updatedAt completedAt }
+}
+
+query GetOrganizationLicense($organizationId: UUID!) @auth(level: NO_ACCESS) {
+  organizationLicenses(where: { organization: { id: { eq: $organizationId } } }) {
+    id organization { id } plan { id planCode name level maxStores maxUsers status } startDate expiryDate negotiatedPrice currency createdAt updatedAt
+  }
+}
+
+query GetOrganizationLicenseHistory($organizationId: UUID!) @auth(level: NO_ACCESS) {
+  licenseHistories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ eventAt: DESC }]) {
+    id license { id } organization { id } eventType eventAt plan { id planCode name level maxStores maxUsers } planCode planName planLevel maxStores maxUsers startDate expiryDate negotiatedPrice currency changes
+  }
+}
+
+query ListOrganizationsTrusted @auth(level: NO_ACCESS) {
+  organizations(orderBy: [{ createdAt: DESC }, { id: ASC }]) { id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt }
+}
+
+mutation AssignOrganizationLicenseTrusted($id: UUID!, $organizationId: UUID!, $planId: UUID!, $startDate: Date!, $expiryDate: Date!, $negotiatedPrice: Float!, $currency: String!, $historyId: UUID!, $planCode: String!, $planName: String!, $planLevel: Int!, $maxStores: Int!, $maxUsers: Int!, $auditId: UUID!, $actorFirebaseUid: String!, $requestId: String!) @auth(level: NO_ACCESS) @transaction {
+  organizationLicense_insert(data: { id: $id organization: { id: $organizationId } plan: { id: $planId } startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency })
+  licenseHistory_insert(data: { id: $historyId license: { id: $id } organization: { id: $organizationId } eventType: ASSIGNED plan: { id: $planId } planCode: $planCode planName: $planName planLevel: $planLevel maxStores: $maxStores maxUsers: $maxUsers startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "license.assigned" targetType: "OrganizationLicense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeOrganizationLicensePlanTrusted($id: UUID!, $organizationId: UUID!, $planId: UUID!, $startDate: Date!, $expiryDate: Date!, $negotiatedPrice: Float!, $currency: String!, $historyId: UUID!, $planCode: String!, $planName: String!, $planLevel: Int!, $maxStores: Int!, $maxUsers: Int!, $auditId: UUID!, $actorFirebaseUid: String!, $requestId: String!, $changes: Any) @auth(level: NO_ACCESS) @transaction {
+  organizationLicense_update(id: $id, data: { plan: { id: $planId } negotiatedPrice: $negotiatedPrice currency: $currency updatedAt_expr: "request.time" })
+  licenseHistory_insert(data: { id: $historyId license: { id: $id } organization: { id: $organizationId } eventType: PLAN_CHANGED plan: { id: $planId } planCode: $planCode planName: $planName planLevel: $planLevel maxStores: $maxStores maxUsers: $maxUsers startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency changes: $changes })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "license.plan_changed" targetType: "OrganizationLicense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ModifyOrganizationCommercialTermsTrusted($id: UUID!, $organizationId: UUID!, $planId: UUID!, $startDate: Date!, $expiryDate: Date!, $negotiatedPrice: Float!, $currency: String!, $historyId: UUID!, $planCode: String!, $planName: String!, $planLevel: Int!, $maxStores: Int!, $maxUsers: Int!, $auditId: UUID!, $actorFirebaseUid: String!, $requestId: String!, $changes: Any) @auth(level: NO_ACCESS) @transaction {
+  organizationLicense_update(id: $id, data: { negotiatedPrice: $negotiatedPrice currency: $currency updatedAt_expr: "request.time" })
+  licenseHistory_insert(data: { id: $historyId license: { id: $id } organization: { id: $organizationId } eventType: COMMERCIAL_TERMS_MODIFIED plan: { id: $planId } planCode: $planCode planName: $planName planLevel: $planLevel maxStores: $maxStores maxUsers: $maxUsers startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency changes: $changes })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "license.commercial_terms_modified" targetType: "OrganizationLicense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation RenewOrganizationLicenseTrusted($id: UUID!, $organizationId: UUID!, $planId: UUID!, $startDate: Date!, $expiryDate: Date!, $negotiatedPrice: Float!, $currency: String!, $historyId: UUID!, $planCode: String!, $planName: String!, $planLevel: Int!, $maxStores: Int!, $maxUsers: Int!, $auditId: UUID!, $actorFirebaseUid: String!, $requestId: String!, $changes: Any) @auth(level: NO_ACCESS) @transaction {
+  organizationLicense_update(id: $id, data: { plan: { id: $planId } startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency updatedAt_expr: "request.time" })
+  licenseHistory_insert(data: { id: $historyId license: { id: $id } organization: { id: $organizationId } eventType: RENEWED plan: { id: $planId } planCode: $planCode planName: $planName planLevel: $planLevel maxStores: $maxStores maxUsers: $maxUsers startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency changes: $changes })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "license.renewed" targetType: "OrganizationLicense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+
+
+
+
+mutation ClaimLifecycleIdempotency($idempotencyKey: String!, $operationType: String!, $requestFingerprint: String!) @auth(level: NO_ACCESS) {
+  lifecycleIdempotency_insert(data: { idempotencyKey: $idempotencyKey operationType: $operationType status: IN_PROGRESS requestFingerprint: $requestFingerprint })
+}
+
+mutation CompleteLifecycleIdempotency($idempotencyKey: String!, $status: ProvisioningAttemptStatus!, $resultReference: String) @auth(level: NO_ACCESS) {
+  lifecycleIdempotency_update(key: { idempotencyKey: $idempotencyKey }, data: { status: $status resultReference: $resultReference completedAt_expr: "request.time" updatedAt_expr: "request.time" })
+}
+
+mutation RecordProvisioningReconciliation($idempotencyKey: String!, $firebaseUid: String!, $errorClass: String!) @auth(level: NO_ACCESS) {
+  provisioningReconciliation_insert(data: { idempotencyKey: $idempotencyKey operationType: "provisionOrganizationAdministrator" firebaseUid: $firebaseUid status: "requires_reconciliation" errorClass: $errorClass })
+}
+
+mutation CreateOrganization($organizationCode: String!, $businessName: String!, $legalEntityName: String, $taxId: String, $primaryContactName: String!, $email: String!, $phone: String!, $address: String, $city: String, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.create'))", message: "Organization creation is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  }
+  organization_insert(data: { organizationCode: $organizationCode businessName: $businessName legalEntityName: $legalEntityName taxId: $taxId primaryContactName: $primaryContactName email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "organizations.created" targetType: "Organization" requestId: $requestId })
+}
+
+mutation UpdateOrganization($id: UUID!, $businessName: String!, $legalEntityName: String, $taxId: String, $primaryContactName: String!, $email: String!, $phone: String!, $address: String, $city: String, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.update'))", message: "Organization updates are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  }
+  organization_update(id: $id, data: { businessName: $businessName legalEntityName: $legalEntityName taxId: $taxId primaryContactName: $primaryContactName email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "organizations.updated" targetType: "Organization" targetId: $id requestId: $requestId })
+}
+
+mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!, $action: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.change_status'))", message: "Organization status changes are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  }
+  organization_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: $action targetType: "Organization" targetId: $id requestId: $requestId })
+}

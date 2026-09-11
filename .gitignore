@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+.firebaserc
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+dataconnect-debug.log
+emulator-data/
+functions/lib/

@@ -1,6 +1,6 @@
 import { DerivedLicenseStatus } from '../licenses/types';
 
-export type OrganizationStatus = 'active' | 'suspended' | 'pending_setup';
+export type OrganizationStatus = 'active' | 'suspended';
 
 export type LicenseStatus = DerivedLicenseStatus;
 

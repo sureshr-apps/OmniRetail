@@ -1,11 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, authService, LoginCredentials } from '@/features/auth/services/AuthService';
+import {
+  User,
+  authService,
+  LoginCredentials,
+  PasswordChange,
+  ProfileUpdate,
+} from '@/features/auth/services/AuthService';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (update: ProfileUpdate) => Promise<void>;
+  changePassword: (change: PasswordChange) => Promise<void>;
+  hasCapability: (capability: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,14 +24,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    authService.getCurrentUser().then((currentUser) => {
-      if (mounted) {
-        setUser(currentUser);
-        setIsLoading(false);
-      }
+    return authService.subscribe((currentUser) => {
+      setUser(currentUser);
+      setIsLoading(false);
     });
-    return () => { mounted = false; };
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
@@ -35,8 +40,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateProfile = async (update: ProfileUpdate) => {
+    const updatedUser = await authService.updateProfile(update);
+    setUser(updatedUser);
+  };
+
+  const changePassword = (change: PasswordChange) => authService.changePassword(change);
+  const hasCapability = (capability: string) => user?.capabilities.includes(capability) ?? false;
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      isLoading,
+      login,
+      logout,
+      updateProfile,
+      changePassword,
+      hasCapability,
+    }}>
       {children}
     </AuthContext.Provider>
   );

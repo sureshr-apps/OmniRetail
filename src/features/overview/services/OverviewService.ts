@@ -1,8 +1,5 @@
-import { mockDelay } from '@/shared/utils/mockDelay';
-import { organizationService } from '@/features/organizations/services/OrganizationService';
-import { organizationLicenseService } from '@/features/licenses/services/OrganizationLicenseService';
-import { licensePlanService } from '@/features/plans/services/LicensePlanService';
-import { calculateLicenseStatus, getDaysUntilExpiry } from '@/features/licenses/utils/licenseStatus';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { httpsCallable } from 'firebase/functions';
 import { OverviewData, OverviewMetrics, ExpiringLicenseItem } from '../types';
 
 export function formatCalendarDate(dateStr: string): string {
@@ -42,7 +39,10 @@ export interface IOverviewService {
 
 class OverviewServiceImpl implements IOverviewService {
   async getOverviewData(): Promise<OverviewData> {
-    await mockDelay(200);
+    const result = await httpsCallable(getFirebaseClientServices().functions, 'getMasterAdminOverview')({});
+    return result.data as OverviewData;
+    /* legacy mock aggregation removed */
+    /*
 
     // Fetch organizations, licenses, and plans in parallel
     const [orgsResult, allLicenses, allPlans] = await Promise.all([
@@ -114,7 +114,7 @@ class OverviewServiceImpl implements IOverviewService {
       recentlyAddedOrganizations,
       expiringLicenses,
       totalOrganizationsCount: totalOrganizations,
-    };
+    }; */
   }
 }
 

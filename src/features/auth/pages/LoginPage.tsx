@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { KeyRound, User as UserIcon, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 import { Button } from '@/shared/components/Button';
@@ -8,6 +8,7 @@ import { Label } from '@/shared/components/Label';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   
   const [username, setUsername] = useState('');
@@ -24,7 +25,8 @@ export function LoginPage() {
 
     try {
       await login({ username, password });
-      navigate('/overview');
+      const requestedPath = location.state?.from?.pathname;
+      navigate(typeof requestedPath === 'string' ? requestedPath : '/overview', { replace: true });
     } catch (err: any) {
       setError(err.message || 'An error occurred during login.');
     } finally {
@@ -62,7 +64,7 @@ export function LoginPage() {
             
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <Label htmlFor="username">Username / Email Address</Label>
+                <Label htmlFor="username">Email or Username</Label>
                 <span className="text-[11px] text-text-muted font-normal">Terminal & Web ID</span>
               </div>
               <Input
@@ -117,7 +119,7 @@ export function LoginPage() {
           <div className="mt-6 pt-3 bg-surface-subdued p-3 rounded flex items-start gap-2 border border-border-subdued/50">
             <ShieldCheck className="text-primary w-[18px] h-[18px] shrink-0 mt-0.5" />
             <p className="text-[11px] text-text-secondary leading-relaxed font-medium">
-              Enterprise Single Sign-On enabled. Roles and store access will be authenticated upon sign in.
+              Firebase verifies your credentials. Application roles are checked before access is granted.
             </p>
           </div>
         </div>

@@ -1,0 +1,180 @@
+enum AppUserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RoleScope {
+  PLATFORM
+  ORGANIZATION
+  STORE
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum LicensePlanStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum LicenseEventType {
+  ASSIGNED
+  PLAN_CHANGED
+  COMMERCIAL_TERMS_MODIFIED
+  RENEWED
+}
+
+enum ProvisioningAttemptStatus {
+  IN_PROGRESS
+  SUCCEEDED
+  FAILED_RETRYABLE
+  FAILED_TERMINAL
+  REQUIRES_RECONCILIATION
+}
+
+type LifecycleIdempotency @table(key: "idempotencyKey") {
+  idempotencyKey: String! @unique
+  operationType: String!
+  status: ProvisioningAttemptStatus!
+  requestFingerprint: String!
+  resultReference: String
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+  completedAt: Timestamp
+}
+
+type ProvisioningReconciliation @table {
+  idempotencyKey: String!
+  operationType: String!
+  firebaseUid: String!
+  status: String!
+  errorClass: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type AppUser @table {
+  firebaseUid: String! @unique
+  username: String! @unique
+  email: String! @unique
+  displayName: String!
+  phone: String
+  status: AppUserStatus! @default(value: ACTIVE)
+  lastLoginAt: Timestamp
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Role @table {
+  code: String! @unique
+  name: String!
+  description: String
+  scope: RoleScope!
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Permission @table {
+  code: String! @unique
+  name: String!
+  description: String
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type RolePermission @table(key: ["role", "permission"]) {
+  role: Role!
+  permission: Permission!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type UserRole @table(key: ["user", "role"]) {
+  user: AppUser!
+  role: Role!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type Organization @table {
+  organizationCode: String! @unique
+  businessName: String!
+  legalEntityName: String
+  taxId: String
+  primaryContactName: String!
+  email: String!
+  phone: String!
+  address: String
+  city: String
+  state: String
+  postalCode: String
+  timezone: String!
+  currency: String!
+  status: OrganizationStatus! @default(value: ACTIVE)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type OrganizationMembership @table(key: ["organization", "user"]) {
+  organization: Organization!
+  user: AppUser!
+  role: Role!
+  status: MembershipStatus! @default(value: ACTIVE)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type LicensePlan @table {
+  planCode: String! @unique
+  name: String!
+  description: String
+  level: Int! @unique
+  maxStores: Int!
+  maxUsers: Int!
+  status: LicensePlanStatus! @default(value: ACTIVE)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type OrganizationLicense @table {
+  organization: Organization! @unique
+  plan: LicensePlan!
+  startDate: Date!
+  expiryDate: Date!
+  negotiatedPrice: Float! @col(dataType: "numeric(19,2)")
+  currency: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type LicenseHistory @table {
+  license: OrganizationLicense!
+  organization: Organization!
+  eventType: LicenseEventType!
+  eventAt: Timestamp! @default(expr: "request.time")
+  plan: LicensePlan!
+  planCode: String!
+  planName: String!
+  planLevel: Int!
+  maxStores: Int!
+  maxUsers: Int!
+  startDate: Date!
+  expiryDate: Date!
+  negotiatedPrice: Float! @col(dataType: "numeric(19,2)")
+  currency: String!
+  changes: Any
+}
+
+type AuditEvent @table {
+  actor: AppUser
+  actorFirebaseUid: String
+  action: String!
+  targetType: String!
+  targetId: UUID
+  occurredAt: Timestamp! @default(expr: "request.time")
+  requestId: String @unique
+  metadata: Any
+}

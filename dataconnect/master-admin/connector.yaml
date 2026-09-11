@@ -1,0 +1,12 @@
+connectorId: "master-admin"
+generate:
+  javascriptSdk:
+    outputDir: "../../src/generated/sql-connect"
+    package: "@omniretail/sql-connect"
+    react: true
+    clientCache:
+      maxAge: "0"
+      storage: "memory"
+  adminNodeSdk:
+    outputDir: "../../functions/src/generated/sql-connect"
+    package: "@omniretail/sql-connect-admin"

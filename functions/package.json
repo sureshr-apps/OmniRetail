@@ -1,0 +1,23 @@
+{
+  "name": "omniretail-functions",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "lib/index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "bootstrap:master-admin": "npm run build && node lib/scripts/bootstrap-master-admin.js"
+  },
+  "dependencies": {
+    "@omniretail/sql-connect-admin": "file:src/generated/sql-connect",
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.3.2"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.2"
+  }
+}

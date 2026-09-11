@@ -1,0 +1,5 @@
+mutation SeedCanonicalPlans @auth(level: NO_ACCESS) @transaction {
+  starter: licensePlan_upsert(data: { id: "10000000-0000-4000-8000-000000000001", planCode: "PLN-001-STARTER", name: "Starter", description: "Essential capacity for smaller retail businesses", level: 1, maxStores: 1, maxUsers: 5, status: ACTIVE })
+  professional: licensePlan_upsert(data: { id: "10000000-0000-4000-8000-000000000002", planCode: "PLN-002-PROFESSIONAL", name: "Professional", description: "For growing multi-store retail businesses requiring coordinated multi-outlet operations", level: 2, maxStores: 5, maxUsers: 25, status: ACTIVE })
+  enterprise: licensePlan_upsert(data: { id: "10000000-0000-4000-8000-000000000003", planCode: "PLN-003-ENTERPRISE", name: "Enterprise", description: "Higher capacity for larger retail operations and multi-tier logistics", level: 3, maxStores: 20, maxUsers: 100, status: ACTIVE })
+}

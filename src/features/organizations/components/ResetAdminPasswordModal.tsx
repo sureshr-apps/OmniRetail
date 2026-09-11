@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyRound, CheckCircle2, AlertCircle, Copy, Check } from 'lucide-react';
+import { KeyRound, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Modal } from '@/shared/components/Modal';
 import { Button } from '@/shared/components/Button';
 import { OrganizationAdministrator } from '../types';
@@ -24,15 +24,12 @@ export function ResetAdminPasswordModal({
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{
     message: string;
-    temporaryOtpPreview?: string;
   } | null>(null);
-  const [hasCopied, setHasCopied] = useState(false);
 
   const handleClose = () => {
     if (!isSubmitting) {
       setResult(null);
       setError(null);
-      setHasCopied(false);
       onClose();
     }
   };
@@ -44,20 +41,11 @@ export function ResetAdminPasswordModal({
       const res = await organizationAdminService.resetPassword(organizationId, admin.id);
       setResult({
         message: res.message,
-        temporaryOtpPreview: res.temporaryOtpPreview,
       });
     } catch (err: any) {
       setError(err.message || 'Failed to dispatch password reset. Please try again.');
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handleCopyCode = () => {
-    if (result?.temporaryOtpPreview) {
-      navigator.clipboard.writeText(result.temporaryOtpPreview);
-      setHasCopied(true);
-      setTimeout(() => setHasCopied(false), 2000);
     }
   };
 
@@ -135,40 +123,6 @@ export function ResetAdminPasswordModal({
                 <p className="text-text-secondary leading-relaxed">{result.message}</p>
               </div>
             </div>
-
-            {/* Mock security token preview for verification */}
-            {result.temporaryOtpPreview && (
-              <div className="bg-surface-subdued border border-border-structural rounded p-3 text-xs space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted text-[11px] font-medium">
-                    Provisional Setup Token (Test Environment):
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyCode}
-                    className="inline-flex items-center gap-1 text-[11px] text-primary hover:text-primary-active font-semibold"
-                  >
-                    {hasCopied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-700">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy Code</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-                <div className="font-mono text-sm font-bold text-text-primary tracking-wider bg-surface-elevated px-2.5 py-1.5 rounded border border-border-structural">
-                  {result.temporaryOtpPreview}
-                </div>
-                <p className="text-[10px] text-text-muted">
-                  Note: In a production environment, this token is solely transmitted out-of-band via SMTP or SMS gateway and never shown in administrative client logs.
-                </p>
-              </div>
-            )}
 
             <div className="flex items-center justify-end pt-2 border-t border-border-subdued">
               <Button type="button" variant="primary" onClick={handleClose} className="text-xs">

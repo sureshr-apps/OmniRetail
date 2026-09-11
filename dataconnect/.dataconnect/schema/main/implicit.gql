@@ -1,0 +1,102 @@
+extend type AppUser {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "AppUser", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type AuditEvent {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "AuditEvent", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `AuditEvent`.`actor`. It must match the value of `AppUser`.`id`. See `@ref` for how to customize it.
+  """
+  actorId: UUID @fdc_generated(from: "AuditEvent.actor", purpose: IMPLICIT_REF_FIELD)
+}
+extend type LicenseHistory {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "LicenseHistory", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LicenseHistory`.`organization`. It must match the value of `Organization`.`id`. See `@ref` for how to customize it.
+  """
+  organizationId: UUID! @fdc_generated(from: "LicenseHistory.organization", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LicenseHistory`.`plan`. It must match the value of `LicensePlan`.`id`. See `@ref` for how to customize it.
+  """
+  planId: UUID! @fdc_generated(from: "LicenseHistory.plan", purpose: IMPLICIT_REF_FIELD)
+}
+extend type LicensePlan {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "LicensePlan", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type Organization {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Organization", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type OrganizationLicense {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "OrganizationLicense", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `OrganizationLicense`.`organization`. It must match the value of `Organization`.`id`. See `@ref` for how to customize it.
+  """
+  organizationId: UUID! @fdc_generated(from: "OrganizationLicense.organization", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `OrganizationLicense`.`plan`. It must match the value of `LicensePlan`.`id`. See `@ref` for how to customize it.
+  """
+  planId: UUID! @fdc_generated(from: "OrganizationLicense.plan", purpose: IMPLICIT_REF_FIELD)
+}
+extend type OrganizationMembership {
+  """
+  ✨ Implicit foreign key field based on `OrganizationMembership`.`organization`. It must match the value of `Organization`.`id`. See `@ref` for how to customize it.
+  """
+  organizationId: UUID! @fdc_generated(from: "OrganizationMembership.organization", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `OrganizationMembership`.`user`. It must match the value of `AppUser`.`id`. See `@ref` for how to customize it.
+  """
+  userId: UUID! @fdc_generated(from: "OrganizationMembership.user", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `OrganizationMembership`.`role`. It must match the value of `Role`.`id`. See `@ref` for how to customize it.
+  """
+  roleId: UUID! @fdc_generated(from: "OrganizationMembership.role", purpose: IMPLICIT_REF_FIELD)
+}
+extend type Permission {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Permission", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type Role {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Role", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type RolePermission {
+  """
+  ✨ Implicit foreign key field based on `RolePermission`.`role`. It must match the value of `Role`.`id`. See `@ref` for how to customize it.
+  """
+  roleId: UUID! @fdc_generated(from: "RolePermission.role", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `RolePermission`.`permission`. It must match the value of `Permission`.`id`. See `@ref` for how to customize it.
+  """
+  permissionId: UUID! @fdc_generated(from: "RolePermission.permission", purpose: IMPLICIT_REF_FIELD)
+}
+extend type UserRole {
+  """
+  ✨ Implicit foreign key field based on `UserRole`.`user`. It must match the value of `AppUser`.`id`. See `@ref` for how to customize it.
+  """
+  userId: UUID! @fdc_generated(from: "UserRole.user", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `UserRole`.`role`. It must match the value of `Role`.`id`. See `@ref` for how to customize it.
+  """
+  roleId: UUID! @fdc_generated(from: "UserRole.role", purpose: IMPLICIT_REF_FIELD)
+}

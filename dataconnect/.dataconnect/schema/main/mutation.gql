@@ -1,0 +1,1204 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `AppUser` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  appUser_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AppUser_Data!
+  ): AppUser_KeyOutput! @fdc_generated(from: "AppUser", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `AuditEvent` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  auditEvent_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: AuditEvent_Data!
+  ): AuditEvent_KeyOutput! @fdc_generated(from: "AuditEvent", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `LicenseHistory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  licenseHistory_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: LicenseHistory_Data!
+  ): LicenseHistory_KeyOutput! @fdc_generated(from: "LicenseHistory", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `LicensePlan` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  licensePlan_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: LicensePlan_Data!
+  ): LicensePlan_KeyOutput! @fdc_generated(from: "LicensePlan", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Organization` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  organization_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Organization_Data!
+  ): Organization_KeyOutput! @fdc_generated(from: "Organization", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `OrganizationLicense` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  organizationLicense_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: OrganizationLicense_Data!
+  ): OrganizationLicense_KeyOutput! @fdc_generated(from: "OrganizationLicense", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `OrganizationMembership` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  organizationMembership_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: OrganizationMembership_Data!
+  ): OrganizationMembership_KeyOutput! @fdc_generated(from: "OrganizationMembership", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Permission` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  permission_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Permission_Data!
+  ): Permission_KeyOutput! @fdc_generated(from: "Permission", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Role` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  role_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Role_Data!
+  ): Role_KeyOutput! @fdc_generated(from: "Role", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `RolePermission` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  rolePermission_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: RolePermission_Data!
+  ): RolePermission_KeyOutput! @fdc_generated(from: "RolePermission", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `UserRole` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  userRole_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: UserRole_Data!
+  ): UserRole_KeyOutput! @fdc_generated(from: "UserRole", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `AppUser` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  appUser_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AppUser_Data!]!
+  ): [AppUser_KeyOutput!]! @fdc_generated(from: "AppUser", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `AuditEvent` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  auditEvent_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [AuditEvent_Data!]!
+  ): [AuditEvent_KeyOutput!]! @fdc_generated(from: "AuditEvent", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `LicenseHistory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  licenseHistory_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [LicenseHistory_Data!]!
+  ): [LicenseHistory_KeyOutput!]! @fdc_generated(from: "LicenseHistory", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `LicensePlan` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  licensePlan_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [LicensePlan_Data!]!
+  ): [LicensePlan_KeyOutput!]! @fdc_generated(from: "LicensePlan", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Organization` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  organization_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Organization_Data!]!
+  ): [Organization_KeyOutput!]! @fdc_generated(from: "Organization", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `OrganizationLicense` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  organizationLicense_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [OrganizationLicense_Data!]!
+  ): [OrganizationLicense_KeyOutput!]! @fdc_generated(from: "OrganizationLicense", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `OrganizationMembership` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  organizationMembership_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [OrganizationMembership_Data!]!
+  ): [OrganizationMembership_KeyOutput!]! @fdc_generated(from: "OrganizationMembership", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Permission` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  permission_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Permission_Data!]!
+  ): [Permission_KeyOutput!]! @fdc_generated(from: "Permission", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Role` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  role_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Role_Data!]!
+  ): [Role_KeyOutput!]! @fdc_generated(from: "Role", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `RolePermission` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  rolePermission_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [RolePermission_Data!]!
+  ): [RolePermission_KeyOutput!]! @fdc_generated(from: "RolePermission", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `UserRole` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  userRole_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [UserRole_Data!]!
+  ): [UserRole_KeyOutput!]! @fdc_generated(from: "UserRole", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `AppUser` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AppUser`.
+  """
+  appUser_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AppUser_Data!
+  ): AppUser_KeyOutput! @fdc_generated(from: "AppUser", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `AuditEvent` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AuditEvent`.
+  """
+  auditEvent_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: AuditEvent_Data!
+  ): AuditEvent_KeyOutput! @fdc_generated(from: "AuditEvent", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `LicenseHistory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LicenseHistory`.
+  """
+  licenseHistory_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: LicenseHistory_Data!
+  ): LicenseHistory_KeyOutput! @fdc_generated(from: "LicenseHistory", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `LicensePlan` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LicensePlan`.
+  """
+  licensePlan_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: LicensePlan_Data!
+  ): LicensePlan_KeyOutput! @fdc_generated(from: "LicensePlan", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Organization` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Organization`.
+  """
+  organization_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Organization_Data!
+  ): Organization_KeyOutput! @fdc_generated(from: "Organization", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `OrganizationLicense` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `OrganizationLicense`.
+  """
+  organizationLicense_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: OrganizationLicense_Data!
+  ): OrganizationLicense_KeyOutput! @fdc_generated(from: "OrganizationLicense", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `OrganizationMembership` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `OrganizationMembership`.
+  """
+  organizationMembership_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: OrganizationMembership_Data!
+  ): OrganizationMembership_KeyOutput! @fdc_generated(from: "OrganizationMembership", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Permission` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Permission`.
+  """
+  permission_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Permission_Data!
+  ): Permission_KeyOutput! @fdc_generated(from: "Permission", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Role` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Role`.
+  """
+  role_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Role_Data!
+  ): Role_KeyOutput! @fdc_generated(from: "Role", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `RolePermission` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RolePermission`.
+  """
+  rolePermission_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: RolePermission_Data!
+  ): RolePermission_KeyOutput! @fdc_generated(from: "RolePermission", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `UserRole` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `UserRole`.
+  """
+  userRole_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: UserRole_Data!
+  ): UserRole_KeyOutput! @fdc_generated(from: "UserRole", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `AppUser` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AppUser`.
+  """
+  appUser_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AppUser_Data!]!
+  ): [AppUser_KeyOutput!]! @fdc_generated(from: "AppUser", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `AuditEvent` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `AuditEvent`.
+  """
+  auditEvent_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [AuditEvent_Data!]!
+  ): [AuditEvent_KeyOutput!]! @fdc_generated(from: "AuditEvent", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `LicenseHistory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LicenseHistory`.
+  """
+  licenseHistory_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [LicenseHistory_Data!]!
+  ): [LicenseHistory_KeyOutput!]! @fdc_generated(from: "LicenseHistory", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `LicensePlan` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LicensePlan`.
+  """
+  licensePlan_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [LicensePlan_Data!]!
+  ): [LicensePlan_KeyOutput!]! @fdc_generated(from: "LicensePlan", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Organization` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Organization`.
+  """
+  organization_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Organization_Data!]!
+  ): [Organization_KeyOutput!]! @fdc_generated(from: "Organization", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `OrganizationLicense` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `OrganizationLicense`.
+  """
+  organizationLicense_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [OrganizationLicense_Data!]!
+  ): [OrganizationLicense_KeyOutput!]! @fdc_generated(from: "OrganizationLicense", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `OrganizationMembership` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `OrganizationMembership`.
+  """
+  organizationMembership_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [OrganizationMembership_Data!]!
+  ): [OrganizationMembership_KeyOutput!]! @fdc_generated(from: "OrganizationMembership", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Permission` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Permission`.
+  """
+  permission_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Permission_Data!]!
+  ): [Permission_KeyOutput!]! @fdc_generated(from: "Permission", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Role` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Role`.
+  """
+  role_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Role_Data!]!
+  ): [Role_KeyOutput!]! @fdc_generated(from: "Role", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `RolePermission` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RolePermission`.
+  """
+  rolePermission_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [RolePermission_Data!]!
+  ): [RolePermission_KeyOutput!]! @fdc_generated(from: "RolePermission", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `UserRole` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `UserRole`.
+  """
+  userRole_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [UserRole_Data!]!
+  ): [UserRole_KeyOutput!]! @fdc_generated(from: "UserRole", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `AppUser` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AppUser` or `null` if not found.
+  """
+  appUser_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AppUser_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AppUser_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AppUser_Data!
+  ): AppUser_KeyOutput @fdc_generated(from: "AppUser", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `AuditEvent` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `AuditEvent` or `null` if not found.
+  """
+  auditEvent_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AuditEvent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AuditEvent_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: AuditEvent_Data!
+  ): AuditEvent_KeyOutput @fdc_generated(from: "AuditEvent", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `LicenseHistory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `LicenseHistory` or `null` if not found.
+  """
+  licenseHistory_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LicenseHistory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LicenseHistory_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: LicenseHistory_Data!
+  ): LicenseHistory_KeyOutput @fdc_generated(from: "LicenseHistory", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `LicensePlan` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `LicensePlan` or `null` if not found.
+  """
+  licensePlan_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LicensePlan_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LicensePlan_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: LicensePlan_Data!
+  ): LicensePlan_KeyOutput @fdc_generated(from: "LicensePlan", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Organization` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Organization` or `null` if not found.
+  """
+  organization_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Organization_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Organization_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Organization_Data!
+  ): Organization_KeyOutput @fdc_generated(from: "Organization", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `OrganizationLicense` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `OrganizationLicense` or `null` if not found.
+  """
+  organizationLicense_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: OrganizationLicense_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: OrganizationLicense_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: OrganizationLicense_Data!
+  ): OrganizationLicense_KeyOutput @fdc_generated(from: "OrganizationLicense", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `OrganizationMembership` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `OrganizationMembership` or `null` if not found.
+  """
+  organizationMembership_update(
+    """
+    The key used to identify the object.
+    """
+    key: OrganizationMembership_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: OrganizationMembership_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: OrganizationMembership_Data!
+  ): OrganizationMembership_KeyOutput @fdc_generated(from: "OrganizationMembership", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Permission` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Permission` or `null` if not found.
+  """
+  permission_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Permission_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Permission_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Permission_Data!
+  ): Permission_KeyOutput @fdc_generated(from: "Permission", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Role` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Role` or `null` if not found.
+  """
+  role_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Role_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Role_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Role_Data!
+  ): Role_KeyOutput @fdc_generated(from: "Role", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `RolePermission` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `RolePermission` or `null` if not found.
+  """
+  rolePermission_update(
+    """
+    The key used to identify the object.
+    """
+    key: RolePermission_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RolePermission_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: RolePermission_Data!
+  ): RolePermission_KeyOutput @fdc_generated(from: "RolePermission", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `UserRole` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `UserRole` or `null` if not found.
+  """
+  userRole_update(
+    """
+    The key used to identify the object.
+    """
+    key: UserRole_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: UserRole_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: UserRole_Data!
+  ): UserRole_KeyOutput @fdc_generated(from: "UserRole", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `AppUser` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  appUser_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AppUser_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AppUser_Data!
+  ): Int! @fdc_generated(from: "AppUser", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `AuditEvent` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  auditEvent_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: AuditEvent_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: AuditEvent_Data!
+  ): Int! @fdc_generated(from: "AuditEvent", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `LicenseHistory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  licenseHistory_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: LicenseHistory_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: LicenseHistory_Data!
+  ): Int! @fdc_generated(from: "LicenseHistory", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `LicensePlan` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  licensePlan_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: LicensePlan_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: LicensePlan_Data!
+  ): Int! @fdc_generated(from: "LicensePlan", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Organization` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  organization_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Organization_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Organization_Data!
+  ): Int! @fdc_generated(from: "Organization", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `OrganizationLicense` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  organizationLicense_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: OrganizationLicense_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: OrganizationLicense_Data!
+  ): Int! @fdc_generated(from: "OrganizationLicense", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `OrganizationMembership` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  organizationMembership_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: OrganizationMembership_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: OrganizationMembership_Data!
+  ): Int! @fdc_generated(from: "OrganizationMembership", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Permission` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  permission_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Permission_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Permission_Data!
+  ): Int! @fdc_generated(from: "Permission", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Role` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  role_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Role_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Role_Data!
+  ): Int! @fdc_generated(from: "Role", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `RolePermission` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  rolePermission_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: RolePermission_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: RolePermission_Data!
+  ): Int! @fdc_generated(from: "RolePermission", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `UserRole` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  userRole_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: UserRole_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: UserRole_Data!
+  ): Int! @fdc_generated(from: "UserRole", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `AppUser` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  appUser_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AppUser_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AppUser_FirstRow
+  ): AppUser_KeyOutput @fdc_generated(from: "AppUser", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `AuditEvent` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  auditEvent_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AuditEvent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AuditEvent_FirstRow
+  ): AuditEvent_KeyOutput @fdc_generated(from: "AuditEvent", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `LicenseHistory` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  licenseHistory_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LicenseHistory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LicenseHistory_FirstRow
+  ): LicenseHistory_KeyOutput @fdc_generated(from: "LicenseHistory", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `LicensePlan` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  licensePlan_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LicensePlan_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LicensePlan_FirstRow
+  ): LicensePlan_KeyOutput @fdc_generated(from: "LicensePlan", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Organization` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  organization_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Organization_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Organization_FirstRow
+  ): Organization_KeyOutput @fdc_generated(from: "Organization", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `OrganizationLicense` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  organizationLicense_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: OrganizationLicense_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: OrganizationLicense_FirstRow
+  ): OrganizationLicense_KeyOutput @fdc_generated(from: "OrganizationLicense", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `OrganizationMembership` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  organizationMembership_delete(
+    """
+    The key used to identify the object.
+    """
+    key: OrganizationMembership_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: OrganizationMembership_FirstRow
+  ): OrganizationMembership_KeyOutput @fdc_generated(from: "OrganizationMembership", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Permission` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  permission_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Permission_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Permission_FirstRow
+  ): Permission_KeyOutput @fdc_generated(from: "Permission", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Role` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  role_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Role_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Role_FirstRow
+  ): Role_KeyOutput @fdc_generated(from: "Role", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `RolePermission` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  rolePermission_delete(
+    """
+    The key used to identify the object.
+    """
+    key: RolePermission_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RolePermission_FirstRow
+  ): RolePermission_KeyOutput @fdc_generated(from: "RolePermission", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `UserRole` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  userRole_delete(
+    """
+    The key used to identify the object.
+    """
+    key: UserRole_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: UserRole_FirstRow
+  ): UserRole_KeyOutput @fdc_generated(from: "UserRole", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `AppUser` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  appUser_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AppUser_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AppUser", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `AuditEvent` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  auditEvent_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: AuditEvent_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "AuditEvent", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `LicenseHistory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  licenseHistory_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: LicenseHistory_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "LicenseHistory", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `LicensePlan` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  licensePlan_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: LicensePlan_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "LicensePlan", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Organization` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  organization_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Organization_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Organization", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `OrganizationLicense` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  organizationLicense_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: OrganizationLicense_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "OrganizationLicense", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `OrganizationMembership` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  organizationMembership_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: OrganizationMembership_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "OrganizationMembership", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Permission` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  permission_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Permission_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Permission", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Role` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  role_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Role_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Role", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `RolePermission` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  rolePermission_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: RolePermission_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "RolePermission", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `UserRole` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  userRole_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: UserRole_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "UserRole", purpose: DELETE_MULTIPLE)
+}

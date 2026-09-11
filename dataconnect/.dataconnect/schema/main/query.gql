@@ -1,0 +1,570 @@
+extend type Query {
+  """
+  ✨ Look up a single `AppUser` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  appUser(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AppUser_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AppUser_FirstRow
+  ): AppUser @fdc_generated(from: "AppUser", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `AuditEvent` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  auditEvent(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: AuditEvent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: AuditEvent_FirstRow
+  ): AuditEvent @fdc_generated(from: "AuditEvent", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `LicenseHistory` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  licenseHistory(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LicenseHistory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LicenseHistory_FirstRow
+  ): LicenseHistory @fdc_generated(from: "LicenseHistory", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `LicensePlan` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  licensePlan(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LicensePlan_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LicensePlan_FirstRow
+  ): LicensePlan @fdc_generated(from: "LicensePlan", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Organization` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  organization(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Organization_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Organization_FirstRow
+  ): Organization @fdc_generated(from: "Organization", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `OrganizationLicense` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  organizationLicense(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: OrganizationLicense_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: OrganizationLicense_FirstRow
+  ): OrganizationLicense @fdc_generated(from: "OrganizationLicense", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `OrganizationMembership` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  organizationMembership(
+    """
+    The key used to identify the object.
+    """
+    key: OrganizationMembership_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: OrganizationMembership_FirstRow
+  ): OrganizationMembership @fdc_generated(from: "OrganizationMembership", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Permission` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  permission(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Permission_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Permission_FirstRow
+  ): Permission @fdc_generated(from: "Permission", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Role` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  role(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Role_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Role_FirstRow
+  ): Role @fdc_generated(from: "Role", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `RolePermission` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  rolePermission(
+    """
+    The key used to identify the object.
+    """
+    key: RolePermission_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RolePermission_FirstRow
+  ): RolePermission @fdc_generated(from: "RolePermission", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `UserRole` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  userRole(
+    """
+    The key used to identify the object.
+    """
+    key: UserRole_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: UserRole_FirstRow
+  ): UserRole @fdc_generated(from: "UserRole", purpose: QUERY_SINGLE)
+  """
+  ✨ List `AppUser` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  appUsers(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AppUser_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AppUser_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AppUser_Having
+  ): [AppUser!]! @fdc_generated(from: "AppUser", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `AuditEvent` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  auditEvents(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: AuditEvent_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [AuditEvent_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: AuditEvent_Having
+  ): [AuditEvent!]! @fdc_generated(from: "AuditEvent", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `LicenseHistory` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  licenseHistories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: LicenseHistory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [LicenseHistory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: LicenseHistory_Having
+  ): [LicenseHistory!]! @fdc_generated(from: "LicenseHistory", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `LicensePlan` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  licensePlans(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: LicensePlan_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [LicensePlan_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: LicensePlan_Having
+  ): [LicensePlan!]! @fdc_generated(from: "LicensePlan", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Organization` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  organizations(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Organization_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Organization_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Organization_Having
+  ): [Organization!]! @fdc_generated(from: "Organization", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `OrganizationLicense` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  organizationLicenses(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: OrganizationLicense_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [OrganizationLicense_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: OrganizationLicense_Having
+  ): [OrganizationLicense!]! @fdc_generated(from: "OrganizationLicense", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `OrganizationMembership` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  organizationMemberships(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: OrganizationMembership_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [OrganizationMembership_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: OrganizationMembership_Having
+  ): [OrganizationMembership!]! @fdc_generated(from: "OrganizationMembership", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Permission` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  permissions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Permission_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Permission_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Permission_Having
+  ): [Permission!]! @fdc_generated(from: "Permission", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Role` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  roles(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Role_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Role_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Role_Having
+  ): [Role!]! @fdc_generated(from: "Role", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `RolePermission` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  rolePermissions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: RolePermission_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [RolePermission_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: RolePermission_Having
+  ): [RolePermission!]! @fdc_generated(from: "RolePermission", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `UserRole` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  userRoles(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: UserRole_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [UserRole_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: UserRole_Having
+  ): [UserRole!]! @fdc_generated(from: "UserRole", purpose: QUERY_MULTIPLE)
+}

@@ -10,7 +10,6 @@ import {
   Mail,
   Phone,
   FileText,
-  CheckCircle2,
   ExternalLink,
 } from 'lucide-react';
 import { Organization } from '../types';
@@ -268,25 +267,6 @@ export function OrganizationOverviewTab({
           </div>
         </div>
 
-        {/* Cloud Connectivity Status Box */}
-        <div className="bg-surface-elevated rounded-lg border border-border-subdued p-4 shadow-xs">
-          <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <div className="text-xs space-y-1 flex-1">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-text-primary">Cloud Gateway Connectivity</span>
-                <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                  LATENCY 18ms
-                </span>
-              </div>
-              <p className="text-text-muted text-[11px] leading-relaxed">
-                Real-time WebSocket POS sync and catalog replication services are nominal for this tenant cluster.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

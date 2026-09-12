@@ -385,6 +385,32 @@ export function getOrganizationLicenseHistory(dcOrVars, varsOrOptions, options) 
   return executeQuery(getOrganizationLicenseHistoryRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const getOrganizationLicensePublicRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetOrganizationLicensePublic', inputVars);
+}
+getOrganizationLicensePublicRef.operationName = 'GetOrganizationLicensePublic';
+
+export function getOrganizationLicensePublic(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getOrganizationLicensePublicRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const getOrganizationLicenseHistoryPublicRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetOrganizationLicenseHistoryPublic', inputVars);
+}
+getOrganizationLicenseHistoryPublicRef.operationName = 'GetOrganizationLicenseHistoryPublic';
+
+export function getOrganizationLicenseHistoryPublic(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getOrganizationLicenseHistoryPublicRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const listOrganizationsTrustedRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();

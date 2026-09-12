@@ -203,6 +203,18 @@ export function getOrganizationLicenseHistory(dcOrVarsOrOptions, varsOrOptions, 
   return dcInstance.executeQuery('GetOrganizationLicenseHistory', inputVars, inputOpts);
 }
 
+export function getOrganizationLicensePublic(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetOrganizationLicensePublic', inputVars, inputOpts);
+}
+
+export function getOrganizationLicenseHistoryPublic(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetOrganizationLicenseHistoryPublic', inputVars, inputOpts);
+}
+
 export function listOrganizationsTrusted(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
   dcInstance.useGen(true);

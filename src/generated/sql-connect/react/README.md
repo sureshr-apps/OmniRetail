@@ -33,6 +33,8 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*GetLifecycleIdempotency*](#getlifecycleidempotency)
   - [*GetOrganizationLicense*](#getorganizationlicense)
   - [*GetOrganizationLicenseHistory*](#getorganizationlicensehistory)
+  - [*GetOrganizationLicensePublic*](#getorganizationlicensepublic)
+  - [*GetOrganizationLicenseHistoryPublic*](#getorganizationlicensehistorypublic)
   - [*ListOrganizationsTrusted*](#listorganizationstrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
@@ -1621,6 +1623,218 @@ export default function GetOrganizationLicenseHistoryComponent() {
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
   const query = useGetOrganizationLicenseHistory(dataConnect, getOrganizationLicenseHistoryVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.licenseHistories);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetOrganizationLicensePublic
+You can execute the `GetOrganizationLicensePublic` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetOrganizationLicensePublic(dc: DataConnect, vars: GetOrganizationLicensePublicVariables, options?: useDataConnectQueryOptions<GetOrganizationLicensePublicData>): UseDataConnectQueryResult<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetOrganizationLicensePublic(vars: GetOrganizationLicensePublicVariables, options?: useDataConnectQueryOptions<GetOrganizationLicensePublicData>): UseDataConnectQueryResult<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
+```
+
+### Variables
+The `GetOrganizationLicensePublic` Query requires an argument of type `GetOrganizationLicensePublicVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetOrganizationLicensePublicVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetOrganizationLicensePublic` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetOrganizationLicensePublic` Query is of type `GetOrganizationLicensePublicData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetOrganizationLicensePublicData {
+  organizationLicenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+      status: LicensePlanStatus;
+    } & LicensePlan_Key;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & OrganizationLicense_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetOrganizationLicensePublic`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetOrganizationLicensePublicVariables } from '@omniretail/sql-connect';
+import { useGetOrganizationLicensePublic } from '@omniretail/sql-connect/react'
+
+export default function GetOrganizationLicensePublicComponent() {
+  // The `useGetOrganizationLicensePublic` Query hook requires an argument of type `GetOrganizationLicensePublicVariables`:
+  const getOrganizationLicensePublicVars: GetOrganizationLicensePublicVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetOrganizationLicensePublic(getOrganizationLicensePublicVars);
+  // Variables can be defined inline as well.
+  const query = useGetOrganizationLicensePublic({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetOrganizationLicensePublic(dataConnect, getOrganizationLicensePublicVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationLicensePublic(getOrganizationLicensePublicVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationLicensePublic(dataConnect, getOrganizationLicensePublicVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationLicenses);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetOrganizationLicenseHistoryPublic
+You can execute the `GetOrganizationLicenseHistoryPublic` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetOrganizationLicenseHistoryPublic(dc: DataConnect, vars: GetOrganizationLicenseHistoryPublicVariables, options?: useDataConnectQueryOptions<GetOrganizationLicenseHistoryPublicData>): UseDataConnectQueryResult<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetOrganizationLicenseHistoryPublic(vars: GetOrganizationLicenseHistoryPublicVariables, options?: useDataConnectQueryOptions<GetOrganizationLicenseHistoryPublicData>): UseDataConnectQueryResult<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
+```
+
+### Variables
+The `GetOrganizationLicenseHistoryPublic` Query requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetOrganizationLicenseHistoryPublicVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetOrganizationLicenseHistoryPublic` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetOrganizationLicenseHistoryPublic` Query is of type `GetOrganizationLicenseHistoryPublicData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetOrganizationLicenseHistoryPublicData {
+  licenseHistories: ({
+    id: UUIDString;
+    license: {
+      id: UUIDString;
+    } & OrganizationLicense_Key;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    eventType: LicenseEventType;
+    eventAt: TimestampString;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+    } & LicensePlan_Key;
+    planCode: string;
+    planName: string;
+    planLevel: number;
+    maxStores: number;
+    maxUsers: number;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    changes?: unknown | null;
+  } & LicenseHistory_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetOrganizationLicenseHistoryPublic`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetOrganizationLicenseHistoryPublicVariables } from '@omniretail/sql-connect';
+import { useGetOrganizationLicenseHistoryPublic } from '@omniretail/sql-connect/react'
+
+export default function GetOrganizationLicenseHistoryPublicComponent() {
+  // The `useGetOrganizationLicenseHistoryPublic` Query hook requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`:
+  const getOrganizationLicenseHistoryPublicVars: GetOrganizationLicenseHistoryPublicVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetOrganizationLicenseHistoryPublic(getOrganizationLicenseHistoryPublicVars);
+  // Variables can be defined inline as well.
+  const query = useGetOrganizationLicenseHistoryPublic({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetOrganizationLicenseHistoryPublic(dataConnect, getOrganizationLicenseHistoryPublicVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationLicenseHistoryPublic(getOrganizationLicenseHistoryPublicVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationLicenseHistoryPublic(dataConnect, getOrganizationLicenseHistoryPublicVars, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {

@@ -427,7 +427,71 @@ export interface GetOrganizationLicenseHistoryData {
   } & LicenseHistory_Key)[];
 }
 
+export interface GetOrganizationLicenseHistoryPublicData {
+  licenseHistories: ({
+    id: UUIDString;
+    license: {
+      id: UUIDString;
+    } & OrganizationLicense_Key;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    eventType: LicenseEventType;
+    eventAt: TimestampString;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+    } & LicensePlan_Key;
+    planCode: string;
+    planName: string;
+    planLevel: number;
+    maxStores: number;
+    maxUsers: number;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    changes?: unknown | null;
+  } & LicenseHistory_Key)[];
+}
+
+export interface GetOrganizationLicenseHistoryPublicVariables {
+  organizationId: UUIDString;
+}
+
 export interface GetOrganizationLicenseHistoryVariables {
+  organizationId: UUIDString;
+}
+
+export interface GetOrganizationLicensePublicData {
+  organizationLicenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+      status: LicensePlanStatus;
+    } & LicensePlan_Key;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & OrganizationLicense_Key)[];
+}
+
+export interface GetOrganizationLicensePublicVariables {
   organizationId: UUIDString;
 }
 
@@ -955,6 +1019,16 @@ export function getOrganizationLicense(vars: GetOrganizationLicenseVariables, op
 export function getOrganizationLicenseHistory(dc: DataConnect, vars: GetOrganizationLicenseHistoryVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseHistoryData>>;
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicenseHistory' Query. Allow users to pass in custom DataConnect instances. */
 export function getOrganizationLicenseHistory(vars: GetOrganizationLicenseHistoryVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseHistoryData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationLicensePublic' Query. Allow users to execute without passing in DataConnect. */
+export function getOrganizationLicensePublic(dc: DataConnect, vars: GetOrganizationLicensePublicVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicensePublicData>>;
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationLicensePublic' Query. Allow users to pass in custom DataConnect instances. */
+export function getOrganizationLicensePublic(vars: GetOrganizationLicensePublicVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicensePublicData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationLicenseHistoryPublic' Query. Allow users to execute without passing in DataConnect. */
+export function getOrganizationLicenseHistoryPublic(dc: DataConnect, vars: GetOrganizationLicenseHistoryPublicVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseHistoryPublicData>>;
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationLicenseHistoryPublic' Query. Allow users to pass in custom DataConnect instances. */
+export function getOrganizationLicenseHistoryPublic(vars: GetOrganizationLicenseHistoryPublicVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseHistoryPublicData>>;
 
 /** Generated Node Admin SDK operation action function for the 'ListOrganizationsTrusted' Query. Allow users to execute without passing in DataConnect. */
 export function listOrganizationsTrusted(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsTrustedData>>;

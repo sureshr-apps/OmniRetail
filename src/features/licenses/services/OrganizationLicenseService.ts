@@ -1,4 +1,4 @@
-import { getOrganizationLicense, getOrganizationLicenseHistory } from '@omniretail/sql-connect';
+import { getOrganizationLicensePublic as getOrganizationLicense, getOrganizationLicenseHistoryPublic as getOrganizationLicenseHistory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { OrganizationLicense, OrganizationLicenseHistory, AssignLicenseInput, ChangePlanInput, ModifyCommercialTermsInput, RenewLicenseInput, EnrichedOrganizationLicense } from '../types';

@@ -398,15 +398,27 @@ query GetLifecycleIdempotency($idempotencyKey: String!) @auth(level: NO_ACCESS) 
 }
 
 query GetOrganizationLicense($organizationId: UUID!) @auth(level: NO_ACCESS) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'licenses.read'))", message: "License access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   organizationLicenses(where: { organization: { id: { eq: $organizationId } } }) {
     id organization { id } plan { id planCode name level maxStores maxUsers status } startDate expiryDate negotiatedPrice currency createdAt updatedAt
   }
 }
 
 query GetOrganizationLicenseHistory($organizationId: UUID!) @auth(level: NO_ACCESS) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'licenses.history.read'))", message: "License history access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   licenseHistories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ eventAt: DESC }]) {
     id license { id } organization { id } eventType eventAt plan { id planCode name level maxStores maxUsers } planCode planName planLevel maxStores maxUsers startDate expiryDate negotiatedPrice currency changes
   }
+}
+
+query GetOrganizationLicensePublic($organizationId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'licenses.read'))", message: "License access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  organizationLicenses(where: { organization: { id: { eq: $organizationId } } }) { id organization { id } plan { id planCode name level maxStores maxUsers status } startDate expiryDate negotiatedPrice currency createdAt updatedAt }
+}
+
+query GetOrganizationLicenseHistoryPublic($organizationId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'licenses.history.read'))", message: "License history access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  licenseHistories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ eventAt: DESC }]) { id license { id } organization { id } eventType eventAt plan { id planCode name level maxStores maxUsers } planCode planName planLevel maxStores maxUsers startDate expiryDate negotiatedPrice currency changes }
 }
 
 query ListOrganizationsTrusted @auth(level: NO_ACCESS) {

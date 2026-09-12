@@ -436,7 +436,71 @@ export interface GetOrganizationLicenseHistoryData {
   } & LicenseHistory_Key)[];
 }
 
+export interface GetOrganizationLicenseHistoryPublicData {
+  licenseHistories: ({
+    id: UUIDString;
+    license: {
+      id: UUIDString;
+    } & OrganizationLicense_Key;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    eventType: LicenseEventType;
+    eventAt: TimestampString;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+    } & LicensePlan_Key;
+    planCode: string;
+    planName: string;
+    planLevel: number;
+    maxStores: number;
+    maxUsers: number;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    changes?: unknown | null;
+  } & LicenseHistory_Key)[];
+}
+
+export interface GetOrganizationLicenseHistoryPublicVariables {
+  organizationId: UUIDString;
+}
+
 export interface GetOrganizationLicenseHistoryVariables {
+  organizationId: UUIDString;
+}
+
+export interface GetOrganizationLicensePublicData {
+  organizationLicenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+      status: LicensePlanStatus;
+    } & LicensePlan_Key;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & OrganizationLicense_Key)[];
+}
+
+export interface GetOrganizationLicensePublicVariables {
   organizationId: UUIDString;
 }
 
@@ -1153,6 +1217,30 @@ export const getOrganizationLicenseHistoryRef: GetOrganizationLicenseHistoryRef;
 
 export function getOrganizationLicenseHistory(vars: GetOrganizationLicenseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryData, GetOrganizationLicenseHistoryVariables>;
 export function getOrganizationLicenseHistory(dc: DataConnect, vars: GetOrganizationLicenseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryData, GetOrganizationLicenseHistoryVariables>;
+
+interface GetOrganizationLicensePublicRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetOrganizationLicensePublicVariables): QueryRef<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetOrganizationLicensePublicVariables): QueryRef<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
+  operationName: string;
+}
+export const getOrganizationLicensePublicRef: GetOrganizationLicensePublicRef;
+
+export function getOrganizationLicensePublic(vars: GetOrganizationLicensePublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
+export function getOrganizationLicensePublic(dc: DataConnect, vars: GetOrganizationLicensePublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
+
+interface GetOrganizationLicenseHistoryPublicRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetOrganizationLicenseHistoryPublicVariables): QueryRef<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetOrganizationLicenseHistoryPublicVariables): QueryRef<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
+  operationName: string;
+}
+export const getOrganizationLicenseHistoryPublicRef: GetOrganizationLicenseHistoryPublicRef;
+
+export function getOrganizationLicenseHistoryPublic(vars: GetOrganizationLicenseHistoryPublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
+export function getOrganizationLicenseHistoryPublic(dc: DataConnect, vars: GetOrganizationLicenseHistoryPublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
 
 interface ListOrganizationsTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

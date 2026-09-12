@@ -495,6 +495,34 @@ export interface GetOrganizationLicensePublicVariables {
   organizationId: UUIDString;
 }
 
+export interface GetOrganizationLicenseTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+      status: LicensePlanStatus;
+    } & LicensePlan_Key;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & OrganizationLicense_Key)[];
+}
+
+export interface GetOrganizationLicenseTrustedVariables {
+  organizationId: UUIDString;
+}
+
 export interface GetOrganizationLicenseVariables {
   organizationId: UUIDString;
 }
@@ -1014,6 +1042,11 @@ export function getLifecycleIdempotency(vars: GetLifecycleIdempotencyVariables, 
 export function getOrganizationLicense(dc: DataConnect, vars: GetOrganizationLicenseVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseData>>;
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicense' Query. Allow users to pass in custom DataConnect instances. */
 export function getOrganizationLicense(vars: GetOrganizationLicenseVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationLicenseTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function getOrganizationLicenseTrusted(dc: DataConnect, vars: GetOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationLicenseTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function getOrganizationLicenseTrusted(vars: GetOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicenseHistory' Query. Allow users to execute without passing in DataConnect. */
 export function getOrganizationLicenseHistory(dc: DataConnect, vars: GetOrganizationLicenseHistoryVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseHistoryData>>;

@@ -433,6 +433,21 @@ exports.getOrganizationLicense = function getOrganizationLicense(dcOrVars, varsO
 }
 ;
 
+const getOrganizationLicenseTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetOrganizationLicenseTrusted', inputVars);
+}
+getOrganizationLicenseTrustedRef.operationName = 'GetOrganizationLicenseTrusted';
+exports.getOrganizationLicenseTrustedRef = getOrganizationLicenseTrustedRef;
+
+exports.getOrganizationLicenseTrusted = function getOrganizationLicenseTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getOrganizationLicenseTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const getOrganizationLicenseHistoryRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

@@ -1,4 +1,4 @@
-import { getCurrentUserAuthorizationRef, getUserAuthorizationByFirebaseUidRef, resolveUsernameLoginRef, recordSuccessfulLoginRef, updateAppUserProfileRef, recordPasswordChangeRef, getAppUserForBootstrapRef, bootstrapMasterAdminRef, getCurrentAppUserRef, getAppUserByFirebaseUidRef, listLicensePlansRef, getLicensePlanRef, createLicensePlanRef, updateLicensePlanRef, changeLicensePlanStatusRef, listOrganizationsRef, getOrganizationRef, listOrganizationAdministratorsRef, getOrganizationAdministratorRef, provisionOrganizationAdministratorRef, updateOrganizationAdministratorRef, changeOrganizationAdministratorStatusRef, resolveOrganizationAdministratorIdentityRef, recordAdministratorSecurityEventRef, getLifecycleIdempotencyRef, getOrganizationLicenseRef, getOrganizationLicenseHistoryRef, getOrganizationLicensePublicRef, getOrganizationLicenseHistoryPublicRef, listOrganizationsTrustedRef, assignOrganizationLicenseTrustedRef, changeOrganizationLicensePlanTrustedRef, modifyOrganizationCommercialTermsTrustedRef, renewOrganizationLicenseTrustedRef, claimLifecycleIdempotencyRef, completeLifecycleIdempotencyRef, recordProvisioningReconciliationRef, createOrganizationRef, updateOrganizationRef, changeOrganizationStatusRef, connectorConfig } from '../../esm/index.esm.js';
+import { getCurrentUserAuthorizationRef, getUserAuthorizationByFirebaseUidRef, resolveUsernameLoginRef, recordSuccessfulLoginRef, updateAppUserProfileRef, recordPasswordChangeRef, getAppUserForBootstrapRef, bootstrapMasterAdminRef, getCurrentAppUserRef, getAppUserByFirebaseUidRef, listLicensePlansRef, getLicensePlanRef, createLicensePlanRef, updateLicensePlanRef, changeLicensePlanStatusRef, listOrganizationsRef, getOrganizationRef, listOrganizationAdministratorsRef, getOrganizationAdministratorRef, provisionOrganizationAdministratorRef, updateOrganizationAdministratorRef, changeOrganizationAdministratorStatusRef, resolveOrganizationAdministratorIdentityRef, recordAdministratorSecurityEventRef, getLifecycleIdempotencyRef, getOrganizationLicenseRef, getOrganizationLicenseTrustedRef, getOrganizationLicenseHistoryRef, getOrganizationLicensePublicRef, getOrganizationLicenseHistoryPublicRef, listOrganizationsTrustedRef, assignOrganizationLicenseTrustedRef, changeOrganizationLicensePlanTrustedRef, modifyOrganizationCommercialTermsTrustedRef, renewOrganizationLicenseTrustedRef, claimLifecycleIdempotencyRef, completeLifecycleIdempotencyRef, recordProvisioningReconciliationRef, createOrganizationRef, updateOrganizationRef, changeOrganizationStatusRef, connectorConfig } from '../../esm/index.esm.js';
 import { validateArgs, CallerSdkTypeEnum } from 'firebase/data-connect';
 import { useDataConnectQuery, useDataConnectMutation, validateReactArgs } from '@tanstack-query-firebase/react/data-connect';
 
@@ -178,6 +178,12 @@ export function useGetLifecycleIdempotency(dcOrVars, varsOrOptions, options) {
 export function useGetOrganizationLicense(dcOrVars, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   const ref = getOrganizationLicenseRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
+
+export function useGetOrganizationLicenseTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getOrganizationLicenseTrustedRef(dcInstance, inputVars);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 

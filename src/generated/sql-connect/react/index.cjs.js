@@ -1,4 +1,4 @@
-const { getCurrentUserAuthorizationRef, getUserAuthorizationByFirebaseUidRef, resolveUsernameLoginRef, recordSuccessfulLoginRef, updateAppUserProfileRef, recordPasswordChangeRef, getAppUserForBootstrapRef, bootstrapMasterAdminRef, getCurrentAppUserRef, getAppUserByFirebaseUidRef, listLicensePlansRef, getLicensePlanRef, createLicensePlanRef, updateLicensePlanRef, changeLicensePlanStatusRef, listOrganizationsRef, getOrganizationRef, listOrganizationAdministratorsRef, getOrganizationAdministratorRef, provisionOrganizationAdministratorRef, updateOrganizationAdministratorRef, changeOrganizationAdministratorStatusRef, resolveOrganizationAdministratorIdentityRef, recordAdministratorSecurityEventRef, getLifecycleIdempotencyRef, getOrganizationLicenseRef, getOrganizationLicenseHistoryRef, getOrganizationLicensePublicRef, getOrganizationLicenseHistoryPublicRef, listOrganizationsTrustedRef, assignOrganizationLicenseTrustedRef, changeOrganizationLicensePlanTrustedRef, modifyOrganizationCommercialTermsTrustedRef, renewOrganizationLicenseTrustedRef, claimLifecycleIdempotencyRef, completeLifecycleIdempotencyRef, recordProvisioningReconciliationRef, createOrganizationRef, updateOrganizationRef, changeOrganizationStatusRef, connectorConfig } = require('../index.cjs.js');
+const { getCurrentUserAuthorizationRef, getUserAuthorizationByFirebaseUidRef, resolveUsernameLoginRef, recordSuccessfulLoginRef, updateAppUserProfileRef, recordPasswordChangeRef, getAppUserForBootstrapRef, bootstrapMasterAdminRef, getCurrentAppUserRef, getAppUserByFirebaseUidRef, listLicensePlansRef, getLicensePlanRef, createLicensePlanRef, updateLicensePlanRef, changeLicensePlanStatusRef, listOrganizationsRef, getOrganizationRef, listOrganizationAdministratorsRef, getOrganizationAdministratorRef, provisionOrganizationAdministratorRef, updateOrganizationAdministratorRef, changeOrganizationAdministratorStatusRef, resolveOrganizationAdministratorIdentityRef, recordAdministratorSecurityEventRef, getLifecycleIdempotencyRef, getOrganizationLicenseRef, getOrganizationLicenseTrustedRef, getOrganizationLicenseHistoryRef, getOrganizationLicensePublicRef, getOrganizationLicenseHistoryPublicRef, listOrganizationsTrustedRef, assignOrganizationLicenseTrustedRef, changeOrganizationLicensePlanTrustedRef, modifyOrganizationCommercialTermsTrustedRef, renewOrganizationLicenseTrustedRef, claimLifecycleIdempotencyRef, completeLifecycleIdempotencyRef, recordProvisioningReconciliationRef, createOrganizationRef, updateOrganizationRef, changeOrganizationStatusRef, connectorConfig } = require('../index.cjs.js');
 const { validateArgs, CallerSdkTypeEnum } = require('firebase/data-connect');
 const { useDataConnectQuery, useDataConnectMutation, validateReactArgs } = require('@tanstack-query-firebase/react/data-connect');
 
@@ -178,6 +178,12 @@ exports.useGetLifecycleIdempotency = function useGetLifecycleIdempotency(dcOrVar
 exports.useGetOrganizationLicense = function useGetOrganizationLicense(dcOrVars, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   const ref = getOrganizationLicenseRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
+
+exports.useGetOrganizationLicenseTrusted = function useGetOrganizationLicenseTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getOrganizationLicenseTrustedRef(dcInstance, inputVars);
   return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 

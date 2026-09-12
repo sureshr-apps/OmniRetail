@@ -25,6 +25,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ResolveOrganizationAdministratorIdentity*](#resolveorganizationadministratoridentity)
   - [*GetLifecycleIdempotency*](#getlifecycleidempotency)
   - [*GetOrganizationLicense*](#getorganizationlicense)
+  - [*GetOrganizationLicenseTrusted*](#getorganizationlicensetrusted)
   - [*GetOrganizationLicenseHistory*](#getorganizationlicensehistory)
   - [*GetOrganizationLicensePublic*](#getorganizationlicensepublic)
   - [*GetOrganizationLicenseHistoryPublic*](#getorganizationlicensehistorypublic)
@@ -1852,6 +1853,135 @@ const ref = getOrganizationLicenseRef({ organizationId: ..., });
 // You can also pass in a `DataConnect` instance to the `QueryRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = getOrganizationLicenseRef(dataConnect, getOrganizationLicenseVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationLicenses);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationLicenses);
+});
+```
+
+## GetOrganizationLicenseTrusted
+You can execute the `GetOrganizationLicenseTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+getOrganizationLicenseTrusted(vars: GetOrganizationLicenseTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
+
+interface GetOrganizationLicenseTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetOrganizationLicenseTrustedVariables): QueryRef<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
+}
+export const getOrganizationLicenseTrustedRef: GetOrganizationLicenseTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getOrganizationLicenseTrusted(dc: DataConnect, vars: GetOrganizationLicenseTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
+
+interface GetOrganizationLicenseTrustedRef {
+  ...
+  (dc: DataConnect, vars: GetOrganizationLicenseTrustedVariables): QueryRef<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
+}
+export const getOrganizationLicenseTrustedRef: GetOrganizationLicenseTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationLicenseTrustedRef:
+```typescript
+const name = getOrganizationLicenseTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetOrganizationLicenseTrustedVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `GetOrganizationLicenseTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetOrganizationLicenseTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetOrganizationLicenseTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+      status: LicensePlanStatus;
+    } & LicensePlan_Key;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & OrganizationLicense_Key)[];
+}
+```
+### Using `GetOrganizationLicenseTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getOrganizationLicenseTrusted, GetOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
+
+// The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`:
+const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
+  organizationId: ..., 
+};
+
+// Call the `getOrganizationLicenseTrusted()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getOrganizationLicenseTrusted(getOrganizationLicenseTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await getOrganizationLicenseTrusted({ organizationId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getOrganizationLicenseTrusted(dataConnect, getOrganizationLicenseTrustedVars);
+
+console.log(data.organizationLicenses);
+
+// Or, you can use the `Promise` API.
+getOrganizationLicenseTrusted(getOrganizationLicenseTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationLicenses);
+});
+```
+
+### Using `GetOrganizationLicenseTrusted`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getOrganizationLicenseTrustedRef, GetOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
+
+// The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`:
+const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
+  organizationId: ..., 
+};
+
+// Call the `getOrganizationLicenseTrustedRef()` function to get a reference to the query.
+const ref = getOrganizationLicenseTrustedRef(getOrganizationLicenseTrustedVars);
+// Variables can be defined inline as well.
+const ref = getOrganizationLicenseTrustedRef({ organizationId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getOrganizationLicenseTrustedRef(dataConnect, getOrganizationLicenseTrustedVars);
 
 // Call `executeQuery()` on the reference to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.

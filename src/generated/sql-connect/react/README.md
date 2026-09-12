@@ -32,6 +32,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ResolveOrganizationAdministratorIdentity*](#resolveorganizationadministratoridentity)
   - [*GetLifecycleIdempotency*](#getlifecycleidempotency)
   - [*GetOrganizationLicense*](#getorganizationlicense)
+  - [*GetOrganizationLicenseTrusted*](#getorganizationlicensetrusted)
   - [*GetOrganizationLicenseHistory*](#getorganizationlicensehistory)
   - [*GetOrganizationLicensePublic*](#getorganizationlicensepublic)
   - [*GetOrganizationLicenseHistoryPublic*](#getorganizationlicensehistorypublic)
@@ -1513,6 +1514,108 @@ export default function GetOrganizationLicenseComponent() {
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
   const query = useGetOrganizationLicense(dataConnect, getOrganizationLicenseVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationLicenses);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetOrganizationLicenseTrusted
+You can execute the `GetOrganizationLicenseTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetOrganizationLicenseTrusted(dc: DataConnect, vars: GetOrganizationLicenseTrustedVariables, options?: useDataConnectQueryOptions<GetOrganizationLicenseTrustedData>): UseDataConnectQueryResult<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetOrganizationLicenseTrusted(vars: GetOrganizationLicenseTrustedVariables, options?: useDataConnectQueryOptions<GetOrganizationLicenseTrustedData>): UseDataConnectQueryResult<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
+```
+
+### Variables
+The `GetOrganizationLicenseTrusted` Query requires an argument of type `GetOrganizationLicenseTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetOrganizationLicenseTrustedVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetOrganizationLicenseTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetOrganizationLicenseTrusted` Query is of type `GetOrganizationLicenseTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetOrganizationLicenseTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    plan: {
+      id: UUIDString;
+      planCode: string;
+      name: string;
+      level: number;
+      maxStores: number;
+      maxUsers: number;
+      status: LicensePlanStatus;
+    } & LicensePlan_Key;
+    startDate: DateString;
+    expiryDate: DateString;
+    negotiatedPrice: number;
+    currency: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & OrganizationLicense_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetOrganizationLicenseTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
+import { useGetOrganizationLicenseTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetOrganizationLicenseTrustedComponent() {
+  // The `useGetOrganizationLicenseTrusted` Query hook requires an argument of type `GetOrganizationLicenseTrustedVariables`:
+  const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetOrganizationLicenseTrusted(getOrganizationLicenseTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetOrganizationLicenseTrusted({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetOrganizationLicenseTrusted(dataConnect, getOrganizationLicenseTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationLicenseTrusted(getOrganizationLicenseTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationLicenseTrusted(dataConnect, getOrganizationLicenseTrustedVars, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {

@@ -1057,6 +1057,19 @@ Do not assume “deployed successfully” means every failure path has exhaustiv
 
 A stabilization/hardening pass is recommended before production release.
 
+### Current handoff audit
+
+The following gaps have been confirmed and remain open:
+
+- `OrganizationLicenseService.getLicenseSync()` remains in the interface and returns `null`, but has no callers. It is dead compatibility API.
+- `OrganizationAdminService` active methods are production-backed, but the file still contains mock administrator fixtures, a misleading `MockOrganizationAdminService` name, commented-out mock fallback code, and an unused `mockDelay` dependency.
+- `deleteOrganizationLicensePlan` and `deleteOrganization` Cloud Functions exist even though hard deletion is not the normal organization workflow. Their security and product-rule alignment require review before further use.
+- `organization.admin` is seeded and assigned, but currently has no `RolePermission` grants. The exact Organization Administrator capability model remains unresolved and must be decided explicitly.
+- App Check is supported but not enabled by default (`AUTH_ENFORCE_APP_CHECK=false`); browser enforcement also depends on a configured site key.
+- The documented 39 tests are unit/component-oriented. Dedicated live integration coverage for several deployed licensing and administrator lifecycle failure paths remains limited.
+- `firebase.json` and environment defaults still reference emulator/demo configuration in places. Deployment and environment separation require explicit verification.
+- Generated Data Connect artifacts and build outputs are present alongside source. Regeneration consistency must be checked before schema changes.
+
 ---
 
 ## 37. Known compatibility cleanup

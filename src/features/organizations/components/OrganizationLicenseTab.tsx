@@ -91,6 +91,10 @@ export function OrganizationLicenseTab({
     await loadLicenseData();
     await new Promise((resolve) => setTimeout(resolve, 350));
     await loadLicenseData();
+    if (assignedLicense) {
+      const assignedPlan = await licensePlanService.getPlan(assignedLicense.planId);
+      setLicenseData({ license: assignedLicense, plan: assignedPlan, status: calculateLicenseStatus(assignedLicense) });
+    }
     onLicenseUpdated?.();
     setTimeout(() => {
       setFeedback(null);

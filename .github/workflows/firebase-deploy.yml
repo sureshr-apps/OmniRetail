@@ -44,6 +44,7 @@ jobs:
           VITE_FIREBASE_STORAGE_BUCKET: "omniretail-60c71.firebasestorage.app"
           VITE_FIREBASE_MESSAGING_SENDER_ID: "1039046217091"
           VITE_FIREBASE_APP_ID: "1:1039046217091:web:8d9d6ca14861e4ae823ab6"
+          VITE_FIREBASE_APP_CHECK_SITE_KEY: "6LdA_rQtAAAAAGCKAwQ2Xy2yNmpgVB9vp013I3Y8"
           VITE_USE_FIREBASE_EMULATORS: "false"
         run: npm run build
 

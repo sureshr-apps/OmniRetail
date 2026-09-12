@@ -116,6 +116,7 @@ export function OrganizationAdministratorsTab({
     await loadAdmins();
     await new Promise((resolve) => setTimeout(resolve, 350));
     await loadAdmins();
+    setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
   };
 
   return (

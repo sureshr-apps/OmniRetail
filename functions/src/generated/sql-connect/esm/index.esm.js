@@ -197,6 +197,12 @@ export function provisionOrganizationAdministrator(dcOrVarsOrOptions, varsOrOpti
   return dcInstance.executeMutation('ProvisionOrganizationAdministrator', inputVars, inputOpts);
 }
 
+export function ensureAppUserRoleTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('EnsureAppUserRoleTrusted', inputVars, inputOpts);
+}
+
 export function updateOrganizationAdministrator(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

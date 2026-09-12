@@ -373,6 +373,18 @@ export function provisionOrganizationAdministrator(dcOrVars, vars) {
   return executeMutation(provisionOrganizationAdministratorRef(dcInstance, inputVars));
 }
 
+export const ensureAppUserRoleTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'EnsureAppUserRoleTrusted', inputVars);
+}
+ensureAppUserRoleTrustedRef.operationName = 'EnsureAppUserRoleTrusted';
+
+export function ensureAppUserRoleTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(ensureAppUserRoleTrustedRef(dcInstance, inputVars));
+}
+
 export const updateOrganizationAdministratorRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

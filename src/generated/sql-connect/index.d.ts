@@ -266,6 +266,15 @@ export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
 
+export interface EnsureAppUserRoleTrustedData {
+  userRole_upsert: UserRole_Key;
+}
+
+export interface EnsureAppUserRoleTrustedVariables {
+  userId: UUIDString;
+  roleId: UUIDString;
+}
+
 export interface GetAppUserByFirebaseUidData {
   appUsers: ({
     id: UUIDString;
@@ -834,6 +843,7 @@ export interface Permission_Key {
 export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
+  userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
 }
 
@@ -1351,6 +1361,18 @@ export const provisionOrganizationAdministratorRef: ProvisionOrganizationAdminis
 
 export function provisionOrganizationAdministrator(vars: ProvisionOrganizationAdministratorVariables): MutationPromise<ProvisionOrganizationAdministratorData, ProvisionOrganizationAdministratorVariables>;
 export function provisionOrganizationAdministrator(dc: DataConnect, vars: ProvisionOrganizationAdministratorVariables): MutationPromise<ProvisionOrganizationAdministratorData, ProvisionOrganizationAdministratorVariables>;
+
+interface EnsureAppUserRoleTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: EnsureAppUserRoleTrustedVariables): MutationRef<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: EnsureAppUserRoleTrustedVariables): MutationRef<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+  operationName: string;
+}
+export const ensureAppUserRoleTrustedRef: EnsureAppUserRoleTrustedRef;
+
+export function ensureAppUserRoleTrusted(vars: EnsureAppUserRoleTrustedVariables): MutationPromise<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+export function ensureAppUserRoleTrusted(dc: DataConnect, vars: EnsureAppUserRoleTrustedVariables): MutationPromise<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
 
 interface UpdateOrganizationAdministratorRef {
   /* Allow users to create refs without passing in DataConnect */

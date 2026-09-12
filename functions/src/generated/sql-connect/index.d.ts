@@ -257,6 +257,15 @@ export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
 
+export interface EnsureAppUserRoleTrustedData {
+  userRole_upsert: UserRole_Key;
+}
+
+export interface EnsureAppUserRoleTrustedVariables {
+  userId: UUIDString;
+  roleId: UUIDString;
+}
+
 export interface GetAppUserByFirebaseUidData {
   appUsers: ({
     id: UUIDString;
@@ -825,6 +834,7 @@ export interface Permission_Key {
 export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
+  userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
 }
 
@@ -1160,6 +1170,11 @@ export function getOrganizationAdministrator(vars: GetOrganizationAdministratorV
 export function provisionOrganizationAdministrator(dc: DataConnect, vars: ProvisionOrganizationAdministratorVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ProvisionOrganizationAdministratorData>>;
 /** Generated Node Admin SDK operation action function for the 'ProvisionOrganizationAdministrator' Mutation. Allow users to pass in custom DataConnect instances. */
 export function provisionOrganizationAdministrator(vars: ProvisionOrganizationAdministratorVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ProvisionOrganizationAdministratorData>>;
+
+/** Generated Node Admin SDK operation action function for the 'EnsureAppUserRoleTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function ensureAppUserRoleTrusted(dc: DataConnect, vars: EnsureAppUserRoleTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<EnsureAppUserRoleTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'EnsureAppUserRoleTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function ensureAppUserRoleTrusted(vars: EnsureAppUserRoleTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<EnsureAppUserRoleTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'UpdateOrganizationAdministrator' Mutation. Allow users to execute without passing in DataConnect. */
 export function updateOrganizationAdministrator(dc: DataConnect, vars: UpdateOrganizationAdministratorVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateOrganizationAdministratorData>>;

@@ -46,6 +46,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*DeleteLicensePlan*](#deletelicenseplan)
   - [*DeleteLicensePlanTrusted*](#deletelicenseplantrusted)
   - [*ProvisionOrganizationAdministrator*](#provisionorganizationadministrator)
+  - [*EnsureAppUserRoleTrusted*](#ensureappuserroletrusted)
   - [*UpdateOrganizationAdministrator*](#updateorganizationadministrator)
   - [*ChangeOrganizationAdministratorStatus*](#changeorganizationadministratorstatus)
   - [*RecordAdministratorSecurityEvent*](#recordadministratorsecurityevent)
@@ -4303,6 +4304,7 @@ The `data` property is an object of type `ProvisionOrganizationAdministratorData
 export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
+  userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
 }
 ```
@@ -4338,6 +4340,7 @@ const { data } = await provisionOrganizationAdministrator(dataConnect, provision
 
 console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
+console.log(data.userRole_upsert);
 console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
@@ -4345,6 +4348,7 @@ provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then(
   const data = response.data;
   console.log(data.appUser_insert);
   console.log(data.organizationMembership_insert);
+  console.log(data.userRole_upsert);
   console.log(data.auditEvent_insert);
 });
 ```
@@ -4384,6 +4388,7 @@ const { data } = await executeMutation(ref);
 
 console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
+console.log(data.userRole_upsert);
 console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
@@ -4391,7 +4396,120 @@ executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.appUser_insert);
   console.log(data.organizationMembership_insert);
+  console.log(data.userRole_upsert);
   console.log(data.auditEvent_insert);
+});
+```
+
+## EnsureAppUserRoleTrusted
+You can execute the `EnsureAppUserRoleTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+ensureAppUserRoleTrusted(vars: EnsureAppUserRoleTrustedVariables): MutationPromise<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+
+interface EnsureAppUserRoleTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: EnsureAppUserRoleTrustedVariables): MutationRef<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+}
+export const ensureAppUserRoleTrustedRef: EnsureAppUserRoleTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+ensureAppUserRoleTrusted(dc: DataConnect, vars: EnsureAppUserRoleTrustedVariables): MutationPromise<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+
+interface EnsureAppUserRoleTrustedRef {
+  ...
+  (dc: DataConnect, vars: EnsureAppUserRoleTrustedVariables): MutationRef<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
+}
+export const ensureAppUserRoleTrustedRef: EnsureAppUserRoleTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the ensureAppUserRoleTrustedRef:
+```typescript
+const name = ensureAppUserRoleTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface EnsureAppUserRoleTrustedVariables {
+  userId: UUIDString;
+  roleId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `EnsureAppUserRoleTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `EnsureAppUserRoleTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface EnsureAppUserRoleTrustedData {
+  userRole_upsert: UserRole_Key;
+}
+```
+### Using `EnsureAppUserRoleTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ensureAppUserRoleTrusted, EnsureAppUserRoleTrustedVariables } from '@omniretail/sql-connect';
+
+// The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
+const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
+  userId: ..., 
+  roleId: ..., 
+};
+
+// Call the `ensureAppUserRoleTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await ensureAppUserRoleTrusted(ensureAppUserRoleTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await ensureAppUserRoleTrusted({ userId: ..., roleId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await ensureAppUserRoleTrusted(dataConnect, ensureAppUserRoleTrustedVars);
+
+console.log(data.userRole_upsert);
+
+// Or, you can use the `Promise` API.
+ensureAppUserRoleTrusted(ensureAppUserRoleTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.userRole_upsert);
+});
+```
+
+### Using `EnsureAppUserRoleTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, ensureAppUserRoleTrustedRef, EnsureAppUserRoleTrustedVariables } from '@omniretail/sql-connect';
+
+// The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
+const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
+  userId: ..., 
+  roleId: ..., 
+};
+
+// Call the `ensureAppUserRoleTrustedRef()` function to get a reference to the mutation.
+const ref = ensureAppUserRoleTrustedRef(ensureAppUserRoleTrustedVars);
+// Variables can be defined inline as well.
+const ref = ensureAppUserRoleTrustedRef({ userId: ..., roleId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = ensureAppUserRoleTrustedRef(dataConnect, ensureAppUserRoleTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.userRole_upsert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.userRole_upsert);
 });
 ```
 

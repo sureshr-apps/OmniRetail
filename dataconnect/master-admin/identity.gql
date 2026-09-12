@@ -399,7 +399,12 @@ query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth
 mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String!, $organizationId: UUID!, $roleId: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: NO_ACCESS) @transaction {
   appUser_insert(data: { id: $userId firebaseUid: $firebaseUid username: $username email: $email displayName: $displayName phone: $phone status: ACTIVE })
   organizationMembership_insert(data: { organizationId: $organizationId userId: $userId roleId: $roleId status: ACTIVE })
+  userRole_upsert(data: { userId: $userId, roleId: $roleId })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $firebaseUid action: "organization_administrator.created" targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation EnsureAppUserRoleTrusted($userId: UUID!, $roleId: UUID!) @auth(level: NO_ACCESS) {
+  userRole_upsert(data: { userId: $userId, roleId: $roleId })
 }
 
 mutation UpdateOrganizationAdministrator($organizationId: UUID!, $userId: UUID!, $displayName: String!, $phone: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {

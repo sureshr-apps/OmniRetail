@@ -66,6 +66,11 @@ describe('FirebaseAuthService', () => {
     expect(mocks.signInWithCustomToken).toHaveBeenCalledWith(mocks.auth, 'custom-token');
   });
 
+  it('normalizes surrounding whitespace before email login', async () => {
+    await new FirebaseAuthService().login({ username: '  admin@example.com  ', password: 'secret' });
+    expect(mocks.signInWithEmailAndPassword).toHaveBeenCalledWith(mocks.auth, 'admin@example.com', 'secret');
+  });
+
   it('signs out and returns a generic error for invalid credentials or missing AppUser', async () => {
     mocks.signInWithEmailAndPassword.mockRejectedValue(new Error('auth/wrong-password'));
     await expect(new FirebaseAuthService().login({ username: 'admin@example.com', password: 'wrong' }))
@@ -85,6 +90,22 @@ describe('FirebaseAuthService', () => {
     expect(mocks.signOut).not.toHaveBeenCalled();
   });
 
+  it('allows an unverified identity restored from an existing session', async () => {
+    mocks.auth.currentUser = { ...firebaseUser, emailVerified: false };
+    const user = await new FirebaseAuthService().getCurrentUser();
+    expect(user?.id).toBe('user-1');
+    expect(mocks.callables.get('bootstrapAuthenticatedUser')).toHaveBeenCalledWith({ recordLogin: false });
+  });
+
+  it('rejects a bootstrap response belonging to a different Firebase identity', async () => {
+    mocks.callables.set('bootstrapAuthenticatedUser', vi.fn().mockResolvedValue({
+      data: { ...authorizedUser, firebaseUid: 'other-uid' },
+    }));
+    await expect(new FirebaseAuthService().login({ username: 'admin@example.com', password: 'secret' }))
+      .rejects.toThrow(GENERIC_AUTH_ERROR);
+    expect(mocks.signOut).toHaveBeenCalled();
+  });
+
   it('restores an authorized session and logs out through Firebase', async () => {
     mocks.auth.currentUser = firebaseUser;
     const service = new FirebaseAuthService();
@@ -100,5 +121,26 @@ describe('FirebaseAuthService', () => {
     expect(mocks.reauthenticateWithCredential).toHaveBeenCalled();
     expect(mocks.updatePassword).toHaveBeenCalledWith(firebaseUser, 'new-secret');
     expect(mocks.callables.get('recordPasswordChange')).toHaveBeenCalledWith({});
+  });
+
+  it('does not require email verification to change a password', async () => {
+    mocks.auth.currentUser = { ...firebaseUser, emailVerified: false };
+    await new FirebaseAuthService().changePassword({ currentPassword: 'old-secret', newPassword: 'new-secret' });
+    expect(mocks.updatePassword).toHaveBeenCalledWith(mocks.auth.currentUser, 'new-secret');
+  });
+
+  it('rejects password changes when there is no signed-in email identity', async () => {
+    mocks.auth.currentUser = { uid: 'uid-1', email: null, emailVerified: false };
+    await expect(new FirebaseAuthService().changePassword({ currentPassword: 'old', newPassword: 'new' }))
+      .rejects.toThrow('Unable to change password.');
+    expect(mocks.reauthenticateWithCredential).not.toHaveBeenCalled();
+  });
+
+  it('maps reauthentication and update failures to a safe password error', async () => {
+    mocks.auth.currentUser = firebaseUser;
+    mocks.reauthenticateWithCredential.mockRejectedValueOnce(new Error('auth/wrong-password'));
+    await expect(new FirebaseAuthService().changePassword({ currentPassword: 'bad', newPassword: 'new' }))
+      .rejects.toThrow('Unable to change password.');
+    expect(mocks.callables.get('recordPasswordChange')).not.toHaveBeenCalled();
   });
 });

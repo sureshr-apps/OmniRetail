@@ -28,6 +28,32 @@ describe('trusted username authentication', () => {
     expect(deps.verifyPassword).toHaveBeenCalledWith('admin@example.com', 'secret');
   });
 
+  it('permits an unverified Firebase credential after UID/password verification', async () => {
+    const deps = dependencies({ verifyCredential: vi.fn().mockResolvedValue({ uid: 'uid-1', emailVerified: false }) });
+    await expect(authenticateUsername(deps, { username: 'admin', password: 'secret' }))
+      .resolves.toEqual({ customToken: 'custom-token' });
+    expect(deps.createCustomToken).toHaveBeenCalledWith('uid-1');
+  });
+
+  it('never calls Firebase password verification or token creation for malformed input', async () => {
+    const deps = dependencies();
+    await expect(authenticateUsername(deps, { username: ' ', password: 'secret' }))
+      .rejects.toThrow(GENERIC_AUTH_ERROR);
+    await expect(authenticateUsername(deps, { username: 'admin', password: '' }))
+      .rejects.toThrow(GENERIC_AUTH_ERROR);
+    expect(deps.resolveUsername).not.toHaveBeenCalled();
+    expect(deps.verifyPassword).not.toHaveBeenCalled();
+    expect(deps.createCustomToken).not.toHaveBeenCalled();
+  });
+
+  it('normalizes usernames before resolving them and never returns the mapped email', async () => {
+    const deps = dependencies();
+    const result = await authenticateUsername(deps, { username: '  ADMIN.User  ', password: 'secret' });
+    expect(deps.resolveUsername).toHaveBeenCalledWith('admin.user');
+    expect(result).toEqual({ customToken: 'custom-token' });
+    expect(JSON.stringify(result)).not.toContain('admin@example.com');
+  });
+
   it.each([
     ['missing username', { resolveUsername: vi.fn().mockResolvedValue(null) }],
     ['inactive user', { resolveUsername: vi.fn().mockResolvedValue({ firebaseUid: 'uid-1', email: 'admin@example.com', status: 'INACTIVE' }) }],

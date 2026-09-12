@@ -85,12 +85,12 @@ export function OrganizationAdministratorsTab({
     );
   });
 
-  const handleAdminCreated = (newAdmin: OrganizationAdministrator) => {
+  const handleAdminCreated = async (newAdmin: OrganizationAdministrator) => {
     setFeedback({
       message: `Administrator "${newAdmin.name}" (@${newAdmin.username}) created successfully.`,
       type: 'success',
     });
-    loadAdmins();
+    await loadAdmins();
   };
 
   const handleAdminUpdated = (updatedAdmin: OrganizationAdministrator) => {

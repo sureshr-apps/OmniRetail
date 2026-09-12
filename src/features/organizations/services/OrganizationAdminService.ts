@@ -170,10 +170,27 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
     organizationId: string,
     input: CreateAdminInput
   ): Promise<OrganizationAdministrator> {
-    const provision = httpsCallable<{ organizationId: string; displayName: string; username: string; email: string; phone: string; idempotencyKey: string }, OrganizationAdministrator>(getFirebaseClientServices().functions, 'provisionOrganizationAdministrator', { limitedUseAppCheckTokens: true });
+    const provision = httpsCallable<
+      { organizationId: string; displayName: string; username: string; email: string; phone: string; idempotencyKey: string },
+      { appUserId: string; organizationMembershipId: string; organizationId: string; username: string; displayName: string; email: string; phone: string; status: 'active'; onboardingStatus?: string }
+    >(getFirebaseClientServices().functions, 'provisionOrganizationAdministrator', { limitedUseAppCheckTokens: true });
     try {
       const result = await provision({ organizationId, displayName: input.name.trim(), username: input.username.trim().toLowerCase(), email: input.email.trim(), phone: input.phone.trim(), idempotencyKey: globalThis.crypto.randomUUID() });
-      return result.data;
+      // The trusted provisioning response uses domain names that are explicit
+      // about their source (AppUser ID/displayName). Normalize it at the
+      // service boundary to the UI's administrator model.
+      const created = result.data;
+      return {
+        id: created.appUserId,
+        organizationId: created.organizationId,
+        name: created.displayName,
+        username: created.username,
+        email: created.email,
+        phone: created.phone,
+        status: created.status,
+        createdAt: new Date().toISOString().slice(0, 10),
+        lastLoginAt: null,
+      };
     } catch (error: unknown) {
       const code = typeof error === 'object' && error !== null && 'code' in error ? String((error as { code?: unknown }).code) : '';
       if (code === 'functions/already-exists') throw new Error('That username or email is already assigned to an administrator.');

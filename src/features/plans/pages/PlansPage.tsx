@@ -816,9 +816,14 @@ export function PlansPage() {
         onClose={() => setEditingPlan(null)}
         plan={editingPlan}
         onSuccess={async (updatedPlan) => {
-          setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
+          setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
+            ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
+            : [...prev, updatedPlan]);
           await new Promise((resolve) => setTimeout(resolve, 350));
           await fetchPlans();
+          setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
+            ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
+            : [...prev, updatedPlan]);
           showToast(`Plan "${updatedPlan.name}" updated successfully.`);
         }}
       />
@@ -829,7 +834,9 @@ export function PlansPage() {
         onClose={() => setDeactivatingPlan(null)}
         plan={deactivatingPlan}
         onSuccess={async (updatedPlan) => {
-          setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
+          setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
+            ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
+            : [...prev, updatedPlan]);
           await new Promise((resolve) => setTimeout(resolve, 350));
           await fetchPlans();
           setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));

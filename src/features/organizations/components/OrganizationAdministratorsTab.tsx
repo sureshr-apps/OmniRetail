@@ -105,14 +105,16 @@ export function OrganizationAdministratorsTab({
     await loadAdmins();
   };
 
-  const handleAdminStatusChanged = (updatedAdmin: OrganizationAdministrator) => {
+  const handleAdminStatusChanged = async (updatedAdmin: OrganizationAdministrator) => {
     setFeedback({
       message: `Administrator "${updatedAdmin.name}" has been ${
         updatedAdmin.status === 'active' ? 'activated' : 'deactivated'
       }.`,
       type: 'info',
     });
-    loadAdmins();
+    await loadAdmins();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await loadAdmins();
   };
 
   return (

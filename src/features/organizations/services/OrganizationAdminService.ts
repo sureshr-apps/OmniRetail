@@ -295,7 +295,9 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
       const refreshed = await this.getAdministrators(organizationId);
       const updated = refreshed.find((admin) => admin.id === administratorId);
       if (!updated) throw new Error('Administrator not found.');
-      return updated;
+      // The mutation is authoritative; an immediate read may briefly return
+      // the previous status while the Data Connect read replica catches up.
+      return { ...updated, status };
     } catch {
       throw new Error('Unable to change the organization administrator status.');
     }

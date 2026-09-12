@@ -316,6 +316,35 @@ exports.deleteLicensePlan = function deleteLicensePlan(dcOrVars, vars) {
 }
 ;
 
+const getLicensePlanReferencesTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetLicensePlanReferencesTrusted', inputVars);
+}
+getLicensePlanReferencesTrustedRef.operationName = 'GetLicensePlanReferencesTrusted';
+exports.getLicensePlanReferencesTrustedRef = getLicensePlanReferencesTrustedRef;
+
+exports.getLicensePlanReferencesTrusted = function getLicensePlanReferencesTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getLicensePlanReferencesTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const deleteLicensePlanTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteLicensePlanTrusted', inputVars);
+}
+deleteLicensePlanTrustedRef.operationName = 'DeleteLicensePlanTrusted';
+exports.deleteLicensePlanTrustedRef = deleteLicensePlanTrustedRef;
+
+exports.deleteLicensePlanTrusted = function deleteLicensePlanTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteLicensePlanTrustedRef(dcInstance, inputVars));
+}
+;
+
 const listOrganizationsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();

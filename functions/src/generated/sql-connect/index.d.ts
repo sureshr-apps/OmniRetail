@@ -223,6 +223,18 @@ export interface DeleteLicensePlanData {
   auditEvent_insert: AuditEvent_Key;
 }
 
+export interface DeleteLicensePlanTrustedData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteLicensePlanTrustedVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface DeleteLicensePlanVariables {
   id: UUIDString;
   auditId: UUIDString;
@@ -314,6 +326,19 @@ export interface GetLicensePlanData {
     createdAt: TimestampString;
     updatedAt: TimestampString;
   } & LicensePlan_Key;
+}
+
+export interface GetLicensePlanReferencesTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+  } & OrganizationLicense_Key)[];
+  licenseHistories: ({
+    id: UUIDString;
+  } & LicenseHistory_Key)[];
+}
+
+export interface GetLicensePlanReferencesTrustedVariables {
+  id: UUIDString;
 }
 
 export interface GetLicensePlanTrustedData {
@@ -1066,6 +1091,16 @@ export function changeLicensePlanStatus(vars: ChangeLicensePlanStatusVariables, 
 export function deleteLicensePlan(dc: DataConnect, vars: DeleteLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteLicensePlanData>>;
 /** Generated Node Admin SDK operation action function for the 'DeleteLicensePlan' Mutation. Allow users to pass in custom DataConnect instances. */
 export function deleteLicensePlan(vars: DeleteLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteLicensePlanData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetLicensePlanReferencesTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function getLicensePlanReferencesTrusted(dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLicensePlanReferencesTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'GetLicensePlanReferencesTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function getLicensePlanReferencesTrusted(vars: GetLicensePlanReferencesTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLicensePlanReferencesTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteLicensePlanTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteLicensePlanTrusted(dc: DataConnect, vars: DeleteLicensePlanTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteLicensePlanTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteLicensePlanTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteLicensePlanTrusted(vars: DeleteLicensePlanTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteLicensePlanTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'ListOrganizations' Query. Allow users to execute without passing in DataConnect. */
 export function listOrganizations(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsData>>;

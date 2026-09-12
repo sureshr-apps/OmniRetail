@@ -174,6 +174,20 @@ function deleteLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.deleteLicensePlan = deleteLicensePlan;
 
+function getLicensePlanReferencesTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetLicensePlanReferencesTrusted', inputVars, inputOpts);
+}
+exports.getLicensePlanReferencesTrusted = getLicensePlanReferencesTrusted;
+
+function deleteLicensePlanTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteLicensePlanTrusted', inputVars, inputOpts);
+}
+exports.deleteLicensePlanTrusted = deleteLicensePlanTrusted;
+
 function listOrganizations(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
   dcInstance.useGen(true);

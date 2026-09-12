@@ -27,6 +27,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ListOrganizationLicensePlanAssignments*](#listorganizationlicenseplanassignments)
   - [*GetLicensePlan*](#getlicenseplan)
   - [*GetLicensePlanTrusted*](#getlicenseplantrusted)
+  - [*GetLicensePlanReferencesTrusted*](#getlicenseplanreferencestrusted)
   - [*ListOrganizations*](#listorganizations)
   - [*GetOrganization*](#getorganization)
   - [*GetOrganizationTrusted*](#getorganizationtrusted)
@@ -49,6 +50,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*UpdateLicensePlan*](#updatelicenseplan)
   - [*ChangeLicensePlanStatus*](#changelicenseplanstatus)
   - [*DeleteLicensePlan*](#deletelicenseplan)
+  - [*DeleteLicensePlanTrusted*](#deletelicenseplantrusted)
   - [*ProvisionOrganizationAdministrator*](#provisionorganizationadministrator)
   - [*UpdateOrganizationAdministrator*](#updateorganizationadministrator)
   - [*ChangeOrganizationAdministratorStatus*](#changeorganizationadministratorstatus)
@@ -1029,6 +1031,94 @@ export default function GetLicensePlanTrustedComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.licensePlan);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetLicensePlanReferencesTrusted
+You can execute the `GetLicensePlanReferencesTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetLicensePlanReferencesTrusted(dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables, options?: useDataConnectQueryOptions<GetLicensePlanReferencesTrustedData>): UseDataConnectQueryResult<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetLicensePlanReferencesTrusted(vars: GetLicensePlanReferencesTrustedVariables, options?: useDataConnectQueryOptions<GetLicensePlanReferencesTrustedData>): UseDataConnectQueryResult<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+```
+
+### Variables
+The `GetLicensePlanReferencesTrusted` Query requires an argument of type `GetLicensePlanReferencesTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetLicensePlanReferencesTrustedVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetLicensePlanReferencesTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetLicensePlanReferencesTrusted` Query is of type `GetLicensePlanReferencesTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetLicensePlanReferencesTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+  } & OrganizationLicense_Key)[];
+  licenseHistories: ({
+    id: UUIDString;
+  } & LicenseHistory_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetLicensePlanReferencesTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetLicensePlanReferencesTrustedVariables } from '@omniretail/sql-connect';
+import { useGetLicensePlanReferencesTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetLicensePlanReferencesTrustedComponent() {
+  // The `useGetLicensePlanReferencesTrusted` Query hook requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
+  const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetLicensePlanReferencesTrusted(getLicensePlanReferencesTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetLicensePlanReferencesTrusted({ id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetLicensePlanReferencesTrusted(dataConnect, getLicensePlanReferencesTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetLicensePlanReferencesTrusted(getLicensePlanReferencesTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetLicensePlanReferencesTrusted(dataConnect, getLicensePlanReferencesTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationLicenses);
+    console.log(query.data.licenseHistories);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -3159,6 +3249,108 @@ export default function DeleteLicensePlanComponent() {
     onSuccess: () => { console.log('Mutation succeeded!'); }
   };
   mutation.mutate(deleteLicensePlanVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.licensePlan_delete);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteLicensePlanTrusted
+You can execute the `DeleteLicensePlanTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteLicensePlanTrusted(options?: useDataConnectMutationOptions<DeleteLicensePlanTrustedData, FirebaseError, DeleteLicensePlanTrustedVariables>): UseDataConnectMutationResult<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteLicensePlanTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteLicensePlanTrustedData, FirebaseError, DeleteLicensePlanTrustedVariables>): UseDataConnectMutationResult<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+```
+
+### Variables
+The `DeleteLicensePlanTrusted` Mutation requires an argument of type `DeleteLicensePlanTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteLicensePlanTrustedVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteLicensePlanTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteLicensePlanTrusted` Mutation is of type `DeleteLicensePlanTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteLicensePlanTrustedData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteLicensePlanTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteLicensePlanTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteLicensePlanTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteLicensePlanTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteLicensePlanTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteLicensePlanTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteLicensePlanTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteLicensePlanTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteLicensePlanTrusted` Mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
+  const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteLicensePlanTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteLicensePlanTrustedVars, options);
 
   // Then, you can render your component dynamically based on the status of the Mutation.
   if (mutation.isPending) {

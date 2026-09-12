@@ -24,6 +24,8 @@ import {
   changeOrganizationLicensePlanTrusted,
   modifyOrganizationCommercialTermsTrusted,
   renewOrganizationLicenseTrusted,
+  getLicensePlanReferencesTrusted,
+  deleteLicensePlanTrusted,
 } from '@omniretail/sql-connect-admin';
 import {
   authenticateUsername,
@@ -350,6 +352,25 @@ export const renewOrganizationLicense = onCall(callableOptions, async (request) 
     await claimLifecycleIdempotency({ idempotencyKey, operationType: 'renewOrganizationLicense', requestFingerprint: fp }); const safe = { licenseId: current.id, organizationId, planId: plan.id, startDate: newStartDate, expiryDate: newExpiryDate, negotiatedPrice, currency };
     await renewOrganizationLicenseTrusted({ id: current.id, organizationId, planId: plan.id, startDate: newStartDate, expiryDate: newExpiryDate, negotiatedPrice, currency, historyId: randomUUID(), planCode: plan.planCode, planName: plan.name, planLevel: plan.level, maxStores: plan.maxStores, maxUsers: plan.maxUsers, auditId: randomUUID(), actorFirebaseUid: callerUid, requestId: randomUUID(), changes: { previousStartDate: current.startDate, previousExpiryDate: current.expiryDate, previousPlanId: current.plan.id } }); await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.SUCCEEDED, resultReference: JSON.stringify(safe) }); return safe;
   } catch (error) { logCallableFailure('renewOrganizationLicense', error); throw new HttpsError('permission-denied', 'Unable to renew the organization license.'); }
+});
+
+export const deleteOrganizationLicensePlan = onCall(callableOptions, async (request) => {
+  try {
+    const uid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(uid);
+    requireCapability(caller, 'plans.update');
+    const id = typeof request.data?.id === 'string' ? request.data.id : '';
+    if (!id) throw new Error('invalid request');
+    const refs = (await getLicensePlanReferencesTrusted({ id })).data;
+    if (refs.organizationLicenses.length || refs.licenseHistories.length) {
+      throw new Error('plan is referenced');
+    }
+    await deleteLicensePlanTrusted({ id, auditId: randomUUID(), requestId: randomUUID(), actorFirebaseUid: uid });
+    return { success: true };
+  } catch (error) {
+    logCallableFailure('deleteOrganizationLicensePlan', error);
+    throw new HttpsError('failed-precondition', 'This plan is referenced by existing licenses or history and cannot be deleted. Deactivate it instead.');
+  }
 });
 
 export const listOrganizationsDirectory = onCall(callableOptions, async (request) => {

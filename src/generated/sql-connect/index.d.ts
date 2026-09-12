@@ -232,6 +232,18 @@ export interface DeleteLicensePlanData {
   auditEvent_insert: AuditEvent_Key;
 }
 
+export interface DeleteLicensePlanTrustedData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteLicensePlanTrustedVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface DeleteLicensePlanVariables {
   id: UUIDString;
   auditId: UUIDString;
@@ -323,6 +335,19 @@ export interface GetLicensePlanData {
     createdAt: TimestampString;
     updatedAt: TimestampString;
   } & LicensePlan_Key;
+}
+
+export interface GetLicensePlanReferencesTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+  } & OrganizationLicense_Key)[];
+  licenseHistories: ({
+    id: UUIDString;
+  } & LicenseHistory_Key)[];
+}
+
+export interface GetLicensePlanReferencesTrustedVariables {
+  id: UUIDString;
 }
 
 export interface GetLicensePlanTrustedData {
@@ -1201,6 +1226,30 @@ export const deleteLicensePlanRef: DeleteLicensePlanRef;
 
 export function deleteLicensePlan(vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
 export function deleteLicensePlan(dc: DataConnect, vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+
+interface GetLicensePlanReferencesTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetLicensePlanReferencesTrustedVariables): QueryRef<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables): QueryRef<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+  operationName: string;
+}
+export const getLicensePlanReferencesTrustedRef: GetLicensePlanReferencesTrustedRef;
+
+export function getLicensePlanReferencesTrusted(vars: GetLicensePlanReferencesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+export function getLicensePlanReferencesTrusted(dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+
+interface DeleteLicensePlanTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteLicensePlanTrustedVariables): MutationRef<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteLicensePlanTrustedVariables): MutationRef<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+  operationName: string;
+}
+export const deleteLicensePlanTrustedRef: DeleteLicensePlanTrustedRef;
+
+export function deleteLicensePlanTrusted(vars: DeleteLicensePlanTrustedVariables): MutationPromise<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+export function deleteLicensePlanTrusted(dc: DataConnect, vars: DeleteLicensePlanTrustedVariables): MutationPromise<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
 
 interface ListOrganizationsRef {
   /* Allow users to create refs without passing in DataConnect */

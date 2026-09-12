@@ -20,6 +20,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListOrganizationLicensePlanAssignments*](#listorganizationlicenseplanassignments)
   - [*GetLicensePlan*](#getlicenseplan)
   - [*GetLicensePlanTrusted*](#getlicenseplantrusted)
+  - [*GetLicensePlanReferencesTrusted*](#getlicenseplanreferencestrusted)
   - [*ListOrganizations*](#listorganizations)
   - [*GetOrganization*](#getorganization)
   - [*GetOrganizationTrusted*](#getorganizationtrusted)
@@ -42,6 +43,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*UpdateLicensePlan*](#updatelicenseplan)
   - [*ChangeLicensePlanStatus*](#changelicenseplanstatus)
   - [*DeleteLicensePlan*](#deletelicenseplan)
+  - [*DeleteLicensePlanTrusted*](#deletelicenseplantrusted)
   - [*ProvisionOrganizationAdministrator*](#provisionorganizationadministrator)
   - [*UpdateOrganizationAdministrator*](#updateorganizationadministrator)
   - [*ChangeOrganizationAdministratorStatus*](#changeorganizationadministratorstatus)
@@ -1229,6 +1231,124 @@ console.log(data.licensePlan);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan);
+});
+```
+
+## GetLicensePlanReferencesTrusted
+You can execute the `GetLicensePlanReferencesTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+getLicensePlanReferencesTrusted(vars: GetLicensePlanReferencesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+
+interface GetLicensePlanReferencesTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetLicensePlanReferencesTrustedVariables): QueryRef<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+}
+export const getLicensePlanReferencesTrustedRef: GetLicensePlanReferencesTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getLicensePlanReferencesTrusted(dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+
+interface GetLicensePlanReferencesTrustedRef {
+  ...
+  (dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables): QueryRef<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
+}
+export const getLicensePlanReferencesTrustedRef: GetLicensePlanReferencesTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getLicensePlanReferencesTrustedRef:
+```typescript
+const name = getLicensePlanReferencesTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetLicensePlanReferencesTrustedVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `GetLicensePlanReferencesTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetLicensePlanReferencesTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetLicensePlanReferencesTrustedData {
+  organizationLicenses: ({
+    id: UUIDString;
+  } & OrganizationLicense_Key)[];
+  licenseHistories: ({
+    id: UUIDString;
+  } & LicenseHistory_Key)[];
+}
+```
+### Using `GetLicensePlanReferencesTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getLicensePlanReferencesTrusted, GetLicensePlanReferencesTrustedVariables } from '@omniretail/sql-connect';
+
+// The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
+const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
+  id: ..., 
+};
+
+// Call the `getLicensePlanReferencesTrusted()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getLicensePlanReferencesTrusted(getLicensePlanReferencesTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await getLicensePlanReferencesTrusted({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getLicensePlanReferencesTrusted(dataConnect, getLicensePlanReferencesTrustedVars);
+
+console.log(data.organizationLicenses);
+console.log(data.licenseHistories);
+
+// Or, you can use the `Promise` API.
+getLicensePlanReferencesTrusted(getLicensePlanReferencesTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationLicenses);
+  console.log(data.licenseHistories);
+});
+```
+
+### Using `GetLicensePlanReferencesTrusted`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getLicensePlanReferencesTrustedRef, GetLicensePlanReferencesTrustedVariables } from '@omniretail/sql-connect';
+
+// The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
+const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
+  id: ..., 
+};
+
+// Call the `getLicensePlanReferencesTrustedRef()` function to get a reference to the query.
+const ref = getLicensePlanReferencesTrustedRef(getLicensePlanReferencesTrustedVars);
+// Variables can be defined inline as well.
+const ref = getLicensePlanReferencesTrustedRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getLicensePlanReferencesTrustedRef(dataConnect, getLicensePlanReferencesTrustedVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationLicenses);
+console.log(data.licenseHistories);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationLicenses);
+  console.log(data.licenseHistories);
 });
 ```
 
@@ -3873,6 +3993,129 @@ const ref = deleteLicensePlanRef({ id: ..., auditId: ..., requestId: ..., });
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = deleteLicensePlanRef(dataConnect, deleteLicensePlanVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.licensePlan_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.licensePlan_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteLicensePlanTrusted
+You can execute the `DeleteLicensePlanTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteLicensePlanTrusted(vars: DeleteLicensePlanTrustedVariables): MutationPromise<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+
+interface DeleteLicensePlanTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteLicensePlanTrustedVariables): MutationRef<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+}
+export const deleteLicensePlanTrustedRef: DeleteLicensePlanTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteLicensePlanTrusted(dc: DataConnect, vars: DeleteLicensePlanTrustedVariables): MutationPromise<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+
+interface DeleteLicensePlanTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteLicensePlanTrustedVariables): MutationRef<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
+}
+export const deleteLicensePlanTrustedRef: DeleteLicensePlanTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteLicensePlanTrustedRef:
+```typescript
+const name = deleteLicensePlanTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteLicensePlanTrustedVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteLicensePlanTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteLicensePlanTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteLicensePlanTrustedData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteLicensePlanTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteLicensePlanTrusted, DeleteLicensePlanTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
+const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteLicensePlanTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteLicensePlanTrusted(deleteLicensePlanTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteLicensePlanTrusted({ id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteLicensePlanTrusted(dataConnect, deleteLicensePlanTrustedVars);
+
+console.log(data.licensePlan_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteLicensePlanTrusted(deleteLicensePlanTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.licensePlan_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteLicensePlanTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteLicensePlanTrustedRef, DeleteLicensePlanTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
+const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteLicensePlanTrustedRef()` function to get a reference to the mutation.
+const ref = deleteLicensePlanTrustedRef(deleteLicensePlanTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteLicensePlanTrustedRef({ id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteLicensePlanTrustedRef(dataConnect, deleteLicensePlanTrustedVars);
 
 // Call `executeMutation()` on the reference to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.

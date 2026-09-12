@@ -325,6 +325,16 @@ mutation DeleteLicensePlan($id: UUID!, $auditId: UUID!, $requestId: String!) @au
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "plans.deleted" targetType: "LicensePlan" targetId: $id requestId: $requestId })
 }
 
+query GetLicensePlanReferencesTrusted($id: UUID!) @auth(level: NO_ACCESS) {
+  organizationLicenses(where: { plan: { id: { eq: $id } } }, limit: 1) { id }
+  licenseHistories(where: { plan: { id: { eq: $id } } }, limit: 1) { id }
+}
+
+mutation DeleteLicensePlanTrusted($id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  licensePlan_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "plans.deleted" targetType: "LicensePlan" targetId: $id requestId: $requestId })
+}
+
 query ListOrganizations @auth(level: USER_EMAIL_VERIFIED) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }

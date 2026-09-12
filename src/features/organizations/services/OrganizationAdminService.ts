@@ -253,7 +253,7 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
       const refreshed = await this.getAdministrators(organizationId);
       const result = refreshed.find((admin) => admin.id === administratorId);
       if (!result) throw new Error('Administrator not found.');
-      return result;
+      return { ...result, name: input.name.trim(), phone: input.phone.trim(), email: result.email };
     } catch {
       throw new Error('Unable to update the organization administrator.');
     }

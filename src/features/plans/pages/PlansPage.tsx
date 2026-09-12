@@ -815,8 +815,10 @@ export function PlansPage() {
         isOpen={!!editingPlan}
         onClose={() => setEditingPlan(null)}
         plan={editingPlan}
-        onSuccess={(updatedPlan) => {
+        onSuccess={async (updatedPlan) => {
           setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
+          await new Promise((resolve) => setTimeout(resolve, 350));
+          await fetchPlans();
           showToast(`Plan "${updatedPlan.name}" updated successfully.`);
         }}
       />

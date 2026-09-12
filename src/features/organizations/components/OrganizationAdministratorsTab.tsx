@@ -93,6 +93,9 @@ export function OrganizationAdministratorsTab({
     await loadAdmins();
     await new Promise((resolve) => setTimeout(resolve, 350));
     await loadAdmins();
+    setAdmins((current) => current.some((admin) => admin.id === newAdmin.id)
+      ? current.map((admin) => admin.id === newAdmin.id ? newAdmin : admin)
+      : [...current, newAdmin]);
   };
 
   const handleAdminUpdated = async (updatedAdmin: OrganizationAdministrator) => {
@@ -103,6 +106,7 @@ export function OrganizationAdministratorsTab({
     await loadAdmins();
     await new Promise((resolve) => setTimeout(resolve, 350));
     await loadAdmins();
+    setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
   };
 
   const handleAdminStatusChanged = async (updatedAdmin: OrganizationAdministrator) => {

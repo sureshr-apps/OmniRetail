@@ -104,6 +104,8 @@ export function PlansPage() {
     try {
       await licensePlanService.deletePlan(plan.id);
       setPlans((prev) => prev.filter((p) => p.id !== plan.id));
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      await fetchPlans();
       showToast(`Plan "${plan.name}" was deleted.`);
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Unable to delete the plan.');

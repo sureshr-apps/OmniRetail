@@ -828,7 +828,10 @@ export function PlansPage() {
         isOpen={!!deactivatingPlan}
         onClose={() => setDeactivatingPlan(null)}
         plan={deactivatingPlan}
-        onSuccess={(updatedPlan) => {
+        onSuccess={async (updatedPlan) => {
+          setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
+          await new Promise((resolve) => setTimeout(resolve, 350));
+          await fetchPlans();
           setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
           showToast(`Plan "${updatedPlan.name}" deactivated.`);
         }}

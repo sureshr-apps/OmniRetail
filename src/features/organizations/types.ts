@@ -25,6 +25,7 @@ export interface BusinessContactInfo {
 
 export interface Organization {
   id: string; // e.g., ORG-88219
+  organizationCode?: string; // human-facing organization code
   name: string; // e.g., Punarva Fashion Hub
   legalEntityName: string;
   taxId: string;

@@ -273,7 +273,7 @@ export function OrganizationsPage() {
               <thead>
                 <tr className="h-8 bg-surface-subdued border-b border-border-subdued text-[10px] uppercase font-bold text-text-muted tracking-wider select-none">
                   <th className="px-4 py-2">Organization / Business</th>
-                  <th className="px-4 py-2">Org ID</th>
+                  <th className="px-4 py-2">Org Code</th>
                   <th className="px-4 py-2 hidden sm:table-cell">Primary Administrator</th>
                   <th className="px-4 py-2 hidden md:table-cell">Current Plan</th>
                   <th className="px-4 py-2">License Status</th>
@@ -318,7 +318,7 @@ export function OrganizationsPage() {
                       {/* Organization ID */}
                       <td className="px-4 py-2.5">
                         <span className="font-mono text-xs font-semibold text-text-secondary bg-surface-subdued px-1.5 py-0.5 rounded border border-border-structural/70">
-                          {org.id}
+                          {org.organizationCode || '—'}
                         </span>
                       </td>
 

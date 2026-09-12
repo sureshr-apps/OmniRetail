@@ -80,7 +80,7 @@ export function OrganizationDetailsPage() {
 
   const handleCopyOrgId = () => {
     if (organization?.id) {
-      navigator.clipboard.writeText(organization.id);
+      navigator.clipboard.writeText(organization.organizationCode || '');
       setHasCopiedId(true);
       setTimeout(() => setHasCopiedId(false), 2000);
     }
@@ -195,7 +195,7 @@ export function OrganizationDetailsPage() {
             {organization.name}
           </span>
           <span className="font-mono text-[11px] text-text-muted bg-surface-subdued px-1.5 py-0.2 rounded border border-border-structural">
-            {organization.id}
+            {organization.organizationCode || '—'}
           </span>
         </nav>
 
@@ -251,9 +251,9 @@ export function OrganizationDetailsPage() {
                   type="button"
                   onClick={handleCopyOrgId}
                   className="inline-flex items-center gap-1 text-xs font-mono font-semibold bg-surface-subdued text-text-secondary px-2 py-0.5 rounded border border-border-structural hover:bg-surface-subdued/80 transition-colors cursor-pointer"
-                  title="Click to copy Organization ID"
+                  title="Click to copy Organization code"
                 >
-                  <span>{organization.id}</span>
+                  <span>{organization.organizationCode || '—'}</span>
                   {hasCopiedId ? (
                     <Check className="w-3 h-3 text-emerald-600" />
                   ) : (

@@ -139,7 +139,7 @@ async function main(): Promise<void> {
 
   process.stdout.write(
     `${created ? 'Created' : 'Updated'} Master Admin ${username}. ` +
-    `${firebaseUser.emailVerified ? 'Email is already verified.' : 'Verification email sent; access remains blocked until verified.'}\n`
+    `${firebaseUser.emailVerified ? 'Email is already verified.' : 'Verification email sent; email verification is optional for application access.'}\n`
   );
 }
 

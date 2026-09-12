@@ -76,7 +76,9 @@ function requireCapability(record: AuthorizationRecord, capability: string): voi
 function requireVerifiedFirebaseIdentity(
   auth: { uid: string; token: Record<string, unknown> } | undefined
 ): string {
-  if (!auth || auth.token.email_verified !== true) throw genericAuthenticationError();
+  // Email verification is optional. Authentication plus the active AppUser/RBAC
+  // checks below remain the application access gate.
+  if (!auth?.uid) throw genericAuthenticationError();
   return auth.uid;
 }
 

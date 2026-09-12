@@ -78,11 +78,11 @@ describe('FirebaseAuthService', () => {
       .rejects.toThrow(GENERIC_AUTH_ERROR);
   });
 
-  it('denies an unverified Firebase identity and clears its session', async () => {
+  it('allows an unverified Firebase identity when application authorization succeeds', async () => {
     mocks.signInWithEmailAndPassword.mockResolvedValue({ user: { ...firebaseUser, emailVerified: false } });
-    await expect(new FirebaseAuthService().login({ username: 'admin@example.com', password: 'secret' }))
-      .rejects.toThrow(GENERIC_AUTH_ERROR);
-    expect(mocks.signOut).toHaveBeenCalled();
+    const result = await new FirebaseAuthService().login({ username: 'admin@example.com', password: 'secret' });
+    expect(result.id).toBe('user-1');
+    expect(mocks.signOut).not.toHaveBeenCalled();
   });
 
   it('restores an authorized session and logs out through Firebase', async () => {

@@ -95,7 +95,6 @@ function validateAuthorizationResponse(value: unknown): AuthorizedUserResponse {
 
 export class FirebaseAuthService implements IAuthService {
   private async bootstrap(firebaseUser: FirebaseUser, recordLogin: boolean): Promise<User> {
-    if (!firebaseUser.emailVerified) throw new Error(GENERIC_AUTH_ERROR);
     const { functions } = getFirebaseClientServices();
     const bootstrapUser = httpsCallable<{ recordLogin: boolean }, AuthorizedUserResponse>(
       functions,
@@ -181,7 +180,7 @@ export class FirebaseAuthService implements IAuthService {
   async changePassword(change: PasswordChange): Promise<void> {
     const { auth, functions } = getFirebaseClientServices();
     const firebaseUser = auth.currentUser;
-    if (!firebaseUser?.email || !firebaseUser.emailVerified) throw new Error('Unable to change password.');
+    if (!firebaseUser?.email) throw new Error('Unable to change password.');
 
     try {
       const credential = EmailAuthProvider.credential(firebaseUser.email, change.currentPassword);

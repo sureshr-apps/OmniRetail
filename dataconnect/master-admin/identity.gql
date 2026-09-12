@@ -91,7 +91,7 @@ mutation UpdateAppUserProfile(
   $phone: String
   $auditId: UUID!
   $requestId: String!
-) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+) @auth(level: USER) @transaction {
   appUser_update(id: $userId, data: {
     displayName: $displayName
     phone: $phone
@@ -197,7 +197,7 @@ query GetAppUserByFirebaseUid($firebaseUid: String!) @auth(level: NO_ACCESS) {
 # License Plan catalog operations. The embedded active-user checks keep these
 # operations unavailable to inactive AppUsers while capability checks remain in
 # the trusted plan adapter/functions.
-query ListLicensePlans @auth(level: USER_EMAIL_VERIFIED) {
+query ListLicensePlans @auth(level: USER) {
   licensePlans(orderBy: [{ level: ASC }]) {
     id
     planCode
@@ -215,14 +215,14 @@ query ListLicensePlans @auth(level: USER_EMAIL_VERIFIED) {
 # Minimal projection used by the Plans screen to show the real number of
 # organizations assigned to each plan. The browser receives plan IDs only;
 # license and organization details are intentionally omitted.
-query ListOrganizationLicensePlanAssignments @auth(level: USER_EMAIL_VERIFIED) {
+query ListOrganizationLicensePlanAssignments @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   organizationLicenses {
     plan { id }
   }
 }
 
-query GetLicensePlan($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+query GetLicensePlan($id: UUID!) @auth(level: USER) {
   licensePlan(key: { id: $id }) {
     id
     planCode
@@ -252,7 +252,7 @@ mutation CreateLicensePlan(
   $maxUsers: Int!
   $auditId: UUID!
   $requestId: String!
-) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+) @auth(level: USER) @transaction {
   licensePlan_insert(data: {
     planCode: $planCode
     name: $name
@@ -280,7 +280,7 @@ mutation UpdateLicensePlan(
   $maxUsers: Int!
   $auditId: UUID!
   $requestId: String!
-) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+) @auth(level: USER) @transaction {
   licensePlan_update(id: $id, data: {
     name: $name
     description: $description
@@ -305,7 +305,7 @@ mutation ChangeLicensePlanStatus(
   $action: String!
   $auditId: UUID!
   $requestId: String!
-) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+) @auth(level: USER) @transaction {
   licensePlan_update(id: $id, data: {
     status: $status
     updatedAt_expr: "request.time"
@@ -320,7 +320,7 @@ mutation ChangeLicensePlanStatus(
   })
 }
 
-mutation DeleteLicensePlan($id: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+mutation DeleteLicensePlan($id: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   licensePlan_delete(id: $id)
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "plans.deleted" targetType: "LicensePlan" targetId: $id requestId: $requestId })
 }
@@ -335,7 +335,7 @@ mutation DeleteLicensePlanTrusted($id: UUID!, $auditId: UUID!, $requestId: Strin
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "plans.deleted" targetType: "LicensePlan" targetId: $id requestId: $requestId })
 }
 
-query ListOrganizations @auth(level: USER_EMAIL_VERIFIED) {
+query ListOrganizations @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
   }
@@ -344,7 +344,7 @@ query ListOrganizations @auth(level: USER_EMAIL_VERIFIED) {
   }
 }
 
-query GetOrganization($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+query GetOrganization($id: UUID!) @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
   }
@@ -359,7 +359,7 @@ query GetOrganizationTrusted($id: UUID!) @auth(level: NO_ACCESS) {
   }
 }
 
-query ListOrganizationAdministrators($organizationId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+query ListOrganizationAdministrators($organizationId: UUID!) @auth(level: USER) {
   appUsers(
     where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }
     limit: 1
@@ -379,7 +379,7 @@ query ListOrganizationAdministrators($organizationId: UUID!) @auth(level: USER_E
   }
 }
 
-query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth(level: USER) {
   appUsers(
     where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }
     limit: 1
@@ -402,7 +402,7 @@ mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $firebaseUid action: "organization_administrator.created" targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
-mutation UpdateOrganizationAdministrator($organizationId: UUID!, $userId: UUID!, $displayName: String!, $phone: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+mutation UpdateOrganizationAdministrator($organizationId: UUID!, $userId: UUID!, $displayName: String!, $phone: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organization_admins.update'))", message: "Administrator updates are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
     organizationMembership(key: { organizationId: $organizationId, userId: $userId }) @check(expr: "this != null", message: "Administrator is not in this organization.") { organizationId userId }
@@ -454,12 +454,12 @@ query GetOrganizationLicenseHistory($organizationId: UUID!) @auth(level: NO_ACCE
   }
 }
 
-query GetOrganizationLicensePublic($organizationId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+query GetOrganizationLicensePublic($organizationId: UUID!) @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'licenses.read'))", message: "License access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   organizationLicenses(where: { organization: { id: { eq: $organizationId } } }) { id organization { id } plan { id planCode name level maxStores maxUsers status } startDate expiryDate negotiatedPrice currency createdAt updatedAt }
 }
 
-query GetOrganizationLicenseHistoryPublic($organizationId: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
+query GetOrganizationLicenseHistoryPublic($organizationId: UUID!) @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'licenses.history.read'))", message: "License history access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   licenseHistories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ eventAt: DESC }]) { id license { id } organization { id } eventType eventAt plan { id planCode name level maxStores maxUsers } planCode planName planLevel maxStores maxUsers startDate expiryDate negotiatedPrice currency changes }
 }
@@ -522,7 +522,7 @@ mutation RecordProvisioningReconciliation($idempotencyKey: String!, $firebaseUid
   provisioningReconciliation_insert(data: { idempotencyKey: $idempotencyKey operationType: "provisionOrganizationAdministrator" firebaseUid: $firebaseUid status: "requires_reconciliation" errorClass: $errorClass })
 }
 
-mutation CreateOrganization($organizationCode: String!, $businessName: String!, $legalEntityName: String, $taxId: String, $primaryContactName: String!, $email: String!, $phone: String!, $address: String, $city: String, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+mutation CreateOrganization($organizationCode: String!, $businessName: String!, $legalEntityName: String, $taxId: String, $primaryContactName: String!, $email: String!, $phone: String!, $address: String, $city: String, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.create'))", message: "Organization creation is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   }
@@ -530,7 +530,7 @@ mutation CreateOrganization($organizationCode: String!, $businessName: String!, 
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "organizations.created" targetType: "Organization" requestId: $requestId })
 }
 
-mutation UpdateOrganization($id: UUID!, $businessName: String!, $legalEntityName: String, $taxId: String, $primaryContactName: String!, $email: String!, $phone: String!, $address: String, $city: String, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+mutation UpdateOrganization($id: UUID!, $businessName: String!, $legalEntityName: String, $taxId: String, $primaryContactName: String!, $email: String!, $phone: String!, $address: String, $city: String, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.update'))", message: "Organization updates are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   }
@@ -538,7 +538,7 @@ mutation UpdateOrganization($id: UUID!, $businessName: String!, $legalEntityName
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "organizations.updated" targetType: "Organization" targetId: $id requestId: $requestId })
 }
 
-mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!, $action: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!, $action: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.change_status'))", message: "Organization status changes are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   }

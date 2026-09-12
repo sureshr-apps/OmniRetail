@@ -96,7 +96,7 @@ export async function authenticateUsername(
 
     const passwordResult = await dependencies.verifyPassword(identity.email, password);
     const verified = await dependencies.verifyCredential(passwordResult.idToken);
-    if (verified.uid !== identity.firebaseUid || !verified.emailVerified) {
+    if (verified.uid !== identity.firebaseUid) {
       throw new Error(GENERIC_AUTH_ERROR);
     }
 

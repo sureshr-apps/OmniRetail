@@ -370,7 +370,7 @@ query ListOrganizationAdministrators($organizationId: UUID!) @auth(level: USER_E
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
   }
   organizationMemberships(
-    where: { organizationId: { eq: $organizationId }, status: { eq: ACTIVE } }
+    where: { organizationId: { eq: $organizationId } }
     orderBy: [{ createdAt: ASC }]
   ) {
     createdAt

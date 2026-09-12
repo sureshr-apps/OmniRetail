@@ -90,6 +90,14 @@ describe('FirebaseAuthService', () => {
     expect(mocks.signOut).not.toHaveBeenCalled();
   });
 
+  it('accepts an active AppUser without overview permission during authentication bootstrap', async () => {
+    mocks.callables.set('bootstrapAuthenticatedUser', vi.fn().mockResolvedValue({
+      data: { ...authorizedUser, capabilities: [] },
+    }));
+    const result = await new FirebaseAuthService().login({ username: 'admin@example.com', password: 'secret' });
+    expect(result.capabilities).toEqual([]);
+  });
+
   it('allows an unverified identity restored from an existing session', async () => {
     mocks.auth.currentUser = { ...firebaseUser, emailVerified: false };
     const user = await new FirebaseAuthService().getCurrentUser();

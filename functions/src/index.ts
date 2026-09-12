@@ -162,7 +162,6 @@ export const bootstrapAuthenticatedUser = onCall(callableOptions, async (request
     const firebaseUid = requireVerifiedFirebaseIdentity(request.auth);
     const record = await loadAuthorization(firebaseUid);
     const authorizedUser = toAuthorizedUser(record);
-    if (!authorizedUser.capabilities.includes('overview.read')) throw genericAuthenticationError();
     if (request.data?.recordLogin === true) {
       await recordSuccessfulLogin({ userId: record.id, auditId: randomUUID(), requestId: randomUUID() });
     }

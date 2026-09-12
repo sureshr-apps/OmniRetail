@@ -85,8 +85,7 @@ function validateAuthorizationResponse(value: unknown): AuthorizedUserResponse {
     typeof candidate.email !== 'string' ||
     typeof candidate.displayName !== 'string' ||
     !Array.isArray(candidate.roles) ||
-    !Array.isArray(candidate.capabilities) ||
-    !candidate.capabilities.includes('overview.read')
+    !Array.isArray(candidate.capabilities)
   ) {
     throw new Error(GENERIC_AUTH_ERROR);
   }

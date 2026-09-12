@@ -215,6 +215,21 @@ exports.listLicensePlans = function listLicensePlans(dcOrOptions, options) {
 }
 ;
 
+const listOrganizationLicensePlanAssignmentsRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListOrganizationLicensePlanAssignments');
+}
+listOrganizationLicensePlanAssignmentsRef.operationName = 'ListOrganizationLicensePlanAssignments';
+exports.listOrganizationLicensePlanAssignmentsRef = listOrganizationLicensePlanAssignmentsRef;
+
+exports.listOrganizationLicensePlanAssignments = function listOrganizationLicensePlanAssignments(dcOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listOrganizationLicensePlanAssignmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const getLicensePlanRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

@@ -107,6 +107,12 @@ export function listLicensePlans(dcOrOptions, options) {
   return dcInstance.executeQuery('ListLicensePlans', undefined, inputOpts);
 }
 
+export function listOrganizationLicensePlanAssignments(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListOrganizationLicensePlanAssignments', undefined, inputOpts);
+}
+
 export function getLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

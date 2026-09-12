@@ -118,7 +118,7 @@ export function PlansPage() {
       plans.reduce(
         (acc, p) => acc + (p.assignedOrganizationsCount || p.assignedTenantsCount || 0),
         0
-      ) || 176,
+      ),
     [plans]
   );
   const highestPlan = useMemo(() => {

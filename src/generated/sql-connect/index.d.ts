@@ -622,6 +622,14 @@ export interface ListOrganizationAdministratorsVariables {
   organizationId: UUIDString;
 }
 
+export interface ListOrganizationLicensePlanAssignmentsData {
+  organizationLicenses: ({
+    plan: {
+      id: UUIDString;
+    } & LicensePlan_Key;
+  })[];
+}
+
 export interface ListOrganizationsData {
   organizations: ({
     id: UUIDString;
@@ -1053,6 +1061,18 @@ export const listLicensePlansRef: ListLicensePlansRef;
 
 export function listLicensePlans(options?: ExecuteQueryOptions): QueryPromise<ListLicensePlansData, undefined>;
 export function listLicensePlans(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListLicensePlansData, undefined>;
+
+interface ListOrganizationLicensePlanAssignmentsRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListOrganizationLicensePlanAssignmentsData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListOrganizationLicensePlanAssignmentsData, undefined>;
+  operationName: string;
+}
+export const listOrganizationLicensePlanAssignmentsRef: ListOrganizationLicensePlanAssignmentsRef;
+
+export function listOrganizationLicensePlanAssignments(options?: ExecuteQueryOptions): QueryPromise<ListOrganizationLicensePlanAssignmentsData, undefined>;
+export function listOrganizationLicensePlanAssignments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationLicensePlanAssignmentsData, undefined>;
 
 interface GetLicensePlanRef {
   /* Allow users to create refs without passing in DataConnect */

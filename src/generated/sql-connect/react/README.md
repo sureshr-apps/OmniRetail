@@ -24,6 +24,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*GetCurrentAppUser*](#getcurrentappuser)
   - [*GetAppUserByFirebaseUid*](#getappuserbyfirebaseuid)
   - [*ListLicensePlans*](#listlicenseplans)
+  - [*ListOrganizationLicensePlanAssignments*](#listorganizationlicenseplanassignments)
   - [*GetLicensePlan*](#getlicenseplan)
   - [*ListOrganizations*](#listorganizations)
   - [*GetOrganization*](#getorganization)
@@ -766,6 +767,79 @@ export default function ListLicensePlansComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.licensePlans);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListOrganizationLicensePlanAssignments
+You can execute the `ListOrganizationLicensePlanAssignments` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListOrganizationLicensePlanAssignments(dc: DataConnect, options?: useDataConnectQueryOptions<ListOrganizationLicensePlanAssignmentsData>): UseDataConnectQueryResult<ListOrganizationLicensePlanAssignmentsData, undefined>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListOrganizationLicensePlanAssignments(options?: useDataConnectQueryOptions<ListOrganizationLicensePlanAssignmentsData>): UseDataConnectQueryResult<ListOrganizationLicensePlanAssignmentsData, undefined>;
+```
+
+### Variables
+The `ListOrganizationLicensePlanAssignments` Query has no variables.
+### Return Type
+Recall that calling the `ListOrganizationLicensePlanAssignments` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListOrganizationLicensePlanAssignments` Query is of type `ListOrganizationLicensePlanAssignmentsData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListOrganizationLicensePlanAssignmentsData {
+  organizationLicenses: ({
+    plan: {
+      id: UUIDString;
+    } & LicensePlan_Key;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListOrganizationLicensePlanAssignments`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig } from '@omniretail/sql-connect';
+import { useListOrganizationLicensePlanAssignments } from '@omniretail/sql-connect/react'
+
+export default function ListOrganizationLicensePlanAssignmentsComponent() {
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListOrganizationLicensePlanAssignments();
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListOrganizationLicensePlanAssignments(dataConnect);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListOrganizationLicensePlanAssignments(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListOrganizationLicensePlanAssignments(dataConnect, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationLicenses);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }

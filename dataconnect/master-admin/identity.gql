@@ -212,6 +212,16 @@ query ListLicensePlans @auth(level: USER_EMAIL_VERIFIED) {
   }
 }
 
+# Minimal projection used by the Plans screen to show the real number of
+# organizations assigned to each plan. The browser receives plan IDs only;
+# license and organization details are intentionally omitted.
+query ListOrganizationLicensePlanAssignments @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  organizationLicenses {
+    plan { id }
+  }
+}
+
 query GetLicensePlan($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
   licensePlan(key: { id: $id }) {
     id

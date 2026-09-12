@@ -125,6 +125,13 @@ function listLicensePlans(dcOrOptions, options) {
 }
 exports.listLicensePlans = listLicensePlans;
 
+function listOrganizationLicensePlanAssignments(dcOrOptions, options) {
+  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListOrganizationLicensePlanAssignments', undefined, inputOpts);
+}
+exports.listOrganizationLicensePlanAssignments = listOrganizationLicensePlanAssignments;
+
 function getLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

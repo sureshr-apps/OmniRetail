@@ -101,7 +101,7 @@ export function DeactivatePlanModal({
               </span>
               <div className="flex items-center gap-1.5 text-xs font-semibold text-text-primary font-mono">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
-                <span>{plan.assignedOrganizationsCount || plan.assignedTenantsCount || 14} organizations</span>
+                <span>{plan.assignedOrganizationsCount ?? plan.assignedTenantsCount ?? '—'} organizations</span>
               </div>
             </div>
 

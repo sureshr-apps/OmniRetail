@@ -1,4 +1,4 @@
-import { changeLicensePlanStatus, createLicensePlan, getLicensePlan, listLicensePlans, updateLicensePlan, LicensePlanStatus } from '@omniretail/sql-connect';
+import { changeLicensePlanStatus, createLicensePlan, getLicensePlan, listLicensePlans, listOrganizationLicensePlanAssignments, updateLicensePlan, LicensePlanStatus } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { LicensePlan, CreatePlanInput, UpdatePlanInput, PlanQuery, PlanStatus } from '../types';
 
@@ -31,7 +31,7 @@ const newUuid = (): string => globalThis.crypto.randomUUID();
 function planCode(name: string): string { return `PLN-${newUuid().replaceAll('-', '').slice(0, 12).toUpperCase()}-${name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10) || 'PLAN'}`; }
 
 class SqlLicensePlanService implements ILicensePlanService {
-  private async rows(): Promise<LicensePlan[]> { try { const result = await listLicensePlans(getFirebaseClientServices().dataConnect); return result.data.licensePlans.map((row) => mapRow(row as Row)); } catch (error) { throw safeError(error, 'Unable to load plans.'); } }
+  private async rows(): Promise<LicensePlan[]> { try { const services = getFirebaseClientServices(); const [plansResult, assignmentsResult] = await Promise.all([listLicensePlans(services.dataConnect), listOrganizationLicensePlanAssignments(services.dataConnect)]); const counts = assignmentsResult.data.organizationLicenses.reduce<Record<string, number>>((result, license) => { const planId = license.plan.id; result[planId] = (result[planId] ?? 0) + 1; return result; }, {}); return plansResult.data.licensePlans.map((row) => ({ ...mapRow(row as Row), assignedOrganizationsCount: counts[row.id] ?? 0 })); } catch (error) { throw safeError(error, 'Unable to load plans.'); } }
   async getPlans(query?: PlanQuery): Promise<LicensePlan[]> { let result = await this.rows(); if (query?.status && query.status !== 'all') result = result.filter((p) => p.status === query.status); if (query?.level !== undefined && query.level !== 'all') result = result.filter((p) => p.level === Number(query.level)); const search = query?.search?.trim().toLowerCase(); if (search) result = result.filter((p) => `${p.planCode ?? ''} ${p.name} ${p.description}`.toLowerCase().includes(search)); return result.sort((a, b) => a.level - b.level); }
   async getActivePlans(): Promise<LicensePlan[]> { return this.getPlans({ status: 'active' }); }
   async getPlan(id: string): Promise<LicensePlan | null> { try { const result = await getLicensePlan(getFirebaseClientServices().dataConnect, { id }); return result.data.licensePlan ? mapRow(result.data.licensePlan as Row) : null; } catch (error) { throw safeError(error, 'Unable to load the plan.'); } }

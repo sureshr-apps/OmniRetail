@@ -613,6 +613,14 @@ export interface ListOrganizationAdministratorsVariables {
   organizationId: UUIDString;
 }
 
+export interface ListOrganizationLicensePlanAssignmentsData {
+  organizationLicenses: ({
+    plan: {
+      id: UUIDString;
+    } & LicensePlan_Key;
+  })[];
+}
+
 export interface ListOrganizationsData {
   organizations: ({
     id: UUIDString;
@@ -967,6 +975,11 @@ export function getAppUserByFirebaseUid(vars: GetAppUserByFirebaseUidVariables, 
 export function listLicensePlans(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListLicensePlansData>>;
 /** Generated Node Admin SDK operation action function for the 'ListLicensePlans' Query. Allow users to pass in custom DataConnect instances. */
 export function listLicensePlans(options?: OperationOptions): Promise<ExecuteOperationResponse<ListLicensePlansData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListOrganizationLicensePlanAssignments' Query. Allow users to execute without passing in DataConnect. */
+export function listOrganizationLicensePlanAssignments(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationLicensePlanAssignmentsData>>;
+/** Generated Node Admin SDK operation action function for the 'ListOrganizationLicensePlanAssignments' Query. Allow users to pass in custom DataConnect instances. */
+export function listOrganizationLicensePlanAssignments(options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationLicensePlanAssignmentsData>>;
 
 /** Generated Node Admin SDK operation action function for the 'GetLicensePlan' Query. Allow users to execute without passing in DataConnect. */
 export function getLicensePlan(dc: DataConnect, vars: GetLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLicensePlanData>>;

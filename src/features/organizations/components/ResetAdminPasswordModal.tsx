@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { KeyRound, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Input } from '@/shared/components/Input';
 import { Modal } from '@/shared/components/Modal';
 import { Button } from '@/shared/components/Button';
 import { OrganizationAdministrator } from '../types';
@@ -22,6 +23,8 @@ export function ResetAdminPasswordModal({
 }: ResetAdminPasswordModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [initialPassword, setInitialPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [result, setResult] = useState<{
     message: string;
   } | null>(null);
@@ -30,15 +33,27 @@ export function ResetAdminPasswordModal({
     if (!isSubmitting) {
       setResult(null);
       setError(null);
+      setInitialPassword('');
+      setConfirmPassword('');
       onClose();
     }
   };
 
   const handleReset = async () => {
+    if (initialPassword.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (initialPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
     setIsSubmitting(true);
     setError(null);
     try {
-      const res = await organizationAdminService.resetPassword(organizationId, admin.id);
+      const res = await organizationAdminService.resetPassword(organizationId, admin.id, initialPassword);
+      setInitialPassword('');
+      setConfirmPassword('');
       setResult({
         message: res.message,
       });
@@ -79,15 +94,15 @@ export function ResetAdminPasswordModal({
                   <strong className="text-text-primary font-semibold">{organizationName}</strong>.
                 </p>
                 <div className="bg-surface-subdued border border-border-structural/80 rounded p-2.5 space-y-1 text-text-muted text-[11px]">
-                  <p className="font-semibold text-text-primary">Delivery Details:</p>
-                  <p>
-                    A secure, single-use password recovery link will be sent to the administrator's registered email: <strong className="text-text-primary font-mono">{admin.email}</strong>.
-                  </p>
-                  <p>
-                    The reset token will expire in 24 hours. The administrator's existing session will remain valid until a new password is set.
-                  </p>
+                  <p className="font-semibold text-text-primary">Initial password:</p>
+                  <p>This sets the Firebase password directly. The password is not stored or shown after submission.</p>
                 </div>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="text-xs font-semibold text-text-primary">Initial password<Input type="password" value={initialPassword} onChange={(e) => setInitialPassword(e.target.value)} disabled={isSubmitting} autoComplete="new-password" /></label>
+              <label className="text-xs font-semibold text-text-primary">Confirm password<Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isSubmitting} autoComplete="new-password" /></label>
             </div>
 
             {/* Actions */}
@@ -108,7 +123,7 @@ export function ResetAdminPasswordModal({
                 isLoading={isSubmitting}
                 className="text-xs"
               >
-                Send Password Reset
+                Set Initial Password
               </Button>
             </div>
           </>

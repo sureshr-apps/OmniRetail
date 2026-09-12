@@ -27,7 +27,8 @@ export interface IOrganizationAdminService {
   ): Promise<OrganizationAdministrator>;
   resetPassword(
     organizationId: string,
-    administratorId: string
+    administratorId: string,
+    initialPassword: string
   ): Promise<{ success: boolean; message: string }>;
 }
 
@@ -302,12 +303,13 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
 
   async resetPassword(
     organizationId: string,
-    administratorId: string
+    administratorId: string,
+    initialPassword: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const callable = httpsCallable<{ organizationId: string; administratorId: string }, { success: boolean }>(getFirebaseClientServices().functions, 'resetOrganizationAdministratorPassword');
-      await callable({ organizationId, administratorId });
-      return { success: true, message: 'Password reset instructions have been sent.' };
+      const callable = httpsCallable<{ organizationId: string; administratorId: string; initialPassword: string }, { success: boolean }>(getFirebaseClientServices().functions, 'resetOrganizationAdministratorPassword');
+      await callable({ organizationId, administratorId, initialPassword });
+      return { success: true, message: 'The initial password has been set. Share it with the administrator through a secure channel.' };
     } catch { throw new Error('Unable to reset the administrator password.'); }
   }
 }

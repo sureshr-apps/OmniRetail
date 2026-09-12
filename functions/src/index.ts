@@ -387,6 +387,15 @@ export const resendAdministratorOnboardingEmail = onCall(callableOptions, async 
 });
 
 export const resetOrganizationAdministratorPassword = onCall(callableOptions, async (request) => {
-  try { const t = await authorizeTarget(request, 'organization_admins.reset_password'); if (t.identity.user.status !== AppUserStatus.ACTIVE) throw new Error('inactive target'); const auth = getAuth(); await auth.revokeRefreshTokens(t.identity.user.firebaseUid); await sendManagedPasswordEmail(t.identity.user.email, 'PASSWORD_RESET'); await recordAdministratorSecurityEvent({ auditId: randomUUID(), actorFirebaseUid: t.callerUid, action: 'organization_administrator.password_reset_initiated', targetId: t.appUserId, organizationId: t.organizationId, requestId: randomUUID() }); return { success: true }; }
-  catch { throw new HttpsError('permission-denied', 'Unable to reset the administrator password.'); }
+  try {
+    const t = await authorizeTarget(request, 'organization_admins.reset_password');
+    if (t.identity.user.status !== AppUserStatus.ACTIVE) throw new Error('inactive target');
+    const initialPassword = typeof request.data?.initialPassword === 'string' ? request.data.initialPassword : '';
+    if (initialPassword.length < 6 || initialPassword.length > 4096) throw new Error('invalid password');
+    const auth = getAuth();
+    await auth.updateUser(t.identity.user.firebaseUid, { password: initialPassword });
+    await auth.revokeRefreshTokens(t.identity.user.firebaseUid);
+    await recordAdministratorSecurityEvent({ auditId: randomUUID(), actorFirebaseUid: t.callerUid, action: 'organization_administrator.password_reset_initiated', targetId: t.appUserId, organizationId: t.organizationId, requestId: randomUUID() });
+    return { success: true };
+  } catch (error) { logCallableFailure('resetOrganizationAdministratorPassword', error); throw new HttpsError('permission-denied', 'Unable to reset the administrator password.'); }
 });

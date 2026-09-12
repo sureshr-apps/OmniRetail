@@ -80,9 +80,11 @@ export function OrganizationLicenseTab({
     loadLicenseData();
   }, [loadLicenseData]);
 
-  const handleActionSuccess = (message: string) => {
+  const handleActionSuccess = async (message: string) => {
     setFeedback(message);
-    loadLicenseData();
+    await loadLicenseData();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await loadLicenseData();
     onLicenseUpdated?.();
     setTimeout(() => {
       setFeedback(null);

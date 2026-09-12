@@ -107,10 +107,12 @@ export function OrganizationsPage() {
     setPage(1);
   };
 
-  const handleOrgCreated = (newOrg: Organization) => {
+  const handleOrgCreated = async (newOrg: Organization) => {
     setSuccessBanner({ name: newOrg.name, id: newOrg.id });
     setPage(1);
-    fetchOrganizations();
+    await fetchOrganizations();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await fetchOrganizations();
   };
 
   const isFiltered = debouncedSearch !== '' || orgStatus !== 'all' || licenseStatus !== 'all';

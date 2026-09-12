@@ -12,7 +12,7 @@ export interface EditAdminModalProps {
   onClose: () => void;
   organizationId: string;
   admin: OrganizationAdministrator;
-  onSuccess: (updatedAdmin: OrganizationAdministrator) => void;
+  onSuccess: (updatedAdmin: OrganizationAdministrator) => void | Promise<void>;
 }
 
 interface FormState {
@@ -98,7 +98,7 @@ export function EditAdminModal({
         admin.id,
         input
       );
-      onSuccess(updated);
+      await onSuccess(updated);
       onClose();
     } catch (err: any) {
       setSubmitError(err.message || 'Failed to update administrator. Please try again.');

@@ -12,7 +12,7 @@ export interface AddAdminModalProps {
   onClose: () => void;
   organizationId: string;
   organizationName: string;
-  onSuccess: (newAdmin: OrganizationAdministrator) => void;
+  onSuccess: (newAdmin: OrganizationAdministrator) => void | Promise<void>;
 }
 
 interface FormState {
@@ -107,7 +107,7 @@ export function AddAdminModal({
 
       const created = await organizationAdminService.createAdministrator(organizationId, input);
       resetForm();
-      onSuccess(created);
+      await onSuccess(created);
       onClose();
     } catch (err: any) {
       setSubmitError(err.message || 'Failed to create administrator. Please try again.');

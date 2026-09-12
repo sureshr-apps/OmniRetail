@@ -93,12 +93,12 @@ export function OrganizationAdministratorsTab({
     await loadAdmins();
   };
 
-  const handleAdminUpdated = (updatedAdmin: OrganizationAdministrator) => {
+  const handleAdminUpdated = async (updatedAdmin: OrganizationAdministrator) => {
     setFeedback({
       message: `Administrator profile for "${updatedAdmin.name}" updated successfully.`,
       type: 'success',
     });
-    loadAdmins();
+    await loadAdmins();
   };
 
   const handleAdminStatusChanged = (updatedAdmin: OrganizationAdministrator) => {

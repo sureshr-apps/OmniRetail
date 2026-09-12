@@ -37,6 +37,14 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Build frontend
+        env:
+          VITE_FIREBASE_API_KEY: "AIzaSyAyQboFxYrp5xTLGREny35543ICAqreNYM"
+          VITE_FIREBASE_AUTH_DOMAIN: "omniretail-60c71.firebaseapp.com"
+          VITE_FIREBASE_PROJECT_ID: "omniretail-60c71"
+          VITE_FIREBASE_STORAGE_BUCKET: "omniretail-60c71.firebasestorage.app"
+          VITE_FIREBASE_MESSAGING_SENDER_ID: "1039046217091"
+          VITE_FIREBASE_APP_ID: "1:1039046217091:web:8d9d6ca14861e4ae823ab6"
+          VITE_USE_FIREBASE_EMULATORS: "false"
         run: npm run build
 
       - name: Configure Functions deployment parameters

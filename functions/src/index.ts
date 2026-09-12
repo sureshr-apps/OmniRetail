@@ -75,6 +75,14 @@ function requireVerifiedFirebaseIdentity(
   return auth.uid;
 }
 
+function logCallableFailure(operation: string, error: unknown): void {
+  const value = error as { code?: unknown; message?: unknown } | null;
+  console.error(`${operation} failed`, {
+    code: typeof value?.code === 'string' ? value.code : 'unknown',
+    message: typeof value?.message === 'string' ? value.message : 'unknown',
+  });
+}
+
 async function sendManagedPasswordEmail(email: string, requestType: 'PASSWORD_RESET'): Promise<void> {
   const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${encodeURIComponent(firebaseWebApiKey.value())}`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
@@ -202,7 +210,7 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
         async claim(r) { await claimLifecycleIdempotency({ idempotencyKey: r.key, operationType: 'provisionOrganizationAdministrator', requestFingerprint: r.requestFingerprint }); },
         async complete(key, status, result) { await completeLifecycleIdempotency({ idempotencyKey: key, status: status as ProvisioningAttemptStatus, resultReference: result ? JSON.stringify(result) : undefined }); },
       },
-      auth: { async create() { const temporaryPassword = randomBytes(32).toString('base64url'); const created = await getAuth().createUser({ email, displayName, phoneNumber: phone, password: temporaryPassword, emailVerified: false, disabled: false }); createdUid = created.uid; return { uid: created.uid }; }, async compensate(uid) { await getAuth().deleteUser(uid); } },
+      auth: { async create() { const temporaryPassword = randomBytes(32).toString('base64url'); const created = await getAuth().createUser({ email, displayName, phoneNumber: phone, password: temporaryPassword, emailVerified: false, disabled: false }); createdUid = created.uid; return { uid: created.uid }; }, async compensate(uid) { try { await getAuth().deleteUser(uid); } catch (error: any) { if (error?.code === 'auth/user-not-found') return; await getAuth().updateUser(uid, { disabled: true }); } } },
       sql: { async provision(data) { const appUserId = randomUUID(); await provisionOrganizationAdministratorSql({ userId: appUserId, firebaseUid: data.firebaseUid, username, email, displayName, phone, organizationId, roleId: '00000000-0000-4000-8000-000000000002', auditId: randomUUID(), requestId: randomUUID() }); return { appUserId, organizationMembershipId: `${organizationId}:${appUserId}` }; } },
       reconcile: { async record(data) { await recordProvisioningReconciliation(data); } },
     });
@@ -236,8 +244,9 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
     await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.SUCCEEDED, resultReference: JSON.stringify(result) });
     return result;
   } catch (error) {
+    logCallableFailure('provisionOrganizationAdministrator', error);
     const orphanUid = createdUid;
-    if (orphanUid) await getAuth().deleteUser(orphanUid).catch(async () => { await getAuth().updateUser(orphanUid, { disabled: true }); if (idempotencyKey) await recordProvisioningReconciliation({ idempotencyKey, firebaseUid: orphanUid, errorClass: 'auth_compensation_failed' }); });
+    if (orphanUid) await getAuth().deleteUser(orphanUid).catch(async (compensationError: any) => { if (compensationError?.code === 'auth/user-not-found') return; try { await getAuth().updateUser(orphanUid, { disabled: true }); } catch { if (idempotencyKey) await recordProvisioningReconciliation({ idempotencyKey, firebaseUid: orphanUid, errorClass: 'auth_compensation_failed' }); } });
     if (idempotencyKey) await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.FAILED_RETRYABLE }).catch(() => undefined);
     if (error instanceof Error && /already in use|email already/.test(error.message)) throw new HttpsError('already-exists', error.message);
     throw new HttpsError('permission-denied', 'Unable to provision the organization administrator.');
@@ -291,7 +300,7 @@ export const assignOrganizationLicense = onCall(callableOptions, async (request)
     const licenseId = randomUUID(); const safe = { licenseId, organizationId, planId, startDate, expiryDate, negotiatedPrice, currency };
     await assignOrganizationLicenseTrusted({ id: licenseId, organizationId, planId, startDate, expiryDate, negotiatedPrice, currency, historyId: randomUUID(), planCode: plan.planCode, planName: plan.name, planLevel: plan.level, maxStores: plan.maxStores, maxUsers: plan.maxUsers, auditId: randomUUID(), actorFirebaseUid: callerUid, requestId: randomUUID() });
     await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.SUCCEEDED, resultReference: JSON.stringify(safe) }); return safe;
-  } catch { throw new HttpsError('permission-denied', 'Unable to assign the organization license.'); }
+  } catch (error) { logCallableFailure('assignOrganizationLicense', error); throw new HttpsError('permission-denied', 'Unable to assign the organization license.'); }
 });
 
 export const changeOrganizationLicensePlan = onCall(callableOptions, async (request) => {

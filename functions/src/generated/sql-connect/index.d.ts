@@ -218,6 +218,17 @@ export interface CreateOrganizationVariables {
   requestId: string;
 }
 
+export interface DeleteLicensePlanData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteLicensePlanVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+}
+
 export interface GetAppUserByFirebaseUidData {
   appUsers: ({
     id: UUIDString;
@@ -1050,6 +1061,11 @@ export function updateLicensePlan(vars: UpdateLicensePlanVariables, options?: Op
 export function changeLicensePlanStatus(dc: DataConnect, vars: ChangeLicensePlanStatusVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeLicensePlanStatusData>>;
 /** Generated Node Admin SDK operation action function for the 'ChangeLicensePlanStatus' Mutation. Allow users to pass in custom DataConnect instances. */
 export function changeLicensePlanStatus(vars: ChangeLicensePlanStatusVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeLicensePlanStatusData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteLicensePlan' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteLicensePlan(dc: DataConnect, vars: DeleteLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteLicensePlanData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteLicensePlan' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteLicensePlan(vars: DeleteLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteLicensePlanData>>;
 
 /** Generated Node Admin SDK operation action function for the 'ListOrganizations' Query. Allow users to execute without passing in DataConnect. */
 export function listOrganizations(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsData>>;

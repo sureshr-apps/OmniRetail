@@ -320,6 +320,11 @@ mutation ChangeLicensePlanStatus(
   })
 }
 
+mutation DeleteLicensePlan($id: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: USER_EMAIL_VERIFIED) @transaction {
+  licensePlan_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "plans.deleted" targetType: "LicensePlan" targetId: $id requestId: $requestId })
+}
+
 query ListOrganizations @auth(level: USER_EMAIL_VERIFIED) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }

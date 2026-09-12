@@ -143,6 +143,12 @@ export function changeLicensePlanStatus(dcOrVarsOrOptions, varsOrOptions, option
   return dcInstance.executeMutation('ChangeLicensePlanStatus', inputVars, inputOpts);
 }
 
+export function deleteLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteLicensePlan', inputVars, inputOpts);
+}
+
 export function listOrganizations(dcOrOptions, options) {
   const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
   dcInstance.useGen(true);

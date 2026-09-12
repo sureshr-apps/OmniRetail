@@ -302,6 +302,20 @@ exports.changeLicensePlanStatus = function changeLicensePlanStatus(dcOrVars, var
 }
 ;
 
+const deleteLicensePlanRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteLicensePlan', inputVars);
+}
+deleteLicensePlanRef.operationName = 'DeleteLicensePlan';
+exports.deleteLicensePlanRef = deleteLicensePlanRef;
+
+exports.deleteLicensePlan = function deleteLicensePlan(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteLicensePlanRef(dcInstance, inputVars));
+}
+;
+
 const listOrganizationsRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
   dcInstance._useGeneratedSdk();

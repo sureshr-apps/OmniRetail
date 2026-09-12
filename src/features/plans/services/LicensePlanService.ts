@@ -1,4 +1,4 @@
-import { changeLicensePlanStatus, createLicensePlan, getLicensePlan, listLicensePlans, listOrganizationLicensePlanAssignments, updateLicensePlan, LicensePlanStatus } from '@omniretail/sql-connect';
+import { changeLicensePlanStatus, createLicensePlan, deleteLicensePlan, getLicensePlan, listLicensePlans, listOrganizationLicensePlanAssignments, updateLicensePlan, LicensePlanStatus } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { LicensePlan, CreatePlanInput, UpdatePlanInput, PlanQuery, PlanStatus } from '../types';
 
@@ -9,6 +9,7 @@ export interface ILicensePlanService {
   createPlan(input: CreatePlanInput): Promise<LicensePlan>;
   updatePlan(id: string, input: UpdatePlanInput): Promise<LicensePlan>;
   changePlanStatus(id: string, status: PlanStatus): Promise<LicensePlan>;
+  deletePlan(id: string): Promise<void>;
   isLevelTaken(level: number, excludePlanId?: string): Promise<boolean>;
   resetToDefaults(): Promise<LicensePlan[]>;
 }
@@ -39,6 +40,7 @@ class SqlLicensePlanService implements ILicensePlanService {
   async createPlan(input: CreatePlanInput): Promise<LicensePlan> { validate(input); try { const code = planCode(input.name); const result = await createLicensePlan(getFirebaseClientServices().dataConnect, { planCode: code, name: input.name.trim(), description: input.description?.trim() || null, level: input.level, maxStores: input.maxStores, maxUsers: input.maxUsers, auditId: newUuid(), requestId: newUuid() }); const created = await this.getPlan(result.data.licensePlan_insert.id); if (created) return created; throw new Error('created plan not found'); } catch (error) { throw safeError(error, 'Unable to create the plan.'); } }
   async updatePlan(id: string, input: UpdatePlanInput): Promise<LicensePlan> { validate(input); try { await updateLicensePlan(getFirebaseClientServices().dataConnect, { id, name: input.name.trim(), description: input.description?.trim() || null, level: input.level, maxStores: input.maxStores, maxUsers: input.maxUsers, auditId: newUuid(), requestId: newUuid() }); const updated = await this.getPlan(id); if (!updated) throw new Error('not found'); return updated; } catch (error) { throw safeError(error, 'Unable to update the plan.'); } }
   async changePlanStatus(id: string, status: PlanStatus): Promise<LicensePlan> { try { await changeLicensePlanStatus(getFirebaseClientServices().dataConnect, { id, status: status.toUpperCase() as LicensePlanStatus, action: `plans.${status === 'active' ? 'activated' : 'deactivated'}`, auditId: newUuid(), requestId: newUuid() }); const updated = await this.getPlan(id); if (!updated) throw new Error('not found'); return updated; } catch (error) { throw safeError(error, 'Unable to change the plan status.'); } }
+  async deletePlan(id: string): Promise<void> { try { await deleteLicensePlan(getFirebaseClientServices().dataConnect, { id, auditId: newUuid(), requestId: newUuid() }); } catch (error) { const message = error instanceof Error ? error.message : ''; if (/foreign key|referenced|constraint|still in use/i.test(message)) throw new Error('This plan is referenced by existing licenses or history and cannot be deleted. Deactivate it instead.'); throw safeError(error, 'Unable to delete the plan.'); } }
   async resetToDefaults(): Promise<LicensePlan[]> { const current = await this.rows(); for (const input of defaults) if (!current.some((p) => p.level === input.level)) await this.createPlan(input); return this.rows(); }
 }
 export const licensePlanService: ILicensePlanService = new SqlLicensePlanService();

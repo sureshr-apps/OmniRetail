@@ -227,6 +227,17 @@ export interface CreateOrganizationVariables {
   requestId: string;
 }
 
+export interface DeleteLicensePlanData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteLicensePlanVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+}
+
 export interface GetAppUserByFirebaseUidData {
   appUsers: ({
     id: UUIDString;
@@ -1178,6 +1189,18 @@ export const changeLicensePlanStatusRef: ChangeLicensePlanStatusRef;
 
 export function changeLicensePlanStatus(vars: ChangeLicensePlanStatusVariables): MutationPromise<ChangeLicensePlanStatusData, ChangeLicensePlanStatusVariables>;
 export function changeLicensePlanStatus(dc: DataConnect, vars: ChangeLicensePlanStatusVariables): MutationPromise<ChangeLicensePlanStatusData, ChangeLicensePlanStatusVariables>;
+
+interface DeleteLicensePlanRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteLicensePlanVariables): MutationRef<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteLicensePlanVariables): MutationRef<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+  operationName: string;
+}
+export const deleteLicensePlanRef: DeleteLicensePlanRef;
+
+export function deleteLicensePlan(vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+export function deleteLicensePlan(dc: DataConnect, vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
 
 interface ListOrganizationsRef {
   /* Allow users to create refs without passing in DataConnect */

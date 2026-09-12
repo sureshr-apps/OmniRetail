@@ -41,6 +41,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateLicensePlan*](#createlicenseplan)
   - [*UpdateLicensePlan*](#updatelicenseplan)
   - [*ChangeLicensePlanStatus*](#changelicenseplanstatus)
+  - [*DeleteLicensePlan*](#deletelicenseplan)
   - [*ProvisionOrganizationAdministrator*](#provisionorganizationadministrator)
   - [*UpdateOrganizationAdministrator*](#updateorganizationadministrator)
   - [*ChangeOrganizationAdministratorStatus*](#changeorganizationadministratorstatus)
@@ -3764,6 +3765,126 @@ console.log(data.auditEvent_insert);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_update);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteLicensePlan
+You can execute the `DeleteLicensePlan` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteLicensePlan(vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+
+interface DeleteLicensePlanRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteLicensePlanVariables): MutationRef<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+}
+export const deleteLicensePlanRef: DeleteLicensePlanRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteLicensePlan(dc: DataConnect, vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+
+interface DeleteLicensePlanRef {
+  ...
+  (dc: DataConnect, vars: DeleteLicensePlanVariables): MutationRef<DeleteLicensePlanData, DeleteLicensePlanVariables>;
+}
+export const deleteLicensePlanRef: DeleteLicensePlanRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteLicensePlanRef:
+```typescript
+const name = deleteLicensePlanRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteLicensePlanVariables {
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteLicensePlan` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteLicensePlanData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteLicensePlanData {
+  licensePlan_delete?: LicensePlan_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteLicensePlan`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteLicensePlan, DeleteLicensePlanVariables } from '@omniretail/sql-connect';
+
+// The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
+const deleteLicensePlanVars: DeleteLicensePlanVariables = {
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+};
+
+// Call the `deleteLicensePlan()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteLicensePlan(deleteLicensePlanVars);
+// Variables can be defined inline as well.
+const { data } = await deleteLicensePlan({ id: ..., auditId: ..., requestId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteLicensePlan(dataConnect, deleteLicensePlanVars);
+
+console.log(data.licensePlan_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteLicensePlan(deleteLicensePlanVars).then((response) => {
+  const data = response.data;
+  console.log(data.licensePlan_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteLicensePlan`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteLicensePlanRef, DeleteLicensePlanVariables } from '@omniretail/sql-connect';
+
+// The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
+const deleteLicensePlanVars: DeleteLicensePlanVariables = {
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+};
+
+// Call the `deleteLicensePlanRef()` function to get a reference to the mutation.
+const ref = deleteLicensePlanRef(deleteLicensePlanVars);
+// Variables can be defined inline as well.
+const ref = deleteLicensePlanRef({ id: ..., auditId: ..., requestId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteLicensePlanRef(dataConnect, deleteLicensePlanVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.licensePlan_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.licensePlan_delete);
   console.log(data.auditEvent_insert);
 });
 ```

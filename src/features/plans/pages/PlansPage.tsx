@@ -16,6 +16,7 @@ import {
   PlusCircle,
   Lightbulb,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react';
 import { licensePlanService } from '../services/LicensePlanService';
 import { LicensePlan, PlanStatus } from '../types';
@@ -95,6 +96,17 @@ export function PlansPage() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to activate plan.';
       showToast(msg);
+    }
+  };
+
+  const handleDeletePlan = async (plan: LicensePlan) => {
+    if (!window.confirm(`Delete the ${plan.name} plan? This is only possible when it has no license or history references.`)) return;
+    try {
+      await licensePlanService.deletePlan(plan.id);
+      setPlans((prev) => prev.filter((p) => p.id !== plan.id));
+      showToast(`Plan "${plan.name}" was deleted.`);
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Unable to delete the plan.');
     }
   };
 
@@ -495,6 +507,14 @@ export function PlansPage() {
                                 <span>Activate</span>
                               </button>
                             )}
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePlan(plan)}
+                              className="p-1.5 rounded hover:bg-rose-50 text-text-muted hover:text-rose-600 transition-colors"
+                              title="Delete Plan"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>

@@ -314,6 +314,25 @@ export interface GetLicensePlanData {
   } & LicensePlan_Key;
 }
 
+export interface GetLicensePlanTrustedData {
+  licensePlan?: {
+    id: UUIDString;
+    planCode: string;
+    name: string;
+    description?: string | null;
+    level: number;
+    maxStores: number;
+    maxUsers: number;
+    status: LicensePlanStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & LicensePlan_Key;
+}
+
+export interface GetLicensePlanTrustedVariables {
+  id: UUIDString;
+}
+
 export interface GetLicensePlanVariables {
   id: UUIDString;
 }
@@ -534,6 +553,32 @@ export interface GetOrganizationLicenseTrustedVariables {
 
 export interface GetOrganizationLicenseVariables {
   organizationId: UUIDString;
+}
+
+export interface GetOrganizationTrustedData {
+  organization?: {
+    id: UUIDString;
+    organizationCode: string;
+    businessName: string;
+    legalEntityName?: string | null;
+    taxId?: string | null;
+    primaryContactName: string;
+    email: string;
+    phone: string;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    timezone: string;
+    currency: string;
+    status: OrganizationStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Organization_Key;
+}
+
+export interface GetOrganizationTrustedVariables {
+  id: UUIDString;
 }
 
 export interface GetOrganizationVariables {
@@ -1086,6 +1131,18 @@ export const getLicensePlanRef: GetLicensePlanRef;
 export function getLicensePlan(vars: GetLicensePlanVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanData, GetLicensePlanVariables>;
 export function getLicensePlan(dc: DataConnect, vars: GetLicensePlanVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanData, GetLicensePlanVariables>;
 
+interface GetLicensePlanTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetLicensePlanTrustedVariables): QueryRef<GetLicensePlanTrustedData, GetLicensePlanTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetLicensePlanTrustedVariables): QueryRef<GetLicensePlanTrustedData, GetLicensePlanTrustedVariables>;
+  operationName: string;
+}
+export const getLicensePlanTrustedRef: GetLicensePlanTrustedRef;
+
+export function getLicensePlanTrusted(vars: GetLicensePlanTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanTrustedData, GetLicensePlanTrustedVariables>;
+export function getLicensePlanTrusted(dc: DataConnect, vars: GetLicensePlanTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanTrustedData, GetLicensePlanTrustedVariables>;
+
 interface CreateLicensePlanRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateLicensePlanVariables): MutationRef<CreateLicensePlanData, CreateLicensePlanVariables>;
@@ -1145,6 +1202,18 @@ export const getOrganizationRef: GetOrganizationRef;
 
 export function getOrganization(vars: GetOrganizationVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationData, GetOrganizationVariables>;
 export function getOrganization(dc: DataConnect, vars: GetOrganizationVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationData, GetOrganizationVariables>;
+
+interface GetOrganizationTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetOrganizationTrustedVariables): QueryRef<GetOrganizationTrustedData, GetOrganizationTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetOrganizationTrustedVariables): QueryRef<GetOrganizationTrustedData, GetOrganizationTrustedVariables>;
+  operationName: string;
+}
+export const getOrganizationTrustedRef: GetOrganizationTrustedRef;
+
+export function getOrganizationTrusted(vars: GetOrganizationTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationTrustedData, GetOrganizationTrustedVariables>;
+export function getOrganizationTrusted(dc: DataConnect, vars: GetOrganizationTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationTrustedData, GetOrganizationTrustedVariables>;
 
 interface ListOrganizationAdministratorsRef {
   /* Allow users to create refs without passing in DataConnect */

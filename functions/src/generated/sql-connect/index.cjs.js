@@ -139,6 +139,13 @@ function getLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.getLicensePlan = getLicensePlan;
 
+function getLicensePlanTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetLicensePlanTrusted', inputVars, inputOpts);
+}
+exports.getLicensePlanTrusted = getLicensePlanTrusted;
+
 function createLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -173,6 +180,13 @@ function getOrganization(dcOrVarsOrOptions, varsOrOptions, options) {
   return dcInstance.executeQuery('GetOrganization', inputVars, inputOpts);
 }
 exports.getOrganization = getOrganization;
+
+function getOrganizationTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetOrganizationTrusted', inputVars, inputOpts);
+}
+exports.getOrganizationTrusted = getOrganizationTrusted;
 
 function listOrganizationAdministrators(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);

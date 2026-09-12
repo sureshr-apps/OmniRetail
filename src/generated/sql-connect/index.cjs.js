@@ -245,6 +245,21 @@ exports.getLicensePlan = function getLicensePlan(dcOrVars, varsOrOptions, option
 }
 ;
 
+const getLicensePlanTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetLicensePlanTrusted', inputVars);
+}
+getLicensePlanTrustedRef.operationName = 'GetLicensePlanTrusted';
+exports.getLicensePlanTrustedRef = getLicensePlanTrustedRef;
+
+exports.getLicensePlanTrusted = function getLicensePlanTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getLicensePlanTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const createLicensePlanRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -314,6 +329,21 @@ exports.getOrganization = function getOrganization(dcOrVars, varsOrOptions, opti
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const getOrganizationTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetOrganizationTrusted', inputVars);
+}
+getOrganizationTrustedRef.operationName = 'GetOrganizationTrusted';
+exports.getOrganizationTrustedRef = getOrganizationTrustedRef;
+
+exports.getOrganizationTrusted = function getOrganizationTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getOrganizationTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;
 

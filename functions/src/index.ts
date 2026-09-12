@@ -10,7 +10,7 @@ import {
   recordSuccessfulLogin,
   resolveUsernameLogin,
   updateAppUserProfile,
-  getOrganization,
+  getOrganizationTrusted,
   provisionOrganizationAdministrator as provisionOrganizationAdministratorSql,
   getLifecycleIdempotency, claimLifecycleIdempotency, completeLifecycleIdempotency, recordProvisioningReconciliation,
   ProvisioningAttemptStatus,
@@ -19,7 +19,7 @@ import {
   recordAdministratorSecurityEvent,
   getOrganizationLicenseTrusted,
   listOrganizationsTrusted,
-  getLicensePlan,
+  getLicensePlanTrusted,
   assignOrganizationLicenseTrusted,
   changeOrganizationLicensePlanTrusted,
   modifyOrganizationCommercialTermsTrusted,
@@ -193,7 +193,7 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
     idempotencyKey = typeof request.data?.idempotencyKey === 'string' ? request.data.idempotencyKey.trim() : '';
     if (!organizationId || !displayName || !username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !phone) throw new Error('invalid input');
     if (!/^[A-Za-z0-9._:-]{8,128}$/.test(idempotencyKey)) throw new Error('invalid idempotency key');
-    if (!(await getOrganization({ id: organizationId })).data.organization) throw new Error('organization not found');
+    if (!(await getOrganizationTrusted({ id: organizationId })).data.organization) throw new Error('organization not found');
     if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username already in use');
     try { await getAuth().getUserByEmail(email); throw new Error('email already in use'); } catch (error: any) { if (error?.message === 'email already in use') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
     const orchestrated = await orchestrateProvision({ organizationId, username, email, displayName, phone, idempotencyKey }, {
@@ -219,7 +219,7 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
       if (prior.status === 'SUCCEEDED' && prior.resultReference) return JSON.parse(prior.resultReference);
       if (prior.status === 'IN_PROGRESS') throw new Error('provisioning already in progress');
     } else await claimLifecycleIdempotency({ idempotencyKey, operationType: 'provisionOrganizationAdministrator', requestFingerprint });
-    const org = await getOrganization({ id: organizationId });
+    const org = await getOrganizationTrusted({ id: organizationId });
     if (!org.data.organization) throw new Error('organization not found');
     const existingUsername = await resolveUsernameLogin({ username });
     if (existingUsername.data.appUsers.length) throw new Error('username already in use');
@@ -281,9 +281,9 @@ export const assignOrganizationLicense = onCall(callableOptions, async (request)
     const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const planId = typeof d.planId === 'string' ? d.planId : '';
     const startDate = typeof d.startDate === 'string' ? d.startDate : ''; const expiryDate = typeof d.expiryDate === 'string' ? d.expiryDate : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
     if (!organizationId || !planId || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(expiryDate) || new Date(expiryDate) <= new Date(startDate) || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
-    if (!(await getOrganization({ id: organizationId })).data.organization) throw new Error('organization');
+    if (!(await getOrganizationTrusted({ id: organizationId })).data.organization) throw new Error('organization');
     if ((await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses.length) throw new Error('already assigned');
-    const plan = (await getLicensePlan({ id: planId })).data.licensePlan; if (!plan || plan.status !== 'ACTIVE') throw new Error('plan');
+    const plan = (await getLicensePlanTrusted({ id: planId })).data.licensePlan; if (!plan || plan.status !== 'ACTIVE') throw new Error('plan');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey : ''; if (!idempotencyKey) throw new Error('idempotency');
     const fp = createHash('sha256').update(`${organizationId}|${planId}|${startDate}|${expiryDate}|${negotiatedPrice}|${currency}`).digest('hex');
     const prior: any = (await getLifecycleIdempotency({ idempotencyKey })).data.lifecycleIdempotency; if (prior) { if (prior.requestFingerprint !== fp) throw new Error('conflict'); if (prior.status === 'SUCCEEDED' && prior.resultReference) return JSON.parse(prior.resultReference); throw new Error('in progress'); }
@@ -300,7 +300,7 @@ export const changeOrganizationLicensePlan = onCall(callableOptions, async (requ
     const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const targetPlanId = typeof d.targetPlanId === 'string' ? d.targetPlanId : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
     if (!organizationId || !targetPlanId || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
     const current = (await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses[0]; if (!current) throw new Error('license');
-    const currentPlan = (await getLicensePlan({ id: current.plan.id })).data.licensePlan; const target = (await getLicensePlan({ id: targetPlanId })).data.licensePlan;
+    const currentPlan = (await getLicensePlanTrusted({ id: current.plan.id })).data.licensePlan; const target = (await getLicensePlanTrusted({ id: targetPlanId })).data.licensePlan;
     if (!currentPlan || !target || target.status !== 'ACTIVE' || target.level <= currentPlan.level) throw new Error('plan');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey : ''; if (!idempotencyKey) throw new Error('idempotency');
     const fp = createHash('sha256').update(`${organizationId}|${targetPlanId}|${negotiatedPrice}|${currency}`).digest('hex'); const prior: any = (await getLifecycleIdempotency({ idempotencyKey })).data.lifecycleIdempotency;
@@ -320,7 +320,7 @@ export const modifyOrganizationCommercialTerms = onCall(callableOptions, async (
     const current = (await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses[0]; if (!current) throw new Error('license');
     const noOp = current.negotiatedPrice === negotiatedPrice && current.currency === currency;
     if (noOp) return { licenseId: current.id, organizationId, planId: current.plan.id, startDate: current.startDate, expiryDate: current.expiryDate, negotiatedPrice: current.negotiatedPrice, currency: current.currency, noOp: true };
-    const plan = (await getLicensePlan({ id: current.plan.id })).data.licensePlan; if (!plan) throw new Error('plan');
+    const plan = (await getLicensePlanTrusted({ id: current.plan.id })).data.licensePlan; if (!plan) throw new Error('plan');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey : ''; if (!idempotencyKey) throw new Error('idempotency');
     const fp = createHash('sha256').update(`${organizationId}|${negotiatedPrice}|${currency}`).digest('hex'); const prior: any = (await getLifecycleIdempotency({ idempotencyKey })).data.lifecycleIdempotency; if (prior) { if (prior.requestFingerprint !== fp) throw new Error('conflict'); if (prior.status === 'SUCCEEDED' && prior.resultReference) return JSON.parse(prior.resultReference); throw new Error('in progress'); }
     await claimLifecycleIdempotency({ idempotencyKey, operationType: 'modifyOrganizationCommercialTerms', requestFingerprint: fp });
@@ -336,7 +336,7 @@ export const renewOrganizationLicense = onCall(callableOptions, async (request) 
     const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const planId = typeof d.planId === 'string' ? d.planId : ''; const newStartDate = typeof d.newStartDate === 'string' ? d.newStartDate : ''; const newExpiryDate = typeof d.newExpiryDate === 'string' ? d.newExpiryDate : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
     if (!organizationId || !planId || !/^\d{4}-\d{2}-\d{2}$/.test(newStartDate) || !/^\d{4}-\d{2}-\d{2}$/.test(newExpiryDate) || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
     const current = (await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses[0]; if (!current || new Date(newStartDate) <= new Date(current.expiryDate) || new Date(newExpiryDate) <= new Date(newStartDate)) throw new Error('invalid term');
-    const currentPlan = (await getLicensePlan({ id: current.plan.id })).data.licensePlan; const plan = (await getLicensePlan({ id: planId })).data.licensePlan; if (!currentPlan || !plan || plan.status !== 'ACTIVE' || plan.level < currentPlan.level) throw new Error('plan');
+    const currentPlan = (await getLicensePlanTrusted({ id: current.plan.id })).data.licensePlan; const plan = (await getLicensePlanTrusted({ id: planId })).data.licensePlan; if (!currentPlan || !plan || plan.status !== 'ACTIVE' || plan.level < currentPlan.level) throw new Error('plan');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey : ''; if (!idempotencyKey) throw new Error('idempotency'); const fp = createHash('sha256').update(`${organizationId}|${planId}|${newStartDate}|${newExpiryDate}|${negotiatedPrice}|${currency}`).digest('hex'); const prior: any = (await getLifecycleIdempotency({ idempotencyKey })).data.lifecycleIdempotency; if (prior) { if (prior.requestFingerprint !== fp) throw new Error('conflict'); if (prior.status === 'SUCCEEDED' && prior.resultReference) return JSON.parse(prior.resultReference); throw new Error('in progress'); }
     await claimLifecycleIdempotency({ idempotencyKey, operationType: 'renewOrganizationLicense', requestFingerprint: fp }); const safe = { licenseId: current.id, organizationId, planId: plan.id, startDate: newStartDate, expiryDate: newExpiryDate, negotiatedPrice, currency };
     await renewOrganizationLicenseTrusted({ id: current.id, organizationId, planId: plan.id, startDate: newStartDate, expiryDate: newExpiryDate, negotiatedPrice, currency, historyId: randomUUID(), planCode: plan.planCode, planName: plan.name, planLevel: plan.level, maxStores: plan.maxStores, maxUsers: plan.maxUsers, auditId: randomUUID(), actorFirebaseUid: callerUid, requestId: randomUUID(), changes: { previousStartDate: current.startDate, previousExpiryDate: current.expiryDate, previousPlanId: current.plan.id } }); await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.SUCCEEDED, resultReference: JSON.stringify(safe) }); return safe;

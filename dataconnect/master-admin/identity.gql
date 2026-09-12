@@ -216,6 +216,7 @@ query ListLicensePlans @auth(level: USER_EMAIL_VERIFIED) {
 # organizations assigned to each plan. The browser receives plan IDs only;
 # license and organization details are intentionally omitted.
 query ListOrganizationLicensePlanAssignments @auth(level: USER_EMAIL_VERIFIED) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   organizationLicenses {
     plan { id }
   }
@@ -233,6 +234,12 @@ query GetLicensePlan($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
     status
     createdAt
     updatedAt
+  }
+}
+
+query GetLicensePlanTrusted($id: UUID!) @auth(level: NO_ACCESS) {
+  licensePlan(key: { id: $id }) {
+    id planCode name description level maxStores maxUsers status createdAt updatedAt
   }
 }
 
@@ -326,6 +333,12 @@ query GetOrganization($id: UUID!) @auth(level: USER_EMAIL_VERIFIED) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
   }
+  organization(key: { id: $id }) {
+    id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt
+  }
+}
+
+query GetOrganizationTrusted($id: UUID!) @auth(level: NO_ACCESS) {
   organization(key: { id: $id }) {
     id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt
   }

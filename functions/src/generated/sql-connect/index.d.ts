@@ -305,6 +305,25 @@ export interface GetLicensePlanData {
   } & LicensePlan_Key;
 }
 
+export interface GetLicensePlanTrustedData {
+  licensePlan?: {
+    id: UUIDString;
+    planCode: string;
+    name: string;
+    description?: string | null;
+    level: number;
+    maxStores: number;
+    maxUsers: number;
+    status: LicensePlanStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & LicensePlan_Key;
+}
+
+export interface GetLicensePlanTrustedVariables {
+  id: UUIDString;
+}
+
 export interface GetLicensePlanVariables {
   id: UUIDString;
 }
@@ -525,6 +544,32 @@ export interface GetOrganizationLicenseTrustedVariables {
 
 export interface GetOrganizationLicenseVariables {
   organizationId: UUIDString;
+}
+
+export interface GetOrganizationTrustedData {
+  organization?: {
+    id: UUIDString;
+    organizationCode: string;
+    businessName: string;
+    legalEntityName?: string | null;
+    taxId?: string | null;
+    primaryContactName: string;
+    email: string;
+    phone: string;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    timezone: string;
+    currency: string;
+    status: OrganizationStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Organization_Key;
+}
+
+export interface GetOrganizationTrustedVariables {
+  id: UUIDString;
 }
 
 export interface GetOrganizationVariables {
@@ -986,6 +1031,11 @@ export function getLicensePlan(dc: DataConnect, vars: GetLicensePlanVariables, o
 /** Generated Node Admin SDK operation action function for the 'GetLicensePlan' Query. Allow users to pass in custom DataConnect instances. */
 export function getLicensePlan(vars: GetLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLicensePlanData>>;
 
+/** Generated Node Admin SDK operation action function for the 'GetLicensePlanTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function getLicensePlanTrusted(dc: DataConnect, vars: GetLicensePlanTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLicensePlanTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'GetLicensePlanTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function getLicensePlanTrusted(vars: GetLicensePlanTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLicensePlanTrustedData>>;
+
 /** Generated Node Admin SDK operation action function for the 'CreateLicensePlan' Mutation. Allow users to execute without passing in DataConnect. */
 export function createLicensePlan(dc: DataConnect, vars: CreateLicensePlanVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateLicensePlanData>>;
 /** Generated Node Admin SDK operation action function for the 'CreateLicensePlan' Mutation. Allow users to pass in custom DataConnect instances. */
@@ -1010,6 +1060,11 @@ export function listOrganizations(options?: OperationOptions): Promise<ExecuteOp
 export function getOrganization(dc: DataConnect, vars: GetOrganizationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationData>>;
 /** Generated Node Admin SDK operation action function for the 'GetOrganization' Query. Allow users to pass in custom DataConnect instances. */
 export function getOrganization(vars: GetOrganizationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationData>>;
+
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function getOrganizationTrusted(dc: DataConnect, vars: GetOrganizationTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'GetOrganizationTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function getOrganizationTrusted(vars: GetOrganizationTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'ListOrganizationAdministrators' Query. Allow users to execute without passing in DataConnect. */
 export function listOrganizationAdministrators(dc: DataConnect, vars: ListOrganizationAdministratorsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationAdministratorsData>>;

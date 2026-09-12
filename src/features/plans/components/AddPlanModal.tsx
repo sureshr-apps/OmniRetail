@@ -34,10 +34,9 @@ export function AddPlanModal({ isOpen, onClose, onSuccess }: AddPlanModalProps) 
     if (isNaN(levelNum) || levelNum < 0 || !Number.isInteger(levelNum)) {
       errs.level = 'Plan Level must be a non-negative whole number.';
     } else {
-      const isTaken = await licensePlanService.isLevelTaken(levelNum);
-      if (isTaken) {
-        errs.level = `Plan Level ${levelNum} is already assigned to an existing plan. Plan levels must be unique.`;
-      }
+      // The database unique constraint is authoritative. Avoid a stale
+      // preflight read immediately after a plan deletion blocking a valid
+      // level recreation; createPlan maps a real conflict safely.
     }
 
     const storesNum = Number(maxStores);

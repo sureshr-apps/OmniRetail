@@ -161,17 +161,16 @@ export function EditAdminModal({
 
           <div>
             <Label htmlFor="edit-admin-email">
-              Email Address <span className="text-critical">*</span>
+              Email Address <span className="text-[10px] text-text-muted font-normal">(read-only)</span>
             </Label>
             <Input
               id="edit-admin-email"
               type="email"
               value={form.email}
-              onChange={(e) => updateField('email', e.target.value)}
-              error={!!errors.email}
+              readOnly
               disabled={isSubmitting}
             />
-            {errors.email && <p className="text-[11px] text-critical mt-1">{errors.email}</p>}
+            <p className="text-[11px] text-text-muted mt-1">Email changes are not supported because this is the Firebase sign-in identity.</p>
           </div>
 
           <div>

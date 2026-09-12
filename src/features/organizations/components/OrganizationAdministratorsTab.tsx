@@ -91,6 +91,8 @@ export function OrganizationAdministratorsTab({
       type: 'success',
     });
     await loadAdmins();
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    await loadAdmins();
   };
 
   const handleAdminUpdated = async (updatedAdmin: OrganizationAdministrator) => {
@@ -98,6 +100,8 @@ export function OrganizationAdministratorsTab({
       message: `Administrator profile for "${updatedAdmin.name}" updated successfully.`,
       type: 'success',
     });
+    await loadAdmins();
+    await new Promise((resolve) => setTimeout(resolve, 350));
     await loadAdmins();
   };
 

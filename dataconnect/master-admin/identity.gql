@@ -216,7 +216,6 @@ query ListLicensePlans @auth(level: USER_EMAIL_VERIFIED) {
 # organizations assigned to each plan. The browser receives plan IDs only;
 # license and organization details are intentionally omitted.
 query ListOrganizationLicensePlanAssignments @auth(level: USER_EMAIL_VERIFIED) {
-  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   organizationLicenses {
     plan { id }
   }
@@ -246,7 +245,7 @@ mutation CreateLicensePlan(
   $maxUsers: Int!
   $auditId: UUID!
   $requestId: String!
-) @auth(level: NO_ACCESS) @transaction {
+) @auth(level: USER_EMAIL_VERIFIED) @transaction {
   licensePlan_insert(data: {
     planCode: $planCode
     name: $name

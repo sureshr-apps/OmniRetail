@@ -193,6 +193,9 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
     idempotencyKey = typeof request.data?.idempotencyKey === 'string' ? request.data.idempotencyKey.trim() : '';
     if (!organizationId || !displayName || !username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !phone) throw new Error('invalid input');
     if (!/^[A-Za-z0-9._:-]{8,128}$/.test(idempotencyKey)) throw new Error('invalid idempotency key');
+    if (!(await getOrganization({ id: organizationId })).data.organization) throw new Error('organization not found');
+    if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username already in use');
+    try { await getAuth().getUserByEmail(email); throw new Error('email already in use'); } catch (error: any) { if (error?.message === 'email already in use') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
     const orchestrated = await orchestrateProvision({ organizationId, username, email, displayName, phone, idempotencyKey }, {
       idempotency: {
         async get(key) { const r = (await getLifecycleIdempotency({ idempotencyKey: key })).data.lifecycleIdempotency; return r ? { ...r, result: r.resultReference ? JSON.parse(r.resultReference) : undefined } : null; },

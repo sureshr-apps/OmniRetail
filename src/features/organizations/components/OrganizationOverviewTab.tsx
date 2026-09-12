@@ -96,9 +96,6 @@ export function OrganizationOverviewTab({
                 <span className="font-mono font-semibold text-text-primary bg-surface-subdued px-2 py-0.5 rounded border border-border-structural">
                   {organization.taxId}
                 </span>
-                <Badge variant="success" className="text-[9px] px-1.5 py-0">
-                  Verified Active
-                </Badge>
               </div>
             </div>
 

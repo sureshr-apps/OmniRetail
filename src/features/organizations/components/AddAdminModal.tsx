@@ -156,7 +156,6 @@ export function AddAdminModal({
             <span className="text-text-secondary">Assigned Tenant Scope:</span>
             <span className="font-semibold text-text-primary">{organizationName}</span>
           </div>
-          <span className="font-mono text-[11px] text-text-muted">{organizationId}</span>
         </div>
 
         <div className="space-y-3">

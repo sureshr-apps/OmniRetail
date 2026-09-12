@@ -174,7 +174,11 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
     try {
       const result = await provision({ organizationId, displayName: input.name.trim(), username: input.username.trim().toLowerCase(), email: input.email.trim(), phone: input.phone.trim(), idempotencyKey: globalThis.crypto.randomUUID() });
       return result.data;
-    } catch { throw new Error('Unable to create the organization administrator.'); }
+    } catch (error: unknown) {
+      const code = typeof error === 'object' && error !== null && 'code' in error ? String((error as { code?: unknown }).code) : '';
+      if (code === 'functions/already-exists') throw new Error('That username or email is already assigned to an administrator.');
+      throw new Error('Unable to create the organization administrator.');
+    }
 
     /* Mock lifecycle fallback remains below for deferred operations. */
     /*

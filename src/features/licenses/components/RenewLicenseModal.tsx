@@ -52,17 +52,19 @@ export function RenewLicenseModal({
 
     if (currentLicense.expiryDate) {
       const [year, month, day] = currentLicense.expiryDate.split('-').map(Number);
-      const nextDay = new Date(year, month - 1, day + 1);
+      // Use UTC calendar arithmetic so the displayed date cannot shift backward
+      // when local time (for example IST) is converted to an ISO date.
+      const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
       calculatedStart = nextDay.toISOString().split('T')[0];
 
       const nextYear = new Date(nextDay);
-      nextYear.setFullYear(nextYear.getFullYear() + 1);
+      nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
       calculatedExpiry = nextYear.toISOString().split('T')[0];
     } else {
       const today = new Date();
       calculatedStart = today.toISOString().split('T')[0];
       const nextYear = new Date(today);
-      nextYear.setFullYear(nextYear.getFullYear() + 1);
+      nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
       calculatedExpiry = nextYear.toISOString().split('T')[0];
     }
 

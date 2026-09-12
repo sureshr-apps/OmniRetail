@@ -116,7 +116,7 @@ export function PlansPage() {
   const totalAssignedOrganizations = useMemo(
     () =>
       plans.reduce(
-        (acc, p) => acc + (p.assignedOrganizationsCount || p.assignedTenantsCount || 0),
+        (acc, p) => acc + (p.assignedOrganizationsCount ?? p.assignedTenantsCount ?? 0),
         0
       ),
     [plans]

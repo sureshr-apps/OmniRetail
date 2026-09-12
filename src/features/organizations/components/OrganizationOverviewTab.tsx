@@ -13,7 +13,6 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Organization } from '../types';
-import { Badge } from '@/shared/components/Badge';
 
 export interface OrganizationOverviewTabProps {
   organization: Organization;
@@ -26,39 +25,6 @@ export function OrganizationOverviewTab({
 }: OrganizationOverviewTabProps) {
   const city = organization.contactInfo.city || 'Bengaluru';
   const state = organization.contactInfo.state || 'Karnataka';
-
-  // Generate realistic provisioned store outlets for this tenant
-  const storeOutlets = [
-    {
-      code: 'STR-101',
-      name: `${organization.name} - ${city} Flagship`,
-      location: `${city}, ${state}`,
-      terminals: Math.max(2, Math.floor((organization.posRegisters || 4) / 2)),
-      status: organization.status === 'active' ? 'online' : 'suspended',
-    },
-    ...(organization.activeStores && organization.activeStores > 1
-      ? [
-          {
-            code: 'STR-102',
-            name: `${organization.name} - Mall Promenade`,
-            location: `${city} Central Plaza`,
-            terminals: Math.max(1, Math.ceil((organization.posRegisters || 4) / 3)),
-            status: organization.status === 'active' ? 'online' : 'suspended',
-          },
-        ]
-      : []),
-    ...(organization.activeStores && organization.activeStores > 2
-      ? [
-          {
-            code: 'STR-103',
-            name: `${organization.name} - Express Outlet`,
-            location: `Metro Terminal Boulevard`,
-            terminals: 1,
-            status: organization.status === 'active' ? 'online' : 'suspended',
-          },
-        ]
-      : []),
-  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -179,9 +145,9 @@ export function OrganizationOverviewTab({
               <Store className="w-4 h-4 text-primary" />
             </div>
             <div className="text-base font-bold text-text-primary tracking-tight">
-              {organization.activeStores || 1}{' '}
+              {organization.activeStores ?? '—'}{' '}
               <span className="text-xs text-text-muted font-normal">
-                / {organization.allowedStores || 1}
+                / {organization.allowedStores ?? '—'}
               </span>
             </div>
             <div className="text-[10px] uppercase font-bold text-text-muted tracking-wider mt-0.5">
@@ -194,7 +160,7 @@ export function OrganizationOverviewTab({
               <Monitor className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-base font-bold text-text-primary tracking-tight">
-              {organization.posRegisters || 2}
+              {organization.posRegisters ?? '—'}
             </div>
             <div className="text-[10px] uppercase font-bold text-text-muted tracking-wider mt-0.5">
               POS Terminals
@@ -211,56 +177,6 @@ export function OrganizationOverviewTab({
             <div className="text-[10px] uppercase font-bold text-text-muted tracking-wider mt-0.5">
               Tenant Admins
             </div>
-          </div>
-        </div>
-
-        {/* Provisioned Store Outlets Card */}
-        <div className="bg-surface-elevated rounded-lg border border-border-subdued shadow-xs overflow-hidden">
-          <div className="px-4 py-3 bg-surface-subdued/70 border-b border-border-subdued flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Store className="w-4 h-4 text-primary" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary">
-                Provisioned Store Outlets
-              </h3>
-            </div>
-            <span className="text-[10px] font-semibold text-text-muted font-mono">
-              {storeOutlets.length} of {organization.allowedStores || 1} allocated
-            </span>
-          </div>
-
-          <div className="divide-y divide-border-subdued">
-            {storeOutlets.map((st) => (
-              <div key={st.code} className="p-3.5 flex items-center justify-between hover:bg-surface-subdued/30 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-surface-subdued border border-border-structural flex items-center justify-center text-text-secondary font-mono text-xs font-semibold shrink-0">
-                    <Store className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-text-primary flex items-center gap-2">
-                      <span>{st.name}</span>
-                      <span className="font-mono text-[10px] text-text-muted">({st.code})</span>
-                    </div>
-                    <div className="text-[11px] text-text-muted flex items-center gap-1 mt-0.5">
-                      <span>{st.location}</span>
-                      <span>•</span>
-                      <span>{st.terminals} Terminals Synchronized</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  {st.status === 'online' ? (
-                    <Badge variant="success" withDot className="text-[9px]">
-                      Online
-                    </Badge>
-                  ) : (
-                    <Badge variant="critical" withDot className="text-[9px]">
-                      Suspended
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 

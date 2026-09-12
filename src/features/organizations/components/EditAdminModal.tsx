@@ -71,6 +71,8 @@ export function EditAdminModal({
 
     if (!form.phone.trim()) {
       errs.phone = 'Contact Phone Number is required.';
+    } else if (!/^\+[1-9]\d{7,14}$/.test(form.phone.trim())) {
+      errs.phone = 'Enter a valid international phone number, for example +919876543210.';
     }
 
     setErrors(errs);

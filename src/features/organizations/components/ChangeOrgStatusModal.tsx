@@ -83,7 +83,7 @@ export function ChangeOrgStatusModal({
                   <strong className="text-text-primary font-semibold">
                     {organization.name}
                   </strong>{' '}
-                  (<span className="font-mono">{organization.id}</span>).
+                  (<span className="font-mono">{organization.organizationCode || '—'}</span>).
                 </p>
                 <div className="bg-amber-50/70 border border-amber-200 rounded p-2.5 text-amber-900 text-[11px] space-y-1">
                   <p className="font-semibold">Operational Impacts of Suspension:</p>
@@ -104,7 +104,7 @@ export function ChangeOrgStatusModal({
                   <strong className="text-text-primary font-semibold">
                     {organization.name}
                   </strong>{' '}
-                  (<span className="font-mono">{organization.id}</span>).
+                  (<span className="font-mono">{organization.organizationCode || '—'}</span>).
                 </p>
                 <p>
                   All associated store outlets, active POS registers, and administrator logins will immediately regain access to retail cloud services.

@@ -185,7 +185,7 @@ export function EditOrganizationModal({
             <Lock className="w-3.5 h-3.5 text-text-muted" />
             <span className="text-text-secondary font-medium">Organization ID:</span>
             <span className="font-mono font-bold text-text-primary px-1.5 py-0.5 rounded bg-surface-elevated border border-border-structural">
-              {organization.id}
+              {organization.organizationCode || '—'}
             </span>
           </div>
           <span className="text-[11px] text-text-muted">System identifier (Immutable)</span>

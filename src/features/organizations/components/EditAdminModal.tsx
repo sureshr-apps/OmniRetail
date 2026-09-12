@@ -133,8 +133,7 @@ export function EditAdminModal({
         {/* Read-only Identifiers */}
         <div className="bg-surface-subdued p-3 rounded-md border border-border-structural/70 space-y-1.5 text-xs">
           <div className="flex items-center justify-between">
-            <span className="text-text-secondary">Administrator ID:</span>
-            <span className="font-mono font-semibold text-text-primary">{admin.id}</span>
+            <span className="text-text-secondary">Administrator account:</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-text-secondary">System Username:</span>

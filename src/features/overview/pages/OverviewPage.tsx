@@ -328,7 +328,7 @@ export function OverviewPage() {
                                   {org.name}
                                 </button>
                                 <div className="flex items-center gap-1.5 mt-0.5 text-xs text-text-muted">
-                                  <span className="font-mono text-[11px] text-text-muted">{org.id}</span>
+                                  <span className="font-mono text-[11px] text-text-muted">{org.organizationCode || '—'}</span>
                                   <span>•</span>
                                   <span>{formatRelativeCreatedDate(org.createdDate)}</span>
                                 </div>
@@ -451,7 +451,7 @@ export function OverviewPage() {
                               {item.organization.name}
                             </button>
                             <span className="text-[11px] font-mono text-text-muted mt-0.5">
-                              {item.organization.id} • {item.plan?.name || 'Assigned Plan'}
+                              {item.organization.organizationCode || '—'} • {item.plan?.name || 'Assigned Plan'}
                             </span>
                           </div>
                           <span

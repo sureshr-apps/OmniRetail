@@ -246,7 +246,7 @@ export function OrganizationAdministratorsTab({
                           </div>
                           <div>
                             <div className="font-semibold text-text-primary">{admin.name}</div>
-                            <div className="text-[10px] font-mono text-text-muted">{admin.id}</div>
+                            <div className="text-[10px] font-mono text-text-muted">@{admin.username}</div>
                           </div>
                         </div>
                       </td>

@@ -96,6 +96,21 @@ async function sendManagedPasswordEmail(email: string, requestType: 'PASSWORD_RE
   if (!response.ok) throw new Error('email delivery failed');
 }
 
+async function sendManagedVerificationEmail(email: string, password: string): Promise<void> {
+  const signIn = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(firebaseWebApiKey.value())}`, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email, password, returnSecureToken: true }),
+  });
+  if (!signIn.ok) throw new Error('verification delivery failed');
+  const body = await signIn.json() as { idToken?: unknown };
+  if (typeof body.idToken !== 'string') throw new Error('verification delivery failed');
+  const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${encodeURIComponent(firebaseWebApiKey.value())}`, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ requestType: 'VERIFY_EMAIL', idToken: body.idToken }),
+  });
+  if (!response.ok) throw new Error('verification delivery failed');
+}
+
 async function verifyPasswordWithFirebase(email: string, password: string): Promise<{ idToken: string }> {
   const response = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(firebaseWebApiKey.value())}`,
@@ -445,6 +460,7 @@ export const resetOrganizationAdministratorPassword = onCall(callableOptions, as
     const auth = getAuth();
     await auth.updateUser(t.identity.user.firebaseUid, { password: initialPassword });
     await auth.revokeRefreshTokens(t.identity.user.firebaseUid);
+    await sendManagedVerificationEmail(t.identity.user.email, initialPassword);
     await recordAdministratorSecurityEvent({ auditId: randomUUID(), actorFirebaseUid: t.callerUid, action: 'organization_administrator.password_reset_initiated', targetId: t.appUserId, organizationId: t.organizationId, requestId: randomUUID() });
     return { success: true };
   } catch (error) { logCallableFailure('resetOrganizationAdministratorPassword', error); throw new HttpsError('permission-denied', 'Unable to reset the administrator password.'); }

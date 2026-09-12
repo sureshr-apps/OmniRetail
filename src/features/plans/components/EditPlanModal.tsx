@@ -118,7 +118,7 @@ export function EditPlanModal({ isOpen, onClose, plan, onSuccess }: EditPlanModa
               </Badge>
               <span className="text-text-muted text-xs">•</span>
               <span className="text-xs font-mono text-text-secondary">
-                PLN-ID: #{plan.id}
+                Plan Code: {plan.planCode || '—'}
               </span>
             </div>
             <h2 className="text-lg font-bold text-text-primary tracking-tight leading-tight">

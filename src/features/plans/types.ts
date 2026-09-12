@@ -12,6 +12,8 @@ export type PlanStatus = 'active' | 'inactive';
 
 export interface LicensePlan {
   id: string;
+  /** Human-facing plan identifier; the UUID `id` remains internal. */
+  planCode?: string;
   name: string;
   description: string;
   level: number;

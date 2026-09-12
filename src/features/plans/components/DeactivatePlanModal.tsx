@@ -58,7 +58,7 @@ export function DeactivatePlanModal({
               <div className="flex items-center gap-1 text-[10px] text-text-muted">
                 <span className="uppercase tracking-wider font-bold">Plan Status Modification</span>
                 <span>•</span>
-                <span className="font-mono text-text-secondary">{plan.id}</span>
+                <span className="font-mono text-text-secondary">{plan.planCode || '—'}</span>
               </div>
               <h2 className="text-base font-bold text-text-primary">
                 Deactivate {plan.name}?

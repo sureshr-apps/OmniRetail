@@ -19,7 +19,7 @@ const defaults: CreatePlanInput[] = [
   { name: 'Professional', description: 'For growing multi-store retail businesses requiring coordinated multi-outlet operations', level: 2, maxStores: 5, maxUsers: 25 },
   { name: 'Enterprise', description: 'Higher capacity for larger retail operations and multi-tier logistics', level: 3, maxStores: 20, maxUsers: 100 },
 ];
-function mapRow(row: Row): LicensePlan { return { id: row.id, name: row.name, description: row.description ?? '', level: row.level, maxStores: row.maxStores, maxUsers: row.maxUsers, status: row.status.toLowerCase() as PlanStatus, createdAt: row.createdAt.slice(0, 10), updatedAt: row.updatedAt.slice(0, 10) }; }
+function mapRow(row: Row): LicensePlan { return { id: row.id, planCode: row.planCode, name: row.name, description: row.description ?? '', level: row.level, maxStores: row.maxStores, maxUsers: row.maxUsers, status: row.status.toLowerCase() as PlanStatus, createdAt: row.createdAt.slice(0, 10), updatedAt: row.updatedAt.slice(0, 10) }; }
 function validate(input: CreatePlanInput | UpdatePlanInput): void {
   if (!input.name?.trim()) throw new Error('Plan Name is required.');
   if (!Number.isInteger(input.level) || input.level <= 0) throw new Error('Plan Level must be a positive whole number.');
@@ -32,7 +32,7 @@ function planCode(name: string): string { return `PLN-${newUuid().replaceAll('-'
 
 class SqlLicensePlanService implements ILicensePlanService {
   private async rows(): Promise<LicensePlan[]> { try { const result = await listLicensePlans(getFirebaseClientServices().dataConnect); return result.data.licensePlans.map((row) => mapRow(row as Row)); } catch (error) { throw safeError(error, 'Unable to load plans.'); } }
-  async getPlans(query?: PlanQuery): Promise<LicensePlan[]> { let result = await this.rows(); if (query?.status && query.status !== 'all') result = result.filter((p) => p.status === query.status); if (query?.level !== undefined && query.level !== 'all') result = result.filter((p) => p.level === Number(query.level)); const search = query?.search?.trim().toLowerCase(); if (search) result = result.filter((p) => `${p.id} ${p.name} ${p.description}`.toLowerCase().includes(search)); return result.sort((a, b) => a.level - b.level); }
+  async getPlans(query?: PlanQuery): Promise<LicensePlan[]> { let result = await this.rows(); if (query?.status && query.status !== 'all') result = result.filter((p) => p.status === query.status); if (query?.level !== undefined && query.level !== 'all') result = result.filter((p) => p.level === Number(query.level)); const search = query?.search?.trim().toLowerCase(); if (search) result = result.filter((p) => `${p.planCode ?? ''} ${p.name} ${p.description}`.toLowerCase().includes(search)); return result.sort((a, b) => a.level - b.level); }
   async getActivePlans(): Promise<LicensePlan[]> { return this.getPlans({ status: 'active' }); }
   async getPlan(id: string): Promise<LicensePlan | null> { try { const result = await getLicensePlan(getFirebaseClientServices().dataConnect, { id }); return result.data.licensePlan ? mapRow(result.data.licensePlan as Row) : null; } catch (error) { throw safeError(error, 'Unable to load the plan.'); } }
   async isLevelTaken(level: number, excludePlanId?: string): Promise<boolean> { return (await this.rows()).some((plan) => plan.level === level && plan.id !== excludePlanId); }

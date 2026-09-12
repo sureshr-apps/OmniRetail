@@ -26,9 +26,11 @@ import {
   OrganizationLicense,
 } from '@/features/licenses/types';
 import { organizationLicenseService } from '@/features/licenses/services/OrganizationLicenseService';
+import { licensePlanService } from '@/features/plans/services/LicensePlanService';
 import {
   getLicenseStatusLabel,
   getLicenseStatusBadgeVariant,
+  calculateLicenseStatus,
 } from '@/features/licenses/utils/licenseStatus';
 import { AssignLicenseModal } from '@/features/licenses/components/AssignLicenseModal';
 import { ChangePlanModal } from '@/features/licenses/components/ChangePlanModal';
@@ -80,8 +82,12 @@ export function OrganizationLicenseTab({
     loadLicenseData();
   }, [loadLicenseData]);
 
-  const handleActionSuccess = async (message: string) => {
+  const handleActionSuccess = async (message: string, assignedLicense?: OrganizationLicense) => {
     setFeedback(message);
+    if (assignedLicense) {
+      const assignedPlan = await licensePlanService.getPlan(assignedLicense.planId);
+      setLicenseData({ license: assignedLicense, plan: assignedPlan, status: calculateLicenseStatus(assignedLicense) });
+    }
     await loadLicenseData();
     await new Promise((resolve) => setTimeout(resolve, 350));
     await loadLicenseData();
@@ -168,7 +174,7 @@ export function OrganizationLicenseTab({
           onClose={() => setIsAssignOpen(false)}
           organizationId={organization.id}
           organizationName={organization.name}
-          onSuccess={() => handleActionSuccess('License successfully assigned to organization.')}
+          onSuccess={(assigned) => handleActionSuccess('License successfully assigned to organization.', assigned)}
         />
       </div>
     );

@@ -227,6 +227,14 @@ export interface CreateOrganizationVariables {
   requestId: string;
 }
 
+export interface DeleteAppUserTrustedData {
+  appUser_delete?: AppUser_Key | null;
+}
+
+export interface DeleteAppUserTrustedVariables {
+  id: UUIDString;
+}
+
 export interface DeleteLicensePlanData {
   licensePlan_delete?: LicensePlan_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -248,6 +256,14 @@ export interface DeleteLicensePlanVariables {
   id: UUIDString;
   auditId: UUIDString;
   requestId: string;
+}
+
+export interface DeleteOrganizationTrustedData {
+  organization_delete?: Organization_Key | null;
+}
+
+export interface DeleteOrganizationTrustedVariables {
+  id: UUIDString;
 }
 
 export interface GetAppUserByFirebaseUidData {
@@ -709,6 +725,19 @@ export interface ListOrganizationLicensePlanAssignmentsData {
       id: UUIDString;
     } & LicensePlan_Key;
   })[];
+}
+
+export interface ListOrganizationUsersForDeletionTrustedData {
+  organizationMemberships: ({
+    user: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+  })[];
+}
+
+export interface ListOrganizationUsersForDeletionTrustedVariables {
+  organizationId: UUIDString;
 }
 
 export interface ListOrganizationsData {
@@ -1454,6 +1483,42 @@ export const listOrganizationsTrustedRef: ListOrganizationsTrustedRef;
 
 export function listOrganizationsTrusted(options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsTrustedData, undefined>;
 export function listOrganizationsTrusted(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsTrustedData, undefined>;
+
+interface ListOrganizationUsersForDeletionTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListOrganizationUsersForDeletionTrustedVariables): QueryRef<ListOrganizationUsersForDeletionTrustedData, ListOrganizationUsersForDeletionTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListOrganizationUsersForDeletionTrustedVariables): QueryRef<ListOrganizationUsersForDeletionTrustedData, ListOrganizationUsersForDeletionTrustedVariables>;
+  operationName: string;
+}
+export const listOrganizationUsersForDeletionTrustedRef: ListOrganizationUsersForDeletionTrustedRef;
+
+export function listOrganizationUsersForDeletionTrusted(vars: ListOrganizationUsersForDeletionTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationUsersForDeletionTrustedData, ListOrganizationUsersForDeletionTrustedVariables>;
+export function listOrganizationUsersForDeletionTrusted(dc: DataConnect, vars: ListOrganizationUsersForDeletionTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationUsersForDeletionTrustedData, ListOrganizationUsersForDeletionTrustedVariables>;
+
+interface DeleteOrganizationTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteOrganizationTrustedVariables): MutationRef<DeleteOrganizationTrustedData, DeleteOrganizationTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteOrganizationTrustedVariables): MutationRef<DeleteOrganizationTrustedData, DeleteOrganizationTrustedVariables>;
+  operationName: string;
+}
+export const deleteOrganizationTrustedRef: DeleteOrganizationTrustedRef;
+
+export function deleteOrganizationTrusted(vars: DeleteOrganizationTrustedVariables): MutationPromise<DeleteOrganizationTrustedData, DeleteOrganizationTrustedVariables>;
+export function deleteOrganizationTrusted(dc: DataConnect, vars: DeleteOrganizationTrustedVariables): MutationPromise<DeleteOrganizationTrustedData, DeleteOrganizationTrustedVariables>;
+
+interface DeleteAppUserTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteAppUserTrustedVariables): MutationRef<DeleteAppUserTrustedData, DeleteAppUserTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteAppUserTrustedVariables): MutationRef<DeleteAppUserTrustedData, DeleteAppUserTrustedVariables>;
+  operationName: string;
+}
+export const deleteAppUserTrustedRef: DeleteAppUserTrustedRef;
+
+export function deleteAppUserTrusted(vars: DeleteAppUserTrustedVariables): MutationPromise<DeleteAppUserTrustedData, DeleteAppUserTrustedVariables>;
+export function deleteAppUserTrusted(dc: DataConnect, vars: DeleteAppUserTrustedVariables): MutationPromise<DeleteAppUserTrustedData, DeleteAppUserTrustedVariables>;
 
 interface AssignOrganizationLicenseTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

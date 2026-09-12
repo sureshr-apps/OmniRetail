@@ -26,6 +26,9 @@ import {
   renewOrganizationLicenseTrusted,
   getLicensePlanReferencesTrusted,
   deleteLicensePlanTrusted,
+  listOrganizationUsersForDeletionTrusted,
+  deleteOrganizationTrusted,
+  deleteAppUserTrusted,
 } from '@omniretail/sql-connect-admin';
 import {
   authenticateUsername,
@@ -370,6 +373,32 @@ export const deleteOrganizationLicensePlan = onCall(callableOptions, async (requ
   } catch (error) {
     logCallableFailure('deleteOrganizationLicensePlan', error);
     throw new HttpsError('failed-precondition', 'This plan is referenced by existing licenses or history and cannot be deleted. Deactivate it instead.');
+  }
+});
+
+export const deleteOrganization = onCall(callableOptions, async (request) => {
+  const operationKey = typeof request.data?.confirmation === 'string' ? request.data.confirmation : '';
+  try {
+    const uid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(uid);
+    requireCapability(caller, 'organizations.delete');
+    const organizationId = typeof request.data?.organizationId === 'string' ? request.data.organizationId : '';
+    if (!organizationId || operationKey !== `DELETE ${organizationId}`) throw new Error('invalid confirmation');
+    const organization = (await getOrganizationTrusted({ id: organizationId })).data.organization;
+    if (!organization) throw new Error('not found');
+    if (organization.status !== 'SUSPENDED') throw new Error('organization must be suspended');
+    const members = (await listOrganizationUsersForDeletionTrusted({ organizationId })).data.organizationMemberships;
+    await deleteOrganizationTrusted({ id: organizationId });
+    for (const member of members) {
+      await deleteAppUserTrusted({ id: member.user.id });
+      try { await getAuth().deleteUser(member.user.firebaseUid); } catch (error: any) {
+        if (error?.code !== 'auth/user-not-found') await recordProvisioningReconciliation({ idempotencyKey: `organization-delete:${organizationId}:${member.user.id}`, firebaseUid: member.user.firebaseUid, errorClass: 'auth_delete_failed' });
+      }
+    }
+    return { success: true };
+  } catch (error) {
+    logCallableFailure('deleteOrganization', error);
+    throw new HttpsError('failed-precondition', 'Unable to delete the organization. It must be suspended and have a valid confirmation.');
   }
 });
 

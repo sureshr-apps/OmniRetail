@@ -16,7 +16,9 @@ import {
   ChevronRight,
   ShieldAlert,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
+import { httpsCallable } from 'firebase/functions';
 import { Button } from '@/shared/components/Button';
 import { Badge } from '@/shared/components/Badge';
 import { EmptyState } from '@/shared/components/EmptyState';
@@ -28,6 +30,7 @@ import { OrganizationAdministratorsTab } from '../components/OrganizationAdminis
 import { OrganizationLicenseTab } from '../components/OrganizationLicenseTab';
 import { EditOrganizationModal } from '../components/EditOrganizationModal';
 import { ChangeOrgStatusModal } from '../components/ChangeOrgStatusModal';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 
 type TabType = 'overview' | 'administrators' | 'license';
 
@@ -102,6 +105,16 @@ export function OrganizationDetailsPage() {
       }.`,
       type: updatedOrg.status === 'active' ? 'success' : 'info',
     });
+  };
+
+  const handleDeleteOrganization = async () => {
+    if (!organization || organization.status !== 'suspended') return;
+    const confirmation = window.prompt(`This permanently deletes ${organization.name} and all associated data. Type DELETE ${organization.id} to confirm.`);
+    if (confirmation !== `DELETE ${organization.id}`) return;
+    try {
+      await httpsCallable(getFirebaseClientServices().functions, 'deleteOrganization')({ organizationId: organization.id, confirmation });
+      navigate('/organizations');
+    } catch { setFeedback({ message: 'Unable to delete the organization. Ensure it is suspended and try again.', type: 'info' }); }
   };
 
   const handleTabClick = (nextTab: TabType) => {
@@ -324,6 +337,12 @@ export function OrganizationDetailsPage() {
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Activate Organization</span>
+              </Button>
+            )}
+            {organization.status === 'suspended' && (
+              <Button variant="destructive" size="sm" onClick={handleDeleteOrganization} className="gap-1.5 text-xs">
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Organization</span>
               </Button>
             )}
           </div>

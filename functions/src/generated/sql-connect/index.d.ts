@@ -218,6 +218,14 @@ export interface CreateOrganizationVariables {
   requestId: string;
 }
 
+export interface DeleteAppUserTrustedData {
+  appUser_delete?: AppUser_Key | null;
+}
+
+export interface DeleteAppUserTrustedVariables {
+  id: UUIDString;
+}
+
 export interface DeleteLicensePlanData {
   licensePlan_delete?: LicensePlan_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -239,6 +247,14 @@ export interface DeleteLicensePlanVariables {
   id: UUIDString;
   auditId: UUIDString;
   requestId: string;
+}
+
+export interface DeleteOrganizationTrustedData {
+  organization_delete?: Organization_Key | null;
+}
+
+export interface DeleteOrganizationTrustedVariables {
+  id: UUIDString;
 }
 
 export interface GetAppUserByFirebaseUidData {
@@ -700,6 +716,19 @@ export interface ListOrganizationLicensePlanAssignmentsData {
       id: UUIDString;
     } & LicensePlan_Key;
   })[];
+}
+
+export interface ListOrganizationUsersForDeletionTrustedData {
+  organizationMemberships: ({
+    user: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+  })[];
+}
+
+export interface ListOrganizationUsersForDeletionTrustedVariables {
+  organizationId: UUIDString;
 }
 
 export interface ListOrganizationsData {
@@ -1186,6 +1215,21 @@ export function getOrganizationLicenseHistoryPublic(vars: GetOrganizationLicense
 export function listOrganizationsTrusted(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'ListOrganizationsTrusted' Query. Allow users to pass in custom DataConnect instances. */
 export function listOrganizationsTrusted(options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListOrganizationUsersForDeletionTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function listOrganizationUsersForDeletionTrusted(dc: DataConnect, vars: ListOrganizationUsersForDeletionTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationUsersForDeletionTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'ListOrganizationUsersForDeletionTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function listOrganizationUsersForDeletionTrusted(vars: ListOrganizationUsersForDeletionTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationUsersForDeletionTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteOrganizationTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteOrganizationTrusted(dc: DataConnect, vars: DeleteOrganizationTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteOrganizationTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteOrganizationTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteOrganizationTrusted(vars: DeleteOrganizationTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteOrganizationTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteAppUserTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteAppUserTrusted(dc: DataConnect, vars: DeleteAppUserTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteAppUserTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteAppUserTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteAppUserTrusted(vars: DeleteAppUserTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteAppUserTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'AssignOrganizationLicenseTrusted' Mutation. Allow users to execute without passing in DataConnect. */
 export function assignOrganizationLicenseTrusted(dc: DataConnect, vars: AssignOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignOrganizationLicenseTrustedData>>;

@@ -307,6 +307,27 @@ function listOrganizationsTrusted(dcOrOptions, options) {
 }
 exports.listOrganizationsTrusted = listOrganizationsTrusted;
 
+function listOrganizationUsersForDeletionTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListOrganizationUsersForDeletionTrusted', inputVars, inputOpts);
+}
+exports.listOrganizationUsersForDeletionTrusted = listOrganizationUsersForDeletionTrusted;
+
+function deleteOrganizationTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteOrganizationTrusted', inputVars, inputOpts);
+}
+exports.deleteOrganizationTrusted = deleteOrganizationTrusted;
+
+function deleteAppUserTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteAppUserTrusted', inputVars, inputOpts);
+}
+exports.deleteAppUserTrusted = deleteAppUserTrusted;
+
 function assignOrganizationLicenseTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

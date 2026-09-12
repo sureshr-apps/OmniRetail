@@ -468,6 +468,20 @@ query ListOrganizationsTrusted @auth(level: NO_ACCESS) {
   organizations(orderBy: [{ createdAt: DESC }, { id: ASC }]) { id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt }
 }
 
+query ListOrganizationUsersForDeletionTrusted($organizationId: UUID!) @auth(level: NO_ACCESS) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } } }) {
+    user { id firebaseUid }
+  }
+}
+
+mutation DeleteOrganizationTrusted($id: UUID!) @auth(level: NO_ACCESS) @transaction {
+  organization_delete(id: $id)
+}
+
+mutation DeleteAppUserTrusted($id: UUID!) @auth(level: NO_ACCESS) @transaction {
+  appUser_delete(id: $id)
+}
+
 mutation AssignOrganizationLicenseTrusted($id: UUID!, $organizationId: UUID!, $planId: UUID!, $startDate: Date!, $expiryDate: Date!, $negotiatedPrice: Float!, $currency: String!, $historyId: UUID!, $planCode: String!, $planName: String!, $planLevel: Int!, $maxStores: Int!, $maxUsers: Int!, $auditId: UUID!, $actorFirebaseUid: String!, $requestId: String!) @auth(level: NO_ACCESS) @transaction {
   organizationLicense_insert(data: { id: $id organization: { id: $organizationId } plan: { id: $planId } startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency })
   licenseHistory_insert(data: { id: $historyId license: { id: $id } organization: { id: $organizationId } eventType: ASSIGNED plan: { id: $planId } planCode: $planCode planName: $planName planLevel: $planLevel maxStores: $maxStores maxUsers: $maxUsers startDate: $startDate expiryDate: $expiryDate negotiatedPrice: $negotiatedPrice currency: $currency })

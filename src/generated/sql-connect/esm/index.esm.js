@@ -513,6 +513,43 @@ export function listOrganizationsTrusted(dcOrOptions, options) {
   return executeQuery(listOrganizationsTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listOrganizationUsersForDeletionTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListOrganizationUsersForDeletionTrusted', inputVars);
+}
+listOrganizationUsersForDeletionTrustedRef.operationName = 'ListOrganizationUsersForDeletionTrusted';
+
+export function listOrganizationUsersForDeletionTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listOrganizationUsersForDeletionTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const deleteOrganizationTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteOrganizationTrusted', inputVars);
+}
+deleteOrganizationTrustedRef.operationName = 'DeleteOrganizationTrusted';
+
+export function deleteOrganizationTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteOrganizationTrustedRef(dcInstance, inputVars));
+}
+
+export const deleteAppUserTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteAppUserTrusted', inputVars);
+}
+deleteAppUserTrustedRef.operationName = 'DeleteAppUserTrusted';
+
+export function deleteAppUserTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteAppUserTrustedRef(dcInstance, inputVars));
+}
+
 export const assignOrganizationLicenseTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

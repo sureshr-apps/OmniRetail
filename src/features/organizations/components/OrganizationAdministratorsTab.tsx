@@ -106,6 +106,7 @@ export function OrganizationAdministratorsTab({
   };
 
   const handleAdminStatusChanged = async (updatedAdmin: OrganizationAdministrator) => {
+    setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
     setFeedback({
       message: `Administrator "${updatedAdmin.name}" has been ${
         updatedAdmin.status === 'active' ? 'activated' : 'deactivated'

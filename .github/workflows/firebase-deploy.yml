@@ -54,7 +54,7 @@ jobs:
         run: printf 'OMNIRETAIL_WEB_API_KEY="%s"\n' "$OMNIRETAIL_WEB_API_KEY" > functions/.env.omniretail-60c71
 
       - name: Deploy Hosting, Functions, and Data Connect
-        run: npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions,dataconnect --non-interactive
+        run: npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions,dataconnect --non-interactive --force
 
       - name: Allow public transport access for callable functions
         run: |

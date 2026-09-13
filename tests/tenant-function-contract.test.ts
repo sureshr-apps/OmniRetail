@@ -21,6 +21,10 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('--role=roles/run.invoker');
   });
 
+  it('acknowledges the intentional Data Connect outlet contract migration', () => {
+    expect(deploymentSource).toContain('--only hosting,functions,dataconnect --non-interactive --force');
+  });
+
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {
     expect(source).toContain('export const createTenantOutlet = onCall');
     expect(source).toContain("requireCapability(caller, 'outlets.read')");

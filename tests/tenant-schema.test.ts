@@ -11,6 +11,15 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum OutletStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
   });
 
+  it('keeps the outlet schema India-only and single-register by design', () => {
+    const outlet = schema.match(/type Outlet @table[\s\S]*?\n}\n\ntype Employee/)?.[0] ?? '';
+    expect(outlet).toContain('outletCode: String! @unique');
+    expect(outlet).toContain('status: OutletStatus! @default(value: ACTIVE)');
+    for (const removedColumn of ['city:', 'state:', 'postalCode:', 'country:', 'registerCount:']) {
+      expect(outlet).not.toContain(removedColumn);
+    }
+  });
+
   it('keeps employee login access separate from employee identity', () => {
     expect(schema).toMatch(/user: AppUser/);
     expect(schema).toMatch(/loginAccess: LoginAccessStatus!/);
@@ -68,5 +77,19 @@ describe('tenant Data Connect foundation schema', () => {
 
     expect(productsQuery?.[0]).toContain('this[0].role.code == \'organization.admin\'');
     expect(productsQuery?.[0]).toContain('rp.permission.code == \'products.read\'');
+  });
+
+  it('does not expose removed outlet fields through tenant connectors', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const outletOperations = connector.match(/(?:query|mutation) (?:ListTenantOutlets|CreateTenantOutlet|UpdateTenantOutlet|CreateTenantOutletTrusted|UpdateTenantOutletTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    expect(outletOperations.length).toBe(5);
+    for (const operation of outletOperations) {
+      for (const removedField of ['city', 'state', 'postalCode', 'country', 'registerCount']) {
+        expect(operation).not.toMatch(new RegExp(`\\$${removedField}\\b|\\b${removedField}:`));
+      }
+    }
+    expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('status: ACTIVE');
+    expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('timezone: "Asia/Kolkata"');
+    expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('currency: "INR"');
   });
 });

@@ -75,9 +75,6 @@ export function OutletDetailDrawer({
               <div className="flex items-start justify-between">
                 <div>
                   <div className="font-bold text-slate-900 text-sm">{outlet.name}</div>
-                  <div className="text-slate-500 text-[11px] mt-0.5">
-                    {outlet.description || `${outlet.type || 'Retail'} · ${outlet.registerCount} Registers`}
-                  </div>
                 </div>
                 {!isInactive ? (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 ml-2">
@@ -101,26 +98,14 @@ export function OutletDetailDrawer({
                   <span className="text-slate-400 block">Last Updated</span>
                   <span className="font-medium text-slate-700">{formatDate(outlet.updatedAt)}</span>
                 </div>
-                <div>
-                  <span className="text-slate-400 block">Active Employees</span>
-                  <span className="font-bold text-teal-800 text-xs">
-                    {outlet.employeeCount} Staff Members
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Connected POS</span>
-                  <span className="font-bold text-slate-800 text-xs">
-                    {outlet.registerCount} Terminals Active
-                  </span>
-                </div>
               </div>
             </div>
 
-            {/* Contact & Location Information */}
+            {/* Contact Information */}
             <div className="space-y-2.5">
               <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[15px] text-slate-500">pin_drop</span>
-                <span>Location &amp; Contact Info</span>
+                <span>Contact Info</span>
               </h4>
               <div className="bg-white border border-slate-200 rounded-md p-3 space-y-2 text-slate-600">
                 <div className="flex justify-between items-center">
@@ -141,18 +126,6 @@ export function OutletDetailDrawer({
                   <span className="text-slate-400">Street Address:</span>
                   <span className="font-medium text-slate-800 text-right">
                     {outlet.address || '—'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">City / State:</span>
-                  <span className="font-medium text-slate-800">
-                    {outlet.city}, {outlet.state} {outlet.postalCode}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">Currency / Zone:</span>
-                  <span className="font-mono text-slate-800">
-                    {outlet.currency || 'USD ($)'} · {outlet.timezone ? outlet.timezone.split(' ')[0] : 'CST'}
                   </span>
                 </div>
               </div>

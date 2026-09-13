@@ -20,7 +20,7 @@ export async function getInventoryLocations(): Promise<InventoryLocation[]> {
   const outlets = await outletService.getAllActiveOutlets();
   return [
     { id: 'all', name: 'All Locations', code: 'ALL', subLabel: 'All active outlets' },
-    ...outlets.map((outlet) => ({ id: outlet.id, name: outlet.name, code: outlet.outletCode, subLabel: outlet.city })),
+    ...outlets.map((outlet) => ({ id: outlet.id, name: outlet.name, code: outlet.outletCode, subLabel: outlet.outletCode })),
   ];
 }
 

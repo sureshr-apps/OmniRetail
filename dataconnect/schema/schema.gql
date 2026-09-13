@@ -173,9 +173,6 @@ type Outlet @table {
   email: String
   phone: String!
   address: String!
-  city: String!
-  state: String
-  postalCode: String
   timezone: String!
   currency: String!
   status: OutletStatus! @default(value: ACTIVE)

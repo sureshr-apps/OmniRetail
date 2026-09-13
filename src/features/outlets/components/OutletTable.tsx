@@ -126,8 +126,6 @@ export function OutletTable({
             <th className="py-3 px-4">Outlet Name</th>
             <th className="py-3 px-4">Contact Person</th>
             <th className="py-3 px-4">Phone</th>
-            <th className="py-3 px-4">City</th>
-            <th className="py-3 px-4 text-center">No. of Employees</th>
             <th className="py-3 px-4 text-center">Status</th>
             <th className="py-3 px-4 text-right pr-6">Actions</th>
           </tr>
@@ -161,7 +159,7 @@ export function OutletTable({
                   </div>
                 </td>
 
-                {/* 2. OUTLET NAME & REGISTER METADATA */}
+                {/* 2. OUTLET NAME */}
                 <td className="py-3.5 px-4">
                   <div
                     className={`font-semibold text-[13px] ${
@@ -171,9 +169,6 @@ export function OutletTable({
                     }`}
                   >
                     {outlet.name}
-                  </div>
-                  <div className="text-[11px] text-slate-400">
-                    {outlet.description || `${outlet.type || 'Retail'} · ${outlet.registerCount} Registers`}
                   </div>
                 </td>
 
@@ -196,34 +191,7 @@ export function OutletTable({
                   {outlet.phone}
                 </td>
 
-                {/* 5. CITY & REGION */}
-                <td className="py-3.5 px-4">
-                  <div
-                    className={`font-medium ${
-                      isInactive ? 'text-slate-700' : 'text-slate-800'
-                    }`}
-                  >
-                    {outlet.city}
-                  </div>
-                  <div className="text-[11px] text-slate-400">
-                    {outlet.state ? `${outlet.state}, ${outlet.country}` : outlet.country}
-                  </div>
-                </td>
-
-                {/* 6. NO. OF EMPLOYEES (READ-ONLY DERIVED BADGE) */}
-                <td className="py-3.5 px-4 text-center">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      outlet.employeeCount > 0
-                        ? 'bg-slate-100 text-slate-700'
-                        : 'bg-slate-200 text-slate-600'
-                    }`}
-                  >
-                    {outlet.employeeCount} Staff
-                  </span>
-                </td>
-
-                {/* 7. STATUS */}
+                {/* 5. STATUS */}
                 <td className="py-3.5 px-4 text-center">
                   {outlet.status === 'Active' ? (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -238,7 +206,7 @@ export function OutletTable({
                   )}
                 </td>
 
-                {/* 8. ACTIONS */}
+                {/* 6. ACTIONS */}
                 <td className="py-3.5 px-4 text-right pr-6">
                   <button
                     type="button"

@@ -6,9 +6,6 @@ interface OutletFilterBarProps {
   onSearchChange: (val: string) => void;
   statusFilter: 'All' | OutletStatus;
   onStatusFilterChange: (status: 'All' | OutletStatus) => void;
-  cityFilter: string;
-  onCityFilterChange: (city: string) => void;
-  availableCities: string[];
   totalCount: number;
   activeCount: number;
   inactiveCount: number;
@@ -21,9 +18,6 @@ export function OutletFilterBar({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
-  cityFilter,
-  onCityFilterChange,
-  availableCities,
   totalCount,
   activeCount,
   inactiveCount,
@@ -42,7 +36,7 @@ export function OutletFilterBar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search outlets by outlet name, outlet code, city, or phone number..."
+            placeholder="Search outlets by name, outlet code, or phone number..."
             className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-600 focus:bg-white transition-all"
           />
           {searchQuery ? (
@@ -62,7 +56,7 @@ export function OutletFilterBar({
         </div>
       </div>
 
-      {/* Right Filters (Status & City & Refresh) */}
+      {/* Right Filters (Status & Refresh) */}
       <div className="flex flex-wrap items-center gap-2.5 text-xs">
         {/* Status Segmented Filter */}
         <div className="flex items-center bg-slate-100 p-0.5 rounded-md border border-slate-200 text-slate-600 font-medium">
@@ -100,25 +94,6 @@ export function OutletFilterBar({
           >
             Inactive ({inactiveCount})
           </button>
-        </div>
-
-        {/* City Dropdown */}
-        <div className="relative">
-          <select
-            value={cityFilter}
-            onChange={(e) => onCityFilterChange(e.target.value)}
-            className="appearance-none bg-slate-50 border border-slate-200 rounded-md pl-3 pr-8 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-teal-600 cursor-pointer"
-          >
-            <option value="">All Cities ({availableCities.length})</option>
-            {availableCities.map((c) => (
-              <option key={c} value={c}>
-                {c}, TX
-              </option>
-            ))}
-          </select>
-          <span className="material-symbols-outlined absolute right-2 top-2 text-slate-400 pointer-events-none text-[16px]">
-            expand_more
-          </span>
         </div>
 
         {/* Refresh Button */}

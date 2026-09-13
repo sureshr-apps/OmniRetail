@@ -558,7 +558,7 @@ mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!, $act
 query ListTenantOutlets($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'outlets.read'))", message: "Outlet access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
   outlets(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
-    id organization { id } outletCode name contactPerson email phone address city state postalCode timezone currency status createdAt updatedAt
+    id organization { id } outletCode name contactPerson email phone address timezone currency status createdAt updatedAt
   }
 }
 
@@ -775,19 +775,25 @@ query GetTenantMembershipTrusted($organizationId: UUID!, $firebaseUid: String!) 
   }
 }
 
-mutation CreateTenantOutlet($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+# Outlet codes are globally unique in the schema, so allocation reads the
+# existing sequence across all organizations before inserting the next code.
+query ListTenantOutletCodesTrusted @auth(level: NO_ACCESS) {
+  outlets(orderBy: [{ outletCode: ASC }]) { outletCode }
+}
+
+mutation CreateTenantOutlet($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.code == 'organization.admin'", message: "Outlet administration is not available.") { role { code } }
   }
-  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency status: ACTIVE })
+  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address timezone: "Asia/Kolkata" currency: "INR" status: ACTIVE })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId outletCode: $outletCode } })
 }
 
-mutation UpdateTenantOutlet($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+mutation UpdateTenantOutlet($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.code == 'organization.admin'", message: "Outlet administration is not available.") { role { code } }
   }
-  outlet_update(id: $id, data: { name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency updatedAt_expr: "request.time" })
+  outlet_update(id: $id, data: { name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address updatedAt_expr: "request.time" })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.updated" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
@@ -799,14 +805,14 @@ mutation ChangeTenantOutletStatus($organizationId: UUID!, $id: UUID!, $status: O
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.status_changed" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
 }
 
-mutation CreateTenantOutletTrusted($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
-  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency status: ACTIVE })
+mutation CreateTenantOutletTrusted($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address timezone: "Asia/Kolkata" currency: "INR" status: ACTIVE })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId outletCode: $outletCode } })
 }
 
-mutation UpdateTenantOutletTrusted($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+mutation UpdateTenantOutletTrusted($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact { outlets(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { organization { id } } }
-  outlet_update(id: $id, data: { name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency updatedAt_expr: "request.time" })
+  outlet_update(id: $id, data: { name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address updatedAt_expr: "request.time" })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.updated" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 

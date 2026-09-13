@@ -27,6 +27,9 @@ describe('tenant callable contract', () => {
     expect(source).toContain("membership.role.code !== 'organization.admin'");
     expect(source).toContain('createTenantOutletTrusted');
     expect(source).toContain('idempotencyKey');
+    expect(source).toContain('async function nextTenantOutletCode()');
+    expect(source).toContain("return `OUT-${String(next).padStart(3, '0')}`");
+    expect(source).not.toContain("typeof d.outletCode === 'string'");
     expect(source).toContain('function outletCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('invalid-argument', 'Some outlet details are invalid.')");
   });

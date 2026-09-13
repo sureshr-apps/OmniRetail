@@ -60,7 +60,7 @@ import {
   createTenantSale,
   addTenantSaleLine,
   voidTenantSale,
-  getTenantInventoryStockTrusted, listTenantOutlets, listTenantCustomers,
+  getTenantInventoryStockTrusted, listTenantOutlets, listTenantOutletCodesTrusted, listTenantCustomers,
   createTenantExpense, updateTenantExpense, changeTenantExpenseApproval, voidTenantExpense,
   changeTenantSupplierStatus as changeTenantSupplierStatusSql,
 } from '@omniretail/sql-connect-admin';
@@ -169,6 +169,25 @@ function outletCreationFailure(error: unknown): HttpsError {
   if (/invalid input|idempotency/i.test(message)) return new HttpsError('invalid-argument', 'Some outlet details are invalid.');
   if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'An outlet with this code already exists.');
   return new HttpsError('internal', 'Unable to create the outlet.');
+}
+
+async function nextTenantOutletCode(): Promise<string> {
+  const result = await listTenantOutletCodesTrusted();
+  let max = 0;
+  for (const row of result.data.outlets) {
+    const match = /^OUT-(\d+)$/i.exec(row.outletCode);
+    if (match) max = Math.max(max, Number.parseInt(match[1], 10));
+  }
+  const sequenceRef = getFirestore().collection('system').doc('outletCodeSequence');
+  const next = await getFirestore().runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(sequenceRef);
+    const stored = snapshot.data()?.nextSequence;
+    const storedSequence = typeof stored === 'number' && Number.isFinite(stored) ? stored : 0;
+    const sequence = Math.max(max, storedSequence) + 1;
+    transaction.set(sequenceRef, { nextSequence: sequence, updatedAt: FieldValue.serverTimestamp() });
+    return sequence;
+  });
+  return `OUT-${String(next).padStart(3, '0')}`;
 }
 
 async function sendManagedPasswordEmail(email: string, requestType: 'PASSWORD_RESET'): Promise<void> {
@@ -524,21 +543,18 @@ export const createTenantOutlet = onCall(callableOptions, async (request) => {
     requireCapability(caller, 'outlets.read');
     const d = request.data ?? {};
     const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
-    const outletCode = typeof d.outletCode === 'string' ? d.outletCode.trim() : '';
     const name = typeof d.name === 'string' ? d.name.trim() : '';
     const contactPerson = typeof d.contactPerson === 'string' ? d.contactPerson.trim() : '';
     const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null;
     const phone = typeof d.phone === 'string' ? d.phone.trim() : '';
     const address = typeof d.address === 'string' ? d.address.trim() : '';
-    const city = typeof d.city === 'string' ? d.city.trim() : '';
-    const timezone = typeof d.timezone === 'string' ? d.timezone.trim() : '';
-    const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
-    if (!organizationId || !outletCode || !name || !contactPerson || !phone || !address || !city || !timezone || !currency) throw new Error('invalid input');
+    if (!organizationId || !name || !contactPerson || !phone || !address) throw new Error('invalid input');
     const membership = (await getTenantMembershipTrusted({ organizationId, firebaseUid: actorFirebaseUid })).data.organizationMemberships[0];
     if (!membership || membership.role.code !== 'organization.admin') throw new Error('scope');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey.trim() : '';
     if (!/^[A-Za-z0-9._:-]{8,128}$/.test(idempotencyKey)) throw new Error('idempotency');
-    await createTenantOutletTrusted({ organizationId, outletCode, name, contactPerson, email, phone, address, city, state: typeof d.state === 'string' ? d.state.trim() || null : null, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, timezone, currency, auditId: randomUUID(), requestId: idempotencyKey, actorFirebaseUid });
+    const outletCode = await nextTenantOutletCode();
+    await createTenantOutletTrusted({ organizationId, outletCode, name, contactPerson, email, phone, address, auditId: randomUUID(), requestId: idempotencyKey, actorFirebaseUid });
     return { success: true, outletCode, organizationId };
   } catch (error) {
     logCallableFailure('createTenantOutlet', error);
@@ -563,11 +579,11 @@ export const updateTenantOutlet = onCall(callableOptions, async (request) => {
     const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
     const caller = await loadAuthorization(actorFirebaseUid); requireCapability(caller, 'outlets.read');
     const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : '';
-    const name = typeof d.name === 'string' ? d.name.trim() : ''; const contactPerson = typeof d.contactPerson === 'string' ? d.contactPerson.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const address = typeof d.address === 'string' ? d.address.trim() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const timezone = typeof d.timezone === 'string' ? d.timezone.trim() : ''; const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
-    if (!organizationId || !id || !name || !contactPerson || !phone || !address || !city || !timezone || !currency) throw new Error('invalid input');
+    const name = typeof d.name === 'string' ? d.name.trim() : ''; const contactPerson = typeof d.contactPerson === 'string' ? d.contactPerson.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const address = typeof d.address === 'string' ? d.address.trim() : '';
+    if (!organizationId || !id || !name || !contactPerson || !phone || !address) throw new Error('invalid input');
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('request');
-    await updateTenantOutletTrusted({ organizationId, id, name, contactPerson, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, address, city, state: typeof d.state === 'string' ? d.state.trim() || null : null, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, timezone, currency, auditId: randomUUID(), requestId, actorFirebaseUid });
+    await updateTenantOutletTrusted({ organizationId, id, name, contactPerson, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, address, auditId: randomUUID(), requestId, actorFirebaseUid });
     return { success: true, id, organizationId };
   } catch (error) { logCallableFailure('updateTenantOutlet', error); throw new HttpsError('permission-denied', 'Unable to update the outlet.'); }
 });

@@ -21,7 +21,6 @@ export function OutletMasterPage() {
   // Query & Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | OutletStatus>('All');
-  const [cityFilter, setCityFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -31,7 +30,6 @@ export function OutletMasterPage() {
   const [activeCount, setActiveCount] = useState(0);
   const [inactiveCount, setInactiveCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +49,6 @@ export function OutletMasterPage() {
   // Add / Edit Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [outletToEdit, setOutletToEdit] = useState<Outlet | null>(null);
-  const [nextCode, setNextCode] = useState('OUT-007');
 
   // Status Change Confirmation Dialog
   const [outletForStatusChange, setOutletForStatusChange] = useState<Outlet | null>(null);
@@ -64,24 +61,18 @@ export function OutletMasterPage() {
       if (!isSilent) setIsLoading(true);
       setError(null);
 
-      const [res, cities] = await Promise.all([
-        outletService.getOutlets({
+      const res = await outletService.getOutlets({
           search: searchQuery,
           status: statusFilter,
-          city: cityFilter,
           page: currentPage,
           pageSize,
-        }),
-        outletService.getCities(),
-      ]);
+        });
 
       setOutlets(res.outlets);
       setTotalCount(res.total);
       setActiveCount(res.activeCount);
       setInactiveCount(res.inactiveCount);
       setTotalPages(res.totalPages);
-      setAvailableCities(cities);
-      setNextCode(outletService.getNextOutletCode());
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to retrieve outlet directory.';
       setError(msg);
@@ -89,7 +80,7 @@ export function OutletMasterPage() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [searchQuery, statusFilter, cityFilter, currentPage, pageSize]);
+  }, [searchQuery, statusFilter, currentPage, pageSize]);
 
   useEffect(() => {
     loadData();
@@ -112,15 +103,9 @@ export function OutletMasterPage() {
     setCurrentPage(1);
   };
 
-  const handleCityFilterChange = (val: string) => {
-    setCityFilter(val);
-    setCurrentPage(1);
-  };
-
   const handleClearFilters = () => {
     setSearchQuery('');
     setStatusFilter('All');
-    setCityFilter('');
     setCurrentPage(1);
   };
 
@@ -130,7 +115,6 @@ export function OutletMasterPage() {
     const res = await outletService.getOutlets({
       search: searchQuery,
       status: statusFilter,
-      city: cityFilter,
       page: 1,
       pageSize: 1000,
     });
@@ -140,7 +124,6 @@ export function OutletMasterPage() {
   // Modal actions
   const handleOpenAddModal = () => {
     setOutletToEdit(null);
-    setNextCode(outletService.getNextOutletCode());
     setIsModalOpen(true);
   };
 
@@ -220,7 +203,7 @@ export function OutletMasterPage() {
     }
   };
 
-  const hasActiveFilters = Boolean(searchQuery || statusFilter !== 'All' || cityFilter);
+  const hasActiveFilters = Boolean(searchQuery || statusFilter !== 'All');
 
   return (
     <div className="h-full flex flex-col min-w-0 bg-[#f8fafc] overflow-y-auto">
@@ -249,9 +232,6 @@ export function OutletMasterPage() {
           onSearchChange={handleSearchChange}
           statusFilter={statusFilter}
           onStatusFilterChange={handleStatusFilterChange}
-          cityFilter={cityFilter}
-          onCityFilterChange={handleCityFilterChange}
-          availableCities={availableCities}
           totalCount={activeCount + inactiveCount}
           activeCount={activeCount}
           inactiveCount={inactiveCount}
@@ -319,7 +299,6 @@ export function OutletMasterPage() {
         onSubmitCreate={handleCreateOutlet}
         onSubmitUpdate={handleUpdateOutlet}
         outletToEdit={outletToEdit}
-        generatedOutletCode={nextCode}
       />
 
       {/* 6. Activate / Deactivate Confirmation Dialog */}

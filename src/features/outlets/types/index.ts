@@ -1,14 +1,5 @@
 export type OutletStatus = 'Active' | 'Inactive';
 
-export type OutletType =
-  | 'Flagship'
-  | 'Mall Kiosk / Annex'
-  | 'High-Street Outlet'
-  | 'Regional Flagship'
-  | 'Seasonal Pop-up'
-  | 'Warehouse Store'
-  | 'Standard Retail';
-
 export interface OutletActivity {
   id: string;
   title: string;
@@ -20,20 +11,12 @@ export interface Outlet {
   id: string;
   outletCode: string;
   name: string;
-  description?: string;
-  type?: OutletType | string;
   contactPerson: string;
   contactEmail: string;
   phone: string;
   address: string;
-  city: string;
-  state: string;
-  postalCode?: string;
-  country: string;
-  timezone?: string;
-  currency?: string;
-  registerCount: number;
-  employeeCount: number;
+  timezone: string;
+  currency: string;
   status: OutletStatus;
   createdAt: string;
   updatedAt: string;
@@ -42,46 +25,25 @@ export interface Outlet {
 
 export interface OutletQuery {
   search?: string;
-  status?: 'All' | 'Active' | 'Inactive';
-  city?: string;
+  status?: 'All' | OutletStatus;
   page?: number;
   pageSize?: number;
 }
 
 export interface CreateOutletInput {
   name: string;
-  description?: string;
-  type?: string;
   contactPerson: string;
   contactEmail?: string;
   phone: string;
-  address?: string;
-  city: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-  timezone?: string;
-  currency?: string;
-  registerCount?: number;
-  status?: OutletStatus;
+  address: string;
 }
 
 export interface UpdateOutletInput {
   name?: string;
-  description?: string;
-  type?: string;
   contactPerson?: string;
   contactEmail?: string;
   phone?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-  timezone?: string;
-  currency?: string;
-  registerCount?: number;
-  status?: OutletStatus;
 }
 
 export interface OutletQueryResult {

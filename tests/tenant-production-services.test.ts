@@ -36,8 +36,28 @@ describe('tenant production service boundaries', () => {
 
   it('validates the required outlet address before calling the backend', () => {
     const source = read('outlets/components/OutletModal.tsx');
-    expect(source).toContain("errs.address = 'Street address is required for outlet operations.'");
+    expect(source).toContain("nextErrors.address = 'Street address is required for outlet operations.'");
     expect(source).toContain('Street Address <span className="text-rose-500">*</span>');
+  });
+
+  it('keeps outlet creation limited to persisted India-market fields', () => {
+    const modal = read('outlets/components/OutletModal.tsx');
+    const service = read('outlets/services/outletService.ts');
+    expect(modal).not.toContain('generatedOutletCode');
+    expect(modal).not.toContain('setCity');
+    expect(modal).not.toContain('setState');
+    expect(modal).not.toContain('setPostalCode');
+    expect(modal).not.toContain('setCountry');
+    expect(modal).not.toContain('registerCount');
+    expect(modal).not.toContain('setTimezone');
+    expect(modal).not.toContain('setCurrency');
+    expect(service).toContain("'createTenantOutlet'");
+    const createMethod = service.match(/async createOutlet[\s\S]*?\n  async updateOutlet/)?.[0] ?? '';
+    const createPayload = createMethod.match(/await callable\(\{[\s\S]*?\}\);/)?.[0] ?? '';
+    expect(createPayload).not.toContain('outletCode');
+    expect(service).not.toContain('city:');
+    expect(service).not.toContain('timezone: input');
+    expect(service).not.toContain('currency: input');
   });
 
   it('refreshes outlet data from the server after an outlet mutation', () => {

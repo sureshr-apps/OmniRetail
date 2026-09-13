@@ -58,6 +58,19 @@ export function Sidebar() {
             </NavLink>
           ))}
         </nav>
+
+        <div className="mt-4 pt-3 border-t border-border-subdued">
+          <NavLink
+            to="/billing"
+            className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium text-text-secondary hover:bg-surface-subdued hover:text-text-primary transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-secondary"></span>
+              <span>Open Store POS</span>
+            </div>
+            <span className="text-[10px] text-primary font-bold">F2</span>
+          </NavLink>
+        </div>
       </div>
 
       <div className="p-4 border-t border-border-subdued mt-auto">

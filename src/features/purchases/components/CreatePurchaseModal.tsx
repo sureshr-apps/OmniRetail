@@ -1,0 +1,643 @@
+import React, { useState } from 'react';
+import { CreatePurchaseInput, CreatePurchaseLineInput, PurchaseScope } from '../types';
+import { SupplierOption, OutletOption } from '../services/mockData';
+import { calculatePurchaseTotals, formatCurrency } from '../utils/calculations';
+
+interface CreatePurchaseModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreated: (input: CreatePurchaseInput, shouldOpenDetails?: boolean) => void;
+  suppliers: SupplierOption[];
+  outlets: OutletOption[];
+}
+
+// Sample product catalogue suggestions for easy selection
+const PRODUCT_SUGGESTIONS = [
+  {
+    code: 'PRD-1024',
+    name: 'Classic Linen Relaxed Shirt',
+    sku: 'AP-SH-001',
+    cost: 22.5,
+    tax: 12,
+  },
+  {
+    code: 'PRD-1026',
+    name: 'Tailored Wool Blazer',
+    sku: 'AP-JK-003',
+    cost: 65.0,
+    tax: 12,
+  },
+  {
+    code: 'PRD-1029',
+    name: 'Kraft Carry Bags (100-pack)',
+    sku: 'PKG-BG-100',
+    cost: 15.0,
+    tax: 18,
+  },
+  {
+    code: 'PRD-1025',
+    name: 'Selvedge Denim Regular Trousers',
+    sku: 'AP-DN-002',
+    cost: 32.0,
+    tax: 12,
+  },
+  {
+    code: 'PRD-1027',
+    name: 'Full Grain Leather Card Wallet',
+    sku: 'ACC-WL-004',
+    cost: 16.0,
+    tax: 12,
+  },
+  {
+    code: 'HW-POS-01',
+    name: 'Enterprise Wireless Barcode Terminal',
+    sku: 'HW-BC-200',
+    cost: 450.0,
+    tax: 18,
+  },
+];
+
+export function CreatePurchaseModal({
+  isOpen,
+  onClose,
+  onCreated,
+  suppliers,
+  outlets,
+}: CreatePurchaseModalProps) {
+  const [selectedSupplierId, setSelectedSupplierId] = useState(suppliers[0]?.id || 'sup-101');
+  const [selectedOutletName, setSelectedOutletName] = useState('Downtown Flagship #04');
+  const [purchaseDate, setPurchaseDate] = useState('2024-10-24');
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState('Net 15 Days');
+
+  // Product Lines
+  const [lines, setLines] = useState<CreatePurchaseLineInput[]>([
+    {
+      productId: 'prod-1024',
+      productCode: 'PRD-1024',
+      productName: 'Classic Linen Relaxed Shirt (PRD-1024)',
+      sku: 'AP-SH-001',
+      quantity: 50,
+      unitCost: 22.5,
+      discountPercent: 0,
+      taxRate: 12,
+    },
+    {
+      productId: 'prod-1026',
+      productCode: 'PRD-1026',
+      productName: 'Tailored Wool Blazer (PRD-1026)',
+      sku: 'AP-JK-003',
+      quantity: 25,
+      unitCost: 65.0,
+      discountPercent: 0,
+      taxRate: 12,
+    },
+  ]);
+
+  // Freight & Charges
+  const [shippingFee, setShippingFee] = useState<number>(120.0);
+  const [handlingFee, setHandlingFee] = useState<number>(0.0);
+
+  // Settlement
+  const [paymentOption, setPaymentOption] = useState<'UNPAID' | 'PARTIALLY_PAID' | 'PAID'>(
+    'PARTIALLY_PAID'
+  );
+  const [customPaidAmount, setCustomPaidAmount] = useState<string>('1500.00');
+
+  if (!isOpen) return null;
+
+  // Calculate live totals
+  const { subtotal, totalTax, grandTotal } = calculatePurchaseTotals(
+    lines,
+    shippingFee,
+    handlingFee,
+    0
+  );
+
+  const initialPayment =
+    paymentOption === 'PAID'
+      ? grandTotal
+      : paymentOption === 'UNPAID'
+      ? 0
+      : parseFloat(customPaidAmount) || 0;
+
+  const handleAddLine = () => {
+    const nextItem = PRODUCT_SUGGESTIONS[lines.length % PRODUCT_SUGGESTIONS.length];
+    setLines((prev) => [
+      ...prev,
+      {
+        productId: `prod-sug-${Date.now()}`,
+        productCode: nextItem.code,
+        productName: `${nextItem.name} (${nextItem.code})`,
+        sku: nextItem.sku,
+        quantity: 10,
+        unitCost: nextItem.cost,
+        discountPercent: 0,
+        taxRate: nextItem.tax,
+      },
+    ]);
+  };
+
+  const handleRemoveLine = (index: number) => {
+    if (lines.length <= 1) return;
+    setLines((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleUpdateLine = (index: number, field: keyof CreatePurchaseLineInput, value: any) => {
+    setLines((prev) =>
+      prev.map((item, idx) => {
+        if (idx !== index) return item;
+        return {
+          ...item,
+          [field]: value,
+        };
+      })
+    );
+  };
+
+  const handleSelectPredefinedProduct = (index: number, code: string) => {
+    const match = PRODUCT_SUGGESTIONS.find((p) => p.code === code);
+    if (!match) return;
+    setLines((prev) =>
+      prev.map((item, idx) => {
+        if (idx !== index) return item;
+        return {
+          ...item,
+          productCode: match.code,
+          productName: `${match.name} (${match.code})`,
+          sku: match.sku,
+          unitCost: match.cost,
+          taxRate: match.tax,
+        };
+      })
+    );
+  };
+
+  const handleSubmit = (status: 'active' | 'draft', openDetails: boolean = false) => {
+    const supplier = suppliers.find((s) => s.id === selectedSupplierId) || suppliers[0];
+    const isOrgWide = selectedOutletName === 'Organization-wide';
+    const scope: PurchaseScope = isOrgWide ? 'organization' : 'outlet';
+
+    const input: CreatePurchaseInput = {
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      outletName: selectedOutletName,
+      scope,
+      purchaseDate,
+      invoiceNumber: invoiceNumber.trim() || undefined,
+      purchaseOrderNumber: purchaseOrderNumber.trim() || undefined,
+      paymentTerms,
+      items: lines,
+      shippingFee,
+      handlingFee,
+      initialPaymentRecorded: initialPayment,
+      paymentOption,
+      status,
+    };
+
+    onCreated(input, openDetails);
+  };
+
+  return (
+    <div
+      aria-labelledby="modal-title"
+      aria-modal="true"
+      className="fixed inset-0 z-50 overflow-y-auto select-none"
+      role="dialog"
+    >
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
+      />
+
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="relative w-full max-w-4xl rounded-lg bg-surface-container-lowest border border-outline-variant/40 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+          {/* Modal Header */}
+          <div className="px-6 py-4 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-low/60">
+            <div className="flex items-center gap-2.5">
+              <div className="size-8 rounded bg-primary-container text-on-primary flex items-center justify-center">
+                <span className="material-symbols-outlined text-[20px]">add_shopping_cart</span>
+              </div>
+              <div>
+                <h3 className="text-headline-sm font-bold text-on-surface" id="modal-title">
+                  Create New Purchase Direct
+                </h3>
+                <p className="text-caption text-on-surface-variant">
+                  Record incoming stock shipment from vendor with invoice and tax breakdown.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container cursor-pointer transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+          </div>
+
+          {/* Modal Body (Scrollable) */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+            {/* 1. Vendor & General Information */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-3">
+                1. Vendor &amp; General Information
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-caption font-semibold text-on-surface mb-1">
+                    Supplier / Vendor *
+                  </label>
+                  <select
+                    value={selectedSupplierId}
+                    onChange={(e) => setSelectedSupplierId(e.target.value)}
+                    className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary font-medium"
+                  >
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-caption font-semibold text-on-surface mb-1">
+                    Destination Outlet *
+                  </label>
+                  <select
+                    value={selectedOutletName}
+                    onChange={(e) => setSelectedOutletName(e.target.value)}
+                    className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary font-medium"
+                  >
+                    {outlets.map((o) => (
+                      <option key={o.id} value={o.name}>
+                        {o.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-caption font-semibold text-on-surface mb-1">
+                    Purchase Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={purchaseDate}
+                    onChange={(e) => setPurchaseDate(e.target.value)}
+                    className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-caption font-semibold text-on-surface mb-1">
+                    Supplier Invoice #
+                  </label>
+                  <input
+                    type="text"
+                    value={invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                    placeholder="e.g. INV-99214"
+                    className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-caption font-semibold text-on-surface mb-1">
+                    Purchase Order (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={purchaseOrderNumber}
+                    onChange={(e) => setPurchaseOrderNumber(e.target.value)}
+                    placeholder="e.g. PO-2024-082"
+                    className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-caption font-semibold text-on-surface mb-1">
+                    Payment Terms
+                  </label>
+                  <select
+                    value={paymentTerms}
+                    onChange={(e) => setPaymentTerms(e.target.value)}
+                    className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                  >
+                    <option>Immediate / Cash</option>
+                    <option>Net 15 Days</option>
+                    <option>Net 30 Days</option>
+                    <option>Net 60 Days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Product Line Items Builder */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                  2. Purchase Product Lines
+                </h4>
+                <button
+                  type="button"
+                  onClick={handleAddLine}
+                  className="px-2.5 py-1 rounded bg-surface-container border border-primary/40 text-primary text-caption font-semibold hover:bg-primary/5 flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[14px]">add</span>
+                  <span>+ Add Product Line</span>
+                </button>
+              </div>
+
+              <div className="border border-outline-variant/40 rounded overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-surface-container-low border-b border-outline-variant/30 text-[10px] uppercase font-semibold text-on-surface-variant">
+                    <tr>
+                      <th className="py-2.5 px-3">Product / SKU</th>
+                      <th className="py-2.5 px-2 text-center w-20">Qty</th>
+                      <th className="py-2.5 px-2 text-right w-24">Unit Cost</th>
+                      <th className="py-2.5 px-2 text-center w-20">Discount %</th>
+                      <th className="py-2.5 px-2 text-center w-20">Tax %</th>
+                      <th className="py-2.5 px-3 text-right">Line Total</th>
+                      <th className="py-2.5 px-2 text-center w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/20">
+                    {lines.map((line, idx) => {
+                      const base =
+                        line.quantity * line.unitCost * (1 - (line.discountPercent || 0) / 100);
+                      const lineTax = (base * (line.taxRate || 0)) / 100;
+                      const lineTotal = base + lineTax;
+
+                      return (
+                        <tr key={idx}>
+                          <td className="p-2">
+                            <div className="space-y-1">
+                              <input
+                                type="text"
+                                value={line.productName}
+                                onChange={(e) =>
+                                  handleUpdateLine(idx, 'productName', e.target.value)
+                                }
+                                className="w-full text-xs py-1 px-2 border border-outline-variant/50 rounded bg-surface-container-lowest font-medium"
+                              />
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] text-on-surface-variant">Quick pick:</span>
+                                {PRODUCT_SUGGESTIONS.slice(0, 3).map((p) => (
+                                  <button
+                                    key={p.code}
+                                    type="button"
+                                    onClick={() => handleSelectPredefinedProduct(idx, p.code)}
+                                    className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-primary/10 text-on-surface font-mono cursor-pointer"
+                                  >
+                                    {p.code}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-2 w-20">
+                            <input
+                              type="number"
+                              min={1}
+                              value={line.quantity}
+                              onChange={(e) =>
+                                handleUpdateLine(
+                                  idx,
+                                  'quantity',
+                                  Math.max(1, parseInt(e.target.value, 10) || 1)
+                                )
+                              }
+                              className="w-full text-center text-xs py-1 border border-outline-variant/50 rounded font-mono font-bold"
+                            />
+                          </td>
+                          <td className="p-2 w-24">
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={line.unitCost}
+                              onChange={(e) =>
+                                handleUpdateLine(
+                                  idx,
+                                  'unitCost',
+                                  Math.max(0, parseFloat(e.target.value) || 0)
+                                )
+                              }
+                              className="w-full text-right text-xs py-1 border border-outline-variant/50 rounded font-mono"
+                            />
+                          </td>
+                          <td className="p-2 w-20">
+                            <input
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={line.discountPercent}
+                              onChange={(e) =>
+                                handleUpdateLine(
+                                  idx,
+                                  'discountPercent',
+                                  Math.max(0, parseFloat(e.target.value) || 0)
+                                )
+                              }
+                              className="w-full text-center text-xs py-1 border border-outline-variant/50 rounded font-mono"
+                            />
+                          </td>
+                          <td className="p-2 w-20">
+                            <input
+                              type="number"
+                              min={0}
+                              value={line.taxRate}
+                              onChange={(e) =>
+                                handleUpdateLine(
+                                  idx,
+                                  'taxRate',
+                                  Math.max(0, parseFloat(e.target.value) || 0)
+                                )
+                              }
+                              className="w-full text-center text-xs py-1 border border-outline-variant/50 rounded font-mono"
+                            />
+                          </td>
+                          <td className="p-2 text-right font-body-mono-num font-bold">
+                            {formatCurrency(lineTotal)}
+                          </td>
+                          <td className="p-2 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveLine(idx)}
+                              disabled={lines.length <= 1}
+                              className="p-1 text-on-surface-variant hover:text-error disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                              title="Delete Row"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">
+                                delete
+                              </span>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 3. Additional Charges & Settlement */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                  3. Freight &amp; Inward Charges
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-micro-label font-semibold text-on-surface-variant mb-1">
+                      Freight / Shipping ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={shippingFee}
+                      onChange={(e) => setShippingFee(parseFloat(e.target.value) || 0)}
+                      className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-micro-label font-semibold text-on-surface-variant mb-1">
+                      Handling Fees ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="1"
+                      value={handlingFee}
+                      onChange={(e) => setHandlingFee(parseFloat(e.target.value) || 0)}
+                      className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-micro-label font-semibold text-on-surface-variant mb-1">
+                    Vendor Invoice / Challan Attachment
+                  </label>
+                  <div className="border-2 border-dashed border-outline-variant/60 rounded p-3 text-center hover:bg-surface-container-low transition-colors cursor-pointer">
+                    <span className="material-symbols-outlined text-[24px] text-on-surface-variant">
+                      cloud_upload
+                    </span>
+                    <p className="text-caption text-on-surface font-medium">
+                      Drag &amp; drop vendor receipt or{' '}
+                      <span className="text-primary underline">browse file</span>
+                    </p>
+                    <p className="text-[10px] text-on-surface-variant">PDF, PNG, JPG up to 15MB</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Settlement Summary */}
+              <div className="p-4 rounded bg-surface-container-low/50 border border-outline-variant/40 space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface">
+                  Payment &amp; Inward Settlement
+                </h4>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between text-on-surface-variant">
+                    <span>Calculated Subtotal:</span>
+                    <span className="font-body-mono-num font-medium">
+                      {formatCurrency(subtotal)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-on-surface-variant">
+                    <span>Shipping &amp; Additional:</span>
+                    <span className="font-body-mono-num font-medium">
+                      {formatCurrency(shippingFee + handlingFee)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-on-surface-variant">
+                    <span>Estimated Tax (GST/VAT):</span>
+                    <span className="font-body-mono-num font-medium">
+                      {formatCurrency(totalTax)}
+                    </span>
+                  </div>
+                  <div className="border-t border-outline-variant/40 pt-2 flex justify-between text-sm font-bold text-on-surface">
+                    <span>Grand Total:</span>
+                    <span className="font-body-mono-num text-primary">
+                      {formatCurrency(grandTotal)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="border-t border-outline-variant/30 pt-3">
+                  <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                    Initial Payment Recorded
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      value={paymentOption}
+                      onChange={(e) => {
+                        const opt = e.target.value as 'UNPAID' | 'PARTIALLY_PAID' | 'PAID';
+                        setPaymentOption(opt);
+                        if (opt === 'PAID') {
+                          setCustomPaidAmount(grandTotal.toFixed(2));
+                        } else if (opt === 'UNPAID') {
+                          setCustomPaidAmount('0.00');
+                        }
+                      }}
+                      className="text-xs py-1.5 px-2 rounded bg-surface-container-lowest border border-outline-variant/60 font-medium cursor-pointer"
+                    >
+                      <option value="UNPAID">Unpaid (Pay Later)</option>
+                      <option value="PARTIALLY_PAID">Partially Paid</option>
+                      <option value="PAID">Fully Paid</option>
+                    </select>
+
+                    <input
+                      type="text"
+                      disabled={paymentOption === 'UNPAID'}
+                      value={
+                        paymentOption === 'PAID'
+                          ? `$${grandTotal.toFixed(2)}`
+                          : paymentOption === 'UNPAID'
+                          ? '$0.00'
+                          : customPaidAmount
+                      }
+                      onChange={(e) => setCustomPaidAmount(e.target.value.replace(/[^0-9.]/g, ''))}
+                      className="text-xs py-1.5 px-2 rounded bg-surface-container-lowest border border-outline-variant/60 font-mono font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Modal Footer Actions */}
+          <div className="px-6 py-3.5 border-t border-outline-variant/30 bg-surface-container-low flex items-center justify-between">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded border border-outline-variant/60 text-xs font-medium hover:bg-surface-container text-on-surface cursor-pointer"
+            >
+              Cancel
+            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleSubmit('draft', false)}
+                className="px-4 py-2 rounded border border-primary/40 bg-surface-container-lowest hover:bg-primary/5 text-primary text-xs font-semibold cursor-pointer"
+              >
+                Save as Draft
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSubmit('active', true)}
+                className="px-4 py-2 rounded bg-primary-container hover:bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">save</span>
+                <span>Save and Receive Stock</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

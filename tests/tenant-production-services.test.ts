@@ -39,4 +39,10 @@ describe('tenant production service boundaries', () => {
     expect(source).toContain("errs.address = 'Street address is required for outlet operations.'");
     expect(source).toContain('Street Address <span className="text-rose-500">*</span>');
   });
+
+  it('refreshes outlet data from the server after an outlet mutation', () => {
+    const source = read('outlets/services/outletService.ts');
+    expect(source).toContain('QueryFetchPolicy.SERVER_ONLY');
+    expect(source).toContain('o.outletCode === returnedOutletCode');
+  });
 });

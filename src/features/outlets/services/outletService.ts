@@ -8,6 +8,7 @@ import {
   OutletStatus,
 } from '../types';
 import { getCurrentUserAuthorization, listTenantOutlets } from '@omniretail/sql-connect';
+import { QueryFetchPolicy } from 'firebase/data-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 
@@ -618,7 +619,11 @@ class ProductionOutletService implements IOutletService {
 
   async getOutlets(query: OutletQuery): Promise<OutletQueryResult> {
     const organizationId = await this.organizationId();
-    const result = await listTenantOutlets(getFirebaseClientServices().dataConnect, { organizationId });
+    const result = await listTenantOutlets(
+      getFirebaseClientServices().dataConnect,
+      { organizationId },
+      { fetchPolicy: QueryFetchPolicy.SERVER_ONLY },
+    );
     let outlets = result.data.outlets.map(mapTenantOutlet);
     const search = query.search?.trim().toLowerCase() ?? '';
     if (search) outlets = outlets.filter((o) => `${o.outletCode} ${o.name} ${o.city} ${o.phone} ${o.contactPerson}`.toLowerCase().includes(search));
@@ -632,8 +637,14 @@ class ProductionOutletService implements IOutletService {
   async createOutlet(input: CreateOutletInput): Promise<Outlet> {
     const organizationId = await this.organizationId();
     const callable = httpsCallable(getFirebaseClientServices().functions, 'createTenantOutlet');
-    await callable({ organizationId, outletCode: this.getNextOutletCode(), name: input.name, contactPerson: input.contactPerson, email: input.contactEmail, phone: input.phone, address: input.address ?? '', city: input.city, state: input.state, postalCode: input.postalCode, timezone: input.timezone ?? 'Asia/Kolkata', currency: input.currency ?? 'INR', idempotencyKey: globalThis.crypto.randomUUID() });
-    const created = await this.getOutlets({ page: 1, pageSize: 1000 }); const found = created.outlets.find((o) => o.name === input.name.trim()); if (!found) throw new Error('Outlet was created but could not be loaded.'); return found;
+    const outletCode = this.getNextOutletCode();
+    const response = await callable({ organizationId, outletCode, name: input.name, contactPerson: input.contactPerson, email: input.contactEmail, phone: input.phone, address: input.address ?? '', city: input.city, state: input.state, postalCode: input.postalCode, timezone: input.timezone ?? 'Asia/Kolkata', currency: input.currency ?? 'INR', idempotencyKey: globalThis.crypto.randomUUID() });
+    const created = await this.getOutlets({ page: 1, pageSize: 1000 });
+    const responseData = response.data as { outletCode?: unknown };
+    const returnedOutletCode = typeof responseData.outletCode === 'string' ? responseData.outletCode : outletCode;
+    const found = created.outlets.find((o) => o.outletCode === returnedOutletCode);
+    if (!found) throw new Error('Outlet was created but could not be loaded.');
+    return found;
   }
   async updateOutlet(id: string, input: UpdateOutletInput): Promise<Outlet> { const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'updateTenantOutlet')({ organizationId, id, ...input, requestId: globalThis.crypto.randomUUID() }); const updated = await this.getOutlet(id); if (!updated) throw new Error('Outlet was updated but could not be loaded.'); return updated; }
   async changeOutletStatus(id: string, status: OutletStatus): Promise<Outlet> { const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantOutletStatus')({ organizationId, id, status: status === 'Active' ? 'ACTIVE' : 'INACTIVE', requestId: globalThis.crypto.randomUUID() }); const updated = await this.getOutlet(id); if (!updated) throw new Error('Outlet status was changed but could not be loaded.'); return updated; }

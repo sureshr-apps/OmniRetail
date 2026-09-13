@@ -83,6 +83,14 @@ const rateLimiter = new LoginRateLimiter();
 
 const callableOptions = {
   region: 'asia-south1',
+  // Keep callable endpoints available to the deployed Firebase Hosting sites.
+  // Explicit origins avoid relying on the runtime's default CORS behavior.
+  cors: [
+    'https://omniretail.firebaseapp.com',
+    'https://omniretail.web.app',
+    'https://omniretail-60c71.firebaseapp.com',
+    'https://omniretail-60c71.web.app',
+  ],
   enforceAppCheck,
   consumeAppCheckToken: true,
   timeoutSeconds: 30,

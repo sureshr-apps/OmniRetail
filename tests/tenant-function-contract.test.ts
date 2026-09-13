@@ -4,6 +4,14 @@ import { describe, expect, it } from 'vitest';
 const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
+  it('allows callable requests from deployed Firebase Hosting origins', () => {
+    expect(source).toContain('cors: [');
+    expect(source).toContain("'https://omniretail.firebaseapp.com'");
+    expect(source).toContain("'https://omniretail.web.app'");
+    expect(source).toContain("'https://omniretail-60c71.firebaseapp.com'");
+    expect(source).toContain("'https://omniretail-60c71.web.app'");
+  });
+
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {
     expect(source).toContain('export const createTenantOutlet = onCall');
     expect(source).toContain("requireCapability(caller, 'outlets.read')");

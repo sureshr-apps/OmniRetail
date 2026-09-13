@@ -35,11 +35,9 @@ export function OutletMasterPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Success Notification Banner
-  const [showSuccessBanner, setShowSuccessBanner] = useState(true);
-  const [bannerInfo, setBannerInfo] = useState({
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+  const [bannerInfo, setBannerInfo] = useState<{ message: string; outletCode?: number; outletName?: string }>({
     message: 'Outlet Successfully Configured!',
-    outletCode: 'OUT-006',
-    outletName: 'Uptown Boutique & Lifestyle',
   });
 
   // Slide-Over Detail Drawer

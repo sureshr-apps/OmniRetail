@@ -13,7 +13,7 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('keeps the outlet schema India-only and single-register by design', () => {
     const outlet = schema.match(/type Outlet @table[\s\S]*?\n}\n\ntype Employee/)?.[0] ?? '';
-    expect(outlet).toContain('outletCode: String! @unique');
+    expect(outlet).toContain('outletCode: Int! @col(dataType: "serial") @unique');
     expect(outlet).toContain('status: OutletStatus! @default(value: ACTIVE)');
     for (const removedColumn of ['city:', 'state:', 'postalCode:', 'country:', 'registerCount:', 'timezone:', 'currency:', 'createdAt:', 'updatedAt:']) {
       expect(outlet).not.toContain(removedColumn);
@@ -89,5 +89,6 @@ describe('tenant Data Connect foundation schema', () => {
       }
     }
     expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('status: ACTIVE');
+    expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).not.toContain('$outletCode');
   });
 });

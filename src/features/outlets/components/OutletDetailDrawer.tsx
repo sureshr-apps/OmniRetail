@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet } from '../types';
+import { formatOutletCode } from '../utils/formatOutletCode';
 
 interface OutletDetailDrawerProps {
   outlet: Outlet | null;
@@ -40,7 +41,7 @@ export function OutletDetailDrawer({
               <div>
                 <h2 className="text-sm font-bold text-slate-900 leading-tight">Outlet Details</h2>
                 <div className="text-[11px] font-mono text-teal-700 font-semibold">
-                  {outlet.outletCode}
+                  {formatOutletCode(outlet.outletCode)}
                 </div>
               </div>
             </div>

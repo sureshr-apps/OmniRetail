@@ -60,7 +60,7 @@ import {
   createTenantSale,
   addTenantSaleLine,
   voidTenantSale,
-  getTenantInventoryStockTrusted, listTenantOutlets, listTenantOutletCodesTrusted, listTenantCustomers,
+  getTenantInventoryStockTrusted, listTenantOutlets, listTenantCustomers,
   createTenantExpense, updateTenantExpense, changeTenantExpenseApproval, voidTenantExpense,
   changeTenantSupplierStatus as changeTenantSupplierStatusSql,
 } from '@omniretail/sql-connect-admin';
@@ -167,27 +167,8 @@ function outletCreationFailure(error: unknown): HttpsError {
   const message = typeof value?.message === 'string' ? value.message : '';
   if (message === 'scope') return new HttpsError('permission-denied', 'You do not have permission to create outlets in this organization.');
   if (/invalid input|idempotency/i.test(message)) return new HttpsError('invalid-argument', 'Some outlet details are invalid.');
-  if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'An outlet with this code already exists.');
+  if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'An outlet with these details already exists.');
   return new HttpsError('internal', 'Unable to create the outlet.');
-}
-
-async function nextTenantOutletCode(): Promise<string> {
-  const result = await listTenantOutletCodesTrusted();
-  let max = 0;
-  for (const row of result.data.outlets) {
-    const match = /^OUT-(\d+)$/i.exec(row.outletCode);
-    if (match) max = Math.max(max, Number.parseInt(match[1], 10));
-  }
-  const sequenceRef = getFirestore().collection('system').doc('outletCodeSequence');
-  const next = await getFirestore().runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(sequenceRef);
-    const stored = snapshot.data()?.nextSequence;
-    const storedSequence = typeof stored === 'number' && Number.isFinite(stored) ? stored : 0;
-    const sequence = Math.max(max, storedSequence) + 1;
-    transaction.set(sequenceRef, { nextSequence: sequence, updatedAt: FieldValue.serverTimestamp() });
-    return sequence;
-  });
-  return `OUT-${String(next).padStart(3, '0')}`;
 }
 
 async function sendManagedPasswordEmail(email: string, requestType: 'PASSWORD_RESET'): Promise<void> {
@@ -553,9 +534,8 @@ export const createTenantOutlet = onCall(callableOptions, async (request) => {
     if (!membership || membership.role.code !== 'organization.admin') throw new Error('scope');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey.trim() : '';
     if (!/^[A-Za-z0-9._:-]{8,128}$/.test(idempotencyKey)) throw new Error('idempotency');
-    const outletCode = await nextTenantOutletCode();
-    await createTenantOutletTrusted({ organizationId, outletCode, name, contactPerson, email, phone, address, auditId: randomUUID(), requestId: idempotencyKey, actorFirebaseUid });
-    return { success: true, outletCode, organizationId };
+    const created = await createTenantOutletTrusted({ organizationId, name, contactPerson, email, phone, address, auditId: randomUUID(), requestId: idempotencyKey, actorFirebaseUid });
+    return { success: true, outletId: created.data.outlet_insert.id, organizationId };
   } catch (error) {
     logCallableFailure('createTenantOutlet', error);
     throw outletCreationFailure(error);

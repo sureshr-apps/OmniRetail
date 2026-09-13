@@ -54,7 +54,6 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ListTenantSales*](#listtenantsales)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
-  - [*ListTenantOutletCodesTrusted*](#listtenantoutletcodestrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
@@ -2622,7 +2621,7 @@ export interface ListTenantOutletsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    outletCode: string;
+    outletCode: number;
     name: string;
     contactPerson: string;
     email?: string | null;
@@ -2751,7 +2750,7 @@ export interface ListTenantEmployeesData {
     employeeOutlets_on_employee: ({
       outlet: {
         id: UUIDString;
-        outletCode: string;
+        outletCode: number;
         name: string;
       } & Outlet_Key;
     })[];
@@ -2870,7 +2869,7 @@ export interface ListTenantServicePersonsData {
     servicePersonOutlets_on_servicePerson: ({
       outlet: {
         id: UUIDString;
-        outletCode: string;
+        outletCode: number;
         name: string;
       } & Outlet_Key;
     })[];
@@ -3100,7 +3099,7 @@ export interface ListTenantInventoryData {
     } & Organization_Key;
     outlet: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     product: {
@@ -3465,7 +3464,7 @@ export interface ListTenantPurchasesData {
     } & Supplier_Key;
     outlet?: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     scope: string;
@@ -3609,7 +3608,7 @@ export interface ListTenantExpensesData {
     vendorName?: string | null;
     outlet?: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     scope: string;
@@ -3725,7 +3724,7 @@ export interface ListTenantSalesData {
     } & Organization_Key;
     outlet: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     receiptNumber: string;
@@ -4000,77 +3999,6 @@ export default function GetTenantMembershipTrustedComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.organizationMemberships);
-  }
-  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
-}
-```
-
-## ListTenantOutletCodesTrusted
-You can execute the `ListTenantOutletCodesTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
-
-```javascript
-useListTenantOutletCodesTrusted(dc: DataConnect, options?: useDataConnectQueryOptions<ListTenantOutletCodesTrustedData>): UseDataConnectQueryResult<ListTenantOutletCodesTrustedData, undefined>;
-```
-You can also pass in a `DataConnect` instance to the Query hook function.
-```javascript
-useListTenantOutletCodesTrusted(options?: useDataConnectQueryOptions<ListTenantOutletCodesTrustedData>): UseDataConnectQueryResult<ListTenantOutletCodesTrustedData, undefined>;
-```
-
-### Variables
-The `ListTenantOutletCodesTrusted` Query has no variables.
-### Return Type
-Recall that calling the `ListTenantOutletCodesTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
-
-To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
-
-To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantOutletCodesTrusted` Query is of type `ListTenantOutletCodesTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-```javascript
-export interface ListTenantOutletCodesTrustedData {
-  outlets: ({
-    outletCode: string;
-  })[];
-}
-```
-
-To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
-
-### Using `ListTenantOutletCodesTrusted`'s Query hook function
-
-```javascript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig } from '@omniretail/sql-connect';
-import { useListTenantOutletCodesTrusted } from '@omniretail/sql-connect/react'
-
-export default function ListTenantOutletCodesTrustedComponent() {
-  // You don't have to do anything to "execute" the Query.
-  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
-  const query = useListTenantOutletCodesTrusted();
-
-  // You can also pass in a `DataConnect` instance to the Query hook function.
-  const dataConnect = getDataConnect(connectorConfig);
-  const query = useListTenantOutletCodesTrusted(dataConnect);
-
-  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
-  const options = { staleTime: 5 * 1000 };
-  const query = useListTenantOutletCodesTrusted(options);
-
-  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
-  const dataConnect = getDataConnect(connectorConfig);
-  const options = { staleTime: 5 * 1000 };
-  const query = useListTenantOutletCodesTrusted(dataConnect, options);
-
-  // Then, you can render your component dynamically based on the status of the Query.
-  if (query.isPending) {
-    return <div>Loading...</div>;
-  }
-
-  if (query.isError) {
-    return <div>Error: {query.error.message}</div>;
-  }
-
-  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
-  if (query.isSuccess) {
-    console.log(query.data.outlets);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9633,7 +9561,6 @@ The `CreateTenantOutlet` Mutation requires an argument of type `CreateTenantOutl
 ```javascript
 export interface CreateTenantOutletVariables {
   organizationId: UUIDString;
-  outletCode: string;
   name: string;
   contactPerson: string;
   email?: string | null;
@@ -9692,7 +9619,6 @@ export default function CreateTenantOutletComponent() {
   // The `useCreateTenantOutlet` Mutation requires an argument of type `CreateTenantOutletVariables`:
   const createTenantOutletVars: CreateTenantOutletVariables = {
     organizationId: ..., 
-    outletCode: ..., 
     name: ..., 
     contactPerson: ..., 
     email: ..., // optional
@@ -9703,7 +9629,7 @@ export default function CreateTenantOutletComponent() {
   };
   mutation.mutate(createTenantOutletVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9961,7 +9887,6 @@ The `CreateTenantOutletTrusted` Mutation requires an argument of type `CreateTen
 ```javascript
 export interface CreateTenantOutletTrustedVariables {
   organizationId: UUIDString;
-  outletCode: string;
   name: string;
   contactPerson: string;
   email?: string | null;
@@ -10021,7 +9946,6 @@ export default function CreateTenantOutletTrustedComponent() {
   // The `useCreateTenantOutletTrusted` Mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
   const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
     organizationId: ..., 
-    outletCode: ..., 
     name: ..., 
     contactPerson: ..., 
     email: ..., // optional
@@ -10033,7 +9957,7 @@ export default function CreateTenantOutletTrustedComponent() {
   };
   mutation.mutate(createTenantOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

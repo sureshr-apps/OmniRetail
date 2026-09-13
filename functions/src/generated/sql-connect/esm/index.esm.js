@@ -645,12 +645,6 @@ export function getTenantMembershipTrusted(dcOrVarsOrOptions, varsOrOptions, opt
   return dcInstance.executeQuery('GetTenantMembershipTrusted', inputVars, inputOpts);
 }
 
-export function listTenantOutletCodesTrusted(dcOrOptions, options) {
-  const { dc: dcInstance, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrOptions, options, undefined);
-  dcInstance.useGen(true);
-  return dcInstance.executeQuery('ListTenantOutletCodesTrusted', undefined, inputOpts);
-}
-
 export function createTenantOutlet(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

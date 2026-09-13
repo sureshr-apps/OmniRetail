@@ -167,7 +167,7 @@ type AppUser @table {
 
 type Outlet @table {
   organization: Organization!
-  outletCode: String! @unique
+  outletCode: Int! @col(dataType: "serial") @unique
   name: String!
   contactPerson: String!
   email: String

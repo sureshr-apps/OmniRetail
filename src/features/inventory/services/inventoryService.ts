@@ -14,13 +14,14 @@ import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { productService } from '@/features/products/services/productService';
 import { outletService } from '@/features/outlets/services/outletService';
+import { formatOutletCode } from '@/features/outlets/utils/formatOutletCode';
 import { supplierService } from '@/features/suppliers/services/supplierService';
 
 export async function getInventoryLocations(): Promise<InventoryLocation[]> {
   const outlets = await outletService.getAllActiveOutlets();
   return [
     { id: 'all', name: 'All Locations', code: 'ALL', subLabel: 'All active outlets' },
-    ...outlets.map((outlet) => ({ id: outlet.id, name: outlet.name, code: outlet.outletCode, subLabel: outlet.outletCode })),
+    ...outlets.map((outlet) => ({ id: outlet.id, name: outlet.name, code: formatOutletCode(outlet.outletCode), subLabel: formatOutletCode(outlet.outletCode) })),
   ];
 }
 

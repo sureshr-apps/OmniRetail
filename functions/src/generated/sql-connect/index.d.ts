@@ -609,7 +609,6 @@ export interface CreateTenantOutletTrustedData {
 
 export interface CreateTenantOutletTrustedVariables {
   organizationId: UUIDString;
-  outletCode: string;
   name: string;
   contactPerson: string;
   email?: string | null;
@@ -622,7 +621,6 @@ export interface CreateTenantOutletTrustedVariables {
 
 export interface CreateTenantOutletVariables {
   organizationId: UUIDString;
-  outletCode: string;
   name: string;
   contactPerson: string;
   email?: string | null;
@@ -1539,7 +1537,7 @@ export interface ListTenantEmployeesData {
     employeeOutlets_on_employee: ({
       outlet: {
         id: UUIDString;
-        outletCode: string;
+        outletCode: number;
         name: string;
       } & Outlet_Key;
     })[];
@@ -1574,7 +1572,7 @@ export interface ListTenantExpensesData {
     vendorName?: string | null;
     outlet?: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     scope: string;
@@ -1616,7 +1614,7 @@ export interface ListTenantInventoryData {
     } & Organization_Key;
     outlet: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     product: {
@@ -1645,12 +1643,6 @@ export interface ListTenantInventoryVariables {
   outletId?: UUIDString | null;
 }
 
-export interface ListTenantOutletCodesTrustedData {
-  outlets: ({
-    outletCode: string;
-  })[];
-}
-
 export interface ListTenantOutletsData {
   organizationMemberships: ({
     organization: {
@@ -1670,7 +1662,7 @@ export interface ListTenantOutletsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    outletCode: string;
+    outletCode: number;
     name: string;
     contactPerson: string;
     email?: string | null;
@@ -1761,7 +1753,7 @@ export interface ListTenantPurchasesData {
     } & Supplier_Key;
     outlet?: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     scope: string;
@@ -1824,7 +1816,7 @@ export interface ListTenantSalesData {
     } & Organization_Key;
     outlet: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     receiptNumber: string;
@@ -1899,7 +1891,7 @@ export interface ListTenantServicePersonsData {
     servicePersonOutlets_on_servicePerson: ({
       outlet: {
         id: UUIDString;
-        outletCode: string;
+        outletCode: number;
         name: string;
       } & Outlet_Key;
     })[];
@@ -2947,11 +2939,6 @@ export function createTenantInventoryStock(vars: CreateTenantInventoryStockVaria
 export function getTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantMembershipTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'GetTenantMembershipTrusted' Query. Allow users to pass in custom DataConnect instances. */
 export function getTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantMembershipTrustedData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ListTenantOutletCodesTrusted' Query. Allow users to execute without passing in DataConnect. */
-export function listTenantOutletCodesTrusted(dc: DataConnect, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantOutletCodesTrustedData>>;
-/** Generated Node Admin SDK operation action function for the 'ListTenantOutletCodesTrusted' Query. Allow users to pass in custom DataConnect instances. */
-export function listTenantOutletCodesTrusted(options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantOutletCodesTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'CreateTenantOutlet' Mutation. Allow users to execute without passing in DataConnect. */
 export function createTenantOutlet(dc: DataConnect, vars: CreateTenantOutletVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantOutletData>>;

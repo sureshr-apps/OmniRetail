@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, CreateOutletInput, UpdateOutletInput } from '../types';
+import { formatOutletCode } from '../utils/formatOutletCode';
 
 interface OutletModalProps {
   isOpen: boolean;
@@ -91,7 +92,7 @@ export function OutletModal({ isOpen, onClose, onSubmitCreate, onSubmitUpdate, o
               <span className="material-symbols-outlined text-[20px]">add_business</span>
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">{isEditing ? `Edit Outlet (${outletToEdit?.outletCode})` : 'Add Outlet'}</h3>
+              <h3 className="text-base font-bold text-slate-900">{isEditing ? `Edit Outlet (${formatOutletCode(outletToEdit!.outletCode)})` : 'Add Outlet'}</h3>
               <p className="text-xs text-slate-500">Add an Indian retail outlet.</p>
             </div>
           </div>
@@ -112,7 +113,7 @@ export function OutletModal({ isOpen, onClose, onSubmitCreate, onSubmitUpdate, o
 
           {isEditing && outletToEdit && (
             <div className="flex items-center justify-between rounded-md bg-slate-50 border border-slate-200 px-3 py-2">
-              <div><span className="text-slate-400">Outlet ID</span><span className="ml-2 font-mono font-semibold text-teal-800">{outletToEdit.outletCode}</span></div>
+              <div><span className="text-slate-400">Outlet ID</span><span className="ml-2 font-mono font-semibold text-teal-800">{formatOutletCode(outletToEdit.outletCode)}</span></div>
               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${outletToEdit.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-300'}`}>{outletToEdit.status}</span>
             </div>
           )}

@@ -1,4 +1,5 @@
 import { Outlet } from '../types';
+import { formatOutletCode } from './formatOutletCode';
 
 export function exportOutletsToCsv(outlets: Outlet[]): void {
   const headers = [
@@ -18,7 +19,7 @@ export function exportOutletsToCsv(outlets: Outlet[]): void {
   };
 
   const rows = outlets.map((o) => [
-    escapeField(o.outletCode),
+    escapeField(formatOutletCode(o.outletCode)),
     escapeField(o.name),
     escapeField(o.contactPerson),
     escapeField(o.contactEmail || ''),

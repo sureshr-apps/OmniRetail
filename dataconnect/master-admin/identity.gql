@@ -775,18 +775,12 @@ query GetTenantMembershipTrusted($organizationId: UUID!, $firebaseUid: String!) 
   }
 }
 
-# Outlet codes are globally unique in the schema, so allocation reads the
-# existing sequence across all organizations before inserting the next code.
-query ListTenantOutletCodesTrusted @auth(level: NO_ACCESS) {
-  outlets(orderBy: [{ outletCode: ASC }]) { outletCode }
-}
-
-mutation CreateTenantOutlet($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+mutation CreateTenantOutlet($organizationId: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
   query @redact {
     organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.code == 'organization.admin'", message: "Outlet administration is not available.") { role { code } }
   }
-  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address status: ACTIVE })
-  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId outletCode: $outletCode } })
+  outlet_insert(data: { organization: { id: $organizationId } name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
 mutation UpdateTenantOutlet($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
@@ -805,9 +799,9 @@ mutation ChangeTenantOutletStatus($organizationId: UUID!, $id: UUID!, $status: O
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.status_changed" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
 }
 
-mutation CreateTenantOutletTrusted($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
-  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address status: ACTIVE })
-  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId outletCode: $outletCode } })
+mutation CreateTenantOutletTrusted($organizationId: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  outlet_insert(data: { organization: { id: $organizationId } name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
 mutation UpdateTenantOutletTrusted($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {

@@ -1,8 +1,9 @@
 import React from 'react';
+import { formatOutletCode } from '../utils/formatOutletCode';
 
 interface OutletSuccessBannerProps {
   message: string;
-  outletCode?: string;
+  outletCode?: number;
   outletName?: string;
   onDismiss: () => void;
 }
@@ -21,9 +22,9 @@ export function OutletSuccessBanner({
         </span>
         <div>
           <span className="font-bold">{message}</span>{' '}
-          {outletCode && (
+          {outletCode !== undefined && (
             <span>
-              Outlet <span className="font-mono font-semibold">{outletCode}</span>
+              Outlet <span className="font-mono font-semibold">{formatOutletCode(outletCode)}</span>
               {outletName ? ` (${outletName})` : ''} has been saved and initialized with cloud POS sync.
             </span>
           )}

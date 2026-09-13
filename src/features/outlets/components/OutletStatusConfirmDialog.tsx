@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet } from '../types';
+import { formatOutletCode } from '../utils/formatOutletCode';
 
 interface OutletStatusConfirmDialogProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ export function OutletStatusConfirmDialog({
                   <>
                     Are you sure you want to deactivate{' '}
                     <span className="font-semibold text-slate-800">{outlet.name}</span> (
-                    <span className="font-mono text-teal-700">{outlet.outletCode}</span>)?
+                    <span className="font-mono text-teal-700">{formatOutletCode(outlet.outletCode)}</span>)?
                     Connected POS registers will be put into standby mode. The outlet will remain in
                     the directory for historical auditing.
                   </>
@@ -53,7 +54,7 @@ export function OutletStatusConfirmDialog({
                   <>
                     Are you sure you want to restore active status for{' '}
                     <span className="font-semibold text-slate-800">{outlet.name}</span> (
-                    <span className="font-mono text-teal-700">{outlet.outletCode}</span>)?
+                    <span className="font-mono text-teal-700">{formatOutletCode(outlet.outletCode)}</span>)?
                     Register licensing and cloud transaction pipelines will be reactivated.
                   </>
                 )}

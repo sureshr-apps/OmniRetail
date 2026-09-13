@@ -67,6 +67,7 @@ describe('tenant production service boundaries', () => {
   it('refreshes outlet data from the server after an outlet mutation', () => {
     const source = read('outlets/services/outletService.ts');
     expect(source).toContain('QueryFetchPolicy.SERVER_ONLY');
-    expect(source).toContain('o.outletCode === returnedOutletCode');
+    expect(source).toContain('o.id === returnedOutletId');
+    expect(source).toContain('formatOutletCode(o.outletCode)');
   });
 });

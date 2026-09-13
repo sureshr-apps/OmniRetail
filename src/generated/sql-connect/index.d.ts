@@ -634,7 +634,6 @@ export interface CreateTenantOutletTrustedData {
 
 export interface CreateTenantOutletTrustedVariables {
   organizationId: UUIDString;
-  outletCode: string;
   name: string;
   contactPerson: string;
   email?: string | null;
@@ -647,7 +646,6 @@ export interface CreateTenantOutletTrustedVariables {
 
 export interface CreateTenantOutletVariables {
   organizationId: UUIDString;
-  outletCode: string;
   name: string;
   contactPerson: string;
   email?: string | null;
@@ -1564,7 +1562,7 @@ export interface ListTenantEmployeesData {
     employeeOutlets_on_employee: ({
       outlet: {
         id: UUIDString;
-        outletCode: string;
+        outletCode: number;
         name: string;
       } & Outlet_Key;
     })[];
@@ -1599,7 +1597,7 @@ export interface ListTenantExpensesData {
     vendorName?: string | null;
     outlet?: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     scope: string;
@@ -1641,7 +1639,7 @@ export interface ListTenantInventoryData {
     } & Organization_Key;
     outlet: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     product: {
@@ -1670,12 +1668,6 @@ export interface ListTenantInventoryVariables {
   outletId?: UUIDString | null;
 }
 
-export interface ListTenantOutletCodesTrustedData {
-  outlets: ({
-    outletCode: string;
-  })[];
-}
-
 export interface ListTenantOutletsData {
   organizationMemberships: ({
     organization: {
@@ -1695,7 +1687,7 @@ export interface ListTenantOutletsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    outletCode: string;
+    outletCode: number;
     name: string;
     contactPerson: string;
     email?: string | null;
@@ -1786,7 +1778,7 @@ export interface ListTenantPurchasesData {
     } & Supplier_Key;
     outlet?: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     scope: string;
@@ -1849,7 +1841,7 @@ export interface ListTenantSalesData {
     } & Organization_Key;
     outlet: {
       id: UUIDString;
-      outletCode: string;
+      outletCode: number;
       name: string;
     } & Outlet_Key;
     receiptNumber: string;
@@ -1924,7 +1916,7 @@ export interface ListTenantServicePersonsData {
     servicePersonOutlets_on_servicePerson: ({
       outlet: {
         id: UUIDString;
-        outletCode: string;
+        outletCode: number;
         name: string;
       } & Outlet_Key;
     })[];
@@ -3567,18 +3559,6 @@ export const getTenantMembershipTrustedRef: GetTenantMembershipTrustedRef;
 
 export function getTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
 export function getTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
-
-interface ListTenantOutletCodesTrustedRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (): QueryRef<ListTenantOutletCodesTrustedData, undefined>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect): QueryRef<ListTenantOutletCodesTrustedData, undefined>;
-  operationName: string;
-}
-export const listTenantOutletCodesTrustedRef: ListTenantOutletCodesTrustedRef;
-
-export function listTenantOutletCodesTrusted(options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletCodesTrustedData, undefined>;
-export function listTenantOutletCodesTrusted(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletCodesTrustedData, undefined>;
 
 interface CreateTenantOutletRef {
   /* Allow users to create refs without passing in DataConnect */

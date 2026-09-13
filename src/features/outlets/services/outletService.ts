@@ -10,6 +10,7 @@ import { getCurrentUserAuthorization, listTenantOutlets } from '@omniretail/sql-
 import { QueryFetchPolicy } from 'firebase/data-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { formatOutletCode } from '../utils/formatOutletCode';
 
 export interface IOutletService {
   getOutlets(query: OutletQuery): Promise<OutletQueryResult>;
@@ -52,7 +53,7 @@ class ProductionOutletService implements IOutletService {
     );
     let outlets = result.data.outlets.map(mapTenantOutlet);
     const search = query.search?.trim().toLowerCase() ?? '';
-    if (search) outlets = outlets.filter((o) => `${o.outletCode} ${o.name} ${o.phone} ${o.contactPerson}`.toLowerCase().includes(search));
+    if (search) outlets = outlets.filter((o) => `${formatOutletCode(o.outletCode)} ${o.name} ${o.phone} ${o.contactPerson}`.toLowerCase().includes(search));
     if (query.status && query.status !== 'All') outlets = outlets.filter((o) => o.status === query.status);
     const page = Math.max(1, query.page ?? 1);
     const pageSize = Math.max(1, query.pageSize ?? 10);
@@ -70,7 +71,7 @@ class ProductionOutletService implements IOutletService {
 
   async getOutlet(id: string): Promise<Outlet | null> {
     const result = await this.getOutlets({ page: 1, pageSize: 1000 });
-    return result.outlets.find((o) => o.id === id || o.outletCode === id) ?? null;
+    return result.outlets.find((o) => o.id === id || String(o.outletCode) === id || formatOutletCode(o.outletCode) === id) ?? null;
   }
 
   async createOutlet(input: CreateOutletInput): Promise<Outlet> {
@@ -85,10 +86,10 @@ class ProductionOutletService implements IOutletService {
       address: input.address,
       idempotencyKey: globalThis.crypto.randomUUID(),
     });
-    const responseData = response.data as { outletCode?: unknown };
-    const returnedOutletCode = typeof responseData.outletCode === 'string' ? responseData.outletCode : '';
+    const responseData = response.data as { outletId?: unknown };
+    const returnedOutletId = typeof responseData.outletId === 'string' ? responseData.outletId : '';
     const created = await this.getOutlets({ page: 1, pageSize: 1000 });
-    const found = created.outlets.find((o) => o.outletCode === returnedOutletCode);
+    const found = created.outlets.find((o) => o.id === returnedOutletId);
     if (!found) throw new Error('Outlet was created but could not be loaded.');
     return found;
   }

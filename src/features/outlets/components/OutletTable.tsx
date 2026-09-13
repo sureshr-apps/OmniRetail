@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet } from '../types';
+import { formatOutletCode } from '../utils/formatOutletCode';
 
 interface OutletTableProps {
   outlets: Outlet[];
@@ -154,7 +155,7 @@ export function OutletTable({
                       store
                     </span>
                     <span className={isInactive ? 'text-slate-500' : 'text-teal-800'}>
-                      {outlet.outletCode}
+                      {formatOutletCode(outlet.outletCode)}
                     </span>
                   </div>
                 </td>

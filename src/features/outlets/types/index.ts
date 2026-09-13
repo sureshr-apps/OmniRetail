@@ -9,7 +9,7 @@ export interface OutletActivity {
 
 export interface Outlet {
   id: string;
-  outletCode: string;
+  outletCode: number;
   name: string;
   contactPerson: string;
   contactEmail: string;

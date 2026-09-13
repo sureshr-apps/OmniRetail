@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: firebase-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   FIREBASE_PROJECT_ID: omniretail-60c71
 
@@ -24,12 +28,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package.json
+            functions/package-lock.json
 
       - name: Install frontend dependencies
-        run: npm install
+        run: npm install --prefer-offline --no-audit --no-fund
 
       - name: Install Functions dependencies
-        run: npm ci --prefix functions
+        run: npm ci --prefix functions --prefer-offline --no-audit --no-fund
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -54,17 +62,4 @@ jobs:
         run: printf 'OMNIRETAIL_WEB_API_KEY="%s"\n' "$OMNIRETAIL_WEB_API_KEY" > functions/.env.omniretail-60c71
 
       - name: Deploy Hosting, Functions, and Data Connect
-        run: npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions,dataconnect --non-interactive --force
-
-      - name: Allow public transport access for callable functions
-        run: |
-          while IFS= read -r function_name; do
-            [ -z "$function_name" ] && continue
-            service_name="${function_name,,}"
-            gcloud run services add-iam-policy-binding "$service_name" \
-              --region=asia-south1 \
-              --project="$FIREBASE_PROJECT_ID" \
-              --member=allUsers \
-              --role=roles/run.invoker \
-              --quiet
-          done < <(gcloud functions list --v2 --project="$FIREBASE_PROJECT_ID" --regions=asia-south1 --format='value(name)')
+        run: npx --yes firebase-tools@15.30.0 deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions,dataconnect --non-interactive --force

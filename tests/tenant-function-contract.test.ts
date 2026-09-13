@@ -14,11 +14,16 @@ describe('tenant callable contract', () => {
     expect(source).toContain("'https://omniretail-60c71.web.app'");
   });
 
-  it('persists callable public invoker access after Firebase deployment', () => {
-    expect(deploymentSource).toContain('gcloud functions list --v2');
-    expect(deploymentSource).toContain('gcloud run services add-iam-policy-binding');
-    expect(deploymentSource).toContain('--member=allUsers');
-    expect(deploymentSource).toContain('--role=roles/run.invoker');
+  it('uses function source as the public-invoker authority without serial IAM rebinding', () => {
+    expect(deploymentSource).not.toContain('gcloud functions list --v2');
+    expect(deploymentSource).not.toContain('gcloud run services add-iam-policy-binding');
+    expect(deploymentSource).toContain('npx --yes firebase-tools@15.30.0 deploy');
+  });
+
+  it('caches dependencies and cancels obsolete deployment runs', () => {
+    expect(deploymentSource).toContain('cache: npm');
+    expect(deploymentSource).toContain('functions/package-lock.json');
+    expect(deploymentSource).toContain('cancel-in-progress: true');
   });
 
   it('deploys the intentional Data Connect outlet contract migration with force', () => {

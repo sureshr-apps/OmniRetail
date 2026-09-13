@@ -1,56 +1,31 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { CartItem, Customer, HeldOrder, OrderTotals, PaymentMethod, Product } from '../types';
-import { INITIAL_CART_ITEMS, MOCK_CUSTOMERS, MOCK_PRODUCTS } from '../services/mockData';
+import { productService } from '@/features/products/services/productService';
 
 const TAX_RATE = 0.0825; // 8.25% State Tax
 
 export function useBillingCart() {
   const [orderNumber, setOrderNumber] = useState<string>('#ORD-9843');
-  const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_CART_ITEMS);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(INITIAL_CART_ITEMS[0]?.id || null);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer>(MOCK_CUSTOMERS[0]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer>({ id: '', name: 'Walk-in Customer', tier: 'Standard', points: 0, memberDiscount: 0 });
   const [promoDiscount, setPromoDiscount] = useState<number>(5.00);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState<PaymentMethod>('card');
-  const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([
-    {
-      id: 'held-1',
-      orderNumber: '#ORD-9841',
-      items: [
-        {
-          id: 'h-1',
-          product: MOCK_PRODUCTS[4],
-          quantity: 2,
-          unitDiscount: 1.50,
-          effectiveRate: 13.00,
-        }
-      ],
-      customer: MOCK_CUSTOMERS[1],
-      heldAt: '10:42 AM',
-      itemCount: 1,
-      unitCount: 2,
-      totalPayable: 28.15,
-    },
-    {
-      id: 'held-2',
-      orderNumber: '#ORD-9842',
-      items: [
-        {
-          id: 'h-2',
-          product: MOCK_PRODUCTS[5],
-          quantity: 1,
-          unitDiscount: 0.50,
-          effectiveRate: 8.00,
-        }
-      ],
-      customer: MOCK_CUSTOMERS[2],
-      heldAt: '10:55 AM',
-      itemCount: 1,
-      unitCount: 1,
-      totalPayable: 7.04,
-    }
-  ]);
+  const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    productService.getProducts({ page: 1, pageSize: 1000 }).then(({ items }) => {
+      if (!active) return;
+      setCatalogProducts(items.map((p) => ({ id: p.id, sku: p.sku, name: p.name, category: 'all', categoryLabel: p.categoryName, stock: p.stockSummary?.onHandTotal ?? 0, mrp: p.mrp ?? p.sellingPrice, discount: 0, rate: p.sellingPrice, barcode: p.barcode ?? '' })));
+      setCartItems([]);
+      setSelectedItemId(null);
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   // Cart Calculations
   const totals: OrderTotals = useMemo(() => {
@@ -280,7 +255,7 @@ export function useBillingCart() {
 
   // Filtered products for search and category tabs
   const filteredProducts = useMemo(() => {
-    let list = MOCK_PRODUCTS;
+    let list = catalogProducts;
     if (selectedCategory === 'promos') {
       list = list.filter(p => p.isPromo);
     } else if (selectedCategory !== 'all') {
@@ -296,7 +271,7 @@ export function useBillingCart() {
       );
     }
     return list;
-  }, [selectedCategory, searchQuery]);
+  }, [catalogProducts, selectedCategory, searchQuery]);
 
   return {
     orderNumber,

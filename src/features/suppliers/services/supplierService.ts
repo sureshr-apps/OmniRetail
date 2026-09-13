@@ -9,6 +9,9 @@ import {
 } from '../types';
 import { INITIAL_SUPPLIERS } from './mockSuppliers';
 import { INITIAL_PURCHASES } from '@/features/purchases/services/mockData';
+import { getCurrentUserAuthorization, listTenantSuppliers } from '@omniretail/sql-connect';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { httpsCallable } from 'firebase/functions';
 
 export interface ISupplierService {
   getSuppliers(query?: SupplierQuery): Promise<SupplierQueryResult>;
@@ -276,4 +279,25 @@ class MockSupplierService implements ISupplierService {
   }
 }
 
-export const supplierService = new MockSupplierService();
+type TenantSupplierRow = Awaited<ReturnType<typeof listTenantSuppliers>>['data']['suppliers'][number];
+
+function mapTenantSupplier(row: TenantSupplierRow): Supplier {
+  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId, address: row.address ?? undefined, city: row.city, state: row.state ?? undefined, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, category: row.category as Supplier['category'], paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, createdAt: row.createdAt, updatedAt: row.updatedAt, outstandingBalance: 0, pendingDeliveriesCount: 0, totalOrdersCount: 0 };
+}
+
+class ProductionSupplierService extends MockSupplierService {
+  private async organizationId(): Promise<string> { const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
+  private async all(): Promise<Supplier[]> {
+    const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.');
+    const result = await listTenantSuppliers(getFirebaseClientServices().dataConnect, { organizationId: membership.organization.id }); return result.data.suppliers.map(mapTenantSupplier);
+  }
+  override async getSuppliers(query: SupplierQuery = {}): Promise<SupplierQueryResult> { let suppliers = await this.all(); const search = query.search?.trim().toLowerCase() ?? ''; suppliers = suppliers.filter((s) => (!search || `${s.supplierCode} ${s.name} ${s.contactPerson} ${s.phone} ${s.email}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || s.status === query.status) && (!query.city || s.city === query.city) && (!query.category || s.category === query.category)); const page = Math.max(1, query.page ?? 1); const pageSize = Math.max(1, query.pageSize ?? 10); const totalPages = Math.max(1, Math.ceil(suppliers.length / pageSize)); const validPage = Math.min(page, totalPages); const active = suppliers.filter((s) => s.status === 'Active').length; return { items: suppliers.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: suppliers.length, filteredCount: suppliers.length, page: validPage, pageSize, totalPages, kpiSummary: { totalSuppliers: suppliers.length, totalSuppliersChangeText: '', activePartnerships: active, activePercentageText: suppliers.length ? `${Math.round(active / suppliers.length * 100)}%` : '0%', outstandingBalance: 0, outstandingDueText: '', pendingDeliveries: 0, pendingDeliveriesSubtext: '' } }; }
+  override async getSupplierById(id: string): Promise<Supplier | null> { return (await this.all()).find((s) => s.id === id || s.supplierCode === id) ?? null; }
+  override async getCities(): Promise<string[]> { return Array.from(new Set((await this.all()).map((s) => s.city))).sort(); }
+  override async getCategories(): Promise<string[]> { return Array.from(new Set((await this.all()).map((s) => s.category))).sort(); }
+  override async createSupplier(input: CreateSupplierInput): Promise<Supplier> { const organizationId = await this.organizationId(); const supplierCode = `SUP-${Date.now().toString().slice(-6)}`; await httpsCallable(getFirebaseClientServices().functions, 'createTenantSupplierRecord')({ organizationId, supplierCode, ...input, requestId: globalThis.crypto.randomUUID() }); const created = (await this.all()).find((supplier) => supplier.supplierCode === supplierCode); if (!created) throw new Error('Supplier was created but could not be loaded.'); return created; }
+  override async updateSupplier(id: string, input: UpdateSupplierInput): Promise<Supplier> { const current = await this.getSupplierById(id); if (!current) throw new Error('Supplier not found.'); const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'updateTenantSupplierRecord')({ organizationId, id, ...current, ...input, requestId: globalThis.crypto.randomUUID() }); const updated = await this.getSupplierById(id); if (!updated) throw new Error('Supplier was updated but could not be loaded.'); return updated; }
+  override async toggleSupplierStatus(id: string): Promise<Supplier> { const current = await this.getSupplierById(id); if (!current) throw new Error('Supplier not found.'); const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantSupplierStatus')({ organizationId, id, status: current.status === 'Active' ? 'INACTIVE' : 'ACTIVE', requestId: globalThis.crypto.randomUUID() }); const updated = await this.getSupplierById(id); if (!updated) throw new Error('Supplier status was changed but could not be loaded.'); return updated; }
+}
+
+export const supplierService: ISupplierService = new ProductionSupplierService();

@@ -5,6 +5,39 @@ export const AppUserStatus = {
   INACTIVE: "INACTIVE",
 }
 
+export const CustomerStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+}
+
+export const CustomerType = {
+  INDIVIDUAL: "INDIVIDUAL",
+  BUSINESS: "BUSINESS",
+}
+
+export const EmploymentStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+}
+
+export const ExpenseApprovalStatus = {
+  DRAFT: "DRAFT",
+  PENDING_APPROVAL: "PENDING_APPROVAL",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+}
+
+export const ExpenseStatus = {
+  ACTIVE: "ACTIVE",
+  VOIDED: "VOIDED",
+}
+
+export const InventoryAdjustmentMode = {
+  INCREASE: "INCREASE",
+  DECREASE: "DECREASE",
+  RECONCILE: "RECONCILE",
+}
+
 export const LicenseEventType = {
   ASSIGNED: "ASSIGNED",
   PLAN_CHANGED: "PLAN_CHANGED",
@@ -17,6 +50,11 @@ export const LicensePlanStatus = {
   INACTIVE: "INACTIVE",
 }
 
+export const LoginAccessStatus = {
+  ENABLED: "ENABLED",
+  DISABLED: "DISABLED",
+}
+
 export const MembershipStatus = {
   ACTIVE: "ACTIVE",
   INACTIVE: "INACTIVE",
@@ -27,12 +65,68 @@ export const OrganizationStatus = {
   SUSPENDED: "SUSPENDED",
 }
 
+export const OutletStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+}
+
+export const ProductStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+}
+
+export const ProductType = {
+  STOCKABLE: "STOCKABLE",
+  SERVICE: "SERVICE",
+  CONSUMABLE: "CONSUMABLE",
+}
+
 export const ProvisioningAttemptStatus = {
   IN_PROGRESS: "IN_PROGRESS",
   SUCCEEDED: "SUCCEEDED",
   FAILED_RETRYABLE: "FAILED_RETRYABLE",
   FAILED_TERMINAL: "FAILED_TERMINAL",
   REQUIRES_RECONCILIATION: "REQUIRES_RECONCILIATION",
+}
+
+export const PurchasePaymentStatus = {
+  PAID: "PAID",
+  PARTIALLY_PAID: "PARTIALLY_PAID",
+  UNPAID: "UNPAID",
+}
+
+export const PurchaseReceiptStatus = {
+  PENDING: "PENDING",
+  PARTIALLY_RECEIVED: "PARTIALLY_RECEIVED",
+  RECEIVED: "RECEIVED",
+}
+
+export const PurchaseStatus = {
+  ACTIVE: "ACTIVE",
+  DRAFT: "DRAFT",
+  CANCELLED: "CANCELLED",
+}
+
+export const SaleStatus = {
+  COMPLETED: "COMPLETED",
+  PARTIAL_REFUND: "PARTIAL_REFUND",
+  REFUNDED: "REFUNDED",
+  VOIDED: "VOIDED",
+}
+
+export const SaleTenderType = {
+  VISA: "VISA",
+  MASTERCARD: "MASTERCARD",
+  APPLE_PAY: "APPLE_PAY",
+  CASH: "CASH",
+  SPLIT: "SPLIT",
+  REVERSAL: "REVERSAL",
+  NONE: "NONE",
+}
+
+export const SupplierStatus = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
 }
 
 export const connectorConfig = {
@@ -345,5 +439,299 @@ export function changeOrganizationStatus(dcOrVarsOrOptions, varsOrOptions, optio
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
   return dcInstance.executeMutation('ChangeOrganizationStatus', inputVars, inputOpts);
+}
+
+export function listTenantOutlets(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantOutlets', inputVars, inputOpts);
+}
+
+export function listTenantEmployees(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantEmployees', inputVars, inputOpts);
+}
+
+export function listTenantServicePersons(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantServicePersons', inputVars, inputOpts);
+}
+
+export function listTenantProducts(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantProducts', inputVars, inputOpts);
+}
+
+export function listTenantInventory(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantInventory', inputVars, inputOpts);
+}
+
+export function listTenantCustomers(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantCustomers', inputVars, inputOpts);
+}
+
+export function listTenantSuppliers(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantSuppliers', inputVars, inputOpts);
+}
+
+export function listTenantPurchases(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantPurchases', inputVars, inputOpts);
+}
+
+export function listTenantExpenses(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantExpenses', inputVars, inputOpts);
+}
+
+export function createTenantExpense(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantExpense', inputVars, inputOpts);
+}
+
+export function updateTenantExpense(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantExpense', inputVars, inputOpts);
+}
+
+export function changeTenantExpenseApproval(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantExpenseApproval', inputVars, inputOpts);
+}
+
+export function voidTenantExpense(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('VoidTenantExpense', inputVars, inputOpts);
+}
+
+export function listTenantSales(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantSales', inputVars, inputOpts);
+}
+
+export function createTenantSale(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantSale', inputVars, inputOpts);
+}
+
+export function addTenantSaleLine(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('AddTenantSaleLine', inputVars, inputOpts);
+}
+
+export function getTenantInventoryStockTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetTenantInventoryStockTrusted', inputVars, inputOpts);
+}
+
+export function voidTenantSale(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('VoidTenantSale', inputVars, inputOpts);
+}
+
+export function createTenantPurchase(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantPurchase', inputVars, inputOpts);
+}
+
+export function createTenantPurchaseLine(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantPurchaseLine', inputVars, inputOpts);
+}
+
+export function changeTenantPurchaseStatus(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantPurchaseStatus', inputVars, inputOpts);
+}
+
+export function receiveTenantPurchaseLine(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ReceiveTenantPurchaseLine', inputVars, inputOpts);
+}
+
+export function createTenantSupplier(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantSupplier', inputVars, inputOpts);
+}
+
+export function updateTenantSupplier(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantSupplier', inputVars, inputOpts);
+}
+
+export function changeTenantSupplierStatus(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantSupplierStatus', inputVars, inputOpts);
+}
+
+export function createTenantCustomer(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantCustomer', inputVars, inputOpts);
+}
+
+export function updateTenantCustomer(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantCustomer', inputVars, inputOpts);
+}
+
+export function changeTenantCustomerStatus(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantCustomerStatus', inputVars, inputOpts);
+}
+
+export function createTenantProduct(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantProduct', inputVars, inputOpts);
+}
+
+export function updateTenantProduct(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantProduct', inputVars, inputOpts);
+}
+
+export function changeTenantProductStatus(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantProductStatus', inputVars, inputOpts);
+}
+
+export function adjustTenantInventory(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('AdjustTenantInventory', inputVars, inputOpts);
+}
+
+export function getTenantMembershipTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('GetTenantMembershipTrusted', inputVars, inputOpts);
+}
+
+export function createTenantOutlet(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantOutlet', inputVars, inputOpts);
+}
+
+export function updateTenantOutlet(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantOutlet', inputVars, inputOpts);
+}
+
+export function changeTenantOutletStatus(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantOutletStatus', inputVars, inputOpts);
+}
+
+export function createTenantOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantOutletTrusted', inputVars, inputOpts);
+}
+
+export function updateTenantOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantOutletTrusted', inputVars, inputOpts);
+}
+
+export function changeTenantOutletStatusTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantOutletStatusTrusted', inputVars, inputOpts);
+}
+
+export function createTenantEmployeeProfileTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantEmployeeProfileTrusted', inputVars, inputOpts);
+}
+
+export function provisionTenantEmployeeTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ProvisionTenantEmployeeTrusted', inputVars, inputOpts);
+}
+
+export function updateTenantEmployeeTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantEmployeeTrusted', inputVars, inputOpts);
+}
+
+export function changeTenantEmployeeStatusTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantEmployeeStatusTrusted', inputVars, inputOpts);
+}
+
+export function changeTenantEmployeeLoginAccessTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantEmployeeLoginAccessTrusted', inputVars, inputOpts);
+}
+
+export function createTenantServicePersonTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantServicePersonTrusted', inputVars, inputOpts);
+}
+
+export function updateTenantServicePersonTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantServicePersonTrusted', inputVars, inputOpts);
+}
+
+export function changeTenantServicePersonStatusTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantServicePersonStatusTrusted', inputVars, inputOpts);
+}
+
+export function assignTenantEmployeeOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('AssignTenantEmployeeOutletTrusted', inputVars, inputOpts);
+}
+
+export function assignTenantServicePersonOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('AssignTenantServicePersonOutletTrusted', inputVars, inputOpts);
 }
 

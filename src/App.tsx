@@ -8,6 +8,7 @@ import { AuthProvider } from '@/app/context/AuthContext';
 import { ProtectedRoute } from '@/app/routes/ProtectedRoute';
 import { PublicRoute } from '@/app/routes/PublicRoute';
 import { CapabilityRoute } from '@/app/routes/CapabilityRoute';
+import { TenantAccessRoute } from '@/app/routes/TenantAccessRoute';
 import { AppLayout } from '@/shared/layout/AppLayout';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { BillingPage } from '@/features/billing/pages/BillingPage';
@@ -26,9 +27,10 @@ import { OrganizationsPage } from '@/features/organizations/pages/OrganizationsP
 import { OrganizationDetailsPage } from '@/features/organizations/pages/OrganizationDetailsPage';
 import { PlansPage } from '@/features/plans/pages/PlansPage';
 import { ProfilePage } from '@/features/profile/pages/ProfilePage';
+import { TenantAppLayout } from '@/shared/layout/TenantAppLayout';
 
 function TenantRouteLayout() {
-  return <Outlet />;
+  return <TenantAppLayout />;
 }
 
 function TenantPlaceholderPage() {
@@ -54,20 +56,22 @@ export default function App() {
             {/* Tenant/Store UI routes. These remain authentication-protected
                 until tenant membership/capability enforcement is introduced. */}
             <Route element={<TenantRouteLayout />}>
-              <Route path="/billing" element={<BillingPage />} />
+              <Route element={<TenantAccessRoute capability="billing.read" />}>
+                <Route path="/billing" element={<BillingPage />} />
+              </Route>
               <Route path="/pos" element={<Navigate to="/billing" replace />} />
               <Route path="/dashboard" element={<TenantPlaceholderPage />} />
-              <Route path="/sales" element={<SalesPage />} />
-              <Route path="/inventory" element={<InventoryPage />} />
-              <Route path="/products" element={<ProductsPage />} />
-              <Route path="/purchases" element={<PurchasesPage />} />
-              <Route path="/suppliers" element={<SuppliersPage />} />
-              <Route path="/customers" element={<CustomersPage />} />
-              <Route path="/expenses" element={<ExpensesPage />} />
+              <Route element={<TenantAccessRoute capability="sales.read" />}><Route path="/sales" element={<SalesPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="inventory.read" />}><Route path="/inventory" element={<InventoryPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="products.read" />}><Route path="/products" element={<ProductsPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="purchases.read" />}><Route path="/purchases" element={<PurchasesPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="suppliers.read" />}><Route path="/suppliers" element={<SuppliersPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="customers.read" />}><Route path="/customers" element={<CustomersPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="expenses.read" />}><Route path="/expenses" element={<ExpensesPage />} /></Route>
               <Route path="/reports" element={<TenantPlaceholderPage />} />
-              <Route path="/outlets" element={<OutletMasterPage />} />
-              <Route path="/employees" element={<EmployeeMasterPage />} />
-              <Route path="/service-persons" element={<ServicePersonMasterPage />} />
+              <Route element={<TenantAccessRoute capability="outlets.read" administrationOnly />}><Route path="/outlets" element={<OutletMasterPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="employees.read" administrationOnly />}><Route path="/employees" element={<EmployeeMasterPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="service_persons.read" administrationOnly />}><Route path="/service-persons" element={<ServicePersonMasterPage />} /></Route>
               <Route path="/settings" element={<TenantPlaceholderPage />} />
             </Route>
 

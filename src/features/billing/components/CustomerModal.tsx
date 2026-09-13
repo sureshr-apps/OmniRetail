@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Customer } from '../types';
-import { MOCK_CUSTOMERS } from '../services/mockData';
+import { customerService } from '@/features/customers/services/customerService';
 
 interface CustomerModalProps {
   isOpen: boolean;
@@ -16,10 +16,16 @@ export function CustomerModal({
   onSelectCustomer,
 }: CustomerModalProps) {
   const [search, setSearch] = useState('');
+  const [customers, setCustomers] = useState<Customer[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    customerService.getCustomers({ search: '', page: 1, pageSize: 1000 }).then(({ items }) => setCustomers(items.map((customer) => ({ id: customer.id, name: customer.name, tier: customer.type === 'Business' ? 'Business' : 'Standard', points: 0, memberDiscount: 0, phone: customer.phone })))).catch(() => setCustomers([]));
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const filtered = MOCK_CUSTOMERS.filter((c) =>
+  const filtered = customers.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.tier.toLowerCase().includes(search.toLowerCase()) ||
     (c.phone && c.phone.includes(search))

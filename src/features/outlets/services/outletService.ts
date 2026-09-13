@@ -7,6 +7,9 @@ import {
   UpdateOutletInput,
   OutletStatus,
 } from '../types';
+import { getCurrentUserAuthorization, listTenantOutlets } from '@omniretail/sql-connect';
+import { httpsCallable } from 'firebase/functions';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 
 export interface IOutletService {
   getOutlets(query: OutletQuery): Promise<OutletQueryResult>;
@@ -16,6 +19,7 @@ export interface IOutletService {
   changeOutletStatus(id: string, status: OutletStatus): Promise<Outlet>;
   getCities(): Promise<string[]>;
   getAllActiveOutlets(): Promise<Outlet[]>;
+  getNextOutletCode(): string;
 }
 
 const INITIAL_OUTLETS: Outlet[] = [
@@ -578,4 +582,63 @@ class MockOutletService implements IOutletService {
   }
 }
 
-export const outletService = new MockOutletService();
+type TenantOutletRow = Awaited<ReturnType<typeof listTenantOutlets>>['data']['outlets'][number];
+
+function mapTenantOutlet(row: TenantOutletRow): Outlet {
+  return {
+    id: row.id,
+    outletCode: row.outletCode,
+    name: row.name,
+    contactPerson: row.contactPerson,
+    contactEmail: row.email ?? '',
+    phone: row.phone,
+    address: row.address,
+    city: row.city,
+    state: row.state ?? '',
+    postalCode: row.postalCode ?? '',
+    country: 'IN',
+    timezone: row.timezone,
+    currency: row.currency,
+    registerCount: 0,
+    employeeCount: 0,
+    status: row.status === 'ACTIVE' ? 'Active' : 'Inactive',
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+class ProductionOutletService implements IOutletService {
+  getNextOutletCode(): string { return `OUT-${Date.now().toString().slice(-6)}`; }
+  private async organizationId(): Promise<string> {
+    const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
+    if (!membership) throw new Error('No active organization membership.');
+    return membership.organization.id;
+  }
+
+  async getOutlets(query: OutletQuery): Promise<OutletQueryResult> {
+    const organizationId = await this.organizationId();
+    const result = await listTenantOutlets(getFirebaseClientServices().dataConnect, { organizationId });
+    let outlets = result.data.outlets.map(mapTenantOutlet);
+    const search = query.search?.trim().toLowerCase() ?? '';
+    if (search) outlets = outlets.filter((o) => `${o.outletCode} ${o.name} ${o.city} ${o.phone} ${o.contactPerson}`.toLowerCase().includes(search));
+    if (query.status && query.status !== 'All') outlets = outlets.filter((o) => o.status === query.status);
+    if (query.city) outlets = outlets.filter((o) => o.city.toLowerCase() === query.city!.trim().toLowerCase());
+    const page = Math.max(1, query.page ?? 1); const pageSize = Math.max(1, query.pageSize ?? 10); const total = outlets.length;
+    return { outlets: outlets.slice((page - 1) * pageSize, page * pageSize), total, activeCount: outlets.filter((o) => o.status === 'Active').length, inactiveCount: outlets.filter((o) => o.status === 'Inactive').length, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
+  }
+
+  async getOutlet(id: string): Promise<Outlet | null> { const result = await this.getOutlets({ page: 1, pageSize: 1000 }); return result.outlets.find((o) => o.id === id || o.outletCode === id) ?? null; }
+  async createOutlet(input: CreateOutletInput): Promise<Outlet> {
+    const organizationId = await this.organizationId();
+    const callable = httpsCallable(getFirebaseClientServices().functions, 'createTenantOutlet');
+    await callable({ organizationId, outletCode: this.getNextOutletCode(), name: input.name, contactPerson: input.contactPerson, email: input.contactEmail, phone: input.phone, address: input.address ?? '', city: input.city, state: input.state, postalCode: input.postalCode, timezone: input.timezone ?? 'Asia/Kolkata', currency: input.currency ?? 'INR', idempotencyKey: globalThis.crypto.randomUUID() });
+    const created = await this.getOutlets({ page: 1, pageSize: 1000 }); const found = created.outlets.find((o) => o.name === input.name.trim()); if (!found) throw new Error('Outlet was created but could not be loaded.'); return found;
+  }
+  async updateOutlet(id: string, input: UpdateOutletInput): Promise<Outlet> { const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'updateTenantOutlet')({ organizationId, id, ...input, requestId: globalThis.crypto.randomUUID() }); const updated = await this.getOutlet(id); if (!updated) throw new Error('Outlet was updated but could not be loaded.'); return updated; }
+  async changeOutletStatus(id: string, status: OutletStatus): Promise<Outlet> { const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantOutletStatus')({ organizationId, id, status: status === 'Active' ? 'ACTIVE' : 'INACTIVE', requestId: globalThis.crypto.randomUUID() }); const updated = await this.getOutlet(id); if (!updated) throw new Error('Outlet status was changed but could not be loaded.'); return updated; }
+  async getCities(): Promise<string[]> { const result = await this.getOutlets({ page: 1, pageSize: 1000 }); return Array.from(new Set(result.outlets.map((o) => o.city))).sort(); }
+  async getAllActiveOutlets(): Promise<Outlet[]> { const result = await this.getOutlets({ status: 'Active', page: 1, pageSize: 1000 }); return result.outlets; }
+}
+
+export const outletService: IOutletService = new ProductionOutletService();

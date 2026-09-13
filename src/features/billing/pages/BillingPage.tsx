@@ -12,7 +12,7 @@ import { PaymentModal } from '../components/PaymentModal';
 import { HeldOrdersModal } from '../components/HeldOrdersModal';
 import { CustomItemModal } from '../components/CustomItemModal';
 import { PaymentMethod } from '../types';
-import { INITIAL_CART_ITEMS } from '../services/mockData';
+import { completeTenantCheckout } from '../services/checkoutService';
 
 export function BillingPage() {
   const {
@@ -272,7 +272,8 @@ export function BillingPage() {
           onUpdateDiscount={updateItemDiscount}
           onUpdateDiscPct={updateItemDiscPct}
           onQuickAddFirstItem={() => {
-            INITIAL_CART_ITEMS.forEach(it => addToCart(it.product, it.quantity));
+            const firstProduct = filteredProducts[0];
+            if (firstProduct) addToCart(firstProduct, 1);
           }}
         />
       </div>
@@ -352,7 +353,9 @@ export function BillingPage() {
         customer={selectedCustomer}
         orderNumber={orderNumber}
         onCompleteSale={() => {
-          startNewOrder();
+          void completeTenantCheckout({ orderNumber, items: cartItems, customer: selectedCustomer, totals, paymentMethod: paymentModalState.method })
+            .then(() => startNewOrder())
+            .catch((error: unknown) => showDrawerAlert(error instanceof Error ? error.message : 'Unable to complete the sale.'));
         }}
       />
     </div>

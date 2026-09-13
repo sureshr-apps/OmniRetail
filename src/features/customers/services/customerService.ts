@@ -7,6 +7,9 @@ import {
   CustomerStatus,
 } from '../types';
 import { INITIAL_CUSTOMERS } from './mockCustomers';
+import { getCurrentUserAuthorization, listTenantCustomers } from '@omniretail/sql-connect';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { httpsCallable } from 'firebase/functions';
 
 const STORAGE_KEY = 'omni_customers_master_v1';
 
@@ -230,4 +233,33 @@ class MockCustomerServiceImpl implements ICustomerService {
   }
 }
 
-export const customerService = new MockCustomerServiceImpl();
+type TenantCustomerRow = Awaited<ReturnType<typeof listTenantCustomers>>['data']['customers'][number];
+
+function mapTenantCustomer(row: TenantCustomerRow): Customer {
+  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, address: row.address ?? undefined, city: row.city, state: row.state, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, creditLimit: row.creditLimit ?? undefined, preferredContact: row.preferredContact as Customer['preferredContact'], dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: 0, completedOrdersCount: 0, balance: 0, createdAt: row.createdAt, updatedAt: row.updatedAt };
+}
+
+class ProductionCustomerService extends MockCustomerServiceImpl {
+  private async all(): Promise<Customer[]> {
+    const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
+    if (!membership) throw new Error('No active organization membership.');
+    const result = await listTenantCustomers(getFirebaseClientServices().dataConnect, { organizationId: membership.organization.id });
+    return result.data.customers.map(mapTenantCustomer);
+  }
+
+  override async getAllCustomers(): Promise<Customer[]> { return this.all(); }
+  override async getCustomers(query: CustomerQuery): Promise<CustomerQueryResult> {
+    let customers = await this.all(); const search = query.search?.trim().toLowerCase() ?? '';
+    customers = customers.filter((customer) => (!search || `${customer.customerCode} ${customer.name} ${customer.phone} ${customer.email}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || customer.status === query.status) && (!query.type || query.type === 'ALL' || customer.type === query.type) && (!query.city || customer.city === query.city));
+    const page = Math.max(1, query.page); const pageSize = Math.max(1, query.pageSize); const totalPages = Math.max(1, Math.ceil(customers.length / pageSize)); const validPage = Math.min(page, totalPages);
+    return { items: customers.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: customers.length, filteredCount: customers.length, page: validPage, pageSize, totalPages };
+  }
+  override async getCustomer(id: string): Promise<Customer | null> { return (await this.all()).find((customer) => customer.id === id || customer.customerCode === id) ?? null; }
+  private async organizationId(): Promise<string> { const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
+  override async createCustomer(input: CreateCustomerInput): Promise<Customer> { const organizationId = await this.organizationId(); const customerCode = `CUST-${Date.now().toString().slice(-6)}`; await httpsCallable(getFirebaseClientServices().functions, 'createTenantCustomerRecord')({ organizationId, customerCode, ...input, type: input.type === 'Business' ? 'BUSINESS' : 'INDIVIDUAL', requestId: globalThis.crypto.randomUUID() }); const created = (await this.all()).find((customer) => customer.customerCode === customerCode); if (!created) throw new Error('Customer was created but could not be loaded.'); return created; }
+  override async updateCustomer(id: string, input: UpdateCustomerInput): Promise<Customer> { const current = await this.getCustomer(id); if (!current) throw new Error('Customer not found.'); const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'updateTenantCustomerRecord')({ organizationId, id, ...current, ...input, type: (input.type ?? current.type) === 'Business' ? 'BUSINESS' : 'INDIVIDUAL', requestId: globalThis.crypto.randomUUID() }); const updated = await this.getCustomer(id); if (!updated) throw new Error('Customer was updated but could not be loaded.'); return updated; }
+  override async changeCustomerStatus(id: string, status: CustomerStatus): Promise<Customer> { const organizationId = await this.organizationId(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantCustomerStatus')({ organizationId, id, status: status === 'Active' ? 'ACTIVE' : 'INACTIVE', requestId: globalThis.crypto.randomUUID() }); const updated = await this.getCustomer(id); if (!updated) throw new Error('Customer status was changed but could not be loaded.'); return updated; }
+}
+
+export const customerService: ICustomerService = new ProductionCustomerService();

@@ -3,6 +3,7 @@
 mutation BootstrapPlatformRbac @auth(level: NO_ACCESS) @transaction {
   masterAdmin: role_upsert(data: { id: "00000000-0000-4000-8000-000000000001", code: "platform.master_admin", name: "Master Admin", description: "Platform-wide OmniRetail administration", scope: PLATFORM })
   organizationAdmin: role_upsert(data: { id: "00000000-0000-4000-8000-000000000002", code: "organization.admin", name: "Organization Administrator", description: "Organization-scoped administration", scope: ORGANIZATION })
+  organizationEmployee: role_upsert(data: { id: "00000000-0000-4000-8000-000000000003", code: "organization.employee", name: "Organization Employee", description: "Organization-scoped operational user", scope: ORGANIZATION })
 
   overviewRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000001", code: "overview.read", name: "View overview" })
   organizationsRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000002", code: "organizations.read", name: "View organizations" })
@@ -29,6 +30,18 @@ mutation BootstrapPlatformRbac @auth(level: NO_ACCESS) @transaction {
   profileSelfUpdate: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000022", code: "profile.update", name: "Update own profile" })
   profileChangePassword: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000023", code: "profile.change_password", name: "Change own password" })
 
+  billingRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000025", code: "billing.read", name: "Use Billing / POS" })
+  salesRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000026", code: "sales.read", name: "View sales" })
+  inventoryRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000027", code: "inventory.read", name: "View inventory" })
+  productsRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000028", code: "products.read", name: "View products" })
+  purchasesRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000029", code: "purchases.read", name: "View purchases" })
+  suppliersRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000030", code: "suppliers.read", name: "View suppliers" })
+  customersRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000031", code: "customers.read", name: "View customers" })
+  expensesRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000032", code: "expenses.read", name: "View expenses" })
+  outletsRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000033", code: "outlets.read", name: "Manage outlets" })
+  employeesRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000034", code: "employees.read", name: "Manage employees" })
+  servicePersonsRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000035", code: "service_persons.read", name: "Manage service persons" })
+
   rpOverviewRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000001", permissionId: "10000000-0000-4000-8000-000000000001" })
   rpOrganizationsRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000001", permissionId: "10000000-0000-4000-8000-000000000002" })
   rpOrganizationsCreate: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000001", permissionId: "10000000-0000-4000-8000-000000000003" })
@@ -53,4 +66,25 @@ mutation BootstrapPlatformRbac @auth(level: NO_ACCESS) @transaction {
   rpProfileSelfRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000001", permissionId: "10000000-0000-4000-8000-000000000021" })
   rpProfileSelfUpdate: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000001", permissionId: "10000000-0000-4000-8000-000000000022" })
   rpProfileChangePassword: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000001", permissionId: "10000000-0000-4000-8000-000000000023" })
+
+  rpOrgBillingRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000025" })
+  rpOrgSalesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000026" })
+  rpOrgInventoryRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000027" })
+  rpOrgProductsRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000028" })
+  rpOrgPurchasesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000029" })
+  rpOrgSuppliersRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000030" })
+  rpOrgCustomersRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000031" })
+  rpOrgExpensesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000032" })
+  rpOrgOutletsRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000033" })
+  rpOrgEmployeesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000034" })
+  rpOrgServicePersonsRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000035" })
+
+  rpEmployeeBillingRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000025" })
+  rpEmployeeSalesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000026" })
+  rpEmployeeInventoryRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000027" })
+  rpEmployeeProductsRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000028" })
+  rpEmployeePurchasesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000029" })
+  rpEmployeeSuppliersRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000030" })
+  rpEmployeeCustomersRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000031" })
+  rpEmployeeExpensesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000032" })
 }

@@ -5,9 +5,13 @@ import {
   CreateProductInput,
   UpdateProductInput,
   ProductStatus,
+  ProductType,
   ProductsKpiSummary,
 } from '../types';
 import { INITIAL_PRODUCTS } from './mockData';
+import { getCurrentUserAuthorization, listTenantProducts } from '@omniretail/sql-connect';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { httpsCallable } from 'firebase/functions';
 
 export interface IProductService {
   getProducts(query?: ProductQuery): Promise<ProductQueryResult>;
@@ -321,4 +325,91 @@ class MockProductService implements IProductService {
   }
 }
 
-export const productService = new MockProductService();
+type TenantProductRow = Awaited<ReturnType<typeof listTenantProducts>>['data']['products'][number];
+
+function mapTenantProduct(row: TenantProductRow): Product {
+  return {
+    id: row.id,
+    productCode: row.productCode,
+    name: row.name,
+    brand: row.brand,
+    categoryId: row.categoryId,
+    categoryName: row.categoryName,
+    subcategory: row.subcategory ?? undefined,
+    type: row.type.toLowerCase() as ProductType,
+    sku: row.sku,
+    barcode: row.barcode ?? undefined,
+    hsnCode: row.hsnCode ?? undefined,
+    unitOfMeasure: row.unitOfMeasure ?? undefined,
+    sellingPrice: row.sellingPrice,
+    mrp: row.mrp ?? undefined,
+    cost: row.cost ?? undefined,
+    minSellingPrice: row.minSellingPrice ?? undefined,
+    discountAllowed: row.discountAllowed,
+    taxCategory: row.taxCategory ?? undefined,
+    status: row.status.toLowerCase() as ProductStatus,
+    reorderLevel: row.reorderLevel ?? undefined,
+    reorderQuantity: row.reorderQuantity ?? undefined,
+    primarySupplier: row.primarySupplier ?? undefined,
+    supplierProductCode: row.supplierProductCode ?? undefined,
+    description: row.description ?? undefined,
+    imageUrl: row.imageUrl ?? undefined,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+class ProductionProductService extends MockProductService {
+  private async organizationId(): Promise<string> {
+    const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
+    if (!membership) throw new Error('No active organization membership.');
+    return membership.organization.id;
+  }
+
+  private async all(): Promise<Product[]> {
+    const organizationId = await this.organizationId();
+    const result = await listTenantProducts(getFirebaseClientServices().dataConnect, { organizationId });
+    return result.data.products.map(mapTenantProduct);
+  }
+
+  public override async getProducts(query: ProductQuery = {}): Promise<ProductQueryResult> {
+    const products = await this.all();
+    const search = query.search?.trim().toLowerCase() ?? '';
+    let filtered = products.filter((product) => {
+      if (query.status === 'ACTIVE' && product.status !== 'active') return false;
+      if (query.status === 'INACTIVE' && product.status !== 'inactive') return false;
+      if (query.type && query.type !== 'ALL' && product.type !== query.type) return false;
+      if (query.category && query.category !== 'All Categories' && !product.categoryName.toLowerCase().includes(query.category.toLowerCase())) return false;
+      if (query.brand && query.brand !== 'All Brands' && product.brand.toLowerCase() !== query.brand.toLowerCase()) return false;
+      return !search || `${product.productCode} ${product.name} ${product.sku} ${product.barcode ?? ''} ${product.brand} ${product.categoryName}`.toLowerCase().includes(search);
+    });
+    const page = Math.max(1, query.page ?? 1);
+    const pageSize = Math.max(1, query.pageSize ?? 10);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+    const validPage = Math.min(page, totalPages);
+    const inStockCount = products.filter((p) => p.type === 'service' || (p.stockSummary?.onHandTotal ?? 0) > (p.stockSummary?.reorderLevel ?? 0)).length;
+    return { items: filtered.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: products.length, filteredCount: filtered.length, page: validPage, pageSize, totalPages, kpis: { totalCatalogued: products.length, addedThisFiscalCycle: products.length, inStockCount, inStockPercentage: products.length ? Number((inStockCount / products.length * 100).toFixed(1)) : 0, lowStockCount: products.filter((p) => p.stockSummary?.status === 'LOW_STOCK').length, outOfStockCount: products.filter((p) => p.stockSummary?.status === 'OUT_OF_STOCK').length } };
+  }
+
+  public override async getProduct(id: string): Promise<Product | null> {
+    return (await this.all()).find((product) => product.id === id || product.productCode === id) ?? null;
+  }
+
+  private async context(): Promise<string> { return this.organizationId(); }
+  public override async createProduct(input: CreateProductInput): Promise<Product> {
+    const organizationId = await this.context();
+    await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductRecord')({ organizationId, productCode: this.getNextProductCode(), ...input, type: input.type.toUpperCase(), requestId: globalThis.crypto.randomUUID() });
+    const products = await this.all(); const created = products.find((product) => product.name === input.name.trim() && product.sku === input.sku.trim()); if (!created) throw new Error('Product was created but could not be loaded.'); return created;
+  }
+  public override async updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
+    const current = await this.getProduct(id); if (!current) throw new Error('Product not found.'); const organizationId = await this.context();
+    await httpsCallable(getFirebaseClientServices().functions, 'updateTenantProductRecord')({ organizationId, id, ...current, ...input, requestId: globalThis.crypto.randomUUID(), type: (input.type ?? current.type).toUpperCase() });
+    const updated = await this.getProduct(id); if (!updated) throw new Error('Product was updated but could not be loaded.'); return updated;
+  }
+  public override async changeProductStatus(id: string, status: ProductStatus): Promise<Product> {
+    const organizationId = await this.context(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantProductStatus')({ organizationId, id, status: status.toUpperCase(), requestId: globalThis.crypto.randomUUID() }); const updated = await this.getProduct(id); if (!updated) throw new Error('Product status was changed but could not be loaded.'); return updated;
+  }
+}
+
+export const productService: IProductService = new ProductionProductService();

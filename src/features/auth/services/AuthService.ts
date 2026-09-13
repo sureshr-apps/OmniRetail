@@ -30,6 +30,7 @@ export interface User {
   phone: string | null;
   roles: ApplicationRole[];
   capabilities: string[];
+  organizationIds: string[];
 }
 
 export interface LoginCredentials {
@@ -65,10 +66,11 @@ interface AuthorizedUserResponse {
   phone: string | null;
   roles: ApplicationRole[];
   capabilities: string[];
+  organizationIds?: string[];
 }
 
 function toUser(response: AuthorizedUserResponse): User {
-  return { ...response, name: response.displayName };
+  return { ...response, name: response.displayName, organizationIds: response.organizationIds ?? [] };
 }
 
 function isEmailIdentifier(value: string): boolean {

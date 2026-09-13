@@ -1,0 +1,116 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+
+const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
+
+describe('tenant callable contract', () => {
+  it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {
+    expect(source).toContain('export const createTenantOutlet = onCall');
+    expect(source).toContain("requireCapability(caller, 'outlets.read')");
+    expect(source).toContain("membership.role.code !== 'organization.admin'");
+    expect(source).toContain('createTenantOutletTrusted');
+    expect(source).toContain('idempotencyKey');
+  });
+
+  it('exposes update and status callables with organization-admin scope checks', () => {
+    expect(source).toContain('export const updateTenantOutlet = onCall');
+    expect(source).toContain('export const changeTenantOutletStatus = onCall');
+    expect(source).toContain('requireOrganizationAdmin(actorFirebaseUid, organizationId)');
+  });
+
+  it('provisions employee login through Firebase Auth and trusted SQL', () => {
+    expect(source).toContain('export const provisionTenantEmployee = onCall');
+    expect(source).toContain('provisionTenantEmployeeTrusted');
+    expect(source).toContain("requireOrganizationAdmin(actorFirebaseUid, organizationId)");
+    expect(source).toContain("getAuth().createUser({ email, password:");
+  });
+
+  it('exposes employee lifecycle callables with Auth synchronization', () => {
+    expect(source).toContain('export const updateTenantEmployee = onCall');
+    expect(source).toContain('export const changeTenantEmployeeStatus = onCall');
+    expect(source).toContain('export const changeTenantEmployeeLoginAccess = onCall');
+    expect(source).toContain('revokeRefreshTokens(uid)');
+    expect(source).toContain('changeTenantEmployeeLoginAccessTrusted');
+    expect(source).toContain('export const createTenantEmployeeProfile = onCall');
+  });
+
+  it('exposes service-person lifecycle callables without employee login coupling', () => {
+    expect(source).toContain('export const createTenantServicePerson = onCall');
+    expect(source).toContain('export const updateTenantServicePerson = onCall');
+    expect(source).toContain('export const changeTenantServicePersonStatus = onCall');
+    expect(source).toContain('createTenantServicePersonTrusted');
+    expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');
+    expect(source).toContain('export const assignTenantServicePersonOutlet = onCall');
+  });
+
+  it('exposes tenant product and inventory write boundaries', () => {
+    expect(source).toContain('export const createTenantProductRecord = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
+    expect(source).toContain('createTenantProduct({ organizationId, productCode');
+    expect(source).toContain('export const updateTenantProductRecord = onCall');
+    expect(source).toContain('export const changeTenantProductStatus = onCall');
+    expect(source).toContain('export const adjustTenantInventoryStock = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'inventory.read')");
+    expect(source).toContain('adjustTenantInventory({ organizationId, outletId, productId');
+  });
+
+  it('exposes an organization-scoped customer creation boundary', () => {
+    expect(source).toContain('export const createTenantCustomerRecord = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'customers.read')");
+    expect(source).toContain('createTenantCustomer({ organizationId, customerCode');
+    expect(source).toContain('export const updateTenantCustomerRecord = onCall');
+    expect(source).toContain('export const changeTenantCustomerStatus = onCall');
+  });
+
+  it('exposes an organization-scoped supplier creation boundary', () => {
+    expect(source).toContain('export const createTenantSupplierRecord = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'suppliers.read')");
+    expect(source).toContain('createTenantSupplier({ organizationId, supplierCode');
+    expect(source).toContain('export const changeTenantSupplierStatus = onCall');
+    expect(source).toContain('export const updateTenantSupplierRecord = onCall');
+    expect(source).toContain('updateTenantSupplier({ organizationId, id');
+  });
+
+  it('exposes an organization-scoped purchase creation boundary', () => {
+    expect(source).toContain('export const createTenantPurchaseRecord = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'purchases.read')");
+    expect(source).toContain('createTenantPurchase({ organizationId, purchaseNumber');
+  });
+
+  it('exposes a tenant purchase status boundary', () => {
+    expect(source).toContain('export const changeTenantPurchaseStatus = onCall');
+    expect(source).toContain('changeTenantPurchaseStatusSql({ organizationId, id');
+  });
+
+  it('exposes a tenant purchase receiving boundary', () => {
+    expect(source).toContain('export const receiveTenantPurchaseLineRecord = onCall');
+    expect(source).toContain('receiveTenantPurchaseLine({ organizationId, purchaseId, lineId');
+    expect(source).toContain('batchNumber: typeof d.batchNumber');
+  });
+
+  it('exposes an organization-scoped expense creation boundary', () => {
+    expect(source).toContain('export const createTenantExpenseRecord = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'expenses.read')");
+    expect(source).toContain('createTenantExpense({ organizationId, expenseNumber');
+  });
+
+  it('exposes expense approval and void boundaries', () => {
+    expect(source).toContain('export const changeTenantExpenseApprovalStatus = onCall');
+    expect(source).toContain('changeTenantExpenseApproval({ organizationId, id');
+    expect(source).toContain('export const voidTenantExpenseRecord = onCall');
+    expect(source).toContain('voidTenantExpense({ organizationId, id');
+  });
+
+  it('exposes the tenant sale completion boundary', () => {
+    expect(source).toContain('export const completeTenantSale = onCall');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'sales.read')");
+    expect(source).toContain('createTenantSale({ organizationId, outletId, receiptNumber');
+  });
+
+  it('exposes tenant-validated sale line persistence', () => {
+    expect(source).toContain('export const addTenantSaleLineRecord = onCall');
+    expect(source).toContain('addTenantSaleLine({ organizationId, saleId, outletId, productId');
+    expect(source).toContain('getTenantInventoryStockTrusted');
+    expect(source).toContain('insufficient stock');
+  });
+});

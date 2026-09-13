@@ -42,6 +42,18 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*GetOrganizationLicenseHistoryPublic*](#getorganizationlicensehistorypublic)
   - [*ListOrganizationsTrusted*](#listorganizationstrusted)
   - [*ListOrganizationUsersForDeletionTrusted*](#listorganizationusersfordeletiontrusted)
+  - [*ListTenantOutlets*](#listtenantoutlets)
+  - [*ListTenantEmployees*](#listtenantemployees)
+  - [*ListTenantServicePersons*](#listtenantservicepersons)
+  - [*ListTenantProducts*](#listtenantproducts)
+  - [*ListTenantInventory*](#listtenantinventory)
+  - [*ListTenantCustomers*](#listtenantcustomers)
+  - [*ListTenantSuppliers*](#listtenantsuppliers)
+  - [*ListTenantPurchases*](#listtenantpurchases)
+  - [*ListTenantExpenses*](#listtenantexpenses)
+  - [*ListTenantSales*](#listtenantsales)
+  - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
+  - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
@@ -69,6 +81,43 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*CreateOrganization*](#createorganization)
   - [*UpdateOrganization*](#updateorganization)
   - [*ChangeOrganizationStatus*](#changeorganizationstatus)
+  - [*CreateTenantExpense*](#createtenantexpense)
+  - [*UpdateTenantExpense*](#updatetenantexpense)
+  - [*ChangeTenantExpenseApproval*](#changetenantexpenseapproval)
+  - [*VoidTenantExpense*](#voidtenantexpense)
+  - [*CreateTenantSale*](#createtenantsale)
+  - [*AddTenantSaleLine*](#addtenantsaleline)
+  - [*VoidTenantSale*](#voidtenantsale)
+  - [*CreateTenantPurchase*](#createtenantpurchase)
+  - [*CreateTenantPurchaseLine*](#createtenantpurchaseline)
+  - [*ChangeTenantPurchaseStatus*](#changetenantpurchasestatus)
+  - [*ReceiveTenantPurchaseLine*](#receivetenantpurchaseline)
+  - [*CreateTenantSupplier*](#createtenantsupplier)
+  - [*UpdateTenantSupplier*](#updatetenantsupplier)
+  - [*ChangeTenantSupplierStatus*](#changetenantsupplierstatus)
+  - [*CreateTenantCustomer*](#createtenantcustomer)
+  - [*UpdateTenantCustomer*](#updatetenantcustomer)
+  - [*ChangeTenantCustomerStatus*](#changetenantcustomerstatus)
+  - [*CreateTenantProduct*](#createtenantproduct)
+  - [*UpdateTenantProduct*](#updatetenantproduct)
+  - [*ChangeTenantProductStatus*](#changetenantproductstatus)
+  - [*AdjustTenantInventory*](#adjusttenantinventory)
+  - [*CreateTenantOutlet*](#createtenantoutlet)
+  - [*UpdateTenantOutlet*](#updatetenantoutlet)
+  - [*ChangeTenantOutletStatus*](#changetenantoutletstatus)
+  - [*CreateTenantOutletTrusted*](#createtenantoutlettrusted)
+  - [*UpdateTenantOutletTrusted*](#updatetenantoutlettrusted)
+  - [*ChangeTenantOutletStatusTrusted*](#changetenantoutletstatustrusted)
+  - [*CreateTenantEmployeeProfileTrusted*](#createtenantemployeeprofiletrusted)
+  - [*ProvisionTenantEmployeeTrusted*](#provisiontenantemployeetrusted)
+  - [*UpdateTenantEmployeeTrusted*](#updatetenantemployeetrusted)
+  - [*ChangeTenantEmployeeStatusTrusted*](#changetenantemployeestatustrusted)
+  - [*ChangeTenantEmployeeLoginAccessTrusted*](#changetenantemployeeloginaccesstrusted)
+  - [*CreateTenantServicePersonTrusted*](#createtenantservicepersontrusted)
+  - [*UpdateTenantServicePersonTrusted*](#updatetenantservicepersontrusted)
+  - [*ChangeTenantServicePersonStatusTrusted*](#changetenantservicepersonstatustrusted)
+  - [*AssignTenantEmployeeOutletTrusted*](#assigntenantemployeeoutlettrusted)
+  - [*AssignTenantServicePersonOutletTrusted*](#assigntenantservicepersonoutlettrusted)
 
 # TanStack Query Firebase & TanStack React Query
 This SDK provides [React](https://react.dev/) hooks generated specific to your application, for the operations found in the connector `master-admin`. These hooks are generated using [TanStack Query Firebase](https://react-query-firebase.invertase.dev/) by our partners at Invertase, a library built on top of [TanStack React Query v5](https://tanstack.com/query/v5/docs/framework/react/overview).
@@ -203,6 +252,17 @@ export interface GetCurrentUserAuthorizationData {
         })[];
       };
     })[];
+    organizationMemberships_on_user: ({
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      role: {
+        code: string;
+        name: string;
+        scope: RoleScope;
+      };
+      status: MembershipStatus;
+    })[];
   } & AppUser_Key)[];
 }
 ```
@@ -299,6 +359,17 @@ export interface GetUserAuthorizationByFirebaseUidData {
           };
         })[];
       };
+    })[];
+    organizationMemberships_on_user: ({
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      role: {
+        code: string;
+        name: string;
+        scope: RoleScope;
+      };
+      status: MembershipStatus;
     })[];
   } & AppUser_Key)[];
 }
@@ -2476,6 +2547,1437 @@ export default function ListOrganizationUsersForDeletionTrustedComponent() {
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
   const query = useListOrganizationUsersForDeletionTrusted(dataConnect, listOrganizationUsersForDeletionTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantOutlets
+You can execute the `ListTenantOutlets` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantOutlets(dc: DataConnect, vars: ListTenantOutletsVariables, options?: useDataConnectQueryOptions<ListTenantOutletsData>): UseDataConnectQueryResult<ListTenantOutletsData, ListTenantOutletsVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantOutlets(vars: ListTenantOutletsVariables, options?: useDataConnectQueryOptions<ListTenantOutletsData>): UseDataConnectQueryResult<ListTenantOutletsData, ListTenantOutletsVariables>;
+```
+
+### Variables
+The `ListTenantOutlets` Query requires an argument of type `ListTenantOutletsVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantOutletsVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantOutlets` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantOutlets` Query is of type `ListTenantOutletsData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantOutletsData {
+  organizationMemberships: ({
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    role: {
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  outlets: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outletCode: string;
+    name: string;
+    contactPerson: string;
+    email?: string | null;
+    phone: string;
+    address: string;
+    city: string;
+    state?: string | null;
+    postalCode?: string | null;
+    timezone: string;
+    currency: string;
+    status: OutletStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Outlet_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantOutlets`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantOutletsVariables } from '@omniretail/sql-connect';
+import { useListTenantOutlets } from '@omniretail/sql-connect/react'
+
+export default function ListTenantOutletsComponent() {
+  // The `useListTenantOutlets` Query hook requires an argument of type `ListTenantOutletsVariables`:
+  const listTenantOutletsVars: ListTenantOutletsVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantOutlets(listTenantOutletsVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantOutlets({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantOutlets(dataConnect, listTenantOutletsVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantOutlets(listTenantOutletsVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantOutlets(dataConnect, listTenantOutletsVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.outlets);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantEmployees
+You can execute the `ListTenantEmployees` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantEmployees(dc: DataConnect, vars: ListTenantEmployeesVariables, options?: useDataConnectQueryOptions<ListTenantEmployeesData>): UseDataConnectQueryResult<ListTenantEmployeesData, ListTenantEmployeesVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantEmployees(vars: ListTenantEmployeesVariables, options?: useDataConnectQueryOptions<ListTenantEmployeesData>): UseDataConnectQueryResult<ListTenantEmployeesData, ListTenantEmployeesVariables>;
+```
+
+### Variables
+The `ListTenantEmployees` Query requires an argument of type `ListTenantEmployeesVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantEmployeesVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantEmployees` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantEmployees` Query is of type `ListTenantEmployeesData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantEmployeesData {
+  organizationMemberships: ({
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    role: {
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  employees: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    user?: {
+      id: UUIDString;
+      username: string;
+      email: string;
+      firebaseUid: string;
+    } & AppUser_Key;
+    employeeCode: string;
+    fullName: string;
+    email?: string | null;
+    phone: string;
+    designation: string;
+    department?: string | null;
+    dateOfJoining: DateString;
+    assignmentScope: string;
+    employmentStatus: EmploymentStatus;
+    loginAccess: LoginAccessStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    employeeOutlets_on_employee: ({
+      outlet: {
+        id: UUIDString;
+        outletCode: string;
+        name: string;
+      } & Outlet_Key;
+    })[];
+  } & Employee_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantEmployees`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantEmployeesVariables } from '@omniretail/sql-connect';
+import { useListTenantEmployees } from '@omniretail/sql-connect/react'
+
+export default function ListTenantEmployeesComponent() {
+  // The `useListTenantEmployees` Query hook requires an argument of type `ListTenantEmployeesVariables`:
+  const listTenantEmployeesVars: ListTenantEmployeesVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantEmployees(listTenantEmployeesVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantEmployees({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantEmployees(dataConnect, listTenantEmployeesVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantEmployees(listTenantEmployeesVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantEmployees(dataConnect, listTenantEmployeesVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.employees);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantServicePersons
+You can execute the `ListTenantServicePersons` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantServicePersons(dc: DataConnect, vars: ListTenantServicePersonsVariables, options?: useDataConnectQueryOptions<ListTenantServicePersonsData>): UseDataConnectQueryResult<ListTenantServicePersonsData, ListTenantServicePersonsVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantServicePersons(vars: ListTenantServicePersonsVariables, options?: useDataConnectQueryOptions<ListTenantServicePersonsData>): UseDataConnectQueryResult<ListTenantServicePersonsData, ListTenantServicePersonsVariables>;
+```
+
+### Variables
+The `ListTenantServicePersons` Query requires an argument of type `ListTenantServicePersonsVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantServicePersonsVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantServicePersons` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantServicePersons` Query is of type `ListTenantServicePersonsData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantServicePersonsData {
+  organizationMemberships: ({
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    role: {
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  servicePeople: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    servicePersonCode: string;
+    fullName: string;
+    email?: string | null;
+    phone: string;
+    specialization: string;
+    skills?: string | null;
+    yearsOfExperience?: number | null;
+    assignmentScope: string;
+    status: EmploymentStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    servicePersonOutlets_on_servicePerson: ({
+      outlet: {
+        id: UUIDString;
+        outletCode: string;
+        name: string;
+      } & Outlet_Key;
+    })[];
+  } & ServicePerson_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantServicePersons`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantServicePersonsVariables } from '@omniretail/sql-connect';
+import { useListTenantServicePersons } from '@omniretail/sql-connect/react'
+
+export default function ListTenantServicePersonsComponent() {
+  // The `useListTenantServicePersons` Query hook requires an argument of type `ListTenantServicePersonsVariables`:
+  const listTenantServicePersonsVars: ListTenantServicePersonsVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantServicePersons(listTenantServicePersonsVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantServicePersons({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantServicePersons(dataConnect, listTenantServicePersonsVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantServicePersons(listTenantServicePersonsVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantServicePersons(dataConnect, listTenantServicePersonsVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.servicePeople);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantProducts
+You can execute the `ListTenantProducts` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantProducts(dc: DataConnect, vars: ListTenantProductsVariables, options?: useDataConnectQueryOptions<ListTenantProductsData>): UseDataConnectQueryResult<ListTenantProductsData, ListTenantProductsVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantProducts(vars: ListTenantProductsVariables, options?: useDataConnectQueryOptions<ListTenantProductsData>): UseDataConnectQueryResult<ListTenantProductsData, ListTenantProductsVariables>;
+```
+
+### Variables
+The `ListTenantProducts` Query requires an argument of type `ListTenantProductsVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantProductsVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantProducts` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantProducts` Query is of type `ListTenantProductsData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantProductsData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  products: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    productCode: string;
+    name: string;
+    brand: string;
+    categoryId: string;
+    categoryName: string;
+    subcategory?: string | null;
+    type: ProductType;
+    sku: string;
+    barcode?: string | null;
+    hsnCode?: string | null;
+    unitOfMeasure?: string | null;
+    sellingPrice: number;
+    mrp?: number | null;
+    cost?: number | null;
+    minSellingPrice?: number | null;
+    discountAllowed: boolean;
+    taxCategory?: string | null;
+    status: ProductStatus;
+    reorderLevel?: number | null;
+    reorderQuantity?: number | null;
+    primarySupplier?: string | null;
+    supplierProductCode?: string | null;
+    description?: string | null;
+    imageUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Product_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantProducts`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantProductsVariables } from '@omniretail/sql-connect';
+import { useListTenantProducts } from '@omniretail/sql-connect/react'
+
+export default function ListTenantProductsComponent() {
+  // The `useListTenantProducts` Query hook requires an argument of type `ListTenantProductsVariables`:
+  const listTenantProductsVars: ListTenantProductsVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantProducts(listTenantProductsVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantProducts({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantProducts(dataConnect, listTenantProductsVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantProducts(listTenantProductsVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantProducts(dataConnect, listTenantProductsVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.products);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantInventory
+You can execute the `ListTenantInventory` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantInventory(dc: DataConnect, vars: ListTenantInventoryVariables, options?: useDataConnectQueryOptions<ListTenantInventoryData>): UseDataConnectQueryResult<ListTenantInventoryData, ListTenantInventoryVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantInventory(vars: ListTenantInventoryVariables, options?: useDataConnectQueryOptions<ListTenantInventoryData>): UseDataConnectQueryResult<ListTenantInventoryData, ListTenantInventoryVariables>;
+```
+
+### Variables
+The `ListTenantInventory` Query requires an argument of type `ListTenantInventoryVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantInventoryVariables {
+  organizationId: UUIDString;
+  outletId?: UUIDString | null;
+}
+```
+### Return Type
+Recall that calling the `ListTenantInventory` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantInventory` Query is of type `ListTenantInventoryData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantInventoryData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  inventoryStocks: ({
+    _id: {
+    };
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: string;
+      name: string;
+    } & Outlet_Key;
+    product: {
+      id: UUIDString;
+      productCode: string;
+      name: string;
+      sku: string;
+      barcode?: string | null;
+      categoryName: string;
+      brand: string;
+      sellingPrice: number;
+      cost?: number | null;
+    } & Product_Key;
+    binRack?: string | null;
+    onHandQty: number;
+    reorderLevel: number;
+    overstockThreshold: number;
+    incomingPurchaseOrder?: string | null;
+    updatedAt: TimestampString;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantInventory`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantInventoryVariables } from '@omniretail/sql-connect';
+import { useListTenantInventory } from '@omniretail/sql-connect/react'
+
+export default function ListTenantInventoryComponent() {
+  // The `useListTenantInventory` Query hook requires an argument of type `ListTenantInventoryVariables`:
+  const listTenantInventoryVars: ListTenantInventoryVariables = {
+    organizationId: ..., 
+    outletId: ..., // optional
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantInventory(listTenantInventoryVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantInventory({ organizationId: ..., outletId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantInventory(dataConnect, listTenantInventoryVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantInventory(listTenantInventoryVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantInventory(dataConnect, listTenantInventoryVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.inventoryStocks);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantCustomers
+You can execute the `ListTenantCustomers` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantCustomers(dc: DataConnect, vars: ListTenantCustomersVariables, options?: useDataConnectQueryOptions<ListTenantCustomersData>): UseDataConnectQueryResult<ListTenantCustomersData, ListTenantCustomersVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantCustomers(vars: ListTenantCustomersVariables, options?: useDataConnectQueryOptions<ListTenantCustomersData>): UseDataConnectQueryResult<ListTenantCustomersData, ListTenantCustomersVariables>;
+```
+
+### Variables
+The `ListTenantCustomers` Query requires an argument of type `ListTenantCustomersVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantCustomersVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantCustomers` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantCustomers` Query is of type `ListTenantCustomersData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantCustomersData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  customers: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    customerCode: string;
+    type: CustomerType;
+    name: string;
+    phone: string;
+    email: string;
+    taxId?: string | null;
+    address?: string | null;
+    city: string;
+    state: string;
+    postalCode?: string | null;
+    country?: string | null;
+    creditLimit?: number | null;
+    preferredContact?: string | null;
+    dateOfBirth?: DateString | null;
+    gender?: string | null;
+    status: CustomerStatus;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Customer_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantCustomers`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantCustomersVariables } from '@omniretail/sql-connect';
+import { useListTenantCustomers } from '@omniretail/sql-connect/react'
+
+export default function ListTenantCustomersComponent() {
+  // The `useListTenantCustomers` Query hook requires an argument of type `ListTenantCustomersVariables`:
+  const listTenantCustomersVars: ListTenantCustomersVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantCustomers(listTenantCustomersVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantCustomers({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantCustomers(dataConnect, listTenantCustomersVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantCustomers(listTenantCustomersVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantCustomers(dataConnect, listTenantCustomersVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.customers);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantSuppliers
+You can execute the `ListTenantSuppliers` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantSuppliers(dc: DataConnect, vars: ListTenantSuppliersVariables, options?: useDataConnectQueryOptions<ListTenantSuppliersData>): UseDataConnectQueryResult<ListTenantSuppliersData, ListTenantSuppliersVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantSuppliers(vars: ListTenantSuppliersVariables, options?: useDataConnectQueryOptions<ListTenantSuppliersData>): UseDataConnectQueryResult<ListTenantSuppliersData, ListTenantSuppliersVariables>;
+```
+
+### Variables
+The `ListTenantSuppliers` Query requires an argument of type `ListTenantSuppliersVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantSuppliersVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantSuppliers` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantSuppliers` Query is of type `ListTenantSuppliersData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantSuppliersData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  suppliers: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    supplierCode: string;
+    name: string;
+    contactPerson: string;
+    phone: string;
+    email: string;
+    taxId: string;
+    address?: string | null;
+    city: string;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    category: string;
+    paymentTerms: string;
+    creditLimit: number;
+    status: SupplierStatus;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Supplier_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantSuppliers`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantSuppliersVariables } from '@omniretail/sql-connect';
+import { useListTenantSuppliers } from '@omniretail/sql-connect/react'
+
+export default function ListTenantSuppliersComponent() {
+  // The `useListTenantSuppliers` Query hook requires an argument of type `ListTenantSuppliersVariables`:
+  const listTenantSuppliersVars: ListTenantSuppliersVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantSuppliers(listTenantSuppliersVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantSuppliers({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantSuppliers(dataConnect, listTenantSuppliersVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantSuppliers(listTenantSuppliersVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantSuppliers(dataConnect, listTenantSuppliersVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.suppliers);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantPurchases
+You can execute the `ListTenantPurchases` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantPurchases(dc: DataConnect, vars: ListTenantPurchasesVariables, options?: useDataConnectQueryOptions<ListTenantPurchasesData>): UseDataConnectQueryResult<ListTenantPurchasesData, ListTenantPurchasesVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantPurchases(vars: ListTenantPurchasesVariables, options?: useDataConnectQueryOptions<ListTenantPurchasesData>): UseDataConnectQueryResult<ListTenantPurchasesData, ListTenantPurchasesVariables>;
+```
+
+### Variables
+The `ListTenantPurchases` Query requires an argument of type `ListTenantPurchasesVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantPurchasesVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantPurchases` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantPurchases` Query is of type `ListTenantPurchasesData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantPurchasesData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  purchases: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    purchaseNumber: string;
+    purchaseOrderNumber?: string | null;
+    invoiceNumber?: string | null;
+    purchaseDate: DateString;
+    supplier: {
+      id: UUIDString;
+      supplierCode: string;
+      name: string;
+      taxId: string;
+    } & Supplier_Key;
+    outlet?: {
+      id: UUIDString;
+      outletCode: string;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    paymentTerms?: string | null;
+    subtotal: number;
+    shippingFee: number;
+    handlingFee: number;
+    tax: number;
+    totalAmount: number;
+    amountPaid: number;
+    outstandingAmount: number;
+    paymentStatus: PurchasePaymentStatus;
+    receiptStatus: PurchaseReceiptStatus;
+    status: PurchaseStatus;
+    receivingNotes?: string | null;
+    batchNumber?: string | null;
+    mfgDate?: DateString | null;
+    expiryDate?: DateString | null;
+    createdBy: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    purchaseLines_on_purchase: ({
+      id: UUIDString;
+      product: {
+        id: UUIDString;
+        productCode: string;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantityOrdered: number;
+      quantityReceived: number;
+      unitCost: number;
+      discountPercent: number;
+      taxRate: number;
+      taxAmount: number;
+      lineTotal: number;
+    } & PurchaseLine_Key)[];
+  } & Purchase_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantPurchases`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantPurchasesVariables } from '@omniretail/sql-connect';
+import { useListTenantPurchases } from '@omniretail/sql-connect/react'
+
+export default function ListTenantPurchasesComponent() {
+  // The `useListTenantPurchases` Query hook requires an argument of type `ListTenantPurchasesVariables`:
+  const listTenantPurchasesVars: ListTenantPurchasesVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantPurchases(listTenantPurchasesVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantPurchases({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantPurchases(dataConnect, listTenantPurchasesVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantPurchases(listTenantPurchasesVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantPurchases(dataConnect, listTenantPurchasesVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.purchases);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantExpenses
+You can execute the `ListTenantExpenses` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantExpenses(dc: DataConnect, vars: ListTenantExpensesVariables, options?: useDataConnectQueryOptions<ListTenantExpensesData>): UseDataConnectQueryResult<ListTenantExpensesData, ListTenantExpensesVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantExpenses(vars: ListTenantExpensesVariables, options?: useDataConnectQueryOptions<ListTenantExpensesData>): UseDataConnectQueryResult<ListTenantExpensesData, ListTenantExpensesVariables>;
+```
+
+### Variables
+The `ListTenantExpenses` Query requires an argument of type `ListTenantExpensesVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantExpensesVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantExpenses` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantExpenses` Query is of type `ListTenantExpensesData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantExpensesData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  expenses: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    expenseNumber: string;
+    expenseDate: DateString;
+    category: string;
+    description: string;
+    reference?: string | null;
+    vendorName?: string | null;
+    outlet?: {
+      id: UUIDString;
+      outletCode: string;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    baseAmount: number;
+    taxAmount: number;
+    amount: number;
+    paymentMethod: string;
+    paidByEmployee: string;
+    settlementDate?: DateString | null;
+    status: ExpenseStatus;
+    approvalStatus: ExpenseApprovalStatus;
+    submittedBy: string;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Expense_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantExpenses`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantExpensesVariables } from '@omniretail/sql-connect';
+import { useListTenantExpenses } from '@omniretail/sql-connect/react'
+
+export default function ListTenantExpensesComponent() {
+  // The `useListTenantExpenses` Query hook requires an argument of type `ListTenantExpensesVariables`:
+  const listTenantExpensesVars: ListTenantExpensesVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantExpenses(listTenantExpensesVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantExpenses({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantExpenses(dataConnect, listTenantExpensesVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantExpenses(listTenantExpensesVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantExpenses(dataConnect, listTenantExpensesVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.expenses);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantSales
+You can execute the `ListTenantSales` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantSales(dc: DataConnect, vars: ListTenantSalesVariables, options?: useDataConnectQueryOptions<ListTenantSalesData>): UseDataConnectQueryResult<ListTenantSalesData, ListTenantSalesVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantSales(vars: ListTenantSalesVariables, options?: useDataConnectQueryOptions<ListTenantSalesData>): UseDataConnectQueryResult<ListTenantSalesData, ListTenantSalesVariables>;
+```
+
+### Variables
+The `ListTenantSales` Query requires an argument of type `ListTenantSalesVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantSalesVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantSales` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantSales` Query is of type `ListTenantSalesData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantSalesData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  sales: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: string;
+      name: string;
+    } & Outlet_Key;
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    customer?: {
+      id: UUIDString;
+      customerCode: string;
+      name: string;
+      phone: string;
+      email: string;
+    } & Customer_Key;
+    customerName: string;
+    staffName: string;
+    channel: string;
+    terminalId: string;
+    tenderType: SaleTenderType;
+    tax: number;
+    discount: number;
+    subtotal: number;
+    totalNet: number;
+    status: SaleStatus;
+    createdAt: TimestampString;
+    saleLines_on_sale: ({
+      id: UUIDString;
+      product: {
+        id: UUIDString;
+        productCode: string;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantity: number;
+      unitPrice: number;
+      subtotal: number;
+    } & SaleLine_Key)[];
+  } & Sale_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantSales`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantSalesVariables } from '@omniretail/sql-connect';
+import { useListTenantSales } from '@omniretail/sql-connect/react'
+
+export default function ListTenantSalesComponent() {
+  // The `useListTenantSales` Query hook requires an argument of type `ListTenantSalesVariables`:
+  const listTenantSalesVars: ListTenantSalesVariables = {
+    organizationId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantSales(listTenantSalesVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantSales({ organizationId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantSales(dataConnect, listTenantSalesVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantSales(listTenantSalesVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantSales(dataConnect, listTenantSalesVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.sales);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantInventoryStockTrusted
+You can execute the `GetTenantInventoryStockTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantInventoryStockTrusted(dc: DataConnect, vars: GetTenantInventoryStockTrustedVariables, options?: useDataConnectQueryOptions<GetTenantInventoryStockTrustedData>): UseDataConnectQueryResult<GetTenantInventoryStockTrustedData, GetTenantInventoryStockTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantInventoryStockTrusted(vars: GetTenantInventoryStockTrustedVariables, options?: useDataConnectQueryOptions<GetTenantInventoryStockTrustedData>): UseDataConnectQueryResult<GetTenantInventoryStockTrustedData, GetTenantInventoryStockTrustedVariables>;
+```
+
+### Variables
+The `GetTenantInventoryStockTrusted` Query requires an argument of type `GetTenantInventoryStockTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantInventoryStockTrustedVariables {
+  organizationId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantInventoryStockTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantInventoryStockTrusted` Query is of type `GetTenantInventoryStockTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantInventoryStockTrustedData {
+  inventoryStocks: ({
+    onHandQty: number;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantInventoryStockTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantInventoryStockTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantInventoryStockTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantInventoryStockTrustedComponent() {
+  // The `useGetTenantInventoryStockTrusted` Query hook requires an argument of type `GetTenantInventoryStockTrustedVariables`:
+  const getTenantInventoryStockTrustedVars: GetTenantInventoryStockTrustedVariables = {
+    organizationId: ..., 
+    outletId: ..., 
+    productId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantInventoryStockTrusted(getTenantInventoryStockTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantInventoryStockTrusted({ organizationId: ..., outletId: ..., productId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantInventoryStockTrusted(dataConnect, getTenantInventoryStockTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantInventoryStockTrusted(getTenantInventoryStockTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantInventoryStockTrusted(dataConnect, getTenantInventoryStockTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.inventoryStocks);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantMembershipTrusted
+You can execute the `GetTenantMembershipTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: useDataConnectQueryOptions<GetTenantMembershipTrustedData>): UseDataConnectQueryResult<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: useDataConnectQueryOptions<GetTenantMembershipTrustedData>): UseDataConnectQueryResult<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
+```
+
+### Variables
+The `GetTenantMembershipTrusted` Query requires an argument of type `GetTenantMembershipTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantMembershipTrustedVariables {
+  organizationId: UUIDString;
+  firebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `GetTenantMembershipTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantMembershipTrusted` Query is of type `GetTenantMembershipTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantMembershipTrustedData {
+  organizationMemberships: ({
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    user: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+    role: {
+      code: string;
+      scope: RoleScope;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantMembershipTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantMembershipTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantMembershipTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantMembershipTrustedComponent() {
+  // The `useGetTenantMembershipTrusted` Query hook requires an argument of type `GetTenantMembershipTrustedVariables`:
+  const getTenantMembershipTrustedVars: GetTenantMembershipTrustedVariables = {
+    organizationId: ..., 
+    firebaseUid: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantMembershipTrusted(getTenantMembershipTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantMembershipTrusted({ organizationId: ..., firebaseUid: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantMembershipTrusted(dataConnect, getTenantMembershipTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantMembershipTrusted(getTenantMembershipTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantMembershipTrusted(dataConnect, getTenantMembershipTrustedVars, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {
@@ -5343,6 +6845,4422 @@ export default function ChangeOrganizationStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.organization_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantExpense
+You can execute the `CreateTenantExpense` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantExpense(options?: useDataConnectMutationOptions<CreateTenantExpenseData, FirebaseError, CreateTenantExpenseVariables>): UseDataConnectMutationResult<CreateTenantExpenseData, CreateTenantExpenseVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantExpense(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantExpenseData, FirebaseError, CreateTenantExpenseVariables>): UseDataConnectMutationResult<CreateTenantExpenseData, CreateTenantExpenseVariables>;
+```
+
+### Variables
+The `CreateTenantExpense` Mutation requires an argument of type `CreateTenantExpenseVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantExpenseVariables {
+  organizationId: UUIDString;
+  expenseNumber: string;
+  expenseDate: DateString;
+  category: string;
+  description: string;
+  reference?: string | null;
+  vendorName?: string | null;
+  outletId?: UUIDString | null;
+  scope: string;
+  baseAmount: number;
+  taxAmount: number;
+  amount: number;
+  paymentMethod: string;
+  paidByEmployee: string;
+  submittedBy: string;
+  notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantExpense` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantExpense` Mutation is of type `CreateTenantExpenseData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantExpenseData {
+  expense_insert: Expense_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantExpense`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantExpenseVariables } from '@omniretail/sql-connect';
+import { useCreateTenantExpense } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantExpenseComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantExpense();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantExpense(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantExpense(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantExpense(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantExpense` Mutation requires an argument of type `CreateTenantExpenseVariables`:
+  const createTenantExpenseVars: CreateTenantExpenseVariables = {
+    organizationId: ..., 
+    expenseNumber: ..., 
+    expenseDate: ..., 
+    category: ..., 
+    description: ..., 
+    reference: ..., // optional
+    vendorName: ..., // optional
+    outletId: ..., // optional
+    scope: ..., 
+    baseAmount: ..., 
+    taxAmount: ..., 
+    amount: ..., 
+    paymentMethod: ..., 
+    paidByEmployee: ..., 
+    submittedBy: ..., 
+    notes: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantExpenseVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantExpenseVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.expense_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantExpense
+You can execute the `UpdateTenantExpense` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantExpense(options?: useDataConnectMutationOptions<UpdateTenantExpenseData, FirebaseError, UpdateTenantExpenseVariables>): UseDataConnectMutationResult<UpdateTenantExpenseData, UpdateTenantExpenseVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantExpense(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantExpenseData, FirebaseError, UpdateTenantExpenseVariables>): UseDataConnectMutationResult<UpdateTenantExpenseData, UpdateTenantExpenseVariables>;
+```
+
+### Variables
+The `UpdateTenantExpense` Mutation requires an argument of type `UpdateTenantExpenseVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantExpenseVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  expenseDate: DateString;
+  category: string;
+  description: string;
+  reference?: string | null;
+  vendorName?: string | null;
+  scope: string;
+  baseAmount: number;
+  taxAmount: number;
+  amount: number;
+  paymentMethod: string;
+  paidByEmployee: string;
+  notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantExpense` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantExpense` Mutation is of type `UpdateTenantExpenseData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantExpenseData {
+  expense_update?: Expense_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantExpense`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantExpenseVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantExpense } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantExpenseComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantExpense();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantExpense(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantExpense(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantExpense(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantExpense` Mutation requires an argument of type `UpdateTenantExpenseVariables`:
+  const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
+    organizationId: ..., 
+    id: ..., 
+    expenseDate: ..., 
+    category: ..., 
+    description: ..., 
+    reference: ..., // optional
+    vendorName: ..., // optional
+    scope: ..., 
+    baseAmount: ..., 
+    taxAmount: ..., 
+    amount: ..., 
+    paymentMethod: ..., 
+    paidByEmployee: ..., 
+    notes: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantExpenseVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantExpenseVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.expense_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantExpenseApproval
+You can execute the `ChangeTenantExpenseApproval` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantExpenseApproval(options?: useDataConnectMutationOptions<ChangeTenantExpenseApprovalData, FirebaseError, ChangeTenantExpenseApprovalVariables>): UseDataConnectMutationResult<ChangeTenantExpenseApprovalData, ChangeTenantExpenseApprovalVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantExpenseApproval(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantExpenseApprovalData, FirebaseError, ChangeTenantExpenseApprovalVariables>): UseDataConnectMutationResult<ChangeTenantExpenseApprovalData, ChangeTenantExpenseApprovalVariables>;
+```
+
+### Variables
+The `ChangeTenantExpenseApproval` Mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantExpenseApprovalVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  approvalStatus: ExpenseApprovalStatus;
+  reason?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantExpenseApproval` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantExpenseApproval` Mutation is of type `ChangeTenantExpenseApprovalData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantExpenseApprovalData {
+  expense_update?: Expense_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantExpenseApproval`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantExpenseApprovalVariables } from '@omniretail/sql-connect';
+import { useChangeTenantExpenseApproval } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantExpenseApprovalComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantExpenseApproval();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantExpenseApproval(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantExpenseApproval(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantExpenseApproval(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantExpenseApproval` Mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`:
+  const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
+    organizationId: ..., 
+    id: ..., 
+    approvalStatus: ..., 
+    reason: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantExpenseApprovalVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantExpenseApprovalVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.expense_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## VoidTenantExpense
+You can execute the `VoidTenantExpense` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useVoidTenantExpense(options?: useDataConnectMutationOptions<VoidTenantExpenseData, FirebaseError, VoidTenantExpenseVariables>): UseDataConnectMutationResult<VoidTenantExpenseData, VoidTenantExpenseVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useVoidTenantExpense(dc: DataConnect, options?: useDataConnectMutationOptions<VoidTenantExpenseData, FirebaseError, VoidTenantExpenseVariables>): UseDataConnectMutationResult<VoidTenantExpenseData, VoidTenantExpenseVariables>;
+```
+
+### Variables
+The `VoidTenantExpense` Mutation requires an argument of type `VoidTenantExpenseVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface VoidTenantExpenseVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  reason: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `VoidTenantExpense` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `VoidTenantExpense` Mutation is of type `VoidTenantExpenseData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface VoidTenantExpenseData {
+  expense_update?: Expense_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `VoidTenantExpense`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, VoidTenantExpenseVariables } from '@omniretail/sql-connect';
+import { useVoidTenantExpense } from '@omniretail/sql-connect/react'
+
+export default function VoidTenantExpenseComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useVoidTenantExpense();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useVoidTenantExpense(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useVoidTenantExpense(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useVoidTenantExpense(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useVoidTenantExpense` Mutation requires an argument of type `VoidTenantExpenseVariables`:
+  const voidTenantExpenseVars: VoidTenantExpenseVariables = {
+    organizationId: ..., 
+    id: ..., 
+    reason: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(voidTenantExpenseVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(voidTenantExpenseVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.expense_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantSale
+You can execute the `CreateTenantSale` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantSale(options?: useDataConnectMutationOptions<CreateTenantSaleData, FirebaseError, CreateTenantSaleVariables>): UseDataConnectMutationResult<CreateTenantSaleData, CreateTenantSaleVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantSale(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantSaleData, FirebaseError, CreateTenantSaleVariables>): UseDataConnectMutationResult<CreateTenantSaleData, CreateTenantSaleVariables>;
+```
+
+### Variables
+The `CreateTenantSale` Mutation requires an argument of type `CreateTenantSaleVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantSaleVariables {
+  organizationId: UUIDString;
+  outletId: UUIDString;
+  receiptNumber: string;
+  saleTimestamp: TimestampString;
+  customerId?: UUIDString | null;
+  customerName: string;
+  staffName: string;
+  channel?: string | null;
+  terminalId: string;
+  tenderType: SaleTenderType;
+  tax: number;
+  discount: number;
+  subtotal: number;
+  totalNet: number;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantSale` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantSale` Mutation is of type `CreateTenantSaleData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantSaleData {
+  sale_insert: Sale_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantSale`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantSaleVariables } from '@omniretail/sql-connect';
+import { useCreateTenantSale } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantSaleComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantSale();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantSale(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantSale(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantSale(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantSale` Mutation requires an argument of type `CreateTenantSaleVariables`:
+  const createTenantSaleVars: CreateTenantSaleVariables = {
+    organizationId: ..., 
+    outletId: ..., 
+    receiptNumber: ..., 
+    saleTimestamp: ..., 
+    customerId: ..., // optional
+    customerName: ..., 
+    staffName: ..., 
+    channel: ..., // optional
+    terminalId: ..., 
+    tenderType: ..., 
+    tax: ..., 
+    discount: ..., 
+    subtotal: ..., 
+    totalNet: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantSaleVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantSaleVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.sale_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## AddTenantSaleLine
+You can execute the `AddTenantSaleLine` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useAddTenantSaleLine(options?: useDataConnectMutationOptions<AddTenantSaleLineData, FirebaseError, AddTenantSaleLineVariables>): UseDataConnectMutationResult<AddTenantSaleLineData, AddTenantSaleLineVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useAddTenantSaleLine(dc: DataConnect, options?: useDataConnectMutationOptions<AddTenantSaleLineData, FirebaseError, AddTenantSaleLineVariables>): UseDataConnectMutationResult<AddTenantSaleLineData, AddTenantSaleLineVariables>;
+```
+
+### Variables
+The `AddTenantSaleLine` Mutation requires an argument of type `AddTenantSaleLineVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface AddTenantSaleLineVariables {
+  organizationId: UUIDString;
+  saleId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+  quantity: number;
+  newStockQty: number;
+  unitPrice: number;
+  subtotal: number;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `AddTenantSaleLine` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `AddTenantSaleLine` Mutation is of type `AddTenantSaleLineData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface AddTenantSaleLineData {
+  saleLine_insert: SaleLine_Key;
+  inventoryStock_update?: InventoryStock_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `AddTenantSaleLine`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, AddTenantSaleLineVariables } from '@omniretail/sql-connect';
+import { useAddTenantSaleLine } from '@omniretail/sql-connect/react'
+
+export default function AddTenantSaleLineComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useAddTenantSaleLine();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useAddTenantSaleLine(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAddTenantSaleLine(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAddTenantSaleLine(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useAddTenantSaleLine` Mutation requires an argument of type `AddTenantSaleLineVariables`:
+  const addTenantSaleLineVars: AddTenantSaleLineVariables = {
+    organizationId: ..., 
+    saleId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    quantity: ..., 
+    newStockQty: ..., 
+    unitPrice: ..., 
+    subtotal: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(addTenantSaleLineVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(addTenantSaleLineVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.saleLine_insert);
+    console.log(mutation.data.inventoryStock_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## VoidTenantSale
+You can execute the `VoidTenantSale` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useVoidTenantSale(options?: useDataConnectMutationOptions<VoidTenantSaleData, FirebaseError, VoidTenantSaleVariables>): UseDataConnectMutationResult<VoidTenantSaleData, VoidTenantSaleVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useVoidTenantSale(dc: DataConnect, options?: useDataConnectMutationOptions<VoidTenantSaleData, FirebaseError, VoidTenantSaleVariables>): UseDataConnectMutationResult<VoidTenantSaleData, VoidTenantSaleVariables>;
+```
+
+### Variables
+The `VoidTenantSale` Mutation requires an argument of type `VoidTenantSaleVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface VoidTenantSaleVariables {
+  organizationId: UUIDString;
+  saleId: UUIDString;
+  reason: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `VoidTenantSale` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `VoidTenantSale` Mutation is of type `VoidTenantSaleData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface VoidTenantSaleData {
+  sale_update?: Sale_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `VoidTenantSale`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, VoidTenantSaleVariables } from '@omniretail/sql-connect';
+import { useVoidTenantSale } from '@omniretail/sql-connect/react'
+
+export default function VoidTenantSaleComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useVoidTenantSale();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useVoidTenantSale(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useVoidTenantSale(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useVoidTenantSale(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useVoidTenantSale` Mutation requires an argument of type `VoidTenantSaleVariables`:
+  const voidTenantSaleVars: VoidTenantSaleVariables = {
+    organizationId: ..., 
+    saleId: ..., 
+    reason: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(voidTenantSaleVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., saleId: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(voidTenantSaleVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.sale_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantPurchase
+You can execute the `CreateTenantPurchase` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantPurchase(options?: useDataConnectMutationOptions<CreateTenantPurchaseData, FirebaseError, CreateTenantPurchaseVariables>): UseDataConnectMutationResult<CreateTenantPurchaseData, CreateTenantPurchaseVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantPurchase(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantPurchaseData, FirebaseError, CreateTenantPurchaseVariables>): UseDataConnectMutationResult<CreateTenantPurchaseData, CreateTenantPurchaseVariables>;
+```
+
+### Variables
+The `CreateTenantPurchase` Mutation requires an argument of type `CreateTenantPurchaseVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantPurchaseVariables {
+  organizationId: UUIDString;
+  purchaseNumber: string;
+  purchaseDate: DateString;
+  supplierId: UUIDString;
+  outletId?: UUIDString | null;
+  scope: string;
+  paymentTerms?: string | null;
+  subtotal: number;
+  shippingFee: number;
+  handlingFee: number;
+  tax: number;
+  totalAmount: number;
+  amountPaid: number;
+  outstandingAmount: number;
+  paymentStatus: PurchasePaymentStatus;
+  receiptStatus: PurchaseReceiptStatus;
+  status: PurchaseStatus;
+  createdBy: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantPurchase` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantPurchase` Mutation is of type `CreateTenantPurchaseData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantPurchaseData {
+  purchase_insert: Purchase_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantPurchase`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantPurchaseVariables } from '@omniretail/sql-connect';
+import { useCreateTenantPurchase } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantPurchaseComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantPurchase();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantPurchase(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantPurchase(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantPurchase(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantPurchase` Mutation requires an argument of type `CreateTenantPurchaseVariables`:
+  const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
+    organizationId: ..., 
+    purchaseNumber: ..., 
+    purchaseDate: ..., 
+    supplierId: ..., 
+    outletId: ..., // optional
+    scope: ..., 
+    paymentTerms: ..., // optional
+    subtotal: ..., 
+    shippingFee: ..., 
+    handlingFee: ..., 
+    tax: ..., 
+    totalAmount: ..., 
+    amountPaid: ..., 
+    outstandingAmount: ..., 
+    paymentStatus: ..., 
+    receiptStatus: ..., 
+    status: ..., 
+    createdBy: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantPurchaseVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantPurchaseVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.purchase_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantPurchaseLine
+You can execute the `CreateTenantPurchaseLine` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantPurchaseLine(options?: useDataConnectMutationOptions<CreateTenantPurchaseLineData, FirebaseError, CreateTenantPurchaseLineVariables>): UseDataConnectMutationResult<CreateTenantPurchaseLineData, CreateTenantPurchaseLineVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantPurchaseLine(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantPurchaseLineData, FirebaseError, CreateTenantPurchaseLineVariables>): UseDataConnectMutationResult<CreateTenantPurchaseLineData, CreateTenantPurchaseLineVariables>;
+```
+
+### Variables
+The `CreateTenantPurchaseLine` Mutation requires an argument of type `CreateTenantPurchaseLineVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantPurchaseLineVariables {
+  organizationId: UUIDString;
+  purchaseId: UUIDString;
+  productId: UUIDString;
+  quantityOrdered: number;
+  unitCost: number;
+  discountPercent: number;
+  taxRate: number;
+  taxAmount: number;
+  lineTotal: number;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantPurchaseLine` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantPurchaseLine` Mutation is of type `CreateTenantPurchaseLineData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantPurchaseLineData {
+  purchaseLine_insert: PurchaseLine_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantPurchaseLine`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantPurchaseLineVariables } from '@omniretail/sql-connect';
+import { useCreateTenantPurchaseLine } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantPurchaseLineComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantPurchaseLine();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantPurchaseLine(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantPurchaseLine(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantPurchaseLine(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantPurchaseLine` Mutation requires an argument of type `CreateTenantPurchaseLineVariables`:
+  const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
+    organizationId: ..., 
+    purchaseId: ..., 
+    productId: ..., 
+    quantityOrdered: ..., 
+    unitCost: ..., 
+    discountPercent: ..., 
+    taxRate: ..., 
+    taxAmount: ..., 
+    lineTotal: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantPurchaseLineVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantPurchaseLineVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.purchaseLine_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantPurchaseStatus
+You can execute the `ChangeTenantPurchaseStatus` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantPurchaseStatus(options?: useDataConnectMutationOptions<ChangeTenantPurchaseStatusData, FirebaseError, ChangeTenantPurchaseStatusVariables>): UseDataConnectMutationResult<ChangeTenantPurchaseStatusData, ChangeTenantPurchaseStatusVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantPurchaseStatus(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantPurchaseStatusData, FirebaseError, ChangeTenantPurchaseStatusVariables>): UseDataConnectMutationResult<ChangeTenantPurchaseStatusData, ChangeTenantPurchaseStatusVariables>;
+```
+
+### Variables
+The `ChangeTenantPurchaseStatus` Mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantPurchaseStatusVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: PurchaseStatus;
+  reason?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantPurchaseStatus` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantPurchaseStatus` Mutation is of type `ChangeTenantPurchaseStatusData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantPurchaseStatusData {
+  purchase_update?: Purchase_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantPurchaseStatus`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantPurchaseStatusVariables } from '@omniretail/sql-connect';
+import { useChangeTenantPurchaseStatus } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantPurchaseStatusComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantPurchaseStatus();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantPurchaseStatus(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantPurchaseStatus(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantPurchaseStatus(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantPurchaseStatus` Mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`:
+  const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    reason: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantPurchaseStatusVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantPurchaseStatusVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.purchase_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ReceiveTenantPurchaseLine
+You can execute the `ReceiveTenantPurchaseLine` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useReceiveTenantPurchaseLine(options?: useDataConnectMutationOptions<ReceiveTenantPurchaseLineData, FirebaseError, ReceiveTenantPurchaseLineVariables>): UseDataConnectMutationResult<ReceiveTenantPurchaseLineData, ReceiveTenantPurchaseLineVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useReceiveTenantPurchaseLine(dc: DataConnect, options?: useDataConnectMutationOptions<ReceiveTenantPurchaseLineData, FirebaseError, ReceiveTenantPurchaseLineVariables>): UseDataConnectMutationResult<ReceiveTenantPurchaseLineData, ReceiveTenantPurchaseLineVariables>;
+```
+
+### Variables
+The `ReceiveTenantPurchaseLine` Mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ReceiveTenantPurchaseLineVariables {
+  organizationId: UUIDString;
+  purchaseId: UUIDString;
+  lineId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+  quantityReceived: number;
+  newStockQty: number;
+  receiptStatus: PurchaseReceiptStatus;
+  batchNumber?: string | null;
+  mfgDate?: DateString | null;
+  expiryDate?: DateString | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ReceiveTenantPurchaseLine` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ReceiveTenantPurchaseLine` Mutation is of type `ReceiveTenantPurchaseLineData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ReceiveTenantPurchaseLineData {
+  purchaseLine_update?: PurchaseLine_Key | null;
+  purchase_update?: Purchase_Key | null;
+  inventoryStock_update?: InventoryStock_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ReceiveTenantPurchaseLine`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ReceiveTenantPurchaseLineVariables } from '@omniretail/sql-connect';
+import { useReceiveTenantPurchaseLine } from '@omniretail/sql-connect/react'
+
+export default function ReceiveTenantPurchaseLineComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useReceiveTenantPurchaseLine();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useReceiveTenantPurchaseLine(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useReceiveTenantPurchaseLine(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useReceiveTenantPurchaseLine(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useReceiveTenantPurchaseLine` Mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`:
+  const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
+    organizationId: ..., 
+    purchaseId: ..., 
+    lineId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    quantityReceived: ..., 
+    newStockQty: ..., 
+    receiptStatus: ..., 
+    batchNumber: ..., // optional
+    mfgDate: ..., // optional
+    expiryDate: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(receiveTenantPurchaseLineVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(receiveTenantPurchaseLineVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.purchaseLine_update);
+    console.log(mutation.data.purchase_update);
+    console.log(mutation.data.inventoryStock_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantSupplier
+You can execute the `CreateTenantSupplier` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantSupplier(options?: useDataConnectMutationOptions<CreateTenantSupplierData, FirebaseError, CreateTenantSupplierVariables>): UseDataConnectMutationResult<CreateTenantSupplierData, CreateTenantSupplierVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantSupplier(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantSupplierData, FirebaseError, CreateTenantSupplierVariables>): UseDataConnectMutationResult<CreateTenantSupplierData, CreateTenantSupplierVariables>;
+```
+
+### Variables
+The `CreateTenantSupplier` Mutation requires an argument of type `CreateTenantSupplierVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantSupplierVariables {
+  organizationId: UUIDString;
+  supplierCode: string;
+  name: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  taxId: string;
+  address?: string | null;
+  city: string;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  category: string;
+  paymentTerms: string;
+  creditLimit: number;
+  notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantSupplier` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantSupplier` Mutation is of type `CreateTenantSupplierData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantSupplierData {
+  supplier_insert: Supplier_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantSupplier`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantSupplierVariables } from '@omniretail/sql-connect';
+import { useCreateTenantSupplier } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantSupplierComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantSupplier();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantSupplier(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantSupplier(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantSupplier(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantSupplier` Mutation requires an argument of type `CreateTenantSupplierVariables`:
+  const createTenantSupplierVars: CreateTenantSupplierVariables = {
+    organizationId: ..., 
+    supplierCode: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    phone: ..., 
+    email: ..., 
+    taxId: ..., 
+    address: ..., // optional
+    city: ..., 
+    state: ..., // optional
+    postalCode: ..., // optional
+    country: ..., // optional
+    category: ..., 
+    paymentTerms: ..., 
+    creditLimit: ..., 
+    notes: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantSupplierVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., supplierCode: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantSupplierVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.supplier_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantSupplier
+You can execute the `UpdateTenantSupplier` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantSupplier(options?: useDataConnectMutationOptions<UpdateTenantSupplierData, FirebaseError, UpdateTenantSupplierVariables>): UseDataConnectMutationResult<UpdateTenantSupplierData, UpdateTenantSupplierVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantSupplier(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantSupplierData, FirebaseError, UpdateTenantSupplierVariables>): UseDataConnectMutationResult<UpdateTenantSupplierData, UpdateTenantSupplierVariables>;
+```
+
+### Variables
+The `UpdateTenantSupplier` Mutation requires an argument of type `UpdateTenantSupplierVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantSupplierVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  name: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  taxId: string;
+  address?: string | null;
+  city: string;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  category: string;
+  paymentTerms: string;
+  creditLimit: number;
+  notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantSupplier` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantSupplier` Mutation is of type `UpdateTenantSupplierData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantSupplierData {
+  supplier_update?: Supplier_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantSupplier`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantSupplierVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantSupplier } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantSupplierComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantSupplier();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantSupplier(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantSupplier(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantSupplier(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantSupplier` Mutation requires an argument of type `UpdateTenantSupplierVariables`:
+  const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    phone: ..., 
+    email: ..., 
+    taxId: ..., 
+    address: ..., // optional
+    city: ..., 
+    state: ..., // optional
+    postalCode: ..., // optional
+    country: ..., // optional
+    category: ..., 
+    paymentTerms: ..., 
+    creditLimit: ..., 
+    notes: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantSupplierVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantSupplierVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.supplier_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantSupplierStatus
+You can execute the `ChangeTenantSupplierStatus` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantSupplierStatus(options?: useDataConnectMutationOptions<ChangeTenantSupplierStatusData, FirebaseError, ChangeTenantSupplierStatusVariables>): UseDataConnectMutationResult<ChangeTenantSupplierStatusData, ChangeTenantSupplierStatusVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantSupplierStatus(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantSupplierStatusData, FirebaseError, ChangeTenantSupplierStatusVariables>): UseDataConnectMutationResult<ChangeTenantSupplierStatusData, ChangeTenantSupplierStatusVariables>;
+```
+
+### Variables
+The `ChangeTenantSupplierStatus` Mutation requires an argument of type `ChangeTenantSupplierStatusVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantSupplierStatusVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: SupplierStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantSupplierStatus` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantSupplierStatus` Mutation is of type `ChangeTenantSupplierStatusData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantSupplierStatusData {
+  supplier_update?: Supplier_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantSupplierStatus`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantSupplierStatusVariables } from '@omniretail/sql-connect';
+import { useChangeTenantSupplierStatus } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantSupplierStatusComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantSupplierStatus();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantSupplierStatus(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantSupplierStatus(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantSupplierStatus(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantSupplierStatus` Mutation requires an argument of type `ChangeTenantSupplierStatusVariables`:
+  const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantSupplierStatusVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantSupplierStatusVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.supplier_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantCustomer
+You can execute the `CreateTenantCustomer` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantCustomer(options?: useDataConnectMutationOptions<CreateTenantCustomerData, FirebaseError, CreateTenantCustomerVariables>): UseDataConnectMutationResult<CreateTenantCustomerData, CreateTenantCustomerVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantCustomer(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantCustomerData, FirebaseError, CreateTenantCustomerVariables>): UseDataConnectMutationResult<CreateTenantCustomerData, CreateTenantCustomerVariables>;
+```
+
+### Variables
+The `CreateTenantCustomer` Mutation requires an argument of type `CreateTenantCustomerVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantCustomerVariables {
+  organizationId: UUIDString;
+  customerCode: string;
+  type: CustomerType;
+  name: string;
+  phone: string;
+  email: string;
+  taxId?: string | null;
+  address?: string | null;
+  city: string;
+  state: string;
+  postalCode?: string | null;
+  country?: string | null;
+  creditLimit?: number | null;
+  preferredContact?: string | null;
+  dateOfBirth?: DateString | null;
+  gender?: string | null;
+  notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantCustomer` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantCustomer` Mutation is of type `CreateTenantCustomerData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantCustomerData {
+  customer_insert: Customer_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantCustomer`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantCustomerVariables } from '@omniretail/sql-connect';
+import { useCreateTenantCustomer } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantCustomerComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantCustomer();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantCustomer(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantCustomer(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantCustomer(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantCustomer` Mutation requires an argument of type `CreateTenantCustomerVariables`:
+  const createTenantCustomerVars: CreateTenantCustomerVariables = {
+    organizationId: ..., 
+    customerCode: ..., 
+    type: ..., 
+    name: ..., 
+    phone: ..., 
+    email: ..., 
+    taxId: ..., // optional
+    address: ..., // optional
+    city: ..., 
+    state: ..., 
+    postalCode: ..., // optional
+    country: ..., // optional
+    creditLimit: ..., // optional
+    preferredContact: ..., // optional
+    dateOfBirth: ..., // optional
+    gender: ..., // optional
+    notes: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantCustomerVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., customerCode: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantCustomerVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.customer_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantCustomer
+You can execute the `UpdateTenantCustomer` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantCustomer(options?: useDataConnectMutationOptions<UpdateTenantCustomerData, FirebaseError, UpdateTenantCustomerVariables>): UseDataConnectMutationResult<UpdateTenantCustomerData, UpdateTenantCustomerVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantCustomer(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantCustomerData, FirebaseError, UpdateTenantCustomerVariables>): UseDataConnectMutationResult<UpdateTenantCustomerData, UpdateTenantCustomerVariables>;
+```
+
+### Variables
+The `UpdateTenantCustomer` Mutation requires an argument of type `UpdateTenantCustomerVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantCustomerVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  type: CustomerType;
+  name: string;
+  phone: string;
+  email: string;
+  taxId?: string | null;
+  address?: string | null;
+  city: string;
+  state: string;
+  postalCode?: string | null;
+  country?: string | null;
+  creditLimit?: number | null;
+  preferredContact?: string | null;
+  dateOfBirth?: DateString | null;
+  gender?: string | null;
+  notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantCustomer` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantCustomer` Mutation is of type `UpdateTenantCustomerData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantCustomerData {
+  customer_update?: Customer_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantCustomer`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantCustomerVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantCustomer } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantCustomerComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantCustomer();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantCustomer(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantCustomer(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantCustomer(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantCustomer` Mutation requires an argument of type `UpdateTenantCustomerVariables`:
+  const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
+    organizationId: ..., 
+    id: ..., 
+    type: ..., 
+    name: ..., 
+    phone: ..., 
+    email: ..., 
+    taxId: ..., // optional
+    address: ..., // optional
+    city: ..., 
+    state: ..., 
+    postalCode: ..., // optional
+    country: ..., // optional
+    creditLimit: ..., // optional
+    preferredContact: ..., // optional
+    dateOfBirth: ..., // optional
+    gender: ..., // optional
+    notes: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantCustomerVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantCustomerVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.customer_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantCustomerStatus
+You can execute the `ChangeTenantCustomerStatus` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantCustomerStatus(options?: useDataConnectMutationOptions<ChangeTenantCustomerStatusData, FirebaseError, ChangeTenantCustomerStatusVariables>): UseDataConnectMutationResult<ChangeTenantCustomerStatusData, ChangeTenantCustomerStatusVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantCustomerStatus(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantCustomerStatusData, FirebaseError, ChangeTenantCustomerStatusVariables>): UseDataConnectMutationResult<ChangeTenantCustomerStatusData, ChangeTenantCustomerStatusVariables>;
+```
+
+### Variables
+The `ChangeTenantCustomerStatus` Mutation requires an argument of type `ChangeTenantCustomerStatusVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantCustomerStatusVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: CustomerStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantCustomerStatus` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantCustomerStatus` Mutation is of type `ChangeTenantCustomerStatusData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantCustomerStatusData {
+  customer_update?: Customer_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantCustomerStatus`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantCustomerStatusVariables } from '@omniretail/sql-connect';
+import { useChangeTenantCustomerStatus } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantCustomerStatusComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantCustomerStatus();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantCustomerStatus(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantCustomerStatus(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantCustomerStatus(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantCustomerStatus` Mutation requires an argument of type `ChangeTenantCustomerStatusVariables`:
+  const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantCustomerStatusVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantCustomerStatusVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.customer_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantProduct
+You can execute the `CreateTenantProduct` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantProduct(options?: useDataConnectMutationOptions<CreateTenantProductData, FirebaseError, CreateTenantProductVariables>): UseDataConnectMutationResult<CreateTenantProductData, CreateTenantProductVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantProduct(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantProductData, FirebaseError, CreateTenantProductVariables>): UseDataConnectMutationResult<CreateTenantProductData, CreateTenantProductVariables>;
+```
+
+### Variables
+The `CreateTenantProduct` Mutation requires an argument of type `CreateTenantProductVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantProductVariables {
+  organizationId: UUIDString;
+  productCode: string;
+  name: string;
+  brand: string;
+  categoryId: string;
+  categoryName: string;
+  subcategory?: string | null;
+  type: ProductType;
+  sku: string;
+  barcode?: string | null;
+  hsnCode?: string | null;
+  unitOfMeasure?: string | null;
+  sellingPrice: number;
+  mrp?: number | null;
+  cost?: number | null;
+  minSellingPrice?: number | null;
+  discountAllowed: boolean;
+  taxCategory?: string | null;
+  reorderLevel?: number | null;
+  reorderQuantity?: number | null;
+  primarySupplier?: string | null;
+  supplierProductCode?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantProduct` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantProduct` Mutation is of type `CreateTenantProductData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantProductData {
+  product_insert: Product_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantProduct`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantProductVariables } from '@omniretail/sql-connect';
+import { useCreateTenantProduct } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantProductComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantProduct();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantProduct(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantProduct(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantProduct(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantProduct` Mutation requires an argument of type `CreateTenantProductVariables`:
+  const createTenantProductVars: CreateTenantProductVariables = {
+    organizationId: ..., 
+    productCode: ..., 
+    name: ..., 
+    brand: ..., 
+    categoryId: ..., 
+    categoryName: ..., 
+    subcategory: ..., // optional
+    type: ..., 
+    sku: ..., 
+    barcode: ..., // optional
+    hsnCode: ..., // optional
+    unitOfMeasure: ..., // optional
+    sellingPrice: ..., 
+    mrp: ..., // optional
+    cost: ..., // optional
+    minSellingPrice: ..., // optional
+    discountAllowed: ..., 
+    taxCategory: ..., // optional
+    reorderLevel: ..., // optional
+    reorderQuantity: ..., // optional
+    primarySupplier: ..., // optional
+    supplierProductCode: ..., // optional
+    description: ..., // optional
+    imageUrl: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantProductVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., productCode: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantProductVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.product_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantProduct
+You can execute the `UpdateTenantProduct` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantProduct(options?: useDataConnectMutationOptions<UpdateTenantProductData, FirebaseError, UpdateTenantProductVariables>): UseDataConnectMutationResult<UpdateTenantProductData, UpdateTenantProductVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantProduct(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantProductData, FirebaseError, UpdateTenantProductVariables>): UseDataConnectMutationResult<UpdateTenantProductData, UpdateTenantProductVariables>;
+```
+
+### Variables
+The `UpdateTenantProduct` Mutation requires an argument of type `UpdateTenantProductVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantProductVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  name: string;
+  brand: string;
+  categoryId: string;
+  categoryName: string;
+  subcategory?: string | null;
+  type: ProductType;
+  sku: string;
+  barcode?: string | null;
+  hsnCode?: string | null;
+  unitOfMeasure?: string | null;
+  sellingPrice: number;
+  mrp?: number | null;
+  cost?: number | null;
+  minSellingPrice?: number | null;
+  discountAllowed: boolean;
+  taxCategory?: string | null;
+  reorderLevel?: number | null;
+  reorderQuantity?: number | null;
+  primarySupplier?: string | null;
+  supplierProductCode?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantProduct` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantProduct` Mutation is of type `UpdateTenantProductData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantProductData {
+  product_update?: Product_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantProduct`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantProductVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantProduct } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantProductComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantProduct();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantProduct(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantProduct(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantProduct(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantProduct` Mutation requires an argument of type `UpdateTenantProductVariables`:
+  const updateTenantProductVars: UpdateTenantProductVariables = {
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    brand: ..., 
+    categoryId: ..., 
+    categoryName: ..., 
+    subcategory: ..., // optional
+    type: ..., 
+    sku: ..., 
+    barcode: ..., // optional
+    hsnCode: ..., // optional
+    unitOfMeasure: ..., // optional
+    sellingPrice: ..., 
+    mrp: ..., // optional
+    cost: ..., // optional
+    minSellingPrice: ..., // optional
+    discountAllowed: ..., 
+    taxCategory: ..., // optional
+    reorderLevel: ..., // optional
+    reorderQuantity: ..., // optional
+    primarySupplier: ..., // optional
+    supplierProductCode: ..., // optional
+    description: ..., // optional
+    imageUrl: ..., // optional
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantProductVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantProductVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.product_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantProductStatus
+You can execute the `ChangeTenantProductStatus` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantProductStatus(options?: useDataConnectMutationOptions<ChangeTenantProductStatusData, FirebaseError, ChangeTenantProductStatusVariables>): UseDataConnectMutationResult<ChangeTenantProductStatusData, ChangeTenantProductStatusVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantProductStatus(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantProductStatusData, FirebaseError, ChangeTenantProductStatusVariables>): UseDataConnectMutationResult<ChangeTenantProductStatusData, ChangeTenantProductStatusVariables>;
+```
+
+### Variables
+The `ChangeTenantProductStatus` Mutation requires an argument of type `ChangeTenantProductStatusVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantProductStatusVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: ProductStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantProductStatus` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantProductStatus` Mutation is of type `ChangeTenantProductStatusData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantProductStatusData {
+  product_update?: Product_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantProductStatus`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantProductStatusVariables } from '@omniretail/sql-connect';
+import { useChangeTenantProductStatus } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantProductStatusComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantProductStatus();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantProductStatus(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantProductStatus(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantProductStatus(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantProductStatus` Mutation requires an argument of type `ChangeTenantProductStatusVariables`:
+  const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantProductStatusVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantProductStatusVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.product_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## AdjustTenantInventory
+You can execute the `AdjustTenantInventory` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useAdjustTenantInventory(options?: useDataConnectMutationOptions<AdjustTenantInventoryData, FirebaseError, AdjustTenantInventoryVariables>): UseDataConnectMutationResult<AdjustTenantInventoryData, AdjustTenantInventoryVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useAdjustTenantInventory(dc: DataConnect, options?: useDataConnectMutationOptions<AdjustTenantInventoryData, FirebaseError, AdjustTenantInventoryVariables>): UseDataConnectMutationResult<AdjustTenantInventoryData, AdjustTenantInventoryVariables>;
+```
+
+### Variables
+The `AdjustTenantInventory` Mutation requires an argument of type `AdjustTenantInventoryVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface AdjustTenantInventoryVariables {
+  organizationId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+  mode: InventoryAdjustmentMode;
+  quantity: number;
+  previousQty: number;
+  newQty: number;
+  reasonCode: string;
+  auditNote?: string | null;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `AdjustTenantInventory` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `AdjustTenantInventory` Mutation is of type `AdjustTenantInventoryData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface AdjustTenantInventoryData {
+  inventoryStock_update?: InventoryStock_Key | null;
+  inventoryMovement_insert: InventoryMovement_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `AdjustTenantInventory`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, AdjustTenantInventoryVariables } from '@omniretail/sql-connect';
+import { useAdjustTenantInventory } from '@omniretail/sql-connect/react'
+
+export default function AdjustTenantInventoryComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useAdjustTenantInventory();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useAdjustTenantInventory(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAdjustTenantInventory(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAdjustTenantInventory(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useAdjustTenantInventory` Mutation requires an argument of type `AdjustTenantInventoryVariables`:
+  const adjustTenantInventoryVars: AdjustTenantInventoryVariables = {
+    organizationId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    mode: ..., 
+    quantity: ..., 
+    previousQty: ..., 
+    newQty: ..., 
+    reasonCode: ..., 
+    auditNote: ..., // optional
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(adjustTenantInventoryVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., outletId: ..., productId: ..., mode: ..., quantity: ..., previousQty: ..., newQty: ..., reasonCode: ..., auditNote: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(adjustTenantInventoryVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.inventoryStock_update);
+    console.log(mutation.data.inventoryMovement_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantOutlet
+You can execute the `CreateTenantOutlet` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantOutlet(options?: useDataConnectMutationOptions<CreateTenantOutletData, FirebaseError, CreateTenantOutletVariables>): UseDataConnectMutationResult<CreateTenantOutletData, CreateTenantOutletVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantOutlet(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantOutletData, FirebaseError, CreateTenantOutletVariables>): UseDataConnectMutationResult<CreateTenantOutletData, CreateTenantOutletVariables>;
+```
+
+### Variables
+The `CreateTenantOutlet` Mutation requires an argument of type `CreateTenantOutletVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantOutletVariables {
+  organizationId: UUIDString;
+  outletCode: string;
+  name: string;
+  contactPerson: string;
+  email?: string | null;
+  phone: string;
+  address: string;
+  city: string;
+  state?: string | null;
+  postalCode?: string | null;
+  timezone: string;
+  currency: string;
+  auditId: UUIDString;
+  requestId: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantOutlet` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantOutlet` Mutation is of type `CreateTenantOutletData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantOutletData {
+  outlet_insert: Outlet_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantOutlet`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantOutletVariables } from '@omniretail/sql-connect';
+import { useCreateTenantOutlet } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantOutletComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantOutlet();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantOutlet(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantOutlet(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantOutlet(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantOutlet` Mutation requires an argument of type `CreateTenantOutletVariables`:
+  const createTenantOutletVars: CreateTenantOutletVariables = {
+    organizationId: ..., 
+    outletCode: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    email: ..., // optional
+    phone: ..., 
+    address: ..., 
+    city: ..., 
+    state: ..., // optional
+    postalCode: ..., // optional
+    timezone: ..., 
+    currency: ..., 
+    auditId: ..., 
+    requestId: ..., 
+  };
+  mutation.mutate(createTenantOutletVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantOutletVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantOutlet
+You can execute the `UpdateTenantOutlet` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantOutlet(options?: useDataConnectMutationOptions<UpdateTenantOutletData, FirebaseError, UpdateTenantOutletVariables>): UseDataConnectMutationResult<UpdateTenantOutletData, UpdateTenantOutletVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantOutlet(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantOutletData, FirebaseError, UpdateTenantOutletVariables>): UseDataConnectMutationResult<UpdateTenantOutletData, UpdateTenantOutletVariables>;
+```
+
+### Variables
+The `UpdateTenantOutlet` Mutation requires an argument of type `UpdateTenantOutletVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantOutletVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  name: string;
+  contactPerson: string;
+  email?: string | null;
+  phone: string;
+  address: string;
+  city: string;
+  state?: string | null;
+  postalCode?: string | null;
+  timezone: string;
+  currency: string;
+  auditId: UUIDString;
+  requestId: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantOutlet` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantOutlet` Mutation is of type `UpdateTenantOutletData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantOutletData {
+  outlet_update?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantOutlet`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantOutletVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantOutlet } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantOutletComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantOutlet();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantOutlet(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantOutlet(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantOutlet(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantOutlet` Mutation requires an argument of type `UpdateTenantOutletVariables`:
+  const updateTenantOutletVars: UpdateTenantOutletVariables = {
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    email: ..., // optional
+    phone: ..., 
+    address: ..., 
+    city: ..., 
+    state: ..., // optional
+    postalCode: ..., // optional
+    timezone: ..., 
+    currency: ..., 
+    auditId: ..., 
+    requestId: ..., 
+  };
+  mutation.mutate(updateTenantOutletVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantOutletVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantOutletStatus
+You can execute the `ChangeTenantOutletStatus` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantOutletStatus(options?: useDataConnectMutationOptions<ChangeTenantOutletStatusData, FirebaseError, ChangeTenantOutletStatusVariables>): UseDataConnectMutationResult<ChangeTenantOutletStatusData, ChangeTenantOutletStatusVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantOutletStatus(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantOutletStatusData, FirebaseError, ChangeTenantOutletStatusVariables>): UseDataConnectMutationResult<ChangeTenantOutletStatusData, ChangeTenantOutletStatusVariables>;
+```
+
+### Variables
+The `ChangeTenantOutletStatus` Mutation requires an argument of type `ChangeTenantOutletStatusVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantOutletStatusVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: OutletStatus;
+  auditId: UUIDString;
+  requestId: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantOutletStatus` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantOutletStatus` Mutation is of type `ChangeTenantOutletStatusData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantOutletStatusData {
+  outlet_update?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantOutletStatus`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantOutletStatusVariables } from '@omniretail/sql-connect';
+import { useChangeTenantOutletStatus } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantOutletStatusComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantOutletStatus();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantOutletStatus(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantOutletStatus(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantOutletStatus(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantOutletStatus` Mutation requires an argument of type `ChangeTenantOutletStatusVariables`:
+  const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+  };
+  mutation.mutate(changeTenantOutletStatusVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantOutletStatusVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantOutletTrusted
+You can execute the `CreateTenantOutletTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantOutletTrusted(options?: useDataConnectMutationOptions<CreateTenantOutletTrustedData, FirebaseError, CreateTenantOutletTrustedVariables>): UseDataConnectMutationResult<CreateTenantOutletTrustedData, CreateTenantOutletTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantOutletTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantOutletTrustedData, FirebaseError, CreateTenantOutletTrustedVariables>): UseDataConnectMutationResult<CreateTenantOutletTrustedData, CreateTenantOutletTrustedVariables>;
+```
+
+### Variables
+The `CreateTenantOutletTrusted` Mutation requires an argument of type `CreateTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  outletCode: string;
+  name: string;
+  contactPerson: string;
+  email?: string | null;
+  phone: string;
+  address: string;
+  city: string;
+  state?: string | null;
+  postalCode?: string | null;
+  timezone: string;
+  currency: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantOutletTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantOutletTrusted` Mutation is of type `CreateTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantOutletTrustedData {
+  outlet_insert: Outlet_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantOutletTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantOutletTrustedVariables } from '@omniretail/sql-connect';
+import { useCreateTenantOutletTrusted } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantOutletTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantOutletTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantOutletTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantOutletTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantOutletTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantOutletTrusted` Mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
+  const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
+    organizationId: ..., 
+    outletCode: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    email: ..., // optional
+    phone: ..., 
+    address: ..., 
+    city: ..., 
+    state: ..., // optional
+    postalCode: ..., // optional
+    timezone: ..., 
+    currency: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantOutletTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantOutletTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantOutletTrusted
+You can execute the `UpdateTenantOutletTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantOutletTrusted(options?: useDataConnectMutationOptions<UpdateTenantOutletTrustedData, FirebaseError, UpdateTenantOutletTrustedVariables>): UseDataConnectMutationResult<UpdateTenantOutletTrustedData, UpdateTenantOutletTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantOutletTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantOutletTrustedData, FirebaseError, UpdateTenantOutletTrustedVariables>): UseDataConnectMutationResult<UpdateTenantOutletTrustedData, UpdateTenantOutletTrustedVariables>;
+```
+
+### Variables
+The `UpdateTenantOutletTrusted` Mutation requires an argument of type `UpdateTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  name: string;
+  contactPerson: string;
+  email?: string | null;
+  phone: string;
+  address: string;
+  city: string;
+  state?: string | null;
+  postalCode?: string | null;
+  timezone: string;
+  currency: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantOutletTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantOutletTrusted` Mutation is of type `UpdateTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantOutletTrustedData {
+  outlet_update?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantOutletTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantOutletTrustedVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantOutletTrusted } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantOutletTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantOutletTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantOutletTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantOutletTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantOutletTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantOutletTrusted` Mutation requires an argument of type `UpdateTenantOutletTrustedVariables`:
+  const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    email: ..., // optional
+    phone: ..., 
+    address: ..., 
+    city: ..., 
+    state: ..., // optional
+    postalCode: ..., // optional
+    timezone: ..., 
+    currency: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantOutletTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantOutletTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantOutletStatusTrusted
+You can execute the `ChangeTenantOutletStatusTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantOutletStatusTrusted(options?: useDataConnectMutationOptions<ChangeTenantOutletStatusTrustedData, FirebaseError, ChangeTenantOutletStatusTrustedVariables>): UseDataConnectMutationResult<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantOutletStatusTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantOutletStatusTrustedData, FirebaseError, ChangeTenantOutletStatusTrustedVariables>): UseDataConnectMutationResult<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
+```
+
+### Variables
+The `ChangeTenantOutletStatusTrusted` Mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantOutletStatusTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: OutletStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantOutletStatusTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantOutletStatusTrusted` Mutation is of type `ChangeTenantOutletStatusTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantOutletStatusTrustedData {
+  outlet_update?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantOutletStatusTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantOutletStatusTrustedVariables } from '@omniretail/sql-connect';
+import { useChangeTenantOutletStatusTrusted } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantOutletStatusTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantOutletStatusTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantOutletStatusTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantOutletStatusTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantOutletStatusTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantOutletStatusTrusted` Mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`:
+  const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantOutletStatusTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantOutletStatusTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantEmployeeProfileTrusted
+You can execute the `CreateTenantEmployeeProfileTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantEmployeeProfileTrusted(options?: useDataConnectMutationOptions<CreateTenantEmployeeProfileTrustedData, FirebaseError, CreateTenantEmployeeProfileTrustedVariables>): UseDataConnectMutationResult<CreateTenantEmployeeProfileTrustedData, CreateTenantEmployeeProfileTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantEmployeeProfileTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantEmployeeProfileTrustedData, FirebaseError, CreateTenantEmployeeProfileTrustedVariables>): UseDataConnectMutationResult<CreateTenantEmployeeProfileTrustedData, CreateTenantEmployeeProfileTrustedVariables>;
+```
+
+### Variables
+The `CreateTenantEmployeeProfileTrusted` Mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantEmployeeProfileTrustedVariables {
+  organizationId: UUIDString;
+  employeeCode: string;
+  fullName: string;
+  email?: string | null;
+  phone: string;
+  designation: string;
+  department?: string | null;
+  dateOfJoining: DateString;
+  assignmentScope: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantEmployeeProfileTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantEmployeeProfileTrusted` Mutation is of type `CreateTenantEmployeeProfileTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantEmployeeProfileTrustedData {
+  employee_insert: Employee_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantEmployeeProfileTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantEmployeeProfileTrustedVariables } from '@omniretail/sql-connect';
+import { useCreateTenantEmployeeProfileTrusted } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantEmployeeProfileTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantEmployeeProfileTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantEmployeeProfileTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantEmployeeProfileTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantEmployeeProfileTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantEmployeeProfileTrusted` Mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
+  const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
+    organizationId: ..., 
+    employeeCode: ..., 
+    fullName: ..., 
+    email: ..., // optional
+    phone: ..., 
+    designation: ..., 
+    department: ..., // optional
+    dateOfJoining: ..., 
+    assignmentScope: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantEmployeeProfileTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., employeeCode: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantEmployeeProfileTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employee_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ProvisionTenantEmployeeTrusted
+You can execute the `ProvisionTenantEmployeeTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useProvisionTenantEmployeeTrusted(options?: useDataConnectMutationOptions<ProvisionTenantEmployeeTrustedData, FirebaseError, ProvisionTenantEmployeeTrustedVariables>): UseDataConnectMutationResult<ProvisionTenantEmployeeTrustedData, ProvisionTenantEmployeeTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useProvisionTenantEmployeeTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<ProvisionTenantEmployeeTrustedData, FirebaseError, ProvisionTenantEmployeeTrustedVariables>): UseDataConnectMutationResult<ProvisionTenantEmployeeTrustedData, ProvisionTenantEmployeeTrustedVariables>;
+```
+
+### Variables
+The `ProvisionTenantEmployeeTrusted` Mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ProvisionTenantEmployeeTrustedVariables {
+  userId: UUIDString;
+  firebaseUid: string;
+  username: string;
+  email: string;
+  organizationId: UUIDString;
+  employeeCode: string;
+  fullName: string;
+  phone: string;
+  designation: string;
+  department?: string | null;
+  dateOfJoining: DateString;
+  assignmentScope: string;
+  roleId: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ProvisionTenantEmployeeTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ProvisionTenantEmployeeTrusted` Mutation is of type `ProvisionTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ProvisionTenantEmployeeTrustedData {
+  appUser_insert: AppUser_Key;
+  organizationMembership_insert: OrganizationMembership_Key;
+  userRole_upsert: UserRole_Key;
+  employee_insert: Employee_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ProvisionTenantEmployeeTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ProvisionTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
+import { useProvisionTenantEmployeeTrusted } from '@omniretail/sql-connect/react'
+
+export default function ProvisionTenantEmployeeTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useProvisionTenantEmployeeTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useProvisionTenantEmployeeTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useProvisionTenantEmployeeTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useProvisionTenantEmployeeTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useProvisionTenantEmployeeTrusted` Mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
+  const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
+    userId: ..., 
+    firebaseUid: ..., 
+    username: ..., 
+    email: ..., 
+    organizationId: ..., 
+    employeeCode: ..., 
+    fullName: ..., 
+    phone: ..., 
+    designation: ..., 
+    department: ..., // optional
+    dateOfJoining: ..., 
+    assignmentScope: ..., 
+    roleId: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(provisionTenantEmployeeTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., employeeCode: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(provisionTenantEmployeeTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.appUser_insert);
+    console.log(mutation.data.organizationMembership_insert);
+    console.log(mutation.data.userRole_upsert);
+    console.log(mutation.data.employee_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantEmployeeTrusted
+You can execute the `UpdateTenantEmployeeTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantEmployeeTrusted(options?: useDataConnectMutationOptions<UpdateTenantEmployeeTrustedData, FirebaseError, UpdateTenantEmployeeTrustedVariables>): UseDataConnectMutationResult<UpdateTenantEmployeeTrustedData, UpdateTenantEmployeeTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantEmployeeTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantEmployeeTrustedData, FirebaseError, UpdateTenantEmployeeTrustedVariables>): UseDataConnectMutationResult<UpdateTenantEmployeeTrustedData, UpdateTenantEmployeeTrustedVariables>;
+```
+
+### Variables
+The `UpdateTenantEmployeeTrusted` Mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  fullName: string;
+  email?: string | null;
+  phone: string;
+  designation: string;
+  department?: string | null;
+  dateOfJoining: DateString;
+  assignmentScope: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantEmployeeTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantEmployeeTrusted` Mutation is of type `UpdateTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantEmployeeTrustedData {
+  employee_update?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantEmployeeTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantEmployeeTrusted } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantEmployeeTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantEmployeeTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantEmployeeTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantEmployeeTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantEmployeeTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantEmployeeTrusted` Mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`:
+  const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    fullName: ..., 
+    email: ..., // optional
+    phone: ..., 
+    designation: ..., 
+    department: ..., // optional
+    dateOfJoining: ..., 
+    assignmentScope: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantEmployeeTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantEmployeeTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employee_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantEmployeeStatusTrusted
+You can execute the `ChangeTenantEmployeeStatusTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantEmployeeStatusTrusted(options?: useDataConnectMutationOptions<ChangeTenantEmployeeStatusTrustedData, FirebaseError, ChangeTenantEmployeeStatusTrustedVariables>): UseDataConnectMutationResult<ChangeTenantEmployeeStatusTrustedData, ChangeTenantEmployeeStatusTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantEmployeeStatusTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantEmployeeStatusTrustedData, FirebaseError, ChangeTenantEmployeeStatusTrustedVariables>): UseDataConnectMutationResult<ChangeTenantEmployeeStatusTrustedData, ChangeTenantEmployeeStatusTrustedVariables>;
+```
+
+### Variables
+The `ChangeTenantEmployeeStatusTrusted` Mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantEmployeeStatusTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: EmploymentStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantEmployeeStatusTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantEmployeeStatusTrusted` Mutation is of type `ChangeTenantEmployeeStatusTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantEmployeeStatusTrustedData {
+  employee_update?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantEmployeeStatusTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantEmployeeStatusTrustedVariables } from '@omniretail/sql-connect';
+import { useChangeTenantEmployeeStatusTrusted } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantEmployeeStatusTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantEmployeeStatusTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantEmployeeStatusTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantEmployeeStatusTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantEmployeeStatusTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantEmployeeStatusTrusted` Mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`:
+  const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantEmployeeStatusTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantEmployeeStatusTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employee_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantEmployeeLoginAccessTrusted
+You can execute the `ChangeTenantEmployeeLoginAccessTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantEmployeeLoginAccessTrusted(options?: useDataConnectMutationOptions<ChangeTenantEmployeeLoginAccessTrustedData, FirebaseError, ChangeTenantEmployeeLoginAccessTrustedVariables>): UseDataConnectMutationResult<ChangeTenantEmployeeLoginAccessTrustedData, ChangeTenantEmployeeLoginAccessTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantEmployeeLoginAccessTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantEmployeeLoginAccessTrustedData, FirebaseError, ChangeTenantEmployeeLoginAccessTrustedVariables>): UseDataConnectMutationResult<ChangeTenantEmployeeLoginAccessTrustedData, ChangeTenantEmployeeLoginAccessTrustedVariables>;
+```
+
+### Variables
+The `ChangeTenantEmployeeLoginAccessTrusted` Mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  userId: UUIDString;
+  loginAccess: LoginAccessStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantEmployeeLoginAccessTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantEmployeeLoginAccessTrusted` Mutation is of type `ChangeTenantEmployeeLoginAccessTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantEmployeeLoginAccessTrustedData {
+  employee_update?: Employee_Key | null;
+  appUser_update?: AppUser_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantEmployeeLoginAccessTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantEmployeeLoginAccessTrustedVariables } from '@omniretail/sql-connect';
+import { useChangeTenantEmployeeLoginAccessTrusted } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantEmployeeLoginAccessTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantEmployeeLoginAccessTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantEmployeeLoginAccessTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantEmployeeLoginAccessTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantEmployeeLoginAccessTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantEmployeeLoginAccessTrusted` Mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`:
+  const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAccessTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    userId: ..., 
+    loginAccess: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantEmployeeLoginAccessTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantEmployeeLoginAccessTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employee_update);
+    console.log(mutation.data.appUser_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantServicePersonTrusted
+You can execute the `CreateTenantServicePersonTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantServicePersonTrusted(options?: useDataConnectMutationOptions<CreateTenantServicePersonTrustedData, FirebaseError, CreateTenantServicePersonTrustedVariables>): UseDataConnectMutationResult<CreateTenantServicePersonTrustedData, CreateTenantServicePersonTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantServicePersonTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantServicePersonTrustedData, FirebaseError, CreateTenantServicePersonTrustedVariables>): UseDataConnectMutationResult<CreateTenantServicePersonTrustedData, CreateTenantServicePersonTrustedVariables>;
+```
+
+### Variables
+The `CreateTenantServicePersonTrusted` Mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  servicePersonCode: string;
+  fullName: string;
+  email?: string | null;
+  phone: string;
+  specialization: string;
+  skills?: string | null;
+  yearsOfExperience?: number | null;
+  assignmentScope: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantServicePersonTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantServicePersonTrusted` Mutation is of type `CreateTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantServicePersonTrustedData {
+  servicePerson_insert: ServicePerson_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantServicePersonTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
+import { useCreateTenantServicePersonTrusted } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantServicePersonTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantServicePersonTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantServicePersonTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantServicePersonTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantServicePersonTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantServicePersonTrusted` Mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
+  const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
+    organizationId: ..., 
+    servicePersonCode: ..., 
+    fullName: ..., 
+    email: ..., // optional
+    phone: ..., 
+    specialization: ..., 
+    skills: ..., // optional
+    yearsOfExperience: ..., // optional
+    assignmentScope: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantServicePersonTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., servicePersonCode: ..., fullName: ..., email: ..., phone: ..., specialization: ..., skills: ..., yearsOfExperience: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantServicePersonTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.servicePerson_insert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantServicePersonTrusted
+You can execute the `UpdateTenantServicePersonTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantServicePersonTrusted(options?: useDataConnectMutationOptions<UpdateTenantServicePersonTrustedData, FirebaseError, UpdateTenantServicePersonTrustedVariables>): UseDataConnectMutationResult<UpdateTenantServicePersonTrustedData, UpdateTenantServicePersonTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantServicePersonTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantServicePersonTrustedData, FirebaseError, UpdateTenantServicePersonTrustedVariables>): UseDataConnectMutationResult<UpdateTenantServicePersonTrustedData, UpdateTenantServicePersonTrustedVariables>;
+```
+
+### Variables
+The `UpdateTenantServicePersonTrusted` Mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  fullName: string;
+  email?: string | null;
+  phone: string;
+  specialization: string;
+  skills?: string | null;
+  yearsOfExperience?: number | null;
+  assignmentScope: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantServicePersonTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantServicePersonTrusted` Mutation is of type `UpdateTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantServicePersonTrustedData {
+  servicePerson_update?: ServicePerson_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantServicePersonTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantServicePersonTrusted } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantServicePersonTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantServicePersonTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantServicePersonTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantServicePersonTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantServicePersonTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantServicePersonTrusted` Mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`:
+  const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    fullName: ..., 
+    email: ..., // optional
+    phone: ..., 
+    specialization: ..., 
+    skills: ..., // optional
+    yearsOfExperience: ..., // optional
+    assignmentScope: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(updateTenantServicePersonTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., specialization: ..., skills: ..., yearsOfExperience: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantServicePersonTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.servicePerson_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantServicePersonStatusTrusted
+You can execute the `ChangeTenantServicePersonStatusTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantServicePersonStatusTrusted(options?: useDataConnectMutationOptions<ChangeTenantServicePersonStatusTrustedData, FirebaseError, ChangeTenantServicePersonStatusTrustedVariables>): UseDataConnectMutationResult<ChangeTenantServicePersonStatusTrustedData, ChangeTenantServicePersonStatusTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantServicePersonStatusTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantServicePersonStatusTrustedData, FirebaseError, ChangeTenantServicePersonStatusTrustedVariables>): UseDataConnectMutationResult<ChangeTenantServicePersonStatusTrustedData, ChangeTenantServicePersonStatusTrustedVariables>;
+```
+
+### Variables
+The `ChangeTenantServicePersonStatusTrusted` Mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantServicePersonStatusTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  status: EmploymentStatus;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantServicePersonStatusTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantServicePersonStatusTrusted` Mutation is of type `ChangeTenantServicePersonStatusTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantServicePersonStatusTrustedData {
+  servicePerson_update?: ServicePerson_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantServicePersonStatusTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantServicePersonStatusTrustedVariables } from '@omniretail/sql-connect';
+import { useChangeTenantServicePersonStatusTrusted } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantServicePersonStatusTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantServicePersonStatusTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantServicePersonStatusTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantServicePersonStatusTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantServicePersonStatusTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantServicePersonStatusTrusted` Mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`:
+  const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatusTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(changeTenantServicePersonStatusTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantServicePersonStatusTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.servicePerson_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## AssignTenantEmployeeOutletTrusted
+You can execute the `AssignTenantEmployeeOutletTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useAssignTenantEmployeeOutletTrusted(options?: useDataConnectMutationOptions<AssignTenantEmployeeOutletTrustedData, FirebaseError, AssignTenantEmployeeOutletTrustedVariables>): UseDataConnectMutationResult<AssignTenantEmployeeOutletTrustedData, AssignTenantEmployeeOutletTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useAssignTenantEmployeeOutletTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<AssignTenantEmployeeOutletTrustedData, FirebaseError, AssignTenantEmployeeOutletTrustedVariables>): UseDataConnectMutationResult<AssignTenantEmployeeOutletTrustedData, AssignTenantEmployeeOutletTrustedVariables>;
+```
+
+### Variables
+The `AssignTenantEmployeeOutletTrusted` Mutation requires an argument of type `AssignTenantEmployeeOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface AssignTenantEmployeeOutletTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
+  outletId: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `AssignTenantEmployeeOutletTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `AssignTenantEmployeeOutletTrusted` Mutation is of type `AssignTenantEmployeeOutletTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface AssignTenantEmployeeOutletTrustedData {
+  employeeOutlet_upsert: EmployeeOutlet_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `AssignTenantEmployeeOutletTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, AssignTenantEmployeeOutletTrustedVariables } from '@omniretail/sql-connect';
+import { useAssignTenantEmployeeOutletTrusted } from '@omniretail/sql-connect/react'
+
+export default function AssignTenantEmployeeOutletTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useAssignTenantEmployeeOutletTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useAssignTenantEmployeeOutletTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAssignTenantEmployeeOutletTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAssignTenantEmployeeOutletTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useAssignTenantEmployeeOutletTrusted` Mutation requires an argument of type `AssignTenantEmployeeOutletTrustedVariables`:
+  const assignTenantEmployeeOutletTrustedVars: AssignTenantEmployeeOutletTrustedVariables = {
+    organizationId: ..., 
+    employeeId: ..., 
+    outletId: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(assignTenantEmployeeOutletTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(assignTenantEmployeeOutletTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employeeOutlet_upsert);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## AssignTenantServicePersonOutletTrusted
+You can execute the `AssignTenantServicePersonOutletTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useAssignTenantServicePersonOutletTrusted(options?: useDataConnectMutationOptions<AssignTenantServicePersonOutletTrustedData, FirebaseError, AssignTenantServicePersonOutletTrustedVariables>): UseDataConnectMutationResult<AssignTenantServicePersonOutletTrustedData, AssignTenantServicePersonOutletTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useAssignTenantServicePersonOutletTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<AssignTenantServicePersonOutletTrustedData, FirebaseError, AssignTenantServicePersonOutletTrustedVariables>): UseDataConnectMutationResult<AssignTenantServicePersonOutletTrustedData, AssignTenantServicePersonOutletTrustedVariables>;
+```
+
+### Variables
+The `AssignTenantServicePersonOutletTrusted` Mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface AssignTenantServicePersonOutletTrustedVariables {
+  organizationId: UUIDString;
+  servicePersonId: UUIDString;
+  outletId: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `AssignTenantServicePersonOutletTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `AssignTenantServicePersonOutletTrusted` Mutation is of type `AssignTenantServicePersonOutletTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface AssignTenantServicePersonOutletTrustedData {
+  servicePersonOutlet_upsert: ServicePersonOutlet_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `AssignTenantServicePersonOutletTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, AssignTenantServicePersonOutletTrustedVariables } from '@omniretail/sql-connect';
+import { useAssignTenantServicePersonOutletTrusted } from '@omniretail/sql-connect/react'
+
+export default function AssignTenantServicePersonOutletTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useAssignTenantServicePersonOutletTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useAssignTenantServicePersonOutletTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAssignTenantServicePersonOutletTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useAssignTenantServicePersonOutletTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useAssignTenantServicePersonOutletTrusted` Mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`:
+  const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutletTrustedVariables = {
+    organizationId: ..., 
+    servicePersonId: ..., 
+    outletId: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(assignTenantServicePersonOutletTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(assignTenantServicePersonOutletTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.servicePersonOutlet_upsert);
     console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;

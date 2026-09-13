@@ -4,6 +4,8 @@ import {
   SalesQueryResult,
   SalesKpiSummary,
 } from '../types';
+import { getCurrentUserAuthorization, listTenantSales } from '@omniretail/sql-connect';
+import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 
 export const INITIAL_MOCK_SALES: SalesTransaction[] = [
   {
@@ -1106,4 +1108,11 @@ export class MockSalesService implements ISalesService {
   }
 }
 
-export const salesService = new MockSalesService();
+type TenantSaleRow = Awaited<ReturnType<typeof listTenantSales>>['data']['sales'][number];
+function mapTenantSale(row: TenantSaleRow): SalesTransaction { return { id: row.id, receiptNumber: row.receiptNumber, source: 'Data Connect', timestamp: row.saleTimestamp, displayDate: new Date(row.saleTimestamp).toLocaleDateString(), displayTime: new Date(row.saleTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), customer: { id: row.customer?.id, name: row.customerName, phone: row.customer?.phone ?? undefined, email: row.customer?.email ?? undefined, isWalkIn: !row.customer }, staff: { id: '', name: row.staffName }, channel: row.channel ?? '', terminalId: row.terminalId, terminalName: row.terminalId, items: row.saleLines_on_sale.map((line) => ({ id: line.id, name: line.product.name, sku: line.product.sku, quantity: line.quantity, unitPrice: line.unitPrice, subtotal: line.subtotal })), itemsSummary: row.saleLines_on_sale.map((line) => line.product.name).join(', '), skuSummary: row.saleLines_on_sale.map((line) => line.product.sku).join(', '), tender: { type: row.tenderType.toLowerCase() as SalesTransaction['tender']['type'], label: row.tenderType }, tax: row.tax, taxLabel: '', discount: row.discount, discountLabel: '', subtotal: row.subtotal, totalNet: row.totalNet, status: row.status, shiftNote: undefined }; }
+class ProductionSalesService extends MockSalesService {
+  private async all(): Promise<SalesTransaction[]> { const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); const result = await listTenantSales(getFirebaseClientServices().dataConnect, { organizationId: membership.organization.id }); return result.data.sales.map(mapTenantSale); }
+  override async getSales(query: SalesFilterQuery): Promise<SalesQueryResult> { let transactions = await this.all(); const search = query.searchQuery?.trim().toLowerCase() ?? ''; transactions = transactions.filter((t) => !search || `${t.receiptNumber} ${t.customer.name} ${t.staff.name}`.toLowerCase().includes(search)); const page = Math.max(1, query.page); const pageSize = Math.max(1, query.pageSize); const totalPages = Math.max(1, Math.ceil(transactions.length / pageSize)); const validPage = Math.min(page, totalPages); return { transactions: transactions.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: transactions.length, page: validPage, pageSize, totalPages, kpis: { filteredSalesTotal: transactions.reduce((s, t) => s + t.totalNet, 0), recordedSalesCount: transactions.length, vsYesterdayPct: 0, cashDrawerBalance: 0, cashVolumePct: 0, cardAndDigitalTender: 0, cardCount: 0, contactlessCount: 0, cardVolumePct: 0, totalReturnsAndVoids: 0, refundEventsCount: 0, returnRatePct: 0 } }; }
+  override async getSale(id: string): Promise<SalesTransaction | null> { return (await this.all()).find((t) => t.id === id || t.receiptNumber === id) ?? null; }
+}
+export const salesService = new ProductionSalesService();

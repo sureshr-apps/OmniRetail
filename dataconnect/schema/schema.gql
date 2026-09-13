@@ -19,6 +19,100 @@ enum MembershipStatus {
   INACTIVE
 }
 
+enum EmploymentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum OutletStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum LoginAccessStatus {
+  ENABLED
+  DISABLED
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProductType {
+  STOCKABLE
+  SERVICE
+  CONSUMABLE
+}
+
+enum InventoryAdjustmentMode {
+  INCREASE
+  DECREASE
+  RECONCILE
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PurchaseStatus {
+  ACTIVE
+  DRAFT
+  CANCELLED
+}
+
+enum PurchasePaymentStatus {
+  PAID
+  PARTIALLY_PAID
+  UNPAID
+}
+
+enum PurchaseReceiptStatus {
+  PENDING
+  PARTIALLY_RECEIVED
+  RECEIVED
+}
+
+enum ExpenseStatus {
+  ACTIVE
+  VOIDED
+}
+
+enum ExpenseApprovalStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+enum SaleStatus {
+  COMPLETED
+  PARTIAL_REFUND
+  REFUNDED
+  VOIDED
+}
+
+enum SaleTenderType {
+  VISA
+  MASTERCARD
+  APPLE_PAY
+  CASH
+  SPLIT
+  REVERSAL
+  NONE
+}
+
 enum LicensePlanStatus {
   ACTIVE
   INACTIVE
@@ -69,6 +163,262 @@ type AppUser @table {
   lastLoginAt: Timestamp
   createdAt: Timestamp! @default(expr: "request.time")
   updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Outlet @table {
+  organization: Organization!
+  outletCode: String! @unique
+  name: String!
+  contactPerson: String!
+  email: String
+  phone: String!
+  address: String!
+  city: String!
+  state: String
+  postalCode: String
+  timezone: String!
+  currency: String!
+  status: OutletStatus! @default(value: ACTIVE)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Employee @table {
+  organization: Organization!
+  user: AppUser
+  employeeCode: String! @unique
+  fullName: String!
+  email: String
+  phone: String!
+  designation: String!
+  department: String
+  dateOfJoining: Date!
+  assignmentScope: String!
+  employmentStatus: EmploymentStatus! @default(value: ACTIVE)
+  loginAccess: LoginAccessStatus! @default(value: DISABLED)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type EmployeeOutlet @table(key: ["employee", "outlet"]) {
+  employee: Employee!
+  outlet: Outlet!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type ServicePerson @table {
+  organization: Organization!
+  servicePersonCode: String! @unique
+  fullName: String!
+  email: String
+  phone: String!
+  specialization: String!
+  skills: String
+  yearsOfExperience: Int
+  assignmentScope: String!
+  status: EmploymentStatus! @default(value: ACTIVE)
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type ServicePersonOutlet @table(key: ["servicePerson", "outlet"]) {
+  servicePerson: ServicePerson!
+  outlet: Outlet!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type Product @table {
+  organization: Organization!
+  productCode: String! @unique
+  name: String!
+  brand: String!
+  categoryId: String!
+  categoryName: String!
+  subcategory: String
+  type: ProductType!
+  sku: String! @unique
+  barcode: String @unique
+  hsnCode: String
+  unitOfMeasure: String
+  sellingPrice: Float! @col(dataType: "numeric(19,2)")
+  mrp: Float @col(dataType: "numeric(19,2)")
+  cost: Float @col(dataType: "numeric(19,2)")
+  minSellingPrice: Float @col(dataType: "numeric(19,2)")
+  discountAllowed: Boolean!
+  taxCategory: String
+  status: ProductStatus! @default(value: ACTIVE)
+  reorderLevel: Float
+  reorderQuantity: Float
+  primarySupplier: String
+  supplierProductCode: String
+  description: String
+  imageUrl: String
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type InventoryStock @table(key: ["organization", "outlet", "product"]) {
+  organization: Organization!
+  outlet: Outlet!
+  product: Product!
+  binRack: String
+  onHandQty: Float!
+  reorderLevel: Float!
+  overstockThreshold: Float!
+  incomingPurchaseOrder: String
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type InventoryMovement @table {
+  organization: Organization!
+  outlet: Outlet!
+  product: Product!
+  mode: InventoryAdjustmentMode!
+  quantity: Float!
+  previousQty: Float!
+  newQty: Float!
+  reasonCode: String!
+  auditNote: String
+  actorFirebaseUid: String!
+  requestId: String! @unique
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type Customer @table {
+  organization: Organization!
+  customerCode: String! @unique
+  type: CustomerType!
+  name: String!
+  phone: String!
+  email: String!
+  taxId: String
+  address: String
+  city: String!
+  state: String!
+  postalCode: String
+  country: String
+  creditLimit: Float
+  preferredContact: String
+  dateOfBirth: Date
+  gender: String
+  status: CustomerStatus! @default(value: ACTIVE)
+  notes: String
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Supplier @table {
+  organization: Organization!
+  supplierCode: String! @unique
+  name: String!
+  contactPerson: String!
+  phone: String!
+  email: String!
+  taxId: String!
+  address: String
+  city: String!
+  state: String
+  postalCode: String
+  country: String
+  category: String!
+  paymentTerms: String!
+  creditLimit: Float!
+  status: SupplierStatus! @default(value: ACTIVE)
+  notes: String
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Purchase @table {
+  organization: Organization!
+  purchaseNumber: String! @unique
+  purchaseOrderNumber: String
+  invoiceNumber: String
+  purchaseDate: Date!
+  supplier: Supplier!
+  outlet: Outlet
+  scope: String!
+  paymentTerms: String
+  subtotal: Float! @col(dataType: "numeric(19,2)")
+  shippingFee: Float! @col(dataType: "numeric(19,2)")
+  handlingFee: Float! @col(dataType: "numeric(19,2)")
+  tax: Float! @col(dataType: "numeric(19,2)")
+  totalAmount: Float! @col(dataType: "numeric(19,2)")
+  amountPaid: Float! @col(dataType: "numeric(19,2)")
+  outstandingAmount: Float! @col(dataType: "numeric(19,2)")
+  paymentStatus: PurchasePaymentStatus!
+  receiptStatus: PurchaseReceiptStatus!
+  status: PurchaseStatus!
+  receivingNotes: String
+  batchNumber: String
+  mfgDate: Date
+  expiryDate: Date
+  createdBy: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type PurchaseLine @table {
+  purchase: Purchase!
+  product: Product!
+  quantityOrdered: Float!
+  quantityReceived: Float!
+  unitCost: Float! @col(dataType: "numeric(19,2)")
+  discountPercent: Float!
+  taxRate: Float!
+  taxAmount: Float! @col(dataType: "numeric(19,2)")
+  lineTotal: Float! @col(dataType: "numeric(19,2)")
+}
+
+type Expense @table {
+  organization: Organization!
+  expenseNumber: String! @unique
+  expenseDate: Date!
+  category: String!
+  description: String!
+  reference: String
+  vendorName: String
+  outlet: Outlet
+  scope: String!
+  baseAmount: Float! @col(dataType: "numeric(19,2)")
+  taxAmount: Float! @col(dataType: "numeric(19,2)")
+  amount: Float! @col(dataType: "numeric(19,2)")
+  paymentMethod: String!
+  paidByEmployee: String!
+  settlementDate: Date
+  status: ExpenseStatus! @default(value: ACTIVE)
+  approvalStatus: ExpenseApprovalStatus! @default(value: DRAFT)
+  submittedBy: String!
+  notes: String
+  createdAt: Timestamp! @default(expr: "request.time")
+  updatedAt: Timestamp! @default(expr: "request.time")
+}
+
+type Sale @table {
+  organization: Organization!
+  outlet: Outlet!
+  receiptNumber: String! @unique
+  saleTimestamp: Timestamp!
+  customer: Customer
+  customerName: String!
+  staffName: String!
+  channel: String!
+  terminalId: String!
+  tenderType: SaleTenderType!
+  tax: Float! @col(dataType: "numeric(19,2)")
+  discount: Float! @col(dataType: "numeric(19,2)")
+  subtotal: Float! @col(dataType: "numeric(19,2)")
+  totalNet: Float! @col(dataType: "numeric(19,2)")
+  status: SaleStatus!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type SaleLine @table {
+  sale: Sale!
+  product: Product!
+  quantity: Float!
+  unitPrice: Float! @col(dataType: "numeric(19,2)")
+  subtotal: Float! @col(dataType: "numeric(19,2)")
 }
 
 type Role @table {

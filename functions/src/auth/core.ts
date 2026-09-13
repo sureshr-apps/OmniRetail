@@ -16,6 +16,11 @@ export interface AuthorizationRecord {
       rolePermissions_on_role: Array<{ permission: { code: string } }>;
     };
   }>;
+  organizationMemberships_on_user?: Array<{
+    organization: { id: string };
+    role: { code: string; name: string; scope: string };
+    status: string;
+  }>;
 }
 
 export interface AuthorizedUser {
@@ -27,6 +32,7 @@ export interface AuthorizedUser {
   phone: string | null;
   roles: Array<{ code: string; name: string; scope: string }>;
   capabilities: string[];
+  organizationIds: string[];
 }
 
 export function normalizeUsername(value: unknown): string {
@@ -61,6 +67,9 @@ export function toAuthorizedUser(record: AuthorizationRecord): AuthorizedUser {
     phone: record.phone ?? null,
     roles,
     capabilities,
+    organizationIds: Array.from(new Set((record.organizationMemberships_on_user ?? [])
+      .filter((membership) => membership.status === 'ACTIVE')
+      .map((membership) => membership.organization.id))).sort(),
   };
 }
 

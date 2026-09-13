@@ -29,6 +29,7 @@ query GetCurrentUserAuthorization @auth(level: USER) {
         }
       }
     }
+    organizationMemberships_on_user { organization { id } role { code name scope } status }
   }
 }
 
@@ -57,6 +58,7 @@ query GetUserAuthorizationByFirebaseUid($firebaseUid: String!) @auth(level: NO_A
         }
       }
     }
+    organizationMemberships_on_user { organization { id } role { code name scope } status }
   }
 }
 
@@ -549,4 +551,325 @@ mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!, $act
   }
   organization_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: $action targetType: "Organization" targetId: $id requestId: $requestId })
+}
+
+# Tenant reads require both an active organization membership and the relevant
+# capability. The organizationId is therefore always checked against auth.uid.
+query ListTenantOutlets($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'outlets.read')", message: "Outlet access is not available.") { organization { id } role { rolePermissions_on_role { permission { code } } } }
+  outlets(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+    id organization { id } outletCode name contactPerson email phone address city state postalCode timezone currency status createdAt updatedAt
+  }
+}
+
+query ListTenantEmployees($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'employees.read')", message: "Employee access is not available.") { organization { id } role { rolePermissions_on_role { permission { code } } } }
+  employees(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
+    id organization { id } user { id username email firebaseUid } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
+    employeeOutlets_on_employee { outlet { id outletCode name } }
+  }
+}
+
+query ListTenantServicePersons($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'service_persons.read')", message: "Service person access is not available.") { organization { id } role { rolePermissions_on_role { permission { code } } } }
+  servicePeople(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
+    id organization { id } servicePersonCode fullName email phone specialization skills yearsOfExperience assignmentScope status createdAt updatedAt
+    servicePersonOutlets_on_servicePerson { outlet { id outletCode name } }
+  }
+}
+
+query ListTenantProducts($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'products.read')", message: "Product access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  products(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+    id organization { id } productCode name brand categoryId categoryName subcategory type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier supplierProductCode description imageUrl createdAt updatedAt
+  }
+}
+
+query ListTenantInventory($organizationId: UUID!, $outletId: UUID) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'inventory.read')", message: "Inventory access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } } }, orderBy: [{ updatedAt: DESC }]) {
+    _id organization { id } outlet { id outletCode name } product { id productCode name sku barcode categoryName brand sellingPrice cost } binRack onHandQty reorderLevel overstockThreshold incomingPurchaseOrder updatedAt
+  }
+}
+
+query ListTenantCustomers($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'customers.read')", message: "Customer access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  customers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+    id organization { id } customerCode type name phone email taxId address city state postalCode country creditLimit preferredContact dateOfBirth gender status notes createdAt updatedAt
+  }
+}
+
+query ListTenantSuppliers($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'suppliers.read')", message: "Supplier access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  suppliers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes createdAt updatedAt
+  }
+}
+
+query ListTenantPurchases($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'purchases.read')", message: "Purchase access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  purchases(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ purchaseDate: DESC }, { id: DESC }]) {
+    id organization { id } purchaseNumber purchaseOrderNumber invoiceNumber purchaseDate supplier { id supplierCode name taxId } outlet { id outletCode name } scope paymentTerms subtotal shippingFee handlingFee tax totalAmount amountPaid outstandingAmount paymentStatus receiptStatus status receivingNotes batchNumber mfgDate expiryDate createdBy createdAt updatedAt
+    purchaseLines_on_purchase { id product { id productCode name sku } quantityOrdered quantityReceived unitCost discountPercent taxRate taxAmount lineTotal }
+  }
+}
+
+query ListTenantExpenses($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'expenses.read')", message: "Expense access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  expenses(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ expenseDate: DESC }, { id: DESC }]) {
+    id organization { id } expenseNumber expenseDate category description reference vendorName outlet { id outletCode name } scope baseAmount taxAmount amount paymentMethod paidByEmployee settlementDate status approvalStatus submittedBy notes createdAt updatedAt
+  }
+}
+
+mutation CreateTenantExpense($organizationId: UUID!, $expenseNumber: String!, $expenseDate: Date!, $category: String!, $description: String!, $reference: String, $vendorName: String, $outletId: UUID, $scope: String!, $baseAmount: Float!, $taxAmount: Float!, $amount: Float!, $paymentMethod: String!, $paidByEmployee: String!, $submittedBy: String!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  expense_insert(data: { organization: { id: $organizationId } expenseNumber: $expenseNumber expenseDate: $expenseDate category: $category description: $description reference: $reference vendorName: $vendorName outlet: { id: $outletId } scope: $scope baseAmount: $baseAmount taxAmount: $taxAmount amount: $amount paymentMethod: $paymentMethod paidByEmployee: $paidByEmployee submittedBy: $submittedBy notes: $notes status: ACTIVE approvalStatus: DRAFT })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "expense.created" targetType: "Expense" requestId: $requestId metadata: { organizationId: $organizationId expenseNumber: $expenseNumber } })
+}
+
+mutation UpdateTenantExpense($organizationId: UUID!, $id: UUID!, $expenseDate: Date!, $category: String!, $description: String!, $reference: String, $vendorName: String, $scope: String!, $baseAmount: Float!, $taxAmount: Float!, $amount: Float!, $paymentMethod: String!, $paidByEmployee: String!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { expenses(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Expense is not in this organization.") { id } }
+  expense_update(id: $id, data: { expenseDate: $expenseDate category: $category description: $description reference: $reference vendorName: $vendorName scope: $scope baseAmount: $baseAmount taxAmount: $taxAmount amount: $amount paymentMethod: $paymentMethod paidByEmployee: $paidByEmployee notes: $notes updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "expense.updated" targetType: "Expense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantExpenseApproval($organizationId: UUID!, $id: UUID!, $approvalStatus: ExpenseApprovalStatus!, $reason: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { expenses(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Expense is not in this organization.") { id } }
+  expense_update(id: $id, data: { approvalStatus: $approvalStatus notes: $reason updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "expense.approval_changed" targetType: "Expense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId approvalStatus: $approvalStatus reason: $reason } })
+}
+
+mutation VoidTenantExpense($organizationId: UUID!, $id: UUID!, $reason: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { expenses(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Expense is not in this organization.") { id } }
+  expense_update(id: $id, data: { status: VOIDED notes: $reason updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "expense.voided" targetType: "Expense" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId reason: $reason } })
+}
+
+query ListTenantSales($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'sales.read')", message: "Sales access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  sales(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ saleTimestamp: DESC }, { id: DESC }]) {
+    id organization { id } outlet { id outletCode name } receiptNumber saleTimestamp customer { id customerCode name phone email } customerName staffName channel terminalId tenderType tax discount subtotal totalNet status createdAt
+    saleLines_on_sale { id product { id productCode name sku } quantity unitPrice subtotal }
+  }
+}
+
+mutation CreateTenantSale($organizationId: UUID!, $outletId: UUID!, $receiptNumber: String!, $saleTimestamp: Timestamp!, $customerId: UUID, $customerName: String!, $staffName: String!, $channel: String, $terminalId: String!, $tenderType: SaleTenderType!, $tax: Float!, $discount: Float!, $subtotal: Float!, $totalNet: Float!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { outlets(where: { id: { eq: $outletId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { id } }
+  sale_insert(data: { organization: { id: $organizationId } outlet: { id: $outletId } receiptNumber: $receiptNumber saleTimestamp: $saleTimestamp customer: { id: $customerId } customerName: $customerName staffName: $staffName channel: $channel terminalId: $terminalId tenderType: $tenderType tax: $tax discount: $discount subtotal: $subtotal totalNet: $totalNet status: COMPLETED })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "sale.completed" targetType: "Sale" requestId: $requestId metadata: { organizationId: $organizationId receiptNumber: $receiptNumber } })
+}
+
+mutation AddTenantSaleLine($organizationId: UUID!, $saleId: UUID!, $outletId: UUID!, $productId: UUID!, $quantity: Float!, $newStockQty: Float!, $unitPrice: Float!, $subtotal: Float!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { sales(where: { id: { eq: $saleId }, organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Sale is not in this organization or outlet.") { id } products(where: { id: { eq: $productId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } }, product: { id: { eq: $productId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Inventory item is not available.") { onHandQty } }
+  saleLine_insert(data: { sale: { id: $saleId } product: { id: $productId } quantity: $quantity unitPrice: $unitPrice subtotal: $subtotal })
+  inventoryStock_update(key: { organizationId: $organizationId outletId: $outletId productId: $productId }, data: { onHandQty: $newStockQty updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "sale.line_added" targetType: "Sale" targetId: $saleId requestId: $requestId metadata: { organizationId: $organizationId productId: $productId quantity: $quantity } })
+}
+
+query GetTenantInventoryStockTrusted($organizationId: UUID!, $outletId: UUID!, $productId: UUID!) @auth(level: NO_ACCESS) {
+  inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } }, product: { id: { eq: $productId } } }, limit: 1) { onHandQty }
+}
+
+mutation VoidTenantSale($organizationId: UUID!, $saleId: UUID!, $reason: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { sales(where: { id: { eq: $saleId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Sale is not in this organization.") { id } }
+  sale_update(id: $saleId, data: { status: VOIDED })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "sale.voided" targetType: "Sale" targetId: $saleId requestId: $requestId metadata: { organizationId: $organizationId reason: $reason } })
+}
+
+mutation CreateTenantPurchase($organizationId: UUID!, $purchaseNumber: String!, $purchaseDate: Date!, $supplierId: UUID!, $outletId: UUID, $scope: String!, $paymentTerms: String, $subtotal: Float!, $shippingFee: Float!, $handlingFee: Float!, $tax: Float!, $totalAmount: Float!, $amountPaid: Float!, $outstandingAmount: Float!, $paymentStatus: PurchasePaymentStatus!, $receiptStatus: PurchaseReceiptStatus!, $status: PurchaseStatus!, $createdBy: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { suppliers(where: { id: { eq: $supplierId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id } }
+  purchase_insert(data: { organization: { id: $organizationId } purchaseNumber: $purchaseNumber purchaseDate: $purchaseDate supplier: { id: $supplierId } outlet: { id: $outletId } scope: $scope paymentTerms: $paymentTerms subtotal: $subtotal shippingFee: $shippingFee handlingFee: $handlingFee tax: $tax totalAmount: $totalAmount amountPaid: $amountPaid outstandingAmount: $outstandingAmount paymentStatus: $paymentStatus receiptStatus: $receiptStatus status: $status createdBy: $createdBy })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "purchase.created" targetType: "Purchase" requestId: $requestId metadata: { organizationId: $organizationId purchaseNumber: $purchaseNumber } })
+}
+
+mutation CreateTenantPurchaseLine($organizationId: UUID!, $purchaseId: UUID!, $productId: UUID!, $quantityOrdered: Float!, $unitCost: Float!, $discountPercent: Float!, $taxRate: Float!, $taxAmount: Float!, $lineTotal: Float!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { purchases(where: { id: { eq: $purchaseId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Purchase is not in this organization.") { id } products(where: { id: { eq: $productId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } }
+  purchaseLine_insert(data: { purchase: { id: $purchaseId } product: { id: $productId } quantityOrdered: $quantityOrdered quantityReceived: 0 unitCost: $unitCost discountPercent: $discountPercent taxRate: $taxRate taxAmount: $taxAmount lineTotal: $lineTotal })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "purchase.line_created" targetType: "Purchase" targetId: $purchaseId requestId: $requestId metadata: { organizationId: $organizationId productId: $productId quantity: $quantityOrdered } })
+}
+
+mutation ChangeTenantPurchaseStatus($organizationId: UUID!, $id: UUID!, $status: PurchaseStatus!, $reason: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { purchases(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Purchase is not in this organization.") { id } }
+  purchase_update(id: $id, data: { status: $status receivingNotes: $reason updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "purchase.status_changed" targetType: "Purchase" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status reason: $reason } })
+}
+
+mutation ReceiveTenantPurchaseLine($organizationId: UUID!, $purchaseId: UUID!, $lineId: UUID!, $outletId: UUID!, $productId: UUID!, $quantityReceived: Float!, $newStockQty: Float!, $receiptStatus: PurchaseReceiptStatus!, $batchNumber: String, $mfgDate: Date, $expiryDate: Date, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { purchases(where: { id: { eq: $purchaseId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Purchase is not in this organization.") { id } purchaseLines(where: { id: { eq: $lineId }, purchase: { id: { eq: $purchaseId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Purchase line is not in this purchase.") { id } inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } }, product: { id: { eq: $productId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Inventory record is not in this organization.") { _id } }
+  purchaseLine_update(id: $lineId, data: { quantityReceived: $quantityReceived })
+  purchase_update(id: $purchaseId, data: { receiptStatus: $receiptStatus batchNumber: $batchNumber mfgDate: $mfgDate expiryDate: $expiryDate updatedAt_expr: "request.time" })
+  inventoryStock_update(key: { organizationId: $organizationId outletId: $outletId productId: $productId }, data: { onHandQty: $newStockQty updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "purchase.received" targetType: "Purchase" targetId: $purchaseId requestId: $requestId metadata: { organizationId: $organizationId lineId: $lineId quantityReceived: $quantityReceived } })
+}
+
+mutation CreateTenantSupplier($organizationId: UUID!, $supplierCode: String!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String!, $address: String, $city: String!, $state: String, $postalCode: String, $country: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  supplier_insert(data: { organization: { id: $organizationId } supplierCode: $supplierCode name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "supplier.created" targetType: "Supplier" requestId: $requestId metadata: { organizationId: $organizationId supplierCode: $supplierCode } })
+}
+
+mutation UpdateTenantSupplier($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String!, $address: String, $city: String!, $state: String, $postalCode: String, $country: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id } }
+  supplier_update(id: $id, data: { name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "supplier.updated" targetType: "Supplier" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantSupplierStatus($organizationId: UUID!, $id: UUID!, $status: SupplierStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id } }
+  supplier_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "supplier.status_changed" targetType: "Supplier" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation CreateTenantCustomer($organizationId: UUID!, $customerCode: String!, $type: CustomerType!, $name: String!, $phone: String!, $email: String!, $taxId: String, $address: String, $city: String!, $state: String!, $postalCode: String, $country: String, $creditLimit: Float, $preferredContact: String, $dateOfBirth: Date, $gender: String, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  customer_insert(data: { organization: { id: $organizationId } customerCode: $customerCode type: $type name: $name phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country creditLimit: $creditLimit preferredContact: $preferredContact dateOfBirth: $dateOfBirth gender: $gender notes: $notes status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "customer.created" targetType: "Customer" requestId: $requestId metadata: { organizationId: $organizationId customerCode: $customerCode } })
+}
+
+mutation UpdateTenantCustomer($organizationId: UUID!, $id: UUID!, $type: CustomerType!, $name: String!, $phone: String!, $email: String!, $taxId: String, $address: String, $city: String!, $state: String!, $postalCode: String, $country: String, $creditLimit: Float, $preferredContact: String, $dateOfBirth: Date, $gender: String, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { customers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Customer is not in this organization.") { id } }
+  customer_update(id: $id, data: { type: $type name: $name phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country creditLimit: $creditLimit preferredContact: $preferredContact dateOfBirth: $dateOfBirth gender: $gender notes: $notes updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "customer.updated" targetType: "Customer" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantCustomerStatus($organizationId: UUID!, $id: UUID!, $status: CustomerStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { customers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Customer is not in this organization.") { id } }
+  customer_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "customer.status_changed" targetType: "Customer" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation CreateTenantProduct($organizationId: UUID!, $productCode: String!, $name: String!, $brand: String!, $categoryId: String!, $categoryName: String!, $subcategory: String, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $supplierProductCode: String, $description: String, $imageUrl: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  product_insert(data: { organization: { id: $organizationId } productCode: $productCode name: $name brand: $brand categoryId: $categoryId categoryName: $categoryName subcategory: $subcategory type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory status: ACTIVE reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier supplierProductCode: $supplierProductCode description: $description imageUrl: $imageUrl })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.created" targetType: "Product" requestId: $requestId metadata: { organizationId: $organizationId productCode: $productCode } })
+}
+
+mutation UpdateTenantProduct($organizationId: UUID!, $id: UUID!, $name: String!, $brand: String!, $categoryId: String!, $categoryName: String!, $subcategory: String, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $supplierProductCode: String, $description: String, $imageUrl: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } }
+  product_update(id: $id, data: { name: $name brand: $brand categoryId: $categoryId categoryName: $categoryName subcategory: $subcategory type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier supplierProductCode: $supplierProductCode description: $description imageUrl: $imageUrl updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.updated" targetType: "Product" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantProductStatus($organizationId: UUID!, $id: UUID!, $status: ProductStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } }
+  product_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.status_changed" targetType: "Product" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation AdjustTenantInventory($organizationId: UUID!, $outletId: UUID!, $productId: UUID!, $mode: InventoryAdjustmentMode!, $quantity: Float!, $previousQty: Float!, $newQty: Float!, $reasonCode: String!, $auditNote: String, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } }, product: { id: { eq: $productId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Inventory item is not in this organization.") { onHandQty }
+  }
+  inventoryStock_update(key: { organizationId: $organizationId outletId: $outletId productId: $productId }, data: { onHandQty: $newQty updatedAt_expr: "request.time" })
+  inventoryMovement_insert(data: { organization: { id: $organizationId } outlet: { id: $outletId } product: { id: $productId } mode: $mode quantity: $quantity previousQty: $previousQty newQty: $newQty reasonCode: $reasonCode auditNote: $auditNote actorFirebaseUid: $actorFirebaseUid requestId: $requestId })
+}
+
+query GetTenantMembershipTrusted($organizationId: UUID!, $firebaseUid: String!) @auth(level: NO_ACCESS) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq: $firebaseUid } }, status: { eq: ACTIVE } }, limit: 1) {
+    organization { id } user { id firebaseUid } role { code scope rolePermissions_on_role { permission { code } } }
+  }
+}
+
+mutation CreateTenantOutlet($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+  query @redact {
+    organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.code == 'organization.admin'", message: "Outlet administration is not available.") { role { code } }
+  }
+  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId outletCode: $outletCode } })
+}
+
+mutation UpdateTenantOutlet($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+  query @redact {
+    organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.code == 'organization.admin'", message: "Outlet administration is not available.") { role { code } }
+  }
+  outlet_update(id: $id, data: { name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.updated" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantOutletStatus($organizationId: UUID!, $id: UUID!, $status: OutletStatus!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+  query @redact {
+    organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].role.code == 'organization.admin'", message: "Outlet administration is not available.") { role { code } }
+  }
+  outlet_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "outlet.status_changed" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation CreateTenantOutletTrusted($organizationId: UUID!, $outletCode: String!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  outlet_insert(data: { organization: { id: $organizationId } outletCode: $outletCode name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.created" targetType: "Outlet" requestId: $requestId metadata: { organizationId: $organizationId outletCode: $outletCode } })
+}
+
+mutation UpdateTenantOutletTrusted($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $email: String, $phone: String!, $address: String!, $city: String!, $state: String, $postalCode: String, $timezone: String!, $currency: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { outlets(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { organization { id } } }
+  outlet_update(id: $id, data: { name: $name contactPerson: $contactPerson email: $email phone: $phone address: $address city: $city state: $state postalCode: $postalCode timezone: $timezone currency: $currency updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.updated" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantOutletStatusTrusted($organizationId: UUID!, $id: UUID!, $status: OutletStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { outlets(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { organization { id } } }
+  outlet_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.status_changed" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation CreateTenantEmployeeProfileTrusted($organizationId: UUID!, $employeeCode: String!, $fullName: String!, $email: String, $phone: String!, $designation: String!, $department: String, $dateOfJoining: Date!, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  employee_insert(data: { organization: { id: $organizationId } employeeCode: $employeeCode fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfJoining: $dateOfJoining assignmentScope: $assignmentScope employmentStatus: ACTIVE loginAccess: DISABLED })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.created" targetType: "Employee" requestId: $requestId metadata: { organizationId: $organizationId employeeCode: $employeeCode } })
+}
+
+mutation ProvisionTenantEmployeeTrusted($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $organizationId: UUID!, $employeeCode: String!, $fullName: String!, $phone: String!, $designation: String!, $department: String, $dateOfJoining: Date!, $assignmentScope: String!, $roleId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  appUser_insert(data: { id: $userId firebaseUid: $firebaseUid username: $username email: $email displayName: $fullName phone: $phone status: ACTIVE })
+  organizationMembership_insert(data: { organizationId: $organizationId userId: $userId roleId: $roleId status: ACTIVE })
+  userRole_upsert(data: { userId: $userId roleId: $roleId })
+  employee_insert(data: { organization: { id: $organizationId } user: { id: $userId } employeeCode: $employeeCode fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfJoining: $dateOfJoining assignmentScope: $assignmentScope employmentStatus: ACTIVE loginAccess: ENABLED })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.login_provisioned" targetType: "Employee" requestId: $requestId metadata: { organizationId: $organizationId employeeCode: $employeeCode } })
+}
+
+mutation UpdateTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!, $fullName: String!, $email: String, $phone: String!, $designation: String!, $department: String, $dateOfJoining: Date!, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee is not in this organization.") { organization { id } } }
+  employee_update(id: $id, data: { fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfJoining: $dateOfJoining assignmentScope: $assignmentScope updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.updated" targetType: "Employee" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantEmployeeStatusTrusted($organizationId: UUID!, $id: UUID!, $status: EmploymentStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee is not in this organization.") { organization { id } } }
+  employee_update(id: $id, data: { employmentStatus: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.status_changed" targetType: "Employee" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation ChangeTenantEmployeeLoginAccessTrusted($organizationId: UUID!, $id: UUID!, $userId: UUID!, $loginAccess: LoginAccessStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } }, user: { id: { eq: $userId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee identity is not in this organization.") { organization { id } user { id } } }
+  employee_update(id: $id, data: { loginAccess: $loginAccess updatedAt_expr: "request.time" })
+  appUser_update(id: $userId, data: { status: ACTIVE updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.login_access_changed" targetType: "Employee" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId loginAccess: $loginAccess } })
+}
+
+mutation CreateTenantServicePersonTrusted($organizationId: UUID!, $servicePersonCode: String!, $fullName: String!, $email: String, $phone: String!, $specialization: String!, $skills: String, $yearsOfExperience: Int, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  servicePerson_insert(data: { organization: { id: $organizationId } servicePersonCode: $servicePersonCode fullName: $fullName email: $email phone: $phone specialization: $specialization skills: $skills yearsOfExperience: $yearsOfExperience assignmentScope: $assignmentScope status: ACTIVE })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.created" targetType: "ServicePerson" requestId: $requestId metadata: { organizationId: $organizationId servicePersonCode: $servicePersonCode } })
+}
+
+mutation UpdateTenantServicePersonTrusted($organizationId: UUID!, $id: UUID!, $fullName: String!, $email: String, $phone: String!, $specialization: String!, $skills: String, $yearsOfExperience: Int, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { servicePeople(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { organization { id } } }
+  servicePerson_update(id: $id, data: { fullName: $fullName email: $email phone: $phone specialization: $specialization skills: $skills yearsOfExperience: $yearsOfExperience assignmentScope: $assignmentScope updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.updated" targetType: "ServicePerson" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation ChangeTenantServicePersonStatusTrusted($organizationId: UUID!, $id: UUID!, $status: EmploymentStatus!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { servicePeople(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { organization { id } } }
+  servicePerson_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.status_changed" targetType: "ServicePerson" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
+}
+
+mutation AssignTenantEmployeeOutletTrusted($organizationId: UUID!, $employeeId: UUID!, $outletId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    employees(where: { id: { eq: $employeeId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee is not in this organization.") { id }
+    outlets(where: { id: { eq: $outletId }, organization: { id: { eq: $organizationId } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization or is inactive.") { id }
+  }
+  employeeOutlet_upsert(data: { employeeId: $employeeId outletId: $outletId })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.outlet_assigned" targetType: "Employee" targetId: $employeeId requestId: $requestId metadata: { organizationId: $organizationId outletId: $outletId } })
+}
+
+mutation AssignTenantServicePersonOutletTrusted($organizationId: UUID!, $servicePersonId: UUID!, $outletId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    servicePeople(where: { id: { eq: $servicePersonId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { id }
+    outlets(where: { id: { eq: $outletId }, organization: { id: { eq: $organizationId } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization or is inactive.") { id }
+  }
+  servicePersonOutlet_upsert(data: { servicePersonId: $servicePersonId outletId: $outletId })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.outlet_assigned" targetType: "ServicePerson" targetId: $servicePersonId requestId: $requestId metadata: { organizationId: $organizationId outletId: $outletId } })
 }

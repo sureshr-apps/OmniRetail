@@ -35,6 +35,7 @@ export interface InventoryMovementLog {
 
 export interface InventoryItem {
   id: string;
+  productId?: string;
   sku: string;
   barcode: string;
   name: string;

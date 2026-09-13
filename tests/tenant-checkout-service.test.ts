@@ -1,0 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+const source = readFileSync(new URL('../src/features/billing/services/checkoutService.ts', import.meta.url), 'utf8');
+const cartSource = readFileSync(new URL('../src/features/billing/hooks/useBillingCart.ts', import.meta.url), 'utf8');
+const customerModalSource = readFileSync(new URL('../src/features/billing/components/CustomerModal.tsx', import.meta.url), 'utf8');
+const billingPageSource = readFileSync(new URL('../src/features/billing/pages/BillingPage.tsx', import.meta.url), 'utf8');
+describe('tenant checkout service', () => { it('resolves tenant outlet and persists sale plus lines', () => { expect(source).toContain('getCurrentUserAuthorization'); expect(source).toContain('listTenantOutlets'); expect(source).toContain("'completeTenantSale'"); expect(source).toContain("'addTenantSaleLineRecord'"); expect(source).toContain("'voidTenantSaleRecord'"); expect(source).toContain('No active outlet is available for checkout.'); }); });
+it('loads the billing catalog from the tenant product service', () => { expect(cartSource).toContain("productService.getProducts"); expect(cartSource).toContain('setCatalogProducts'); });
+it('loads the Billing customer picker from the tenant customer service', () => { expect(customerModalSource).toContain('customerService.getCustomers'); expect(customerModalSource).not.toContain('MOCK_CUSTOMERS'); });
+it('does not inject mock products through the Billing quick-add action', () => { expect(billingPageSource).toContain('const firstProduct = filteredProducts[0]'); expect(billingPageSource).not.toContain('INITIAL_CART_ITEMS.forEach'); });
+it('starts the POS session without mock cart or held-order state', () => { expect(cartSource).toContain('useState<CartItem[]>([])'); expect(cartSource).toContain('useState<HeldOrder[]>([])'); expect(cartSource).not.toContain("from '../services/mockData'"); });

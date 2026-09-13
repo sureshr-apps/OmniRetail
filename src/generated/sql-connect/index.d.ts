@@ -969,6 +969,11 @@ export interface GetCurrentUserAuthorizationData {
         code: string;
         name: string;
         scope: RoleScope;
+        rolePermissions_on_role: ({
+          permission: {
+            code: string;
+          };
+        })[];
       };
       status: MembershipStatus;
     })[];
@@ -1343,6 +1348,11 @@ export interface GetUserAuthorizationByFirebaseUidData {
         code: string;
         name: string;
         scope: RoleScope;
+        rolePermissions_on_role: ({
+          permission: {
+            code: string;
+          };
+        })[];
       };
       status: MembershipStatus;
     })[];

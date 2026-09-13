@@ -140,6 +140,16 @@ function logCallableFailure(operation: string, error: unknown): void {
   });
 }
 
+function productCreationFailure(error: unknown): HttpsError {
+  if (error instanceof HttpsError) return error;
+  const value = error as { message?: unknown } | null;
+  const message = typeof value?.message === 'string' ? value.message : '';
+  if (message === 'scope') return new HttpsError('permission-denied', 'You do not have permission to create products in this organization.');
+  if (/invalid input/i.test(message)) return new HttpsError('invalid-argument', 'Some product details are invalid.');
+  if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'A product with this SKU, barcode, or product code already exists.');
+  return new HttpsError('internal', 'Unable to create the product.');
+}
+
 async function sendManagedPasswordEmail(email: string, requestType: 'PASSWORD_RESET'): Promise<void> {
   const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${encodeURIComponent(firebaseWebApiKey.value())}`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
@@ -666,7 +676,7 @@ function productFields(d: any) {
 }
 
 export const createTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const productCode = typeof d.productCode === 'string' ? d.productCode.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !productCode || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await createTenantProduct({ organizationId, productCode, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, productCode }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to create the product.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const productCode = typeof d.productCode === 'string' ? d.productCode.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !productCode || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await createTenantProduct({ organizationId, productCode, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, productCode }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
 });
 
 export const updateTenantProductRecord = onCall(callableOptions, async (request) => {

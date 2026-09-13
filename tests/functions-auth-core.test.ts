@@ -81,6 +81,22 @@ it('flattens Master Admin roles into a stable capability set', () => {
   expect(user.capabilities).toEqual(['organizations.read', 'overview.read']);
 });
 
+it('includes capabilities from active organization membership roles', () => {
+  const user = toAuthorizedUser({
+    id: 'user-id', firebaseUid: 'uid-1', username: 'org-admin', email: 'admin@example.com',
+    displayName: 'Organization Admin', phone: null, status: 'ACTIVE', userRoles_on_user: [],
+    organizationMemberships_on_user: [{
+      organization: { id: 'org-1' }, status: 'ACTIVE', role: {
+        code: 'organization.admin', name: 'Organization Administrator', scope: 'ORGANIZATION',
+        rolePermissions_on_role: [{ permission: { code: 'products.read' } }],
+      },
+    }],
+  });
+  expect(user.roles).toEqual([{ code: 'organization.admin', name: 'Organization Administrator', scope: 'ORGANIZATION' }]);
+  expect(user.capabilities).toEqual(['products.read']);
+  expect(user.organizationIds).toEqual(['org-1']);
+});
+
 it('uses deterministic identifiers for idempotent bootstrap auditing', () => {
   const first = deterministicUuid('bootstrap-master-admin:uid-1');
   expect(deterministicUuid('bootstrap-master-admin:uid-1')).toBe(first);

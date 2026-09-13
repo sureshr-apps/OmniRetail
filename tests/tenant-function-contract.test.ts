@@ -47,6 +47,9 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const createTenantProductRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
     expect(source).toContain('createTenantProduct({ organizationId, productCode');
+    expect(source).toContain('function productCreationFailure(error: unknown): HttpsError');
+    expect(source).toContain("new HttpsError('already-exists'");
+    expect(source).toContain("new HttpsError('invalid-argument'");
     expect(source).toContain('export const updateTenantProductRecord = onCall');
     expect(source).toContain('export const changeTenantProductStatus = onCall');
     expect(source).toContain('export const adjustTenantInventoryStock = onCall');

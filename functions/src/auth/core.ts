@@ -18,7 +18,12 @@ export interface AuthorizationRecord {
   }>;
   organizationMemberships_on_user?: Array<{
     organization: { id: string };
-    role: { code: string; name: string; scope: string };
+    role: {
+      code: string;
+      name: string;
+      scope: string;
+      rolePermissions_on_role?: Array<{ permission: { code: string } }>;
+    };
     status: string;
   }>;
 }
@@ -47,14 +52,20 @@ export function normalizePassword(value: unknown): string {
 }
 
 export function toAuthorizedUser(record: AuthorizationRecord): AuthorizedUser {
-  const roles = record.userRoles_on_user.map(({ role }) => ({
+  const activeMemberships = (record.organizationMemberships_on_user ?? [])
+    .filter((membership) => membership.status === 'ACTIVE');
+  const roleRecords = [
+    ...record.userRoles_on_user.map(({ role }) => role),
+    ...activeMemberships.map(({ role }) => role),
+  ];
+  const roles = Array.from(new Map(roleRecords.map((role) => [role.code, {
     code: role.code,
     name: role.name,
     scope: role.scope,
-  }));
+  }])).values());
   const capabilities = Array.from(new Set(
-    record.userRoles_on_user.flatMap(({ role }) =>
-      role.rolePermissions_on_role.map(({ permission }) => permission.code)
+    roleRecords.flatMap((role) =>
+      (role.rolePermissions_on_role ?? []).map(({ permission }) => permission.code)
     )
   )).sort();
 

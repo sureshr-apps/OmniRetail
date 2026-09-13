@@ -18,6 +18,7 @@ import { ProductDetailDrawer } from '../components/ProductDetailDrawer';
 import { AddProductModal } from '../components/AddProductModal';
 import { EditProductModal } from '../components/EditProductModal';
 import { ProductToast, ToastMessage } from '../components/ProductToast';
+import { getProductCreationErrorMessage } from '../services/productError';
 
 export function ProductsPage() {
   const navigate = useNavigate();
@@ -227,7 +228,7 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'warning',
         title: 'Creation Failed',
-        description: 'Could not create product record. Please verify SKU uniqueness.',
+        description: getProductCreationErrorMessage(err),
       });
     }
   };

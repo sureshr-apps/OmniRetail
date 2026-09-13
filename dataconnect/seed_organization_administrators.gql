@@ -1,6 +1,6 @@
 mutation SeedOrganizationAdministrators @auth(level: NO_ACCESS) @transaction {
   user1: appUser_upsert(data: { id: "30000000-0000-4000-8000-000000000001", firebaseUid: "seed-admin-001", username: "rmehta", email: "rohan@punarva.example", displayName: "Rohan Mehta", phone: "+91 90000 20001", status: ACTIVE })
   user2: appUser_upsert(data: { id: "30000000-0000-4000-8000-000000000002", firebaseUid: "seed-admin-002", username: "nrao", email: "neha@meridian.example", displayName: "Neha Rao", phone: "+91 90000 20002", status: ACTIVE })
-  member1: organizationMembership_upsert(data: { organizationId: "20000000-0000-4000-8000-000000000001", userId: "30000000-0000-4000-8000-000000000001", roleId: "00000000-0000-4000-8000-000000000001", status: ACTIVE })
-  member2: organizationMembership_upsert(data: { organizationId: "20000000-0000-4000-8000-000000000002", userId: "30000000-0000-4000-8000-000000000002", roleId: "00000000-0000-4000-8000-000000000001", status: ACTIVE })
+  member1: organizationMembership_upsert(data: { organizationId: "20000000-0000-4000-8000-000000000001", userId: "30000000-0000-4000-8000-000000000001", roleId: "00000000-0000-4000-8000-000000000002", status: ACTIVE })
+  member2: organizationMembership_upsert(data: { organizationId: "20000000-0000-4000-8000-000000000002", userId: "30000000-0000-4000-8000-000000000002", roleId: "00000000-0000-4000-8000-000000000002", status: ACTIVE })
 }

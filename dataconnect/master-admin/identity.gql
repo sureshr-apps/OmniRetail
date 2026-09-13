@@ -29,7 +29,7 @@ query GetCurrentUserAuthorization @auth(level: USER) {
         }
       }
     }
-    organizationMemberships_on_user { organization { id } role { code name scope } status }
+    organizationMemberships_on_user { organization { id } role { code name scope rolePermissions_on_role { permission { code } } } status }
   }
 }
 
@@ -58,7 +58,7 @@ query GetUserAuthorizationByFirebaseUid($firebaseUid: String!) @auth(level: NO_A
         }
       }
     }
-    organizationMemberships_on_user { organization { id } role { code name scope } status }
+    organizationMemberships_on_user { organization { id } role { code name scope rolePermissions_on_role { permission { code } } } status }
   }
 }
 

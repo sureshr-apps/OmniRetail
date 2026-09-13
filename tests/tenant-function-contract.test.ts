@@ -23,6 +23,7 @@ describe('tenant callable contract', () => {
 
   it('acknowledges the intentional Data Connect outlet contract migration', () => {
     expect(deploymentSource).toContain('--only hosting,functions,dataconnect --non-interactive --force');
+    expect(deploymentSource).toContain('dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --force');
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

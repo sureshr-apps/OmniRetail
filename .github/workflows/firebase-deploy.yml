@@ -53,6 +53,9 @@ jobs:
           OMNIRETAIL_WEB_API_KEY: ${{ secrets.OMNIRETAIL_WEB_API_KEY }}
         run: printf 'OMNIRETAIL_WEB_API_KEY="%s"\n' "$OMNIRETAIL_WEB_API_KEY" > functions/.env.omniretail-60c71
 
+      - name: Migrate Data Connect SQL schema
+        run: npx firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --force
+
       - name: Deploy Hosting, Functions, and Data Connect
         run: npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions,dataconnect --non-interactive --force
 

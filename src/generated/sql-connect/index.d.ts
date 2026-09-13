@@ -640,11 +640,6 @@ export interface CreateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
@@ -658,11 +653,6 @@ export interface CreateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
 }
@@ -1680,6 +1670,12 @@ export interface ListTenantInventoryVariables {
   outletId?: UUIDString | null;
 }
 
+export interface ListTenantOutletCodesTrustedData {
+  outlets: ({
+    outletCode: string;
+  })[];
+}
+
 export interface ListTenantOutletsData {
   organizationMemberships: ({
     organization: {
@@ -1705,9 +1701,6 @@ export interface ListTenantOutletsData {
     email?: string | null;
     phone: string;
     address: string;
-    city: string;
-    state?: string | null;
-    postalCode?: string | null;
     timezone: string;
     currency: string;
     status: OutletStatus;
@@ -2426,11 +2419,6 @@ export interface UpdateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
@@ -2444,11 +2432,6 @@ export interface UpdateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
 }
@@ -3588,6 +3571,18 @@ export const getTenantMembershipTrustedRef: GetTenantMembershipTrustedRef;
 
 export function getTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
 export function getTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
+
+interface ListTenantOutletCodesTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListTenantOutletCodesTrustedData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListTenantOutletCodesTrustedData, undefined>;
+  operationName: string;
+}
+export const listTenantOutletCodesTrustedRef: ListTenantOutletCodesTrustedRef;
+
+export function listTenantOutletCodesTrusted(options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletCodesTrustedData, undefined>;
+export function listTenantOutletCodesTrusted(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletCodesTrustedData, undefined>;
 
 interface CreateTenantOutletRef {
   /* Allow users to create refs without passing in DataConnect */

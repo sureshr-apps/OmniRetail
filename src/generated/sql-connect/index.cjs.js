@@ -1391,6 +1391,20 @@ exports.getTenantMembershipTrusted = function getTenantMembershipTrusted(dcOrVar
 }
 ;
 
+const listTenantOutletCodesTrustedRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantOutletCodesTrusted');
+}
+listTenantOutletCodesTrustedRef.operationName = 'ListTenantOutletCodesTrusted';
+exports.listTenantOutletCodesTrustedRef = listTenantOutletCodesTrustedRef;
+
+exports.listTenantOutletCodesTrusted = function listTenantOutletCodesTrusted(dcOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listTenantOutletCodesTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const createTenantOutletRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

@@ -47,6 +47,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListTenantSales*](#listtenantsales)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
+  - [*ListTenantOutletCodesTrusted*](#listtenantoutletcodestrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
@@ -3241,9 +3242,6 @@ export interface ListTenantOutletsData {
     email?: string | null;
     phone: string;
     address: string;
-    city: string;
-    state?: string | null;
-    postalCode?: string | null;
     timezone: string;
     currency: string;
     status: OutletStatus;
@@ -4964,6 +4962,99 @@ console.log(data.organizationMemberships);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationMemberships);
+});
+```
+
+## ListTenantOutletCodesTrusted
+You can execute the `ListTenantOutletCodesTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantOutletCodesTrusted(options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletCodesTrustedData, undefined>;
+
+interface ListTenantOutletCodesTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListTenantOutletCodesTrustedData, undefined>;
+}
+export const listTenantOutletCodesTrustedRef: ListTenantOutletCodesTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantOutletCodesTrusted(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletCodesTrustedData, undefined>;
+
+interface ListTenantOutletCodesTrustedRef {
+  ...
+  (dc: DataConnect): QueryRef<ListTenantOutletCodesTrustedData, undefined>;
+}
+export const listTenantOutletCodesTrustedRef: ListTenantOutletCodesTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantOutletCodesTrustedRef:
+```typescript
+const name = listTenantOutletCodesTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantOutletCodesTrusted` query has no variables.
+### Return Type
+Recall that executing the `ListTenantOutletCodesTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantOutletCodesTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantOutletCodesTrustedData {
+  outlets: ({
+    outletCode: string;
+  })[];
+}
+```
+### Using `ListTenantOutletCodesTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantOutletCodesTrusted } from '@omniretail/sql-connect';
+
+
+// Call the `listTenantOutletCodesTrusted()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantOutletCodesTrusted();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantOutletCodesTrusted(dataConnect);
+
+console.log(data.outlets);
+
+// Or, you can use the `Promise` API.
+listTenantOutletCodesTrusted().then((response) => {
+  const data = response.data;
+  console.log(data.outlets);
+});
+```
+
+### Using `ListTenantOutletCodesTrusted`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantOutletCodesTrustedRef } from '@omniretail/sql-connect';
+
+
+// Call the `listTenantOutletCodesTrustedRef()` function to get a reference to the query.
+const ref = listTenantOutletCodesTrustedRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantOutletCodesTrustedRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.outlets);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.outlets);
 });
 ```
 
@@ -11863,11 +11954,6 @@ export interface CreateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
 }
@@ -11897,11 +11983,6 @@ const createTenantOutletVars: CreateTenantOutletVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
 };
@@ -11910,7 +11991,7 @@ const createTenantOutletVars: CreateTenantOutletVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantOutlet(createTenantOutletVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantOutlet({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const { data } = await createTenantOutlet({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11942,11 +12023,6 @@ const createTenantOutletVars: CreateTenantOutletVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
 };
@@ -11954,7 +12030,7 @@ const createTenantOutletVars: CreateTenantOutletVariables = {
 // Call the `createTenantOutletRef()` function to get a reference to the mutation.
 const ref = createTenantOutletRef(createTenantOutletVars);
 // Variables can be defined inline as well.
-const ref = createTenantOutletRef({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const ref = createTenantOutletRef({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12016,11 +12092,6 @@ export interface UpdateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
 }
@@ -12050,11 +12121,6 @@ const updateTenantOutletVars: UpdateTenantOutletVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
 };
@@ -12063,7 +12129,7 @@ const updateTenantOutletVars: UpdateTenantOutletVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantOutlet(updateTenantOutletVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantOutlet({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const { data } = await updateTenantOutlet({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12095,11 +12161,6 @@ const updateTenantOutletVars: UpdateTenantOutletVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
 };
@@ -12107,7 +12168,7 @@ const updateTenantOutletVars: UpdateTenantOutletVariables = {
 // Call the `updateTenantOutletRef()` function to get a reference to the mutation.
 const ref = updateTenantOutletRef(updateTenantOutletVars);
 // Variables can be defined inline as well.
-const ref = updateTenantOutletRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const ref = updateTenantOutletRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12295,11 +12356,6 @@ export interface CreateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
@@ -12330,11 +12386,6 @@ const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
   actorFirebaseUid: ..., 
@@ -12344,7 +12395,7 @@ const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantOutletTrusted(createTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantOutletTrusted({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantOutletTrusted({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12376,11 +12427,6 @@ const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
   actorFirebaseUid: ..., 
@@ -12389,7 +12435,7 @@ const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
 // Call the `createTenantOutletTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantOutletTrustedRef(createTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantOutletTrustedRef({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantOutletTrustedRef({ organizationId: ..., outletCode: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12451,11 +12497,6 @@ export interface UpdateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  timezone: string;
-  currency: string;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
@@ -12486,11 +12527,6 @@ const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
   actorFirebaseUid: ..., 
@@ -12500,7 +12536,7 @@ const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantOutletTrusted(updateTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantOutletTrusted({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantOutletTrusted({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12532,11 +12568,6 @@ const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ..., 
   address: ..., 
-  city: ..., 
-  state: ..., // optional
-  postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
   auditId: ..., 
   requestId: ..., 
   actorFirebaseUid: ..., 
@@ -12545,7 +12576,7 @@ const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
 // Call the `updateTenantOutletTrustedRef()` function to get a reference to the mutation.
 const ref = updateTenantOutletTrustedRef(updateTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = updateTenantOutletTrustedRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantOutletTrustedRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

@@ -1196,6 +1196,18 @@ export function getTenantMembershipTrusted(dcOrVars, varsOrOptions, options) {
   return executeQuery(getTenantMembershipTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listTenantOutletCodesTrustedRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantOutletCodesTrusted');
+}
+listTenantOutletCodesTrustedRef.operationName = 'ListTenantOutletCodesTrusted';
+
+export function listTenantOutletCodesTrusted(dcOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
+  return executeQuery(listTenantOutletCodesTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const createTenantOutletRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1387,4 +1399,3 @@ export function assignTenantServicePersonOutletTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(assignTenantServicePersonOutletTrustedRef(dcInstance, inputVars));
 }
-

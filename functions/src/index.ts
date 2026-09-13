@@ -83,6 +83,9 @@ const rateLimiter = new LoginRateLimiter();
 
 const callableOptions = {
   region: 'asia-south1',
+  // Callable clients need public transport access; authorization is enforced
+  // inside every handler using Firebase Auth, App Check, and tenant RBAC.
+  invoker: 'public' as const,
   // Keep callable endpoints available to the deployed Firebase Hosting sites.
   // Explicit origins avoid relying on the runtime's default CORS behavior.
   cors: [

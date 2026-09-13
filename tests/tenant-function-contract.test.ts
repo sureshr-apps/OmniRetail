@@ -5,6 +5,7 @@ const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
+    expect(source).toContain("invoker: 'public'");
     expect(source).toContain('cors: [');
     expect(source).toContain("'https://omniretail.firebaseapp.com'");
     expect(source).toContain("'https://omniretail.web.app'");

@@ -21,9 +21,9 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('--role=roles/run.invoker');
   });
 
-  it('acknowledges the intentional Data Connect outlet contract migration', () => {
+  it('deploys the intentional Data Connect outlet contract migration with force', () => {
     expect(deploymentSource).toContain('--only hosting,functions,dataconnect --non-interactive --force');
-    expect(deploymentSource).toContain('dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --force');
+    expect(deploymentSource).not.toContain('dataconnect:sql:migrate');
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

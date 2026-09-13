@@ -173,11 +173,7 @@ type Outlet @table {
   email: String
   phone: String!
   address: String!
-  timezone: String!
-  currency: String!
   status: OutletStatus! @default(value: ACTIVE)
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
 }
 
 type Employee @table {

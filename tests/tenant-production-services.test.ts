@@ -58,6 +58,10 @@ describe('tenant production service boundaries', () => {
     expect(service).not.toContain('city:');
     expect(service).not.toContain('timezone: input');
     expect(service).not.toContain('currency: input');
+    expect(service).not.toContain("timezone: 'Asia/Kolkata'");
+    expect(service).not.toContain("currency: 'INR'");
+    expect(service).not.toContain('createdAt: row.createdAt');
+    expect(service).not.toContain('updatedAt: row.updatedAt');
   });
 
   it('refreshes outlet data from the server after an outlet mutation', () => {

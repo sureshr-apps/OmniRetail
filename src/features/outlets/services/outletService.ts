@@ -31,11 +31,7 @@ function mapTenantOutlet(row: TenantOutletRow): Outlet {
     contactEmail: row.email ?? '',
     phone: row.phone,
     address: row.address,
-    timezone: 'Asia/Kolkata',
-    currency: 'INR',
     status: row.status === 'ACTIVE' ? 'Active' : 'Inactive',
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
   };
 }
 

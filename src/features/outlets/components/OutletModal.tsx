@@ -92,7 +92,7 @@ export function OutletModal({ isOpen, onClose, onSubmitCreate, onSubmitUpdate, o
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">{isEditing ? `Edit Outlet (${outletToEdit?.outletCode})` : 'Add Outlet'}</h3>
-              <p className="text-xs text-slate-500">Add an Indian retail outlet. Currency is INR and time zone is IST.</p>
+              <p className="text-xs text-slate-500">Add an Indian retail outlet.</p>
             </div>
           </div>
           <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-md cursor-pointer" aria-label="Close">

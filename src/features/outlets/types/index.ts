@@ -15,11 +15,7 @@ export interface Outlet {
   contactEmail: string;
   phone: string;
   address: string;
-  timezone: string;
-  currency: string;
   status: OutletStatus;
-  createdAt: string;
-  updatedAt: string;
   recentActivity?: OutletActivity[];
 }
 

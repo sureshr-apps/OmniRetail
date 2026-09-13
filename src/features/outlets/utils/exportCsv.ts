@@ -9,7 +9,6 @@ export function exportOutletsToCsv(outlets: Outlet[]): void {
     'Phone',
     'Street Address',
     'Status',
-    'Created At',
   ];
 
   const escapeField = (val: unknown): string => {
@@ -26,7 +25,6 @@ export function exportOutletsToCsv(outlets: Outlet[]): void {
     escapeField(o.phone),
     escapeField(o.address || ''),
     escapeField(o.status),
-    escapeField(o.createdAt),
   ]);
 
   const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');

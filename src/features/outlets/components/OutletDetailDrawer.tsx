@@ -20,20 +20,6 @@ export function OutletDetailDrawer({
 
   const isInactive = outlet.status === 'Inactive';
 
-  // Format dates
-  const formatDate = (isoStr: string) => {
-    try {
-      const d = new Date(isoStr);
-      return d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-    } catch {
-      return isoStr;
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 overflow-hidden select-none">
       {/* Backdrop */}
@@ -87,17 +73,6 @@ export function OutletDetailDrawer({
                     Inactive
                   </span>
                 )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200 text-[11px]">
-                <div>
-                  <span className="text-slate-400 block">Created Date</span>
-                  <span className="font-medium text-slate-700">{formatDate(outlet.createdAt)}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">Last Updated</span>
-                  <span className="font-medium text-slate-700">{formatDate(outlet.updatedAt)}</span>
-                </div>
               </div>
             </div>
 

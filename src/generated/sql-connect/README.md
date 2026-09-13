@@ -3242,11 +3242,7 @@ export interface ListTenantOutletsData {
     email?: string | null;
     phone: string;
     address: string;
-    timezone: string;
-    currency: string;
     status: OutletStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Outlet_Key)[];
 }
 ```

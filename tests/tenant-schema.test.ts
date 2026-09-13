@@ -15,7 +15,7 @@ describe('tenant Data Connect foundation schema', () => {
     const outlet = schema.match(/type Outlet @table[\s\S]*?\n}\n\ntype Employee/)?.[0] ?? '';
     expect(outlet).toContain('outletCode: String! @unique');
     expect(outlet).toContain('status: OutletStatus! @default(value: ACTIVE)');
-    for (const removedColumn of ['city:', 'state:', 'postalCode:', 'country:', 'registerCount:']) {
+    for (const removedColumn of ['city:', 'state:', 'postalCode:', 'country:', 'registerCount:', 'timezone:', 'currency:', 'createdAt:', 'updatedAt:']) {
       expect(outlet).not.toContain(removedColumn);
     }
   });
@@ -84,12 +84,10 @@ describe('tenant Data Connect foundation schema', () => {
     const outletOperations = connector.match(/(?:query|mutation) (?:ListTenantOutlets|CreateTenantOutlet|UpdateTenantOutlet|CreateTenantOutletTrusted|UpdateTenantOutletTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
     expect(outletOperations.length).toBe(5);
     for (const operation of outletOperations) {
-      for (const removedField of ['city', 'state', 'postalCode', 'country', 'registerCount']) {
+      for (const removedField of ['city', 'state', 'postalCode', 'country', 'registerCount', 'timezone', 'currency', 'createdAt', 'updatedAt']) {
         expect(operation).not.toMatch(new RegExp(`\\$${removedField}\\b|\\b${removedField}:`));
       }
     }
     expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('status: ACTIVE');
-    expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('timezone: "Asia/Kolkata"');
-    expect(outletOperations.find((operation) => operation.includes('CreateTenantOutletTrusted'))).toContain('currency: "INR"');
   });
 });

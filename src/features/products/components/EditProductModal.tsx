@@ -76,7 +76,7 @@ export function EditProductModal({
 
   if (!isOpen || !product) return null;
 
-  const validate = (): boolean => {
+  const validate = async (): Promise<boolean> => {
     const errs: { [key: string]: string } = {};
 
     if (!name.trim()) {
@@ -85,13 +85,13 @@ export function EditProductModal({
 
     if (!sku.trim()) {
       errs.sku = 'SKU identifier is required';
-    } else if (!productService.checkSkuUnique(sku.trim(), product.id)) {
+    } else if (!(await productService.checkSkuUnique(sku.trim(), product.id))) {
       errs.sku = 'SKU is already taken in catalog';
     }
 
     if (
       barcode.trim() &&
-      !productService.checkBarcodeUnique(barcode.trim(), product.id)
+      !(await productService.checkBarcodeUnique(barcode.trim(), product.id))
     ) {
       errs.barcode = 'Barcode is already assigned to another item';
     }
@@ -112,9 +112,9 @@ export function EditProductModal({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!(await validate())) return;
 
     const payload: UpdateProductInput = {
       id: product.id,

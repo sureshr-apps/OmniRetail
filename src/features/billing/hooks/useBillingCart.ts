@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { CartItem, Customer, HeldOrder, OrderTotals, PaymentMethod, Product } from '../types';
 import { productService } from '@/features/products/services/productService';
+import { createHeldOrder, deleteHeldOrder, listHeldOrders } from '../services/heldOrderService';
 
 const TAX_RATE = 0.0825; // 8.25% State Tax
 
@@ -23,6 +24,14 @@ export function useBillingCart() {
       setCatalogProducts(items.map((p) => ({ id: p.id, sku: p.sku, name: p.name, category: 'all', categoryLabel: p.categoryName, stock: p.stockSummary?.onHandTotal ?? 0, mrp: p.mrp ?? p.sellingPrice, discount: 0, rate: p.sellingPrice, barcode: p.barcode ?? '' })));
       setCartItems([]);
       setSelectedItemId(null);
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    listHeldOrders().then((orders) => {
+      if (active) setHeldOrders(orders);
     }).catch(() => undefined);
     return () => { active = false; };
   }, []);
@@ -212,19 +221,17 @@ export function useBillingCart() {
     setPromoDiscount(0);
   }, []);
 
-  const holdCurrentOrder = useCallback(() => {
+  const holdCurrentOrder = useCallback(async () => {
     if (cartItems.length === 0) return false;
-    
-    const newHeld: HeldOrder = {
-      id: `held-${Date.now()}`,
+
+    const newHeld = await createHeldOrder({
       orderNumber,
       items: [...cartItems],
       customer: selectedCustomer,
-      heldAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       itemCount: totals.itemCount,
       unitCount: totals.unitCount,
       totalPayable: totals.totalPayable,
-    };
+    });
 
     setHeldOrders(prev => [newHeld, ...prev]);
     // Generate new order number
@@ -236,8 +243,9 @@ export function useBillingCart() {
     return true;
   }, [cartItems, orderNumber, selectedCustomer, totals]);
 
-  const resumeHeldOrder = useCallback((held: HeldOrder) => {
+  const resumeHeldOrder = useCallback(async (held: HeldOrder) => {
     // If current cart is not empty, hold it first or replace
+    await deleteHeldOrder(held.id);
     setCartItems(held.items);
     setOrderNumber(held.orderNumber);
     setSelectedCustomer(held.customer);

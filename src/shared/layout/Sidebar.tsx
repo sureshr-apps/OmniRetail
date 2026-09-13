@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, Layers, Lock } from 'lucide-react';
+import { LayoutDashboard, Building2, Layers } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 import { useAuth } from '@/app/context/AuthContext';
 
@@ -33,14 +33,6 @@ export function Sidebar() {
       </div>
       
       <div className="flex-1 py-4 px-3 flex flex-col gap-1 overflow-y-auto">
-        <div className="px-3 mb-2 flex items-center justify-between">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Platform Console</span>
-          <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
-            <span className="w-1 h-1 rounded-full bg-primary inline-block"></span>
-            Stable
-          </span>
-        </div>
-        
         <nav className="flex flex-col gap-0.5 mt-2">
           {navigation.map((item) => (
             <NavLink
@@ -59,28 +51,6 @@ export function Sidebar() {
           ))}
         </nav>
 
-        <div className="mt-4 pt-3 border-t border-border-subdued">
-          <NavLink
-            to="/billing"
-            className="flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium text-text-secondary hover:bg-surface-subdued hover:text-text-primary transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-secondary"></span>
-              <span>Open Store POS</span>
-            </div>
-            <span className="text-[10px] text-primary font-bold">F2</span>
-          </NavLink>
-        </div>
-      </div>
-
-      <div className="p-4 border-t border-border-subdued mt-auto">
-        <div className="bg-surface-subdued rounded border border-border-structural/50 p-2.5 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-primary" />
-          <div className="flex flex-col">
-             <span className="text-[11px] font-semibold text-text-primary leading-tight">Platform Services</span>
-             <span className="text-[10px] text-primary leading-tight">All Systems Operational</span>
-          </div>
-        </div>
       </div>
     </aside>
   );

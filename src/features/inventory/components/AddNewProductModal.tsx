@@ -1,23 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { InventoryItem } from '../types';
+import { InventoryLocation } from '../types';
 
 interface AddNewProductModalProps {
   onClose: () => void;
   onSave: (product: Partial<InventoryItem>) => void;
+  availableLocations: InventoryLocation[];
 }
 
-export function AddNewProductModal({ onClose, onSave }: AddNewProductModalProps) {
-  const [sku, setSku] = useState(`SKU-${Math.floor(1000 + Math.random() * 9000)}`);
-  const [barcode, setBarcode] = useState(`${Math.floor(1000000000 + Math.random() * 9000000000)}`);
+export function AddNewProductModal({ onClose, onSave, availableLocations }: AddNewProductModalProps) {
+  const [sku, setSku] = useState('');
+  const [barcode, setBarcode] = useState('');
   const [name, setName] = useState('');
   const [department, setDepartment] = useState('Coffee');
   const [category, setCategory] = useState('Whole Bean');
-  const [locationName, setLocationName] = useState('Downtown Flagship - Store #01');
+  const [locationId, setLocationId] = useState('');
   const [cost, setCost] = useState('12.00');
   const [mrp, setMrp] = useState('24.00');
   const [retailPrice, setRetailPrice] = useState('22.00');
   const [onHandQty, setOnHandQty] = useState('25');
   const [reorderLevel, setReorderLevel] = useState('10');
+
+  useEffect(() => {
+    if (!locationId && availableLocations[0]) setLocationId(availableLocations[0].id);
+  }, [availableLocations, locationId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +35,8 @@ export function AddNewProductModal({ onClose, onSave }: AddNewProductModalProps)
       name: name.trim(),
       department,
       category,
-      locationName,
-      locationId: locationName.includes('Central')
-        ? 'whse-central'
-        : locationName.includes('04')
-        ? 'store-04'
-        : 'store-01',
+      locationId,
+      locationName: availableLocations.find((location) => location.id === locationId)?.name || '',
       cost: parseFloat(cost) || 10,
       mrp: parseFloat(mrp) || 20,
       retailPrice: parseFloat(retailPrice) || 18,
@@ -57,7 +59,7 @@ export function AddNewProductModal({ onClose, onSave }: AddNewProductModalProps)
                 Add New Product
               </h3>
               <p className="font-caption text-caption text-on-surface-variant">
-                Quick catalog item creation (Mock Frontend Entry)
+                Create a production catalog and inventory record
               </p>
             </div>
           </div>
@@ -136,13 +138,13 @@ export function AddNewProductModal({ onClose, onSave }: AddNewProductModalProps)
                   Initial Location
                 </label>
                 <select
-                  value={locationName}
-                  onChange={(e) => setLocationName(e.target.value)}
+                  value={locationId}
+                  onChange={(e) => setLocationId(e.target.value)}
                   className="w-full h-8 px-2 rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-caption text-on-surface focus:outline-none focus:border-primary cursor-pointer"
                 >
-                  <option value="Downtown Flagship - Store #01">Downtown Flagship - Store #01</option>
-                  <option value="Store #04 - Flagship">Store #04 - Flagship</option>
-                  <option value="Central Warehouse">Central Warehouse</option>
+                  {availableLocations.map((location) => (
+                    <option key={location.id} value={location.id}>{location.name}</option>
+                  ))}
                 </select>
               </div>
             </div>

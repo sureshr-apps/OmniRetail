@@ -1,6 +1,6 @@
 import React from 'react';
 import { PaymentStatus, PurchaseStatus } from '../types';
-import { SupplierOption, OutletOption } from '../services/mockData';
+import { SupplierOption, OutletOption } from '../services/purchaseService';
 
 interface PurchasesFilterToolbarProps {
   searchQuery: string;

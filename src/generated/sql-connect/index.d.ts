@@ -606,6 +606,22 @@ export interface CreateTenantExpenseVariables {
   actorFirebaseUid: string;
 }
 
+export interface CreateTenantInventoryStockData {
+  inventoryStock_upsert: InventoryStock_Key;
+  inventoryMovement_insert: InventoryMovement_Key;
+}
+
+export interface CreateTenantInventoryStockVariables {
+  organizationId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+  onHandQty: number;
+  reorderLevel: number;
+  overstockThreshold: number;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface CreateTenantOutletData {
   outlet_insert: Outlet_Key;
   auditEvent_insert: AuditEvent_Key;
@@ -1514,6 +1530,7 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -1635,6 +1652,7 @@ export interface ListTenantInventoryData {
       barcode?: string | null;
       categoryName: string;
       brand: string;
+      primarySupplier?: string | null;
       sellingPrice: number;
       cost?: number | null;
     } & Product_Key;
@@ -1658,6 +1676,7 @@ export interface ListTenantOutletsData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -1879,6 +1898,7 @@ export interface ListTenantServicePersonsData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -3534,6 +3554,18 @@ export const adjustTenantInventoryRef: AdjustTenantInventoryRef;
 
 export function adjustTenantInventory(vars: AdjustTenantInventoryVariables): MutationPromise<AdjustTenantInventoryData, AdjustTenantInventoryVariables>;
 export function adjustTenantInventory(dc: DataConnect, vars: AdjustTenantInventoryVariables): MutationPromise<AdjustTenantInventoryData, AdjustTenantInventoryVariables>;
+
+interface CreateTenantInventoryStockRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateTenantInventoryStockVariables): MutationRef<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreateTenantInventoryStockVariables): MutationRef<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+  operationName: string;
+}
+export const createTenantInventoryStockRef: CreateTenantInventoryStockRef;
+
+export function createTenantInventoryStock(vars: CreateTenantInventoryStockVariables): MutationPromise<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+export function createTenantInventoryStock(dc: DataConnect, vars: CreateTenantInventoryStockVariables): MutationPromise<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
 
 interface GetTenantMembershipTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

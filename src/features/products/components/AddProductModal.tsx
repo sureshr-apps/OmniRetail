@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CreateProductInput, ProductType } from '../types';
 import { productService } from '../services/productService';
 
@@ -13,7 +13,12 @@ export function AddProductModal({
   onClose,
   onCreated,
 }: AddProductModalProps) {
-  const nextCode = productService.getNextProductCode();
+  const [nextCode, setNextCode] = useState('Loading…');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    productService.getNextProductCode().then(setNextCode).catch(() => setNextCode('Pending assignment'));
+  }, [isOpen]);
 
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('Punarva Studio');
@@ -51,7 +56,7 @@ export function AddProductModal({
 
   if (!isOpen) return null;
 
-  const validate = (): boolean => {
+  const validate = async (): Promise<boolean> => {
     const errs: { [key: string]: string } = {};
 
     if (!name.trim()) {
@@ -60,11 +65,11 @@ export function AddProductModal({
 
     if (!sku.trim()) {
       errs.sku = 'SKU identifier is required';
-    } else if (!productService.checkSkuUnique(sku.trim())) {
+    } else if (!(await productService.checkSkuUnique(sku.trim()))) {
       errs.sku = 'SKU is already taken in catalog';
     }
 
-    if (barcode.trim() && !productService.checkBarcodeUnique(barcode.trim())) {
+    if (barcode.trim() && !(await productService.checkBarcodeUnique(barcode.trim()))) {
       errs.barcode = 'Barcode is already assigned to another item';
     }
 
@@ -92,9 +97,9 @@ export function AddProductModal({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!(await validate())) return;
 
     const payload: CreateProductInput = {
       name,

@@ -5,7 +5,7 @@ interface HeldOrdersModalProps {
   isOpen: boolean;
   onClose: () => void;
   heldOrders: HeldOrder[];
-  onResumeOrder: (order: HeldOrder) => void;
+  onResumeOrder: (order: HeldOrder) => Promise<void>;
 }
 
 export function HeldOrdersModal({
@@ -65,8 +65,8 @@ export function HeldOrdersModal({
 
                 <button
                   type="button"
-                  onClick={() => {
-                    onResumeOrder(held);
+                  onClick={async () => {
+                    await onResumeOrder(held);
                     onClose();
                   }}
                   className="px-3 py-1.5 rounded bg-primary hover:bg-primary-container text-on-primary font-body-medium text-body-medium transition-colors shadow-xs cursor-pointer flex items-center gap-1"

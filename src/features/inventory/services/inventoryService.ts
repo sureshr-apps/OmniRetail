@@ -12,43 +12,25 @@ import {
 import { getCurrentUserAuthorization, listTenantInventory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
+import { productService } from '@/features/products/services/productService';
+import { outletService } from '@/features/outlets/services/outletService';
+import { supplierService } from '@/features/suppliers/services/supplierService';
 
-export const LOCATIONS: InventoryLocation[] = [
-  {
-    id: 'all',
-    name: 'All Locations',
-    code: 'ALL',
-    subLabel: 'Store 04 & Central Whse',
-  },
-  {
-    id: 'store-01',
-    name: 'Store #01',
-    code: 'STR-01',
-    subLabel: 'Downtown Flagship',
-  },
-  {
-    id: 'store-04',
-    name: 'Store #04',
-    code: 'STR-04',
-    subLabel: 'Flagship Store #04',
-  },
-  {
-    id: 'whse-central',
-    name: 'Central Warehouse',
-    code: 'WH-01',
-    subLabel: 'Main Distribution Hub',
-  },
-];
+export async function getInventoryLocations(): Promise<InventoryLocation[]> {
+  const outlets = await outletService.getAllActiveOutlets();
+  return [
+    { id: 'all', name: 'All Locations', code: 'ALL', subLabel: 'All active outlets' },
+    ...outlets.map((outlet) => ({ id: outlet.id, name: outlet.name, code: outlet.outletCode, subLabel: outlet.city })),
+  ];
+}
 
-export const SUPPLIERS: SupplierSummary[] = [
-  { id: 'all', name: 'All Suppliers', code: 'ALL' },
-  { id: 'sup-ethiopia', name: 'Addis Highland Exports', code: 'AHE' },
-  { id: 'sup-colombia', name: 'Huila Growers Cooperative', code: 'HGC' },
-  { id: 'sup-barista', name: 'Barista Precision Tools', code: 'BPT' },
-  { id: 'sup-eco', name: 'EcoPack Global Solutions', code: 'EGS' },
-  { id: 'sup-syrup', name: 'Artisan Culinary Extracts', code: 'ACE' },
-  { id: 'sup-appliances', name: 'Nordic Brew Equipment Corp', code: 'NBE' },
-];
+export async function getInventorySuppliers(): Promise<SupplierSummary[]> {
+  const result = await supplierService.getSuppliers({ page: 1, pageSize: 1000 });
+  return [
+    { id: 'all', name: 'All Suppliers', code: 'ALL' },
+    ...result.items.map((supplier) => ({ id: supplier.id, name: supplier.name, code: supplier.supplierCode })),
+  ];
+}
 
 /**
  * Deterministic derived stock status rule as mandated by specification:
@@ -628,8 +610,8 @@ function mapTenantInventory(row: TenantInventoryRow): InventoryItem {
     imageUrl: '',
     locationId: row.outlet.id,
     locationName: row.outlet.name,
-    supplierId: '',
-    supplierName: row.product.brand,
+    supplierId: row.product.primarySupplier ?? '',
+    supplierName: row.product.primarySupplier ?? row.product.brand,
     binRack: row.binRack ?? undefined,
     onHandQty: row.onHandQty,
     reorderLevel: row.reorderLevel,
@@ -641,7 +623,7 @@ function mapTenantInventory(row: TenantInventoryRow): InventoryItem {
   };
 }
 
-class ProductionInventoryService extends MockInventoryService {
+class ProductionInventoryService {
   private async organizationId(): Promise<string> {
     const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
@@ -658,10 +640,15 @@ class ProductionInventoryService extends MockInventoryService {
     return result.data.inventoryStocks.map(mapTenantInventory);
   }
 
-  override async getInventory(query: InventoryQuery = {}): Promise<InventoryQueryResult> {
+  async getInventory(query: InventoryQuery = {}): Promise<InventoryQueryResult> {
     let items = await this.all(query);
     const search = query.search?.trim().toLowerCase() ?? '';
     if (search) items = items.filter((item) => `${item.sku} ${item.name} ${item.barcode} ${item.department} ${item.lotNumber ?? ''}`.toLowerCase().includes(search));
+    if (query.supplierId && query.supplierId !== 'all') {
+      const supplier = await supplierService.getSupplierById(query.supplierId);
+      const supplierNames = new Set([query.supplierId, supplier?.name, supplier?.supplierCode].filter(Boolean));
+      items = items.filter((item) => supplierNames.has(item.supplierId) || supplierNames.has(item.supplierName));
+    }
     if (query.statusTab && query.statusTab !== 'ALL') items = items.filter((item) => deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold) === query.statusTab);
     items.sort((a, b) => query.sort === 'NAME_ASC' ? a.name.localeCompare(b.name) : a.onHandQty - b.onHandQty);
     const counts = { all: items.length, inStock: 0, lowStock: 0, outOfStock: 0, overstocked: 0 };
@@ -670,8 +657,44 @@ class ProductionInventoryService extends MockInventoryService {
     return { items: items.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: items.length, filteredCount: items.length, page: validPage, pageSize, totalPages, tabCounts: counts, kpis: { totalValuation: items.reduce((sum, item) => sum + item.onHandQty * item.cost, 0), lowStockCount: counts.lowStock, outOfStockCount: counts.outOfStock, incomingPoCount: items.filter((item) => item.incomingPurchaseOrder).length } };
   }
 
-  override async getInventoryItem(id: string): Promise<InventoryItem | null> { return (await this.all()).find((item) => item.id === id || item.sku === id) ?? null; }
-  override async adjustStock(input: StockAdjustmentInput): Promise<{ item: InventoryItem; previousQty: number; newQty: number }> { const item = await this.getInventoryItem(input.itemId) ?? (await this.getInventoryItem(input.sku)); if (!item?.productId) throw new Error(`Item with SKU ${input.sku} not found`); const organizationId = await this.organizationId(); const previousQty = item.onHandQty; const newQty = input.mode === 'increase' ? previousQty + input.quantity : input.mode === 'decrease' ? Math.max(0, previousQty - input.quantity) : Math.max(0, input.quantity); await httpsCallable(getFirebaseClientServices().functions, 'adjustTenantInventoryStock')({ organizationId, outletId: item.locationId, productId: item.productId, mode: input.mode.toUpperCase(), quantity: input.quantity, previousQty, newQty, reasonCode: input.reasonCode, auditNote: input.auditNote ?? null, requestId: globalThis.crypto.randomUUID() }); const updated = await this.getInventoryItem(input.itemId); if (!updated) throw new Error('Inventory was adjusted but could not be loaded.'); return { item: updated, previousQty, newQty };
+  async getInventoryItem(id: string): Promise<InventoryItem | null> { return (await this.all()).find((item) => item.id === id || item.sku === id) ?? null; }
+  async addProduct(newItem: Partial<InventoryItem>): Promise<InventoryItem> {
+    const organizationId = await this.organizationId();
+    const outlets = await outletService.getAllActiveOutlets();
+    const outlet = outlets.find((candidate) => candidate.id === newItem.locationId || candidate.name === newItem.locationName);
+    if (!outlet) throw new Error('Select an active outlet before creating inventory.');
+    const name = newItem.name?.trim();
+    const sku = newItem.sku?.trim();
+    if (!name || !sku) throw new Error('Product name and SKU are required.');
+    const categoryName = newItem.category?.trim() || 'General';
+    const created = await productService.createProduct({
+      name,
+      brand: newItem.department?.trim() || 'General',
+      categoryId: categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      categoryName,
+      type: 'stockable',
+      sku,
+      barcode: newItem.barcode?.trim() || undefined,
+      sellingPrice: newItem.retailPrice ?? 0,
+      mrp: newItem.mrp ?? newItem.retailPrice ?? 0,
+      cost: newItem.cost ?? 0,
+      reorderLevel: newItem.reorderLevel ?? 0,
+      reorderQuantity: 0,
+    });
+    await httpsCallable(getFirebaseClientServices().functions, 'createTenantInventoryStockRecord')({
+      organizationId,
+      outletId: outlet.id,
+      productId: created.id,
+      onHandQty: newItem.onHandQty ?? 0,
+      reorderLevel: newItem.reorderLevel ?? 0,
+      overstockThreshold: newItem.overstockThreshold ?? Math.max(100, (newItem.reorderLevel ?? 0) * 10),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const inventory = (await this.all({ locationId: outlet.id })).find((item) => item.productId === created.id);
+    if (!inventory) throw new Error('Inventory was created but could not be loaded.');
+    return inventory;
+  }
+  async adjustStock(input: StockAdjustmentInput): Promise<{ item: InventoryItem; previousQty: number; newQty: number }> { const item = await this.getInventoryItem(input.itemId) ?? (await this.getInventoryItem(input.sku)); if (!item?.productId) throw new Error(`Item with SKU ${input.sku} not found`); const organizationId = await this.organizationId(); const previousQty = item.onHandQty; const newQty = input.mode === 'increase' ? previousQty + input.quantity : input.mode === 'decrease' ? Math.max(0, previousQty - input.quantity) : Math.max(0, input.quantity); await httpsCallable(getFirebaseClientServices().functions, 'adjustTenantInventoryStock')({ organizationId, outletId: item.locationId, productId: item.productId, mode: input.mode.toUpperCase(), quantity: input.quantity, previousQty, newQty, reasonCode: input.reasonCode, auditNote: input.auditNote ?? null, requestId: globalThis.crypto.randomUUID() }); const updated = await this.getInventoryItem(input.itemId); if (!updated) throw new Error('Inventory was adjusted but could not be loaded.'); return { item: updated, previousQty, newQty };
   }
 }
 

@@ -61,4 +61,12 @@ describe('tenant Data Connect foundation schema', () => {
       expect(connector).toContain(operation);
     }
   });
+
+  it('allows organization admins to read the product catalogue', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const productsQuery = connector.match(/query ListTenantProducts[\s\S]*?\n}\n/);
+
+    expect(productsQuery?.[0]).toContain('this[0].role.code == \'organization.admin\'');
+    expect(productsQuery?.[0]).toContain('rp.permission.code == \'products.read\'');
+  });
 });

@@ -81,7 +81,7 @@ export function InventoryShortcutsBar({
           type="button"
           onClick={onPrintBarcodes}
           className="flex items-center gap-1.5 hover:opacity-80 transition-opacity cursor-pointer text-left"
-          title="Mock Print Barcodes (Ctrl+P)"
+          title="Print Barcodes (Ctrl+P)"
         >
           <span className="font-body-mono-num text-micro-label px-1.5 py-0.5 rounded bg-surface-container font-bold text-on-surface border border-outline-variant/30">
             Ctrl+P

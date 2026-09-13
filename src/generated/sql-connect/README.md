@@ -95,6 +95,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*UpdateTenantProduct*](#updatetenantproduct)
   - [*ChangeTenantProductStatus*](#changetenantproductstatus)
   - [*AdjustTenantInventory*](#adjusttenantinventory)
+  - [*CreateTenantInventoryStock*](#createtenantinventorystock)
   - [*CreateTenantOutlet*](#createtenantoutlet)
   - [*UpdateTenantOutlet*](#updatetenantoutlet)
   - [*ChangeTenantOutletStatus*](#changetenantoutletstatus)
@@ -3211,6 +3212,7 @@ export interface ListTenantOutletsData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -3355,6 +3357,7 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -3510,6 +3513,7 @@ export interface ListTenantServicePersonsData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -3837,6 +3841,7 @@ export interface ListTenantInventoryData {
       barcode?: string | null;
       categoryName: string;
       brand: string;
+      primarySupplier?: string | null;
       sellingPrice: number;
       cost?: number | null;
     } & Product_Key;
@@ -11668,6 +11673,141 @@ console.log(data.inventoryMovement_insert);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.inventoryStock_update);
+  console.log(data.inventoryMovement_insert);
+});
+```
+
+## CreateTenantInventoryStock
+You can execute the `CreateTenantInventoryStock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+createTenantInventoryStock(vars: CreateTenantInventoryStockVariables): MutationPromise<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+
+interface CreateTenantInventoryStockRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateTenantInventoryStockVariables): MutationRef<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+}
+export const createTenantInventoryStockRef: CreateTenantInventoryStockRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+createTenantInventoryStock(dc: DataConnect, vars: CreateTenantInventoryStockVariables): MutationPromise<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+
+interface CreateTenantInventoryStockRef {
+  ...
+  (dc: DataConnect, vars: CreateTenantInventoryStockVariables): MutationRef<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+}
+export const createTenantInventoryStockRef: CreateTenantInventoryStockRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantInventoryStockRef:
+```typescript
+const name = createTenantInventoryStockRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface CreateTenantInventoryStockVariables {
+  organizationId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+  onHandQty: number;
+  reorderLevel: number;
+  overstockThreshold: number;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `CreateTenantInventoryStock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CreateTenantInventoryStockData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CreateTenantInventoryStockData {
+  inventoryStock_upsert: InventoryStock_Key;
+  inventoryMovement_insert: InventoryMovement_Key;
+}
+```
+### Using `CreateTenantInventoryStock`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, createTenantInventoryStock, CreateTenantInventoryStockVariables } from '@omniretail/sql-connect';
+
+// The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`:
+const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
+  organizationId: ..., 
+  outletId: ..., 
+  productId: ..., 
+  onHandQty: ..., 
+  reorderLevel: ..., 
+  overstockThreshold: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `createTenantInventoryStock()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await createTenantInventoryStock(createTenantInventoryStockVars);
+// Variables can be defined inline as well.
+const { data } = await createTenantInventoryStock({ organizationId: ..., outletId: ..., productId: ..., onHandQty: ..., reorderLevel: ..., overstockThreshold: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await createTenantInventoryStock(dataConnect, createTenantInventoryStockVars);
+
+console.log(data.inventoryStock_upsert);
+console.log(data.inventoryMovement_insert);
+
+// Or, you can use the `Promise` API.
+createTenantInventoryStock(createTenantInventoryStockVars).then((response) => {
+  const data = response.data;
+  console.log(data.inventoryStock_upsert);
+  console.log(data.inventoryMovement_insert);
+});
+```
+
+### Using `CreateTenantInventoryStock`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, createTenantInventoryStockRef, CreateTenantInventoryStockVariables } from '@omniretail/sql-connect';
+
+// The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`:
+const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
+  organizationId: ..., 
+  outletId: ..., 
+  productId: ..., 
+  onHandQty: ..., 
+  reorderLevel: ..., 
+  overstockThreshold: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `createTenantInventoryStockRef()` function to get a reference to the mutation.
+const ref = createTenantInventoryStockRef(createTenantInventoryStockVars);
+// Variables can be defined inline as well.
+const ref = createTenantInventoryStockRef({ organizationId: ..., outletId: ..., productId: ..., onHandQty: ..., reorderLevel: ..., overstockThreshold: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = createTenantInventoryStockRef(dataConnect, createTenantInventoryStockVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.inventoryStock_upsert);
+console.log(data.inventoryMovement_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.inventoryStock_upsert);
   console.log(data.inventoryMovement_insert);
 });
 ```

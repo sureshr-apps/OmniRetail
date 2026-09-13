@@ -1,4 +1,3 @@
-import { mockDelay } from '@/shared/utils/mockDelay';
 import {
   OrganizationAdministrator,
   CreateAdminInput,
@@ -143,8 +142,7 @@ const INITIAL_ADMINISTRATORS: OrganizationAdministrator[] = [
   },
 ];
 
-class MockOrganizationAdminService implements IOrganizationAdminService {
-  private admins: OrganizationAdministrator[] = [...INITIAL_ADMINISTRATORS];
+class OrganizationAdminService implements IOrganizationAdminService {
 
   async getAdministrators(organizationId: string): Promise<OrganizationAdministrator[]> {
     try {
@@ -316,5 +314,4 @@ class MockOrganizationAdminService implements IOrganizationAdminService {
   }
 }
 
-export const organizationAdminService: IOrganizationAdminService =
-  new MockOrganizationAdminService();
+export const organizationAdminService: IOrganizationAdminService = new OrganizationAdminService();

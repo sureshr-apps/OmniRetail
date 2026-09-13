@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CreatePurchaseInput, CreatePurchaseLineInput, PurchaseScope } from '../types';
-import { SupplierOption, OutletOption } from '../services/mockData';
+import { SupplierOption, OutletOption } from '../services/purchaseService';
+import { productService } from '@/features/products/services/productService';
+import { Product } from '@/features/products/types';
 import { calculatePurchaseTotals, formatCurrency } from '../utils/calculations';
 
 interface CreatePurchaseModalProps {
@@ -10,52 +12,6 @@ interface CreatePurchaseModalProps {
   suppliers: SupplierOption[];
   outlets: OutletOption[];
 }
-
-// Sample product catalogue suggestions for easy selection
-const PRODUCT_SUGGESTIONS = [
-  {
-    code: 'PRD-1024',
-    name: 'Classic Linen Relaxed Shirt',
-    sku: 'AP-SH-001',
-    cost: 22.5,
-    tax: 12,
-  },
-  {
-    code: 'PRD-1026',
-    name: 'Tailored Wool Blazer',
-    sku: 'AP-JK-003',
-    cost: 65.0,
-    tax: 12,
-  },
-  {
-    code: 'PRD-1029',
-    name: 'Kraft Carry Bags (100-pack)',
-    sku: 'PKG-BG-100',
-    cost: 15.0,
-    tax: 18,
-  },
-  {
-    code: 'PRD-1025',
-    name: 'Selvedge Denim Regular Trousers',
-    sku: 'AP-DN-002',
-    cost: 32.0,
-    tax: 12,
-  },
-  {
-    code: 'PRD-1027',
-    name: 'Full Grain Leather Card Wallet',
-    sku: 'ACC-WL-004',
-    cost: 16.0,
-    tax: 12,
-  },
-  {
-    code: 'HW-POS-01',
-    name: 'Enterprise Wireless Barcode Terminal',
-    sku: 'HW-BC-200',
-    cost: 450.0,
-    tax: 18,
-  },
-];
 
 export function CreatePurchaseModal({
   isOpen,
@@ -72,28 +28,16 @@ export function CreatePurchaseModal({
   const [paymentTerms, setPaymentTerms] = useState('Net 15 Days');
 
   // Product Lines
-  const [lines, setLines] = useState<CreatePurchaseLineInput[]>([
-    {
-      productId: 'prod-1024',
-      productCode: 'PRD-1024',
-      productName: 'Classic Linen Relaxed Shirt (PRD-1024)',
-      sku: 'AP-SH-001',
-      quantity: 50,
-      unitCost: 22.5,
-      discountPercent: 0,
-      taxRate: 12,
-    },
-    {
-      productId: 'prod-1026',
-      productCode: 'PRD-1026',
-      productName: 'Tailored Wool Blazer (PRD-1026)',
-      sku: 'AP-JK-003',
-      quantity: 25,
-      unitCost: 65.0,
-      discountPercent: 0,
-      taxRate: 12,
-    },
-  ]);
+  const [lines, setLines] = useState<CreatePurchaseLineInput[]>([]);
+  const [productSuggestions, setProductSuggestions] = useState<Product[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    void productService
+      .getProducts({ page: 1, pageSize: 1000, status: 'ACTIVE' })
+      .then((result) => setProductSuggestions(result.items))
+      .catch((error) => console.error('Failed to load purchase product options:', error));
+  }, [isOpen]);
 
   // Freight & Charges
   const [shippingFee, setShippingFee] = useState<number>(120.0);
@@ -123,18 +67,19 @@ export function CreatePurchaseModal({
       : parseFloat(customPaidAmount) || 0;
 
   const handleAddLine = () => {
-    const nextItem = PRODUCT_SUGGESTIONS[lines.length % PRODUCT_SUGGESTIONS.length];
+    const nextItem = productSuggestions[lines.length % productSuggestions.length];
+    if (!nextItem) return;
     setLines((prev) => [
       ...prev,
       {
-        productId: `prod-sug-${Date.now()}`,
-        productCode: nextItem.code,
-        productName: `${nextItem.name} (${nextItem.code})`,
+        productId: nextItem.id,
+        productCode: nextItem.productCode,
+        productName: `${nextItem.name} (${nextItem.productCode})`,
         sku: nextItem.sku,
         quantity: 10,
-        unitCost: nextItem.cost,
+        unitCost: nextItem.cost ?? 0,
         discountPercent: 0,
-        taxRate: nextItem.tax,
+        taxRate: Number(nextItem.taxCategory?.match(/[0-9]+(?:\.[0-9]+)?/)?.[0] ?? 0),
       },
     ]);
   };
@@ -157,18 +102,18 @@ export function CreatePurchaseModal({
   };
 
   const handleSelectPredefinedProduct = (index: number, code: string) => {
-    const match = PRODUCT_SUGGESTIONS.find((p) => p.code === code);
+    const match = productSuggestions.find((p) => p.productCode === code);
     if (!match) return;
     setLines((prev) =>
       prev.map((item, idx) => {
         if (idx !== index) return item;
         return {
           ...item,
-          productCode: match.code,
-          productName: `${match.name} (${match.code})`,
+          productCode: match.productCode,
+          productName: `${match.name} (${match.productCode})`,
           sku: match.sku,
-          unitCost: match.cost,
-          taxRate: match.tax,
+          unitCost: match.cost ?? 0,
+          taxRate: Number(match.taxCategory?.match(/[0-9]+(?:\.[0-9]+)?/)?.[0] ?? 0),
         };
       })
     );
@@ -386,14 +331,14 @@ export function CreatePurchaseModal({
                               />
                               <div className="flex items-center gap-1">
                                 <span className="text-[10px] text-on-surface-variant">Quick pick:</span>
-                                {PRODUCT_SUGGESTIONS.slice(0, 3).map((p) => (
+                                {productSuggestions.slice(0, 3).map((p) => (
                                   <button
-                                    key={p.code}
+                                    key={p.productCode}
                                     type="button"
-                                    onClick={() => handleSelectPredefinedProduct(idx, p.code)}
+                                    onClick={() => handleSelectPredefinedProduct(idx, p.productCode)}
                                     className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-primary/10 text-on-surface font-mono cursor-pointer"
                                   >
-                                    {p.code}
+                                    {p.productCode}
                                   </button>
                                 ))}
                               </div>

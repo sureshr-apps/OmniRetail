@@ -107,8 +107,9 @@ export function BillingPage() {
       if (e.key === 'F3') {
         e.preventDefault();
         if (cartItems.length > 0) {
-          holdCurrentOrder();
-          showDrawerAlert('Order placed on hold (F3)');
+          void holdCurrentOrder().then((held) => {
+            if (held) showDrawerAlert('Order placed on hold (F3)');
+          }).catch((error: unknown) => showDrawerAlert(error instanceof Error ? error.message : 'Unable to hold order.'));
         } else if (heldOrders.length > 0) {
           setIsHeldOrdersModalOpen(true);
         }

@@ -1,6 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { defineString } from 'firebase-functions/params';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import {
@@ -44,6 +45,7 @@ import {
   assignTenantEmployeeOutletTrusted,
   assignTenantServicePersonOutletTrusted,
   adjustTenantInventory,
+  createTenantInventoryStock,
   createTenantProduct,
   updateTenantProduct,
   changeTenantProductStatus as changeTenantProductStatusSql,
@@ -100,7 +102,23 @@ async function loadAuthorization(firebaseUid: string): Promise<AuthorizationReco
 }
 
 function requireCapability(record: AuthorizationRecord, capability: string): void {
-  if (!toAuthorizedUser(record).capabilities.includes(capability)) {
+  const authorized = toAuthorizedUser(record);
+  const tenantOperationalCapabilities = new Set([
+    'billing.read',
+    'sales.read',
+    'inventory.read',
+    'products.read',
+    'purchases.read',
+    'suppliers.read',
+    'customers.read',
+    'expenses.read',
+    'outlets.read',
+    'employees.read',
+    'service_persons.read',
+  ]);
+  const isOrganizationAdmin = authorized.roles.some((role) => role.code === 'organization.admin')
+    && authorized.organizationIds.length > 0;
+  if (!authorized.capabilities.includes(capability) && !(isOrganizationAdmin && tenantOperationalCapabilities.has(capability))) {
     throw genericAuthenticationError();
   }
 }
@@ -504,7 +522,9 @@ async function requireOrganizationAdmin(uid: string, organizationId: string): Pr
 
 async function requireOrganizationCapability(uid: string, organizationId: string, capability: string): Promise<void> {
   const membership = (await getTenantMembershipTrusted({ organizationId, firebaseUid: uid })).data.organizationMemberships[0];
-  if (!membership || !membership.role.rolePermissions_on_role.some((item) => item.permission.code === capability)) throw new Error('scope');
+  if (!membership) throw new Error('scope');
+  if (membership.role.code === 'organization.admin') return;
+  if (!membership.role.rolePermissions_on_role.some((item) => item.permission.code === capability)) throw new Error('scope');
 }
 
 export const updateTenantOutlet = onCall(callableOptions, async (request) => {
@@ -621,6 +641,26 @@ export const adjustTenantInventoryStock = onCall(callableOptions, async (request
   } catch (error) { logCallableFailure('adjustTenantInventoryStock', error); throw new HttpsError('permission-denied', 'Unable to adjust inventory stock.'); }
 });
 
+export const createTenantInventoryStockRecord = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'inventory.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const productId = typeof d.productId === 'string' ? d.productId : '';
+    const onHandQty = Number(d.onHandQty);
+    const reorderLevel = Number(d.reorderLevel);
+    const overstockThreshold = Number(d.overstockThreshold);
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !outletId || !productId || !Number.isFinite(onHandQty) || onHandQty < 0 || !Number.isFinite(reorderLevel) || reorderLevel < 0 || !Number.isFinite(overstockThreshold) || overstockThreshold < reorderLevel || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'inventory.read');
+    await createTenantInventoryStock({ organizationId, outletId, productId, onHandQty, reorderLevel, overstockThreshold, requestId, actorFirebaseUid: actor });
+    return { success: true, organizationId, outletId, productId };
+  } catch (error) { logCallableFailure('createTenantInventoryStockRecord', error); throw new HttpsError('permission-denied', 'Unable to create the inventory record.'); }
+});
+
 function productFields(d: any) {
   return { name: typeof d.name === 'string' ? d.name.trim() : '', brand: typeof d.brand === 'string' ? d.brand.trim() : '', categoryId: typeof d.categoryId === 'string' ? d.categoryId.trim() : '', categoryName: typeof d.categoryName === 'string' ? d.categoryName.trim() : '', subcategory: typeof d.subcategory === 'string' ? d.subcategory.trim() || null : null, type: d.type === 'SERVICE' || d.type === 'CONSUMABLE' ? d.type : 'STOCKABLE', sku: typeof d.sku === 'string' ? d.sku.trim() : '', barcode: typeof d.barcode === 'string' ? d.barcode.trim() || null : null, hsnCode: typeof d.hsnCode === 'string' ? d.hsnCode.trim() || null : null, unitOfMeasure: typeof d.unitOfMeasure === 'string' ? d.unitOfMeasure.trim() || null : null, sellingPrice: Number(d.sellingPrice), mrp: Number.isFinite(Number(d.mrp)) ? Number(d.mrp) : null, cost: Number.isFinite(Number(d.cost)) ? Number(d.cost) : null, minSellingPrice: Number.isFinite(Number(d.minSellingPrice)) ? Number(d.minSellingPrice) : null, discountAllowed: d.discountAllowed !== false, taxCategory: typeof d.taxCategory === 'string' ? d.taxCategory.trim() || null : null, reorderLevel: Number.isFinite(Number(d.reorderLevel)) ? Number(d.reorderLevel) : null, reorderQuantity: Number.isFinite(Number(d.reorderQuantity)) ? Number(d.reorderQuantity) : null, primarySupplier: typeof d.primarySupplier === 'string' ? d.primarySupplier.trim() || null : null, supplierProductCode: typeof d.supplierProductCode === 'string' ? d.supplierProductCode.trim() || null : null, description: typeof d.description === 'string' ? d.description.trim() || null : null, imageUrl: typeof d.imageUrl === 'string' ? d.imageUrl.trim() || null : null };
 }
@@ -730,4 +770,78 @@ export const resetOrganizationAdministratorPassword = onCall(callableOptions, as
     await recordAdministratorSecurityEvent({ auditId: randomUUID(), actorFirebaseUid: t.callerUid, action: 'organization_administrator.password_reset_initiated', targetId: t.appUserId, organizationId: t.organizationId, requestId: randomUUID() });
     return { success: true };
   } catch (error) { logCallableFailure('resetOrganizationAdministratorPassword', error); throw new HttpsError('permission-denied', 'Unable to reset the administrator password.'); }
+});
+
+function tenantOrganizationId(record: AuthorizationRecord): string {
+  const authorized = toAuthorizedUser(record);
+  if (!authorized.organizationIds[0]) throw new Error('No active organization membership.');
+  return authorized.organizationIds[0];
+}
+
+function heldOrdersCollection(organizationId: string) {
+  return getFirestore().collection('organizations').doc(organizationId).collection('heldOrders');
+}
+
+function isHeldOrderPayload(value: unknown): value is Record<string, unknown> {
+  const payload = value as Record<string, unknown> | null;
+  if (!payload) return false;
+  return typeof payload.orderNumber === 'string'
+    && Array.isArray(payload.items)
+    && payload.items.length <= 100
+    && Boolean(payload.customer)
+    && typeof payload.itemCount === 'number'
+    && typeof payload.unitCount === 'number'
+    && typeof payload.totalPayable === 'number';
+}
+
+export const listTenantHeldOrders = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'billing.read');
+    const organizationId = tenantOrganizationId(caller);
+    const snapshot = await heldOrdersCollection(organizationId).orderBy('heldAt', 'desc').get();
+    return { heldOrders: snapshot.docs.map((doc) => doc.data().heldOrder) };
+  } catch (error) {
+    logCallableFailure('listTenantHeldOrders', error);
+    throw new HttpsError('permission-denied', 'Unable to load held orders.');
+  }
+});
+
+export const createTenantHeldOrder = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'billing.read');
+    const organizationId = tenantOrganizationId(caller);
+    const payload = request.data?.heldOrder;
+    if (!isHeldOrderPayload(payload)) throw new Error('Invalid held order.');
+    const id = randomUUID();
+    const heldOrder = { ...payload, id, heldAt: new Date().toISOString() };
+    await heldOrdersCollection(organizationId).doc(id).set({
+      heldOrder,
+      heldAt: FieldValue.serverTimestamp(),
+      createdBy: actor,
+    });
+    return { heldOrder };
+  } catch (error) {
+    logCallableFailure('createTenantHeldOrder', error);
+    throw new HttpsError('permission-denied', 'Unable to hold the order.');
+  }
+});
+
+export const deleteTenantHeldOrder = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'billing.read');
+    const organizationId = tenantOrganizationId(caller);
+    const id = typeof request.data?.id === 'string' ? request.data.id : '';
+    if (!id) throw new Error('Invalid held order id.');
+    await heldOrdersCollection(organizationId).doc(id).delete();
+    return { success: true as const };
+  } catch (error) {
+    logCallableFailure('deleteTenantHeldOrder', error);
+    throw new HttpsError('permission-denied', 'Unable to resume the held order.');
+  }
 });

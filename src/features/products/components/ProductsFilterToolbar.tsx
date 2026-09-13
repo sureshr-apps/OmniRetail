@@ -1,6 +1,5 @@
 import React, { RefObject } from 'react';
 import { StatusFilterOption, ProductType } from '../types';
-import { CATEGORIES, BRANDS } from '../services/mockData';
 
 interface ProductsFilterToolbarProps {
   searchQuery: string;
@@ -16,6 +15,8 @@ interface ProductsFilterToolbarProps {
   onRefresh: () => void;
   onResetFilters: () => void;
   searchInputRef: RefObject<HTMLInputElement>;
+  categories: string[];
+  brands: string[];
 }
 
 export function ProductsFilterToolbar({
@@ -32,6 +33,8 @@ export function ProductsFilterToolbar({
   onRefresh,
   onResetFilters,
   searchInputRef,
+  categories,
+  brands,
 }: ProductsFilterToolbarProps) {
   const hasActiveFilters =
     searchQuery.trim() !== '' ||
@@ -104,7 +107,7 @@ export function ProductsFilterToolbar({
             onChange={(e) => onCategoryFilterChange(e.target.value)}
             className="bg-transparent text-body-default font-body-medium text-on-surface outline-none cursor-pointer text-xs"
           >
-            {CATEGORIES.map((cat) => (
+            {['All Categories', ...categories].map((cat) => (
               <option key={cat} value={cat}>
                 {cat}
               </option>
@@ -122,7 +125,7 @@ export function ProductsFilterToolbar({
             onChange={(e) => onBrandFilterChange(e.target.value)}
             className="bg-transparent text-body-default font-body-medium text-on-surface outline-none cursor-pointer text-xs"
           >
-            {BRANDS.map((brand) => (
+            {['All Brands', ...brands].map((brand) => (
               <option key={brand} value={brand}>
                 {brand}
               </option>

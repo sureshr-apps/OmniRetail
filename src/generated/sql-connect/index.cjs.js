@@ -1362,6 +1362,20 @@ exports.adjustTenantInventory = function adjustTenantInventory(dcOrVars, vars) {
 }
 ;
 
+const createTenantInventoryStockRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreateTenantInventoryStock', inputVars);
+}
+createTenantInventoryStockRef.operationName = 'CreateTenantInventoryStock';
+exports.createTenantInventoryStockRef = createTenantInventoryStockRef;
+
+exports.createTenantInventoryStock = function createTenantInventoryStock(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createTenantInventoryStockRef(dcInstance, inputVars));
+}
+;
+
 const getTenantMembershipTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

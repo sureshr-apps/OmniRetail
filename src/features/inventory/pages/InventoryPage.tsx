@@ -2,12 +2,16 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   InventoryItem,
   InventoryQueryResult,
+  InventoryLocation,
+  SupplierSummary,
   StockStatusTab,
   SortOption,
   StockAdjustmentInput,
 } from '../types';
 import {
   inventoryService,
+  getInventoryLocations,
+  getInventorySuppliers,
   deriveStockStatus,
   calculateMarginPercent,
 } from '../services/inventoryService';
@@ -29,6 +33,8 @@ export function InventoryPage() {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [selectedSupplier, setSelectedSupplier] = useState('all');
   const [selectedSort, setSelectedSort] = useState<SortOption>('STOCK_ASC');
+  const [locations, setLocations] = useState<InventoryLocation[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierSummary[]>([]);
 
   // Pagination State
   const [page, setPage] = useState(1);
@@ -97,6 +103,13 @@ export function InventoryPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    Promise.all([getInventoryLocations(), getInventorySuppliers()]).then(([locationOptions, supplierOptions]) => {
+      setLocations(locationOptions);
+      setSuppliers(supplierOptions);
+    }).catch((error) => console.error('Failed to load inventory filters', error));
+  }, []);
 
   // Keyboard Shortcuts Handler
   useEffect(() => {
@@ -305,6 +318,8 @@ export function InventoryPage() {
               setPage(1);
             }}
             searchInputRef={searchInputRef}
+            locations={locations}
+            suppliers={suppliers}
           />
         )}
 
@@ -371,6 +386,7 @@ export function InventoryPage() {
         <AddNewProductModal
           onClose={() => setIsAddProductOpen(false)}
           onSave={handleCreateProduct}
+          availableLocations={locations.filter((location) => location.id !== 'all')}
         />
       )}
 

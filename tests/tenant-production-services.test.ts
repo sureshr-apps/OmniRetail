@@ -1,0 +1,36 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+
+const root = new URL('../src/features/', import.meta.url);
+const read = (path: string) => readFileSync(new URL(path, root), 'utf8');
+
+describe('tenant production service boundaries', () => {
+  it('does not construct production tenant services from mock implementations', () => {
+    const serviceSources = [
+      'customers/services/customerService.ts',
+      'employees/services/employeeService.ts',
+      'expenses/services/expenseService.ts',
+      'inventory/services/inventoryService.ts',
+      'outlets/services/outletService.ts',
+      'products/services/productService.ts',
+      'purchases/services/purchaseService.ts',
+      'sales/services/salesService.ts',
+      'service-persons/services/servicePersonService.ts',
+      'suppliers/services/supplierService.ts',
+      'organizations/services/OrganizationAdminService.ts',
+    ];
+
+    for (const path of serviceSources) {
+      const source = read(path);
+      expect(source).not.toMatch(/class Production\w+ extends Mock/);
+      expect(source).not.toMatch(/new Mock\w+Service/);
+    }
+  });
+
+  it('uses live product catalog metadata in product and purchase controls', () => {
+    expect(read('products/components/ProductsFilterToolbar.tsx')).not.toContain("services/mockData");
+    expect(read('purchases/components/CreatePurchaseModal.tsx')).not.toContain('PRODUCT_SUGGESTIONS');
+    expect(read('purchases/components/CreatePurchaseModal.tsx')).toContain('productService');
+    expect(read('purchases/components/CreatePurchaseModal.tsx')).toContain('.getProducts');
+  });
+});

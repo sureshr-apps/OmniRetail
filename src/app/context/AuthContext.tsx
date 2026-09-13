@@ -10,7 +10,7 @@ import {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<User>;
   logout: () => Promise<void>;
   updateProfile: (update: ProfileUpdate) => Promise<void>;
   changePassword: (change: PasswordChange) => Promise<void>;
@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     const loggedInUser = await authService.login(credentials);
     setUser(loggedInUser);
+    return loggedInUser;
   };
 
   const logout = async () => {

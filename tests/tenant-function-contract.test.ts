@@ -113,4 +113,23 @@ describe('tenant callable contract', () => {
     expect(source).toContain('getTenantInventoryStockTrusted');
     expect(source).toContain('insufficient stock');
   });
+
+  it('exposes tenant-scoped held-order persistence for the POS cart', () => {
+    expect(source).toContain('export const listTenantHeldOrders = onCall');
+    expect(source).toContain('export const createTenantHeldOrder = onCall');
+    expect(source).toContain('export const deleteTenantHeldOrder = onCall');
+    expect(source).toContain('heldOrdersCollection(organizationId)');
+  });
+
+  it('exposes the production inventory creation boundary', () => {
+    expect(source).toContain('export const createTenantInventoryStockRecord = onCall');
+    expect(source).toContain('createTenantInventoryStock');
+    expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'inventory.read')");
+  });
+
+  it('treats organization administrators as authorized for tenant operational capabilities', () => {
+    expect(source).toContain("role.code === 'organization.admin'");
+    expect(source).toContain("tenantOperationalCapabilities.has(capability)");
+    expect(source).toContain("membership.role.code === 'organization.admin'");
+  });
 });

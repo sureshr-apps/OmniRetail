@@ -19,9 +19,11 @@ export interface IProductService {
   createProduct(input: CreateProductInput): Promise<Product>;
   updateProduct(id: string, input: UpdateProductInput): Promise<Product>;
   changeProductStatus(id: string, status: ProductStatus): Promise<Product>;
-  checkSkuUnique(sku: string, excludeId?: string): boolean;
-  checkBarcodeUnique(barcode?: string, excludeId?: string): boolean;
-  getNextProductCode(): string;
+  checkSkuUnique(sku: string, excludeId?: string): Promise<boolean>;
+  checkBarcodeUnique(barcode?: string, excludeId?: string): Promise<boolean>;
+  getNextProductCode(): Promise<string>;
+  getCategories(): Promise<string[]>;
+  getBrands(): Promise<string[]>;
 }
 
 class MockProductService implements IProductService {
@@ -64,7 +66,7 @@ class MockProductService implements IProductService {
     };
   }
 
-  public getNextProductCode(): string {
+  public async getNextProductCode(): Promise<string> {
     let maxNum = 1029;
     for (const p of this.products) {
       const match = p.productCode.match(/PRD-(\d+)/);
@@ -76,14 +78,22 @@ class MockProductService implements IProductService {
     return `PRD-${maxNum + 1}`;
   }
 
-  public checkSkuUnique(sku: string, excludeId?: string): boolean {
+  public async getCategories(): Promise<string[]> {
+    return Array.from(new Set(this.products.map((product) => product.categoryName))).sort();
+  }
+
+  public async getBrands(): Promise<string[]> {
+    return Array.from(new Set(this.products.map((product) => product.brand))).sort();
+  }
+
+  public async checkSkuUnique(sku: string, excludeId?: string): Promise<boolean> {
     const cleanSku = sku.trim().toLowerCase();
     return !this.products.some(
       (p) => p.sku.toLowerCase() === cleanSku && p.id !== excludeId
     );
   }
 
-  public checkBarcodeUnique(barcode?: string, excludeId?: string): boolean {
+  public async checkBarcodeUnique(barcode?: string, excludeId?: string): Promise<boolean> {
     if (!barcode || !barcode.trim()) return true;
     const cleanBarcode = barcode.trim().toLowerCase();
     return !this.products.some(
@@ -175,7 +185,7 @@ class MockProductService implements IProductService {
   public async createProduct(input: CreateProductInput): Promise<Product> {
     await new Promise((res) => setTimeout(res, 80));
 
-    const nextCode = this.getNextProductCode();
+    const nextCode = await this.getNextProductCode();
     const newId = `prod-${Date.now().toString().slice(-5)}`;
 
     const newProduct: Product = {
@@ -359,7 +369,7 @@ function mapTenantProduct(row: TenantProductRow): Product {
   };
 }
 
-class ProductionProductService extends MockProductService {
+class ProductionProductService implements IProductService {
   private async organizationId(): Promise<string> {
     const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
@@ -373,7 +383,31 @@ class ProductionProductService extends MockProductService {
     return result.data.products.map(mapTenantProduct);
   }
 
-  public override async getProducts(query: ProductQuery = {}): Promise<ProductQueryResult> {
+  public async getNextProductCode(): Promise<string> {
+    const products = await this.all();
+    const maxNumber = products.reduce((max, product) => {
+      const match = product.productCode.match(/PRD-(\d+)/i);
+      return match ? Math.max(max, Number(match[1])) : max;
+    }, 1029);
+    return `PRD-${maxNumber + 1}`;
+  }
+  public async getCategories(): Promise<string[]> {
+    return Array.from(new Set((await this.all()).map((product) => product.categoryName))).sort();
+  }
+  public async getBrands(): Promise<string[]> {
+    return Array.from(new Set((await this.all()).map((product) => product.brand))).sort();
+  }
+  public async checkSkuUnique(sku: string, excludeId?: string): Promise<boolean> {
+    const normalized = sku.trim().toLowerCase();
+    return !(await this.all()).some((product) => product.id !== excludeId && product.sku.toLowerCase() === normalized);
+  }
+  public async checkBarcodeUnique(barcode?: string, excludeId?: string): Promise<boolean> {
+    const normalized = barcode?.trim().toLowerCase();
+    if (!normalized) return true;
+    return !(await this.all()).some((product) => product.id !== excludeId && product.barcode?.toLowerCase() === normalized);
+  }
+
+  public async getProducts(query: ProductQuery = {}): Promise<ProductQueryResult> {
     const products = await this.all();
     const search = query.search?.trim().toLowerCase() ?? '';
     let filtered = products.filter((product) => {
@@ -392,22 +426,22 @@ class ProductionProductService extends MockProductService {
     return { items: filtered.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: products.length, filteredCount: filtered.length, page: validPage, pageSize, totalPages, kpis: { totalCatalogued: products.length, addedThisFiscalCycle: products.length, inStockCount, inStockPercentage: products.length ? Number((inStockCount / products.length * 100).toFixed(1)) : 0, lowStockCount: products.filter((p) => p.stockSummary?.status === 'LOW_STOCK').length, outOfStockCount: products.filter((p) => p.stockSummary?.status === 'OUT_OF_STOCK').length } };
   }
 
-  public override async getProduct(id: string): Promise<Product | null> {
+  public async getProduct(id: string): Promise<Product | null> {
     return (await this.all()).find((product) => product.id === id || product.productCode === id) ?? null;
   }
 
   private async context(): Promise<string> { return this.organizationId(); }
-  public override async createProduct(input: CreateProductInput): Promise<Product> {
+  public async createProduct(input: CreateProductInput): Promise<Product> {
     const organizationId = await this.context();
-    await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductRecord')({ organizationId, productCode: this.getNextProductCode(), ...input, type: input.type.toUpperCase(), requestId: globalThis.crypto.randomUUID() });
+    await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductRecord')({ organizationId, productCode: await this.getNextProductCode(), ...input, type: input.type.toUpperCase(), requestId: globalThis.crypto.randomUUID() });
     const products = await this.all(); const created = products.find((product) => product.name === input.name.trim() && product.sku === input.sku.trim()); if (!created) throw new Error('Product was created but could not be loaded.'); return created;
   }
-  public override async updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
+  public async updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
     const current = await this.getProduct(id); if (!current) throw new Error('Product not found.'); const organizationId = await this.context();
     await httpsCallable(getFirebaseClientServices().functions, 'updateTenantProductRecord')({ organizationId, id, ...current, ...input, requestId: globalThis.crypto.randomUUID(), type: (input.type ?? current.type).toUpperCase() });
     const updated = await this.getProduct(id); if (!updated) throw new Error('Product was updated but could not be loaded.'); return updated;
   }
-  public override async changeProductStatus(id: string, status: ProductStatus): Promise<Product> {
+  public async changeProductStatus(id: string, status: ProductStatus): Promise<Product> {
     const organizationId = await this.context(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantProductStatus')({ organizationId, id, status: status.toUpperCase(), requestId: globalThis.crypto.randomUUID() }); const updated = await this.getProduct(id); if (!updated) throw new Error('Product status was changed but could not be loaded.'); return updated;
   }
 }

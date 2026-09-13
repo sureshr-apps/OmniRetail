@@ -3,8 +3,9 @@ import {
   StockStatusTab,
   InventoryTabCounts,
   SortOption,
+  InventoryLocation,
+  SupplierSummary,
 } from '../types';
-import { LOCATIONS, SUPPLIERS } from '../services/inventoryService';
 
 interface InventoryFilterBarProps {
   searchQuery: string;
@@ -19,6 +20,8 @@ interface InventoryFilterBarProps {
   selectedSupplier: string;
   onSupplierChange: (supId: string) => void;
   searchInputRef: React.RefObject<HTMLInputElement | null>;
+  locations: InventoryLocation[];
+  suppliers: SupplierSummary[];
 }
 
 export function InventoryFilterBar({
@@ -34,6 +37,8 @@ export function InventoryFilterBar({
   selectedSupplier,
   onSupplierChange,
   searchInputRef,
+  locations,
+  suppliers,
 }: InventoryFilterBarProps) {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -61,9 +66,9 @@ export function InventoryFilterBar({
   }, []);
 
   const currentLocation =
-    LOCATIONS.find((l) => l.id === selectedLocation) || LOCATIONS[0];
+    locations.find((l) => l.id === selectedLocation) || locations[0] || { id: 'all', name: 'Loading locations', code: '', subLabel: '' };
   const currentSupplier =
-    SUPPLIERS.find((s) => s.id === selectedSupplier) || SUPPLIERS[0];
+    suppliers.find((s) => s.id === selectedSupplier) || suppliers[0] || { id: 'all', name: 'Loading suppliers', code: '' };
 
   const getSortLabel = (s: SortOption) => {
     switch (s) {
@@ -215,7 +220,7 @@ export function InventoryFilterBar({
                 <div className="px-3 py-1 font-micro-label uppercase text-on-surface-variant font-bold border-b border-outline-variant/20 mb-1">
                   Filter by Location
                 </div>
-                {LOCATIONS.map((loc) => (
+                {locations.map((loc) => (
                   <button
                     key={loc.id}
                     type="button"
@@ -297,7 +302,7 @@ export function InventoryFilterBar({
                 <div className="px-3 py-1 font-micro-label uppercase text-on-surface-variant font-bold border-b border-outline-variant/20 mb-1">
                   Filter by Supplier
                 </div>
-                {SUPPLIERS.map((sup) => (
+                {suppliers.map((sup) => (
                   <button
                     key={sup.id}
                     type="button"

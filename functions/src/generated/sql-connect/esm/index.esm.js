@@ -633,6 +633,12 @@ export function adjustTenantInventory(dcOrVarsOrOptions, varsOrOptions, options)
   return dcInstance.executeMutation('AdjustTenantInventory', inputVars, inputOpts);
 }
 
+export function createTenantInventoryStock(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantInventoryStock', inputVars, inputOpts);
+}
+
 export function getTenantMembershipTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

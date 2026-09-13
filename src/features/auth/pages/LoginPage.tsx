@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { KeyRound, User as UserIcon, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
+import { getDefaultRoute } from '@/app/auth/tenantAccess';
 import { Button } from '@/shared/components/Button';
 import { Input } from '@/shared/components/Input';
 import { Label } from '@/shared/components/Label';
@@ -24,9 +25,9 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login({ username, password });
+      const loggedInUser = await login({ username, password });
       const requestedPath = location.state?.from?.pathname;
-      navigate(typeof requestedPath === 'string' ? requestedPath : '/overview', { replace: true });
+      navigate(typeof requestedPath === 'string' ? requestedPath : getDefaultRoute(loggedInUser), { replace: true });
     } catch (err: any) {
       setError(err.message || 'An error occurred during login.');
     } finally {
@@ -127,11 +128,6 @@ export function LoginPage() {
         <div className="mt-6 flex flex-col items-center text-center gap-1">
           <div className="flex items-center gap-2 text-[11px] text-text-secondary font-medium">
             <span>v2.4.8 Cloud Enterprise</span>
-            <span className="w-1 h-1 rounded-full bg-border-structural"></span>
-            <span className="flex items-center gap-1 text-primary font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-              All Systems Operational
-            </span>
           </div>
           <div className="text-[11px] text-text-muted">
             © 2026 OmniRetail Systems Inc. End-to-end telemetry secured.

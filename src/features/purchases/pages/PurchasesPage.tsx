@@ -7,7 +7,7 @@ import {
   CreatePurchaseInput,
 } from '../types';
 import { purchaseService } from '../services/purchaseService';
-import { SupplierOption, OutletOption } from '../services/mockData';
+import { SupplierOption, OutletOption } from '../services/purchaseService';
 import { PurchasesHeader } from '../components/PurchasesHeader';
 import { PurchasesKpiCards } from '../components/PurchasesKpiCards';
 import { PurchasesFilterToolbar } from '../components/PurchasesFilterToolbar';

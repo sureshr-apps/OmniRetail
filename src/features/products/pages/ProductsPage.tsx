@@ -35,6 +35,8 @@ export function ProductsPage() {
   const [typeFilter, setTypeFilter] = useState<ProductType | 'ALL'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -75,6 +77,15 @@ export function ProductsPage() {
   useEffect(() => {
     loadCatalogue();
   }, [loadCatalogue]);
+
+  useEffect(() => {
+    void Promise.all([productService.getCategories(), productService.getBrands()])
+      .then(([nextCategories, nextBrands]) => {
+        setCategories(nextCategories);
+        setBrands(nextBrands);
+      })
+      .catch((error) => console.error('Failed to load product filter options:', error));
+  }, []);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -358,6 +369,8 @@ export function ProductsPage() {
           onRefresh={loadCatalogue}
           onResetFilters={handleResetFilters}
           searchInputRef={searchInputRef}
+          categories={categories}
+          brands={brands}
         />
 
         {/* 4. Products Table & Pagination Container */}

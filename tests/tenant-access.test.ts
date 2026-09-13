@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canAccessTenantAdministration, canAccessTenantOperationalModule, isMasterAdmin, isOrganizationAdmin } from '@/app/auth/tenantAccess';
+import { canAccessTenantAdministration, canAccessTenantOperationalModule, getDefaultRoute, isMasterAdmin, isOrganizationAdmin } from '@/app/auth/tenantAccess';
 import type { User } from '@/features/auth/services/AuthService';
 
 const user = (roleCode: string, capabilities: string[] = []): User => ({
@@ -18,6 +18,12 @@ describe('tenant access policy', () => {
 
   it('allows organization admins into tenant administration', () => {
     expect(canAccessTenantAdministration(user('organization.admin'))).toBe(true);
+  });
+
+  it('starts organization admins in the tenant workspace and master admins in the platform workspace', () => {
+    expect(getDefaultRoute(user('organization.admin'))).toBe('/billing');
+    expect(getDefaultRoute(user('master.admin'))).toBe('/overview');
+    expect(getDefaultRoute(user('employee', ['sales.read']))).toBe('/sales');
   });
 
   it('does not grant master admins tenant administration access', () => {

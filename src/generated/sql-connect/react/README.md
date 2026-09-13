@@ -102,6 +102,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*UpdateTenantProduct*](#updatetenantproduct)
   - [*ChangeTenantProductStatus*](#changetenantproductstatus)
   - [*AdjustTenantInventory*](#adjusttenantinventory)
+  - [*CreateTenantInventoryStock*](#createtenantinventorystock)
   - [*CreateTenantOutlet*](#createtenantoutlet)
   - [*UpdateTenantOutlet*](#updatetenantoutlet)
   - [*ChangeTenantOutletStatus*](#changetenantoutletstatus)
@@ -2597,6 +2598,7 @@ export interface ListTenantOutletsData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -2711,6 +2713,7 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -2836,6 +2839,7 @@ export interface ListTenantServicePersonsData {
       id: UUIDString;
     } & Organization_Key;
     role: {
+      code: string;
       rolePermissions_on_role: ({
         permission: {
           code: string;
@@ -3103,6 +3107,7 @@ export interface ListTenantInventoryData {
       barcode?: string | null;
       categoryName: string;
       brand: string;
+      primarySupplier?: string | null;
       sellingPrice: number;
       cost?: number | null;
     } & Product_Key;
@@ -9421,6 +9426,116 @@ export default function AdjustTenantInventoryComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.inventoryStock_update);
+    console.log(mutation.data.inventoryMovement_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## CreateTenantInventoryStock
+You can execute the `CreateTenantInventoryStock` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useCreateTenantInventoryStock(options?: useDataConnectMutationOptions<CreateTenantInventoryStockData, FirebaseError, CreateTenantInventoryStockVariables>): UseDataConnectMutationResult<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useCreateTenantInventoryStock(dc: DataConnect, options?: useDataConnectMutationOptions<CreateTenantInventoryStockData, FirebaseError, CreateTenantInventoryStockVariables>): UseDataConnectMutationResult<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
+```
+
+### Variables
+The `CreateTenantInventoryStock` Mutation requires an argument of type `CreateTenantInventoryStockVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface CreateTenantInventoryStockVariables {
+  organizationId: UUIDString;
+  outletId: UUIDString;
+  productId: UUIDString;
+  onHandQty: number;
+  reorderLevel: number;
+  overstockThreshold: number;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `CreateTenantInventoryStock` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `CreateTenantInventoryStock` Mutation is of type `CreateTenantInventoryStockData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface CreateTenantInventoryStockData {
+  inventoryStock_upsert: InventoryStock_Key;
+  inventoryMovement_insert: InventoryMovement_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `CreateTenantInventoryStock`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, CreateTenantInventoryStockVariables } from '@omniretail/sql-connect';
+import { useCreateTenantInventoryStock } from '@omniretail/sql-connect/react'
+
+export default function CreateTenantInventoryStockComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useCreateTenantInventoryStock();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useCreateTenantInventoryStock(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantInventoryStock(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useCreateTenantInventoryStock(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useCreateTenantInventoryStock` Mutation requires an argument of type `CreateTenantInventoryStockVariables`:
+  const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
+    organizationId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    onHandQty: ..., 
+    reorderLevel: ..., 
+    overstockThreshold: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(createTenantInventoryStockVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., outletId: ..., productId: ..., onHandQty: ..., reorderLevel: ..., overstockThreshold: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(createTenantInventoryStockVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.inventoryStock_upsert);
     console.log(mutation.data.inventoryMovement_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;

@@ -28,6 +28,8 @@ import { OrganizationDetailsPage } from '@/features/organizations/pages/Organiza
 import { PlansPage } from '@/features/plans/pages/PlansPage';
 import { ProfilePage } from '@/features/profile/pages/ProfilePage';
 import { TenantAppLayout } from '@/shared/layout/TenantAppLayout';
+import { getDefaultRoute } from '@/app/auth/tenantAccess';
+import { useAuth } from '@/app/context/AuthContext';
 
 function TenantRouteLayout() {
   return <TenantAppLayout />;
@@ -41,6 +43,11 @@ function TenantPlaceholderPage() {
   );
 }
 
+function HomeRoute() {
+  const { user } = useAuth();
+  return <Navigate to={getDefaultRoute(user)} replace />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -51,10 +58,9 @@ export default function App() {
           </Route>
           
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Navigate to="/overview" replace />} />
+            <Route path="/" element={<HomeRoute />} />
 
-            {/* Tenant/Store UI routes. These remain authentication-protected
-                until tenant membership/capability enforcement is introduced. */}
+            {/* Tenant/store routes are protected by tenant membership and capability checks. */}
             <Route element={<TenantRouteLayout />}>
               <Route element={<TenantAccessRoute capability="billing.read" />}>
                 <Route path="/billing" element={<BillingPage />} />

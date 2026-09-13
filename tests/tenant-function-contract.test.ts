@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
+const deploymentSource = readFileSync(new URL('../.github/workflows/firebase-deploy.yml', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -11,6 +12,13 @@ describe('tenant callable contract', () => {
     expect(source).toContain("'https://omniretail.web.app'");
     expect(source).toContain("'https://omniretail-60c71.firebaseapp.com'");
     expect(source).toContain("'https://omniretail-60c71.web.app'");
+  });
+
+  it('persists callable public invoker access after Firebase deployment', () => {
+    expect(deploymentSource).toContain('gcloud functions list --v2');
+    expect(deploymentSource).toContain('gcloud run services add-iam-policy-binding');
+    expect(deploymentSource).toContain('--member=allUsers');
+    expect(deploymentSource).toContain('--role=roles/run.invoker');
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

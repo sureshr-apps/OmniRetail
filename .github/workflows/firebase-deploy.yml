@@ -55,3 +55,16 @@ jobs:
 
       - name: Deploy Hosting, Functions, and Data Connect
         run: npx firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only hosting,functions,dataconnect --non-interactive
+
+      - name: Allow public transport access for callable functions
+        run: |
+          while IFS= read -r function_name; do
+            [ -z "$function_name" ] && continue
+            service_name="${function_name,,}"
+            gcloud run services add-iam-policy-binding "$service_name" \
+              --region=asia-south1 \
+              --project="$FIREBASE_PROJECT_ID" \
+              --member=allUsers \
+              --role=roles/run.invoker \
+              --quiet
+          done < <(gcloud functions list --v2 --project="$FIREBASE_PROJECT_ID" --regions=asia-south1 --format='value(name)')

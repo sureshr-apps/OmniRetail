@@ -161,6 +161,16 @@ function productCreationFailure(error: unknown): HttpsError {
   return new HttpsError('internal', 'Unable to create the product.');
 }
 
+function outletCreationFailure(error: unknown): HttpsError {
+  if (error instanceof HttpsError) return error;
+  const value = error as { message?: unknown } | null;
+  const message = typeof value?.message === 'string' ? value.message : '';
+  if (message === 'scope') return new HttpsError('permission-denied', 'You do not have permission to create outlets in this organization.');
+  if (/invalid input|idempotency/i.test(message)) return new HttpsError('invalid-argument', 'Some outlet details are invalid.');
+  if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'An outlet with this code already exists.');
+  return new HttpsError('internal', 'Unable to create the outlet.');
+}
+
 async function sendManagedPasswordEmail(email: string, requestType: 'PASSWORD_RESET'): Promise<void> {
   const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${encodeURIComponent(firebaseWebApiKey.value())}`, {
     method: 'POST', headers: { 'content-type': 'application/json' },
@@ -532,7 +542,7 @@ export const createTenantOutlet = onCall(callableOptions, async (request) => {
     return { success: true, outletCode, organizationId };
   } catch (error) {
     logCallableFailure('createTenantOutlet', error);
-    throw new HttpsError('permission-denied', 'Unable to create the outlet.');
+    throw outletCreationFailure(error);
   }
 });
 

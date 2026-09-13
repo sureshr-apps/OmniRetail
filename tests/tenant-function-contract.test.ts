@@ -27,6 +27,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain("membership.role.code !== 'organization.admin'");
     expect(source).toContain('createTenantOutletTrusted');
     expect(source).toContain('idempotencyKey');
+    expect(source).toContain('function outletCreationFailure(error: unknown): HttpsError');
+    expect(source).toContain("new HttpsError('invalid-argument', 'Some outlet details are invalid.')");
   });
 
   it('exposes update and status callables with organization-admin scope checks', () => {

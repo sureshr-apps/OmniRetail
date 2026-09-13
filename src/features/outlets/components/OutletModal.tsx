@@ -14,6 +14,7 @@ interface FormErrors {
   name?: string;
   contactPerson?: string;
   phone?: string;
+  address?: string;
   city?: string;
   email?: string;
   registerCount?: string;
@@ -111,6 +112,10 @@ export function OutletModal({
 
     if (!phone.trim()) {
       errs.phone = 'Phone number is required for dispatch & alerts.';
+    }
+
+    if (!address.trim()) {
+      errs.address = 'Street address is required for outlet operations.';
     }
 
     if (!city.trim()) {
@@ -227,6 +232,7 @@ export function OutletModal({
                 {errors.name && <li>{errors.name}</li>}
                 {errors.contactPerson && <li>{errors.contactPerson}</li>}
                 {errors.phone && <li>{errors.phone}</li>}
+                {errors.address && <li>{errors.address}</li>}
                 {errors.city && <li>{errors.city}</li>}
                 {errors.email && <li>{errors.email}</li>}
                 {errors.registerCount && <li>{errors.registerCount}</li>}
@@ -412,14 +418,27 @@ export function OutletModal({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Street Address</label>
+              <label className="block font-semibold text-slate-700 mb-1">
+                Street Address <span className="text-rose-500">*</span>
+              </label>
               <input
                 type="text"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  if (errors.address) setErrors({ ...errors, address: undefined });
+                }}
                 placeholder="Building, Suite, Street name"
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-600"
+                className={`w-full px-3 py-2 bg-white border rounded-md text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-600 ${
+                  errors.address ? 'border-rose-400 bg-rose-50/20' : 'border-slate-300'
+                }`}
               />
+              {errors.address && (
+                <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[13px]">error</span>
+                  {errors.address}
+                </p>
+              )}
             </div>
           </div>
 

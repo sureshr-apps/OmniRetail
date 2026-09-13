@@ -33,4 +33,10 @@ describe('tenant production service boundaries', () => {
     expect(read('purchases/components/CreatePurchaseModal.tsx')).toContain('productService');
     expect(read('purchases/components/CreatePurchaseModal.tsx')).toContain('.getProducts');
   });
+
+  it('validates the required outlet address before calling the backend', () => {
+    const source = read('outlets/components/OutletModal.tsx');
+    expect(source).toContain("errs.address = 'Street address is required for outlet operations.'");
+    expect(source).toContain('Street Address <span className="text-rose-500">*</span>');
+  });
 });

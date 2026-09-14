@@ -8,6 +8,7 @@ import {
   UpdateProductInput,
 } from '../types';
 import { productService, deriveProductView } from '../services/productService';
+import { formatProductCode } from '../utils/formatProductCode';
 import { upsertById } from '@/shared/utils/listState';
 import { ProductsHeader } from '../components/ProductsHeader';
 import { ProductsKpiCards } from '../components/ProductsKpiCards';
@@ -189,7 +190,7 @@ export function ProductsPage() {
     ];
 
     const rows = data.items.map((p) => [
-      `"${p.productCode}"`,
+      `"${formatProductCode(p.productCode)}"`,
       `"${p.name.replace(/"/g, '""')}"`,
       `"${p.brand}"`,
       `"${p.categoryName}"`,
@@ -234,7 +235,7 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'success',
         title: 'Master SKU Created',
-        description: `Successfully added ${created.productCode} (${created.name}) to catalogue.`,
+        description: `Successfully added ${formatProductCode(created.productCode)} (${created.name}) to catalogue.`,
       });
     } catch (err) {
       console.error('Failed to create product:', err);
@@ -257,7 +258,7 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'success',
         title: 'Product Updated',
-        description: `Successfully saved master data for ${updated.productCode}.`,
+        description: `Successfully saved master data for ${formatProductCode(updated.productCode)}.`,
       });
     } catch (err) {
       console.error('Failed to update product:', err);
@@ -280,7 +281,7 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'info',
         title: 'Status Updated',
-        description: `${product.productCode} is now set to ${nextStatus.toUpperCase()}.`,
+        description: `${formatProductCode(product.productCode)} is now set to ${nextStatus.toUpperCase()}.`,
       });
     } catch (err) {
       console.error('Failed to toggle status:', err);
@@ -319,7 +320,7 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'success',
         title: 'Product Duplicated',
-        description: `Created new draft ${created.productCode} based on ${product.productCode}.`,
+        description: `Created new draft ${formatProductCode(created.productCode)} based on ${formatProductCode(product.productCode)}.`,
       });
     } catch (err) {
       console.error('Failed to duplicate:', err);

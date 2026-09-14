@@ -5,13 +5,13 @@ import {
   CreateServicePersonInput,
   UpdateServicePersonInput,
 } from '../types';
+import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 
 interface ServicePersonModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (input: CreateServicePersonInput | UpdateServicePersonInput) => Promise<void>;
   personToEdit: ServicePerson | null;
-  nextServicePersonCode: string;
   availableOutlets: { id: string; name: string }[];
   specializations: string[];
 }
@@ -21,7 +21,6 @@ export function ServicePersonModal({
   onClose,
   onSubmit,
   personToEdit,
-  nextServicePersonCode,
   availableOutlets,
   specializations,
 }: ServicePersonModalProps) {
@@ -165,7 +164,7 @@ export function ServicePersonModal({
             </span>
             <h3 className="font-headline-sm text-headline-sm text-on-surface">
               {isEditing
-                ? `Edit Service Person (${personToEdit.servicePersonCode})`
+                ? `Edit Service Person (${formatServicePersonCode(personToEdit.servicePersonCode)})`
                 : 'Add New Service Person'}
             </h3>
           </div>
@@ -189,21 +188,19 @@ export function ServicePersonModal({
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-space-base">
-                <div>
-                  <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                    Service Person Code
-                  </label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={
-                      isEditing
-                        ? personToEdit.servicePersonCode
-                        : `${nextServicePersonCode} (Auto-Generated)`
-                    }
-                    className="w-full h-9 px-space-base rounded-xl bg-surface-container-high border border-outline-variant/40 font-body-mono-num text-caption text-on-surface-variant cursor-not-allowed"
-                  />
-                </div>
+                {isEditing && (
+                  <div>
+                    <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
+                      Service Person Code
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={formatServicePersonCode(personToEdit.servicePersonCode)}
+                      className="w-full h-9 px-space-base rounded-xl bg-surface-container-high border border-outline-variant/40 font-body-mono-num text-caption text-on-surface-variant cursor-not-allowed"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
                     First Name *

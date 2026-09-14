@@ -37,7 +37,6 @@ export function EmployeeMasterPage() {
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<string[]>([]);
   const [availableDepartments, setAvailableDepartments] = useState<string[]>([]);
-  const [nextEmployeeCode, setNextEmployeeCode] = useState('EMP-125');
 
   // Loading & Error states
   const [isLoading, setIsLoading] = useState(true);
@@ -104,7 +103,6 @@ export function EmployeeMasterPage() {
       setIsLoading(true);
       setError(null);
       setAllEmployees(await employeeService.getAllEmployees());
-      setNextEmployeeCode(employeeService.getNextEmployeeCode());
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to connect to employee registry.';
       setError(msg);
@@ -207,7 +205,6 @@ export function EmployeeMasterPage() {
   const handleCreateEmployee = async (input: CreateEmployeeInput) => {
     const created = await employeeService.createEmployee(input);
     setAllEmployees((prev) => upsertById(prev, created));
-    setNextEmployeeCode(employeeService.getNextEmployeeCode());
   };
 
   // Action: Submit Update Employee
@@ -361,7 +358,6 @@ export function EmployeeMasterPage() {
         onSubmitCreate={handleCreateEmployee}
         onSubmitUpdate={handleUpdateEmployee}
         employeeToEdit={employeeToEdit}
-        generatedEmployeeCode={nextEmployeeCode}
         availableOutlets={availableOutlets}
       />
 

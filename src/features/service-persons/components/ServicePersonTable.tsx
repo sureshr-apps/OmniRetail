@@ -1,5 +1,6 @@
 import React from 'react';
 import { ServicePerson } from '../types';
+import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 
 interface ServicePersonTableProps {
   servicePersons: ServicePerson[];
@@ -69,7 +70,7 @@ export function ServicePersonTable({ servicePersons, onView }: ServicePersonTabl
                     isInactive ? 'text-on-surface-variant' : 'text-primary'
                   }`}
                 >
-                  {person.servicePersonCode}
+                  {formatServicePersonCode(person.servicePersonCode)}
                 </td>
 
                 {/* Name & Contact */}

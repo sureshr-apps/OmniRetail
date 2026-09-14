@@ -540,7 +540,6 @@ export interface CreateTenantCustomerData {
 export interface CreateTenantCustomerVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  customerCode: string;
   type: CustomerType;
   name: string;
   phone: string;
@@ -569,7 +568,6 @@ export interface CreateTenantEmployeeProfileTrustedData {
 export interface CreateTenantEmployeeProfileTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  employeeCode: string;
   fullName: string;
   email?: string | null;
   phone: string;
@@ -667,7 +665,6 @@ export interface CreateTenantProductData {
 export interface CreateTenantProductVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  productCode: string;
   name: string;
   brand: string;
   categoryId: string;
@@ -777,7 +774,6 @@ export interface CreateTenantServicePersonTrustedData {
 export interface CreateTenantServicePersonTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  servicePersonCode: string;
   fullName: string;
   email?: string | null;
   phone: string;
@@ -798,7 +794,6 @@ export interface CreateTenantSupplierData {
 export interface CreateTenantSupplierVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  supplierCode: string;
   name: string;
   contactPerson: string;
   phone: string;
@@ -1303,7 +1298,7 @@ export interface GetTenantCustomerTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    customerCode: string;
+    customerCode: number;
     type: CustomerType;
     name: string;
     phone: string;
@@ -1341,7 +1336,7 @@ export interface GetTenantEmployeeTrustedData {
       username: string;
       email: string;
     } & AppUser_Key;
-    employeeCode: string;
+    employeeCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -1433,7 +1428,7 @@ export interface GetTenantProductTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    productCode: string;
+    productCode: number;
     name: string;
     brand: string;
     categoryId: string;
@@ -1473,7 +1468,7 @@ export interface GetTenantServicePersonTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    servicePersonCode: string;
+    servicePersonCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -1505,7 +1500,7 @@ export interface GetTenantSupplierTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    supplierCode: string;
+    supplierCode: number;
     name: string;
     contactPerson: string;
     phone: string;
@@ -1722,7 +1717,7 @@ export interface ListTenantCustomersData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    customerCode: string;
+    customerCode: number;
     type: CustomerType;
     name: string;
     phone: string;
@@ -1772,7 +1767,7 @@ export interface ListTenantEmployeesData {
       username: string;
       email: string;
     } & AppUser_Key;
-    employeeCode: string;
+    employeeCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -1869,7 +1864,7 @@ export interface ListTenantInventoryData {
     } & Outlet_Key;
     product: {
       id: UUIDString;
-      productCode: string;
+      productCode: number;
       name: string;
       sku: string;
       barcode?: string | null;
@@ -1942,7 +1937,7 @@ export interface ListTenantProductsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    productCode: string;
+    productCode: number;
     name: string;
     brand: string;
     categoryId: string;
@@ -1997,7 +1992,7 @@ export interface ListTenantPurchasesData {
     purchaseDate: DateString;
     supplier: {
       id: UUIDString;
-      supplierCode: string;
+      supplierCode: number;
       name: string;
       taxId: string;
     } & Supplier_Key;
@@ -2029,7 +2024,7 @@ export interface ListTenantPurchasesData {
       id: UUIDString;
       product: {
         id: UUIDString;
-        productCode: string;
+        productCode: number;
         name: string;
         sku: string;
       } & Product_Key;
@@ -2073,7 +2068,7 @@ export interface ListTenantSalesData {
     saleTimestamp: TimestampString;
     customer?: {
       id: UUIDString;
-      customerCode: string;
+      customerCode: number;
       name: string;
       phone: string;
       email: string;
@@ -2093,7 +2088,7 @@ export interface ListTenantSalesData {
       id: UUIDString;
       product: {
         id: UUIDString;
-        productCode: string;
+        productCode: number;
         name: string;
         sku: string;
       } & Product_Key;
@@ -2127,7 +2122,7 @@ export interface ListTenantServicePersonsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    servicePersonCode: string;
+    servicePersonCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -2168,7 +2163,7 @@ export interface ListTenantSuppliersData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    supplierCode: string;
+    supplierCode: number;
     name: string;
     contactPerson: string;
     phone: string;
@@ -2288,7 +2283,6 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   username: string;
   email: string;
   organizationId: UUIDString;
-  employeeCode: string;
   fullName: string;
   phone: string;
   designation: string;

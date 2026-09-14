@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
+import { formatProductCode } from '../utils/formatProductCode';
 
 interface ProductDetailDrawerProps {
   product: Product | null;
@@ -42,7 +43,7 @@ export function ProductDetailDrawer({
                   Product Details
                 </span>
                 <span className="font-body-mono-num text-caption font-bold text-primary px-1.5 py-0.5 rounded bg-surface-container-high">
-                  {product.productCode}
+                  {formatProductCode(product.productCode)}
                 </span>
               </div>
               <span className="font-caption text-caption text-on-surface-variant">

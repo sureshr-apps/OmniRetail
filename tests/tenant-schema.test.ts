@@ -50,12 +50,12 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('defines an organization-scoped customer master', () => {
     expect(schema).toMatch(/enum CustomerStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
-    expect(schema).toMatch(/type Customer @table[\s\S]*organization: Organization![\s\S]*customerCode: String! @unique/);
+    expect(schema).toMatch(/type Customer @table[\s\S]*organization: Organization![\s\S]*customerCode: Int! @col\(dataType: "serial"\) @unique/);
   });
 
   it('defines an organization-scoped supplier master', () => {
     expect(schema).toMatch(/enum SupplierStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
-    expect(schema).toMatch(/type Supplier @table[\s\S]*organization: Organization![\s\S]*supplierCode: String! @unique/);
+    expect(schema).toMatch(/type Supplier @table[\s\S]*organization: Organization![\s\S]*supplierCode: Int! @col\(dataType: "serial"\) @unique/);
   });
 
   it('defines purchase headers and product lines for tenant purchasing', () => {

@@ -5,7 +5,7 @@ import type { Supplier } from '@/features/suppliers/types';
 
 const supplier = (overrides: Partial<Supplier> = {}): Supplier => ({
   id: 's1',
-  supplierCode: 'SUP-101',
+  supplierCode: 101,
   name: 'Apex Global Electronics',
   contactPerson: 'Marcus Vance',
   phone: '+15553829100',
@@ -47,8 +47,8 @@ describe('deriveSupplierView', () => {
   });
 
   it('keeps pagination correct: a new record appended by create lands on the right page', () => {
-    const all = Array.from({ length: 10 }, (_, i) => supplier({ id: `s${i}`, supplierCode: `SUP-${i}` }));
-    const withNew = upsertById(all, supplier({ id: 's10', supplierCode: 'SUP-10', name: 'Newest' }));
+    const all = Array.from({ length: 10 }, (_, i) => supplier({ id: `s${i}`, supplierCode: i }));
+    const withNew = upsertById(all, supplier({ id: 's10', supplierCode: 10, name: 'Newest' }));
 
     const page1 = deriveSupplierView(withNew, { page: 1, pageSize: 10 });
     const page2 = deriveSupplierView(withNew, { page: 2, pageSize: 10 });

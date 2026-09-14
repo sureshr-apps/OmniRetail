@@ -1,4 +1,5 @@
 import { Customer } from '../types';
+import { formatCustomerCode } from './formatCustomerCode';
 
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -34,7 +35,7 @@ export function exportCustomersToCsv(customers: Customer[]): void {
   ];
 
   const rows = customers.map((c) => [
-    `"${c.customerCode}"`,
+    `"${formatCustomerCode(c.customerCode)}"`,
     `"${c.name.replace(/"/g, '""')}"`,
     `"${c.type}"`,
     `"${c.phone}"`,

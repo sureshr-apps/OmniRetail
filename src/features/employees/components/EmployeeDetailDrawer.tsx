@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Employee } from '../types';
+import { formatEmployeeCode } from '../utils/formatEmployeeCode';
 
 interface EmployeeDetailDrawerProps {
   employee: Employee | null;
@@ -33,7 +34,7 @@ export function EmployeeDetailDrawer({
         <div className="px-space-xl py-space-base bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <span className="font-body-mono-num text-caption font-semibold px-2 py-0.5 rounded bg-primary-container/10 text-primary">
-              {employee.employeeCode}
+              {formatEmployeeCode(employee.employeeCode)}
             </span>
             <span className="font-micro-label text-micro-label uppercase text-on-surface-variant font-bold">
               Personnel Dossier

@@ -5,6 +5,7 @@ import {
   UpdateEmployeeInput,
   AssignmentScope,
 } from '../types';
+import { formatEmployeeCode } from '../utils/formatEmployeeCode';
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -12,7 +13,6 @@ interface EmployeeModalProps {
   onSubmitCreate: (input: CreateEmployeeInput) => Promise<void>;
   onSubmitUpdate: (id: string, input: UpdateEmployeeInput) => Promise<void>;
   employeeToEdit: Employee | null;
-  generatedEmployeeCode: string;
   availableOutlets: string[];
 }
 
@@ -22,7 +22,6 @@ export function EmployeeModal({
   onSubmitCreate,
   onSubmitUpdate,
   employeeToEdit,
-  generatedEmployeeCode,
   availableOutlets,
 }: EmployeeModalProps) {
   // Form State
@@ -218,7 +217,7 @@ export function EmployeeModal({
         <div className="px-space-xl py-space-base bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between shrink-0">
           <div>
             <h2 className="font-headline-md text-headline-md text-on-surface font-bold">
-              {isEditing ? `Edit Employee (${employeeToEdit?.employeeCode})` : 'Add New Employee'}
+              {isEditing && employeeToEdit ? `Edit Employee (${formatEmployeeCode(employeeToEdit.employeeCode)})` : 'Add New Employee'}
             </h2>
             <p className="font-caption text-caption text-on-surface-variant mt-0.5">
               Create personnel record, designate store assignment, and configure application access.
@@ -272,21 +271,19 @@ export function EmployeeModal({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-space-base">
-              <div>
-                <label className="block font-caption text-caption text-on-surface-variant mb-1 font-medium">
-                  Employee Code
-                </label>
-                <input
-                  type="text"
-                  disabled
-                  value={
-                    isEditing && employeeToEdit
-                      ? employeeToEdit.employeeCode
-                      : `${generatedEmployeeCode} (Auto)`
-                  }
-                  className="w-full h-9 px-3 rounded bg-surface-container border border-outline-variant/30 font-body-mono-num text-caption text-on-surface-variant cursor-not-allowed"
-                />
-              </div>
+              {isEditing && employeeToEdit && (
+                <div>
+                  <label className="block font-caption text-caption text-on-surface-variant mb-1 font-medium">
+                    Employee Code
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={formatEmployeeCode(employeeToEdit.employeeCode)}
+                    className="w-full h-9 px-3 rounded bg-surface-container border border-outline-variant/30 font-body-mono-num text-caption text-on-surface-variant cursor-not-allowed"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block font-caption text-caption text-on-surface mb-1 font-medium">

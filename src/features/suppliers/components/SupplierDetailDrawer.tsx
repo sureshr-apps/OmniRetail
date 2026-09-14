@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Supplier, UpdateSupplierInput, SupplierCategory, PaymentTerms } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { formatSupplierCode } from '../utils/formatSupplierCode';
 
 interface SupplierDetailDrawerProps {
   supplier: Supplier | null;
@@ -132,7 +133,7 @@ export function SupplierDetailDrawer({
         <div className="px-6 py-4 border-b border-outline-variant/30 flex items-center justify-between shrink-0 bg-surface-container-lowest">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm border border-primary/20">
-              {supplier.supplierCode.replace('SUP-', '')}
+              {supplier.supplierCode}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -149,7 +150,7 @@ export function SupplierDetailDrawer({
               </div>
               <div className="text-xs text-on-surface-variant flex items-center gap-1.5 mt-0.5">
                 <span className="font-body-mono-num font-semibold text-primary">
-                  {supplier.supplierCode}
+                  {formatSupplierCode(supplier.supplierCode)}
                 </span>
                 <span>•</span>
                 <span>{supplier.category}</span>

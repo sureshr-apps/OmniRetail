@@ -1,5 +1,6 @@
 import React from 'react';
 import { ServicePerson } from '../types';
+import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 
 interface ServicePersonDetailDrawerProps {
   person: ServicePerson | null;
@@ -49,7 +50,7 @@ export function ServicePersonDetailDrawer({
                   isInactive ? 'text-on-surface-variant' : 'text-primary'
                 }`}
               >
-                {person.servicePersonCode} · {person.status}
+                {formatServicePersonCode(person.servicePersonCode)} · {person.status}
               </span>
             </div>
           </div>

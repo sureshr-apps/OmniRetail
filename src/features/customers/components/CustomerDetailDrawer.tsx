@@ -1,6 +1,7 @@
 import React from 'react';
 import { Customer } from '../types';
 import { formatCurrency, getInitials } from '../utils/calculations';
+import { formatCustomerCode } from '../utils/formatCustomerCode';
 
 interface CustomerDetailDrawerProps {
   customer: Customer | null;
@@ -65,7 +66,7 @@ export function CustomerDetailDrawer({
                 )}
               </div>
               <span className="font-body-mono-num text-caption text-primary font-semibold">
-                {customer.customerCode} · {customer.type} · {cityState}
+                {formatCustomerCode(customer.customerCode)} · {customer.type} · {cityState}
               </span>
             </div>
           </div>

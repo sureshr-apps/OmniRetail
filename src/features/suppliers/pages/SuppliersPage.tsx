@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { supplierService, deriveSupplierView } from '../services/supplierService';
 import { exportSuppliersToCsv } from '../utils/calculations';
+import { formatSupplierCode } from '../utils/formatSupplierCode';
 import { upsertById } from '@/shared/utils/listState';
 import { SuppliersHeader } from '../components/SuppliersHeader';
 import { SuppliersKpiCards } from '../components/SuppliersKpiCards';
@@ -175,7 +176,7 @@ export function SuppliersPage() {
       id: `add-${Date.now()}`,
       type: 'success',
       title: 'Supplier Added',
-      description: `${created.name} (${created.supplierCode}) is now registered.`,
+      description: `${created.name} (${formatSupplierCode(created.supplierCode)}) is now registered.`,
     });
     setAllSuppliers((prev) => upsertById(prev, created));
     // Open created supplier in detail drawer

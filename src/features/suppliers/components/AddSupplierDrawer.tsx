@@ -172,18 +172,6 @@ export function AddSupplierDrawer({
 
               <div>
                 <label className="block text-xs font-medium text-on-surface mb-1">
-                  Supplier Code
-                </label>
-                <input
-                  type="text"
-                  disabled
-                  value="Auto-generated (e.g. SUP-149)"
-                  className="w-full px-3 py-2 text-sm rounded bg-surface-container/50 border border-outline-variant/30 text-on-surface-variant font-body-mono-num cursor-not-allowed italic"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-on-surface mb-1">
                   Primary Category <span className="text-error">*</span>
                 </label>
                 <select

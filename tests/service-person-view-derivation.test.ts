@@ -5,7 +5,7 @@ import type { ServicePerson } from '@/features/service-persons/types';
 
 const servicePerson = (overrides: Partial<ServicePerson> = {}): ServicePerson => ({
   id: 'sp1',
-  servicePersonCode: 'SRV-101',
+  servicePersonCode: 101,
   firstName: 'Marcus',
   lastName: 'Vance',
   displayName: 'Marcus Vance',
@@ -64,8 +64,8 @@ describe('deriveServicePersonView', () => {
   });
 
   it('keeps pagination correct: a new record appended by create lands on the right page', () => {
-    const all = Array.from({ length: 10 }, (_, i) => servicePerson({ id: `sp${i}`, servicePersonCode: `SRV-${i}` }));
-    const withNew = upsertById(all, servicePerson({ id: 'sp10', servicePersonCode: 'SRV-10', displayName: 'Newest Person' }));
+    const all = Array.from({ length: 10 }, (_, i) => servicePerson({ id: `sp${i}`, servicePersonCode: i }));
+    const withNew = upsertById(all, servicePerson({ id: 'sp10', servicePersonCode: 10, displayName: 'Newest Person' }));
 
     const page1 = deriveServicePersonView(withNew, { page: 1, pageSize: 10 });
     const page2 = deriveServicePersonView(withNew, { page: 2, pageSize: 10 });

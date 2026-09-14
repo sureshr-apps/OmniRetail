@@ -5,7 +5,7 @@ import type { Employee } from '@/features/employees/types';
 
 const employee = (overrides: Partial<Employee> = {}): Employee => ({
   id: 'e1',
-  employeeCode: 'EMP-1001',
+  employeeCode: 1001,
   firstName: 'Alex',
   lastName: 'Doe',
   displayName: 'Alex Doe',
@@ -46,8 +46,8 @@ describe('deriveEmployeeView', () => {
   });
 
   it('keeps pagination correct: a new record appended by create lands on the right page', () => {
-    const all = Array.from({ length: 10 }, (_, i) => employee({ id: `e${i}`, employeeCode: `EMP-${i}` }));
-    const withNew = upsertById(all, employee({ id: 'e10', employeeCode: 'EMP-10', displayName: 'Newest Hire' }));
+    const all = Array.from({ length: 10 }, (_, i) => employee({ id: `e${i}`, employeeCode: i }));
+    const withNew = upsertById(all, employee({ id: 'e10', employeeCode: 10, displayName: 'Newest Hire' }));
 
     const page1 = deriveEmployeeView(withNew, { page: 1, pageSize: 10 });
     const page2 = deriveEmployeeView(withNew, { page: 2, pageSize: 10 });

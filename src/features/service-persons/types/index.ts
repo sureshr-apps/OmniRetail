@@ -26,7 +26,7 @@ export interface ServicePersonTimelineEvent {
 
 export interface ServicePerson {
   id: string;
-  servicePersonCode: string; // e.g. 'SRV-101'
+  servicePersonCode: number; // e.g. 101 (displayed as SVC-101)
   firstName: string;
   lastName: string;
   displayName: string;

@@ -10,6 +10,7 @@ import { getCurrentUserAuthorization, listTenantServicePersons } from '@omnireta
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
+import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 
 export interface IServicePersonService {
   getAllServicePersons(): Promise<ServicePerson[]>;
@@ -19,7 +20,6 @@ export interface IServicePersonService {
   updateServicePerson(id: string, input: UpdateServicePersonInput): Promise<ServicePerson>;
   changeServicePersonStatus(id: string, status: ServicePersonStatus): Promise<ServicePerson>;
   getSpecializations(): Promise<string[]>;
-  getNextServicePersonCode(): string;
   getActiveCount(): Promise<number>;
 }
 
@@ -27,7 +27,7 @@ type TenantServicePersonRow = Awaited<ReturnType<typeof listTenantServicePersons
 
 interface ServicePersonMutationResponse {
   id: string;
-  servicePersonCode: string;
+  servicePersonCode: number;
   fullName: string;
   email: string | null;
   phone: string;
@@ -79,7 +79,7 @@ export function deriveServicePersonView(all: ServicePerson[], query: ServicePers
   let rows = all;
   const search = query.search?.trim().toLowerCase() ?? '';
   if (search) {
-    rows = rows.filter((row) => `${row.servicePersonCode} ${row.displayName} ${row.phone} ${row.specialization}`.toLowerCase().includes(search));
+    rows = rows.filter((row) => `${formatServicePersonCode(row.servicePersonCode)} ${row.displayName} ${row.phone} ${row.specialization}`.toLowerCase().includes(search));
   }
   if (query.status && query.status !== 'All') rows = rows.filter((row) => row.status === query.status);
   if (query.assignmentScope && query.assignmentScope !== 'All') rows = rows.filter((row) => row.assignmentScope === query.assignmentScope);
@@ -98,8 +98,6 @@ export function deriveServicePersonView(all: ServicePerson[], query: ServicePers
 }
 
 class ProductionServicePersonService implements IServicePersonService {
-  getNextServicePersonCode(): string { return `SRV-${Date.now().toString().slice(-6)}`; }
-
   private async organizationId(): Promise<string> {
     const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
@@ -120,7 +118,7 @@ class ProductionServicePersonService implements IServicePersonService {
 
   async getServicePerson(id: string): Promise<ServicePerson | null> {
     const all = await this.getAllServicePersons();
-    return all.find((row) => row.id === id || row.servicePersonCode === id) ?? null;
+    return all.find((row) => row.id === id || String(row.servicePersonCode) === id || formatServicePersonCode(row.servicePersonCode) === id) ?? null;
   }
 
   async createServicePerson(input: CreateServicePersonInput): Promise<ServicePerson> {
@@ -128,7 +126,6 @@ class ProductionServicePersonService implements IServicePersonService {
     const callable = httpsCallable(getFirebaseClientServices().functions, 'createTenantServicePerson');
     const response = await callable({
       organizationId,
-      servicePersonCode: this.getNextServicePersonCode(),
       fullName: `${input.firstName.trim()} ${input.lastName.trim()}`.trim(),
       email: input.email,
       phone: input.phone,

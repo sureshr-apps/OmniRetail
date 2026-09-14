@@ -5,7 +5,7 @@ import type { Product } from '@/features/products/types';
 
 const product = (overrides: Partial<Product> = {}): Product => ({
   id: 'p1',
-  productCode: 'PRD-1001',
+  productCode: 1001,
   name: 'Classic Tee',
   brand: 'Acme',
   categoryId: 'apparel',
@@ -23,7 +23,7 @@ describe('deriveProductView', () => {
   it('honors the active status filter after a mutation deactivates a row', () => {
     const all = [
       product({ id: 'p1', status: 'active' }),
-      product({ id: 'p2', status: 'active', sku: 'AP-TEE-002', productCode: 'PRD-1002' }),
+      product({ id: 'p2', status: 'active', sku: 'AP-TEE-002', productCode: 1002 }),
     ];
     const afterDeactivation = upsertById(all, product({ id: 'p1', status: 'inactive' }));
 
@@ -38,8 +38,8 @@ describe('deriveProductView', () => {
 
   it('honors the active search filter after a mutation renames a row out of the match', () => {
     const all = [
-      product({ id: 'p1', name: 'Downtown Jacket', sku: 'AP-JKT-001', productCode: 'PRD-1001' }),
-      product({ id: 'p2', name: 'Uptown Jacket', sku: 'AP-JKT-002', productCode: 'PRD-1002' }),
+      product({ id: 'p1', name: 'Downtown Jacket', sku: 'AP-JKT-001', productCode: 1001 }),
+      product({ id: 'p2', name: 'Uptown Jacket', sku: 'AP-JKT-002', productCode: 1002 }),
     ];
     const renamed = upsertById(all, { ...all[0], name: 'Riverside Jacket' });
 
@@ -49,8 +49,8 @@ describe('deriveProductView', () => {
   });
 
   it('keeps pagination correct: a new record appended by create lands on the right page', () => {
-    const all = Array.from({ length: 10 }, (_, i) => product({ id: `p${i}`, productCode: `PRD-100${i}`, sku: `SKU-${i}` }));
-    const withNew = upsertById(all, product({ id: 'p10', productCode: 'PRD-1010', sku: 'SKU-10', name: 'Newest' }));
+    const all = Array.from({ length: 10 }, (_, i) => product({ id: `p${i}`, productCode: 1000 + i, sku: `SKU-${i}` }));
+    const withNew = upsertById(all, product({ id: 'p10', productCode: 1010, sku: 'SKU-10', name: 'Newest' }));
 
     const page1 = deriveProductView(withNew, { page: 1, pageSize: 10 });
     const page2 = deriveProductView(withNew, { page: 2, pageSize: 10 });
@@ -63,7 +63,7 @@ describe('deriveProductView', () => {
   it('recomputes totals/counts after a removal (hard delete domains)', () => {
     const all = [
       product({ id: 'p1', status: 'active' }),
-      product({ id: 'p2', status: 'inactive', sku: 'AP-TEE-002', productCode: 'PRD-1002' }),
+      product({ id: 'p2', status: 'inactive', sku: 'AP-TEE-002', productCode: 1002 }),
     ];
     const afterDelete = removeById(all, 'p2');
     const view = deriveProductView(afterDelete, { page: 1, pageSize: 10 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Customer } from '../types';
+import { formatCustomerCode } from '../utils/formatCustomerCode';
 
 interface CustomerConfirmDialogProps {
   customer: Customer | null;
@@ -43,7 +44,7 @@ export function CustomerConfirmDialog({
               {isDeactivate ? 'Deactivate Customer Profile' : 'Activate Customer Profile'}
             </h3>
             <span className="font-body-mono-num text-caption text-on-surface-variant font-semibold">
-              {customer.customerCode} · {customer.name}
+              {formatCustomerCode(customer.customerCode)} · {customer.name}
             </span>
           </div>
         </div>

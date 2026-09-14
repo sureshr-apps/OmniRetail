@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Customer, UpdateCustomerInput, CustomerType, CustomerStatus } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { formatCustomerCode } from '../utils/formatCustomerCode';
 
 interface EditCustomerModalProps {
   customer: Customer | null;
@@ -160,7 +161,7 @@ export function EditCustomerModal({
                   Customer Code (Immutable)
                 </span>
                 <div className="font-body-mono-num font-bold text-primary text-headline-sm">
-                  {customer.customerCode}
+                  {formatCustomerCode(customer.customerCode)}
                 </div>
               </div>
               <div className="text-right">

@@ -4,7 +4,7 @@ import { upsertById, removeById } from '@/shared/utils/listState';
 import type { Customer } from '@/features/customers/types';
 
 const customer = (overrides: Partial<Customer> = {}): Customer => ({
-  id: 'c1', customerCode: 'CUST-1', type: 'Individual', name: 'Jane Doe',
+  id: 'c1', customerCode: 1, type: 'Individual', name: 'Jane Doe',
   phone: '+919876543210', email: 'jane@example.com', city: 'Austin', state: 'TX',
   status: 'Active', totalPurchases: 0, completedOrdersCount: 0, balance: 0,
   createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
@@ -46,8 +46,8 @@ describe('deriveCustomerView', () => {
   });
 
   it('keeps pagination correct: a new record appended by create lands on the right page', () => {
-    const all = Array.from({ length: 10 }, (_, i) => customer({ id: `c${i}`, customerCode: `CUST-${i}` }));
-    const withNew = upsertById(all, customer({ id: 'c10', customerCode: 'CUST-10', name: 'Newest' }));
+    const all = Array.from({ length: 10 }, (_, i) => customer({ id: `c${i}`, customerCode: i }));
+    const withNew = upsertById(all, customer({ id: 'c10', customerCode: 10, name: 'Newest' }));
 
     const page1 = deriveCustomerView(withNew, { page: 1, pageSize: 10 });
     const page2 = deriveCustomerView(withNew, { page: 2, pageSize: 10 });

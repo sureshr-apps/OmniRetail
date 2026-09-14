@@ -31,7 +31,6 @@ export function ServicePersonMasterPage() {
   const [allServicePersons, setAllServicePersons] = useState<ServicePerson[]>([]);
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<{ id: string; name: string }[]>([]);
-  const [nextCode, setNextCode] = useState('SRV-107');
 
   // Loading & Error states
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +88,6 @@ export function ServicePersonMasterPage() {
     setError(null);
     try {
       setAllServicePersons(await servicePersonService.getAllServicePersons());
-      setNextCode(servicePersonService.getNextServicePersonCode());
     } catch (err) {
       console.error(err);
       setError('A network timeout occurred while communicating with the OmniRetail enterprise server cluster.');
@@ -351,7 +349,6 @@ export function ServicePersonMasterPage() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleModalSubmit}
         personToEdit={personToEdit}
-        nextServicePersonCode={nextCode}
         availableOutlets={availableOutlets}
         specializations={specializations}
       />

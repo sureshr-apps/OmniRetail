@@ -1,4 +1,5 @@
 import { Employee } from '../types';
+import { formatEmployeeCode } from './formatEmployeeCode';
 
 export function exportEmployeesToCsv(employees: Employee[], filename = 'omni_retail_employees.csv'): void {
   const headers = [
@@ -19,7 +20,7 @@ export function exportEmployeesToCsv(employees: Employee[], filename = 'omni_ret
   ];
 
   const rows = employees.map((emp) => [
-    `"${emp.employeeCode}"`,
+    `"${formatEmployeeCode(emp.employeeCode)}"`,
     `"${emp.displayName.replace(/"/g, '""')}"`,
     `"${emp.designation.replace(/"/g, '""')}"`,
     `"${(emp.department || '').replace(/"/g, '""')}"`,

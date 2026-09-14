@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
+import { formatProductCode } from '../utils/formatProductCode';
 
 interface ProductsTableProps {
   items: Product[];
@@ -121,7 +122,7 @@ export function ProductsTable({
 
                   {/* Product Code */}
                   <td className="px-space-base font-body-mono-num text-body-mono-num font-bold text-primary">
-                    {item.productCode}
+                    {formatProductCode(item.productCode)}
                   </td>
 
                   {/* Product Name & Brand */}

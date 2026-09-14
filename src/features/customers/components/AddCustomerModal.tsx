@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { CreateCustomerInput, CustomerType, CustomerStatus } from '../types';
-import { customerService } from '../services/customerService';
 
 interface AddCustomerModalProps {
   isOpen: boolean;
@@ -9,7 +8,6 @@ interface AddCustomerModalProps {
 }
 
 export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModalProps) {
-  const [customerCode, setCustomerCode] = useState('CUST-106');
   const [type, setType] = useState<CustomerType>('Individual');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -40,7 +38,6 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
 
   useEffect(() => {
     if (isOpen) {
-      customerService.getNextCustomerCode().then((code) => setCustomerCode(code));
       setErrors({});
       setName('');
       setPhone('');
@@ -157,17 +154,6 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                 <span className="font-caption text-caption text-on-surface-variant">* Required fields</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
-                <div>
-                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Customer Code (Auto-Generated)
-                  </label>
-                  <input
-                    className="w-full h-9 px-space-base rounded bg-surface-container font-body-mono-num text-caption text-on-surface-variant border border-outline-variant/40 cursor-not-allowed"
-                    disabled
-                    type="text"
-                    value={customerCode}
-                  />
-                </div>
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
                     Customer Type *

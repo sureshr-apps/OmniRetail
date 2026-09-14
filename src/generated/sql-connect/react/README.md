@@ -2840,7 +2840,7 @@ export interface ListTenantEmployeesData {
       username: string;
       email: string;
     } & AppUser_Key;
-    employeeCode: string;
+    employeeCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -2960,7 +2960,7 @@ export interface ListTenantServicePersonsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    servicePersonCode: string;
+    servicePersonCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -3076,7 +3076,7 @@ export interface ListTenantProductsData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    productCode: string;
+    productCode: number;
     name: string;
     brand: string;
     categoryId: string;
@@ -3209,7 +3209,7 @@ export interface ListTenantInventoryData {
     } & Outlet_Key;
     product: {
       id: UUIDString;
-      productCode: string;
+      productCode: number;
       name: string;
       sku: string;
       barcode?: string | null;
@@ -3324,7 +3324,7 @@ export interface ListTenantCustomersData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    customerCode: string;
+    customerCode: number;
     type: CustomerType;
     name: string;
     phone: string;
@@ -3441,7 +3441,7 @@ export interface ListTenantSuppliersData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    supplierCode: string;
+    supplierCode: number;
     name: string;
     contactPerson: string;
     phone: string;
@@ -3563,7 +3563,7 @@ export interface ListTenantPurchasesData {
     purchaseDate: DateString;
     supplier: {
       id: UUIDString;
-      supplierCode: string;
+      supplierCode: number;
       name: string;
       taxId: string;
     } & Supplier_Key;
@@ -3595,7 +3595,7 @@ export interface ListTenantPurchasesData {
       id: UUIDString;
       product: {
         id: UUIDString;
-        productCode: string;
+        productCode: number;
         name: string;
         sku: string;
       } & Product_Key;
@@ -3836,7 +3836,7 @@ export interface ListTenantSalesData {
     saleTimestamp: TimestampString;
     customer?: {
       id: UUIDString;
-      customerCode: string;
+      customerCode: number;
       name: string;
       phone: string;
       email: string;
@@ -3856,7 +3856,7 @@ export interface ListTenantSalesData {
       id: UUIDString;
       product: {
         id: UUIDString;
-        productCode: string;
+        productCode: number;
         name: string;
         sku: string;
       } & Product_Key;
@@ -4041,7 +4041,7 @@ export interface GetTenantSupplierTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    supplierCode: string;
+    supplierCode: number;
     name: string;
     contactPerson: string;
     phone: string;
@@ -4148,7 +4148,7 @@ export interface GetTenantCustomerTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    customerCode: string;
+    customerCode: number;
     type: CustomerType;
     name: string;
     phone: string;
@@ -4256,7 +4256,7 @@ export interface GetTenantProductTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    productCode: string;
+    productCode: number;
     name: string;
     brand: string;
     categoryId: string;
@@ -4664,7 +4664,7 @@ export interface GetTenantEmployeeTrustedData {
       username: string;
       email: string;
     } & AppUser_Key;
-    employeeCode: string;
+    employeeCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -4772,7 +4772,7 @@ export interface GetTenantServicePersonTrustedData {
     organization: {
       id: UUIDString;
     } & Organization_Key;
-    servicePersonCode: string;
+    servicePersonCode: number;
     fullName: string;
     email?: string | null;
     phone: string;
@@ -9040,7 +9040,6 @@ The `CreateTenantSupplier` Mutation requires an argument of type `CreateTenantSu
 export interface CreateTenantSupplierVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  supplierCode: string;
   name: string;
   contactPerson: string;
   phone: string;
@@ -9110,7 +9109,6 @@ export default function CreateTenantSupplierComponent() {
   const createTenantSupplierVars: CreateTenantSupplierVariables = {
     id: ..., 
     organizationId: ..., 
-    supplierCode: ..., 
     name: ..., 
     contactPerson: ..., 
     phone: ..., 
@@ -9131,7 +9129,7 @@ export default function CreateTenantSupplierComponent() {
   };
   mutation.mutate(createTenantSupplierVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., supplierCode: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9412,7 +9410,6 @@ The `CreateTenantCustomer` Mutation requires an argument of type `CreateTenantCu
 export interface CreateTenantCustomerVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  customerCode: string;
   type: CustomerType;
   name: string;
   phone: string;
@@ -9483,7 +9480,6 @@ export default function CreateTenantCustomerComponent() {
   const createTenantCustomerVars: CreateTenantCustomerVariables = {
     id: ..., 
     organizationId: ..., 
-    customerCode: ..., 
     type: ..., 
     name: ..., 
     phone: ..., 
@@ -9505,7 +9501,7 @@ export default function CreateTenantCustomerComponent() {
   };
   mutation.mutate(createTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., customerCode: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9788,7 +9784,6 @@ The `CreateTenantProduct` Mutation requires an argument of type `CreateTenantPro
 export interface CreateTenantProductVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  productCode: string;
   name: string;
   brand: string;
   categoryId: string;
@@ -9866,7 +9861,6 @@ export default function CreateTenantProductComponent() {
   const createTenantProductVars: CreateTenantProductVariables = {
     id: ..., 
     organizationId: ..., 
-    productCode: ..., 
     name: ..., 
     brand: ..., 
     categoryId: ..., 
@@ -9895,7 +9889,7 @@ export default function CreateTenantProductComponent() {
   };
   mutation.mutate(createTenantProductVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., productCode: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11078,7 +11072,6 @@ The `CreateTenantEmployeeProfileTrusted` Mutation requires an argument of type `
 export interface CreateTenantEmployeeProfileTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  employeeCode: string;
   fullName: string;
   email?: string | null;
   phone: string;
@@ -11141,7 +11134,6 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
     id: ..., 
     organizationId: ..., 
-    employeeCode: ..., 
     fullName: ..., 
     email: ..., // optional
     phone: ..., 
@@ -11155,7 +11147,7 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   };
   mutation.mutate(createTenantEmployeeProfileTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., employeeCode: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11202,7 +11194,6 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   username: string;
   email: string;
   organizationId: UUIDString;
-  employeeCode: string;
   fullName: string;
   phone: string;
   designation: string;
@@ -11272,7 +11263,6 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
     username: ..., 
     email: ..., 
     organizationId: ..., 
-    employeeCode: ..., 
     fullName: ..., 
     phone: ..., 
     designation: ..., 
@@ -11286,7 +11276,7 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
   };
   mutation.mutate(provisionTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., employeeCode: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11666,7 +11656,6 @@ The `CreateTenantServicePersonTrusted` Mutation requires an argument of type `Cr
 export interface CreateTenantServicePersonTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
-  servicePersonCode: string;
   fullName: string;
   email?: string | null;
   phone: string;
@@ -11729,7 +11718,6 @@ export default function CreateTenantServicePersonTrustedComponent() {
   const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
     id: ..., 
     organizationId: ..., 
-    servicePersonCode: ..., 
     fullName: ..., 
     email: ..., // optional
     phone: ..., 
@@ -11743,7 +11731,7 @@ export default function CreateTenantServicePersonTrustedComponent() {
   };
   mutation.mutate(createTenantServicePersonTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., servicePersonCode: ..., fullName: ..., email: ..., phone: ..., specialization: ..., skills: ..., yearsOfExperience: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., specialization: ..., skills: ..., yearsOfExperience: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

@@ -4,6 +4,7 @@ import { SupplierOption, OutletOption } from '../services/purchaseService';
 import { productService } from '@/features/products/services/productService';
 import { Product } from '@/features/products/types';
 import { calculatePurchaseTotals, formatCurrency } from '../utils/calculations';
+import { formatProductCode } from '@/features/products/utils/formatProductCode';
 
 interface CreatePurchaseModalProps {
   isOpen: boolean;
@@ -73,8 +74,8 @@ export function CreatePurchaseModal({
       ...prev,
       {
         productId: nextItem.id,
-        productCode: nextItem.productCode,
-        productName: `${nextItem.name} (${nextItem.productCode})`,
+        productCode: formatProductCode(nextItem.productCode),
+        productName: `${nextItem.name} (${formatProductCode(nextItem.productCode)})`,
         sku: nextItem.sku,
         quantity: 10,
         unitCost: nextItem.cost ?? 0,
@@ -101,7 +102,7 @@ export function CreatePurchaseModal({
     );
   };
 
-  const handleSelectPredefinedProduct = (index: number, code: string) => {
+  const handleSelectPredefinedProduct = (index: number, code: number) => {
     const match = productSuggestions.find((p) => p.productCode === code);
     if (!match) return;
     setLines((prev) =>
@@ -109,8 +110,8 @@ export function CreatePurchaseModal({
         if (idx !== index) return item;
         return {
           ...item,
-          productCode: match.productCode,
-          productName: `${match.name} (${match.productCode})`,
+          productCode: formatProductCode(match.productCode),
+          productName: `${match.name} (${formatProductCode(match.productCode)})`,
           sku: match.sku,
           unitCost: match.cost ?? 0,
           taxRate: Number(match.taxCategory?.match(/[0-9]+(?:\.[0-9]+)?/)?.[0] ?? 0),
@@ -338,7 +339,7 @@ export function CreatePurchaseModal({
                                     onClick={() => handleSelectPredefinedProduct(idx, p.productCode)}
                                     className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-primary/10 text-on-surface font-mono cursor-pointer"
                                   >
-                                    {p.productCode}
+                                    {formatProductCode(p.productCode)}
                                   </button>
                                 ))}
                               </div>

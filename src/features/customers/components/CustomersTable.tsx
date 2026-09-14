@@ -1,6 +1,7 @@
 import React from 'react';
 import { Customer } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { formatCustomerCode } from '../utils/formatCustomerCode';
 
 interface CustomersTableProps {
   customers: Customer[];
@@ -106,7 +107,7 @@ export function CustomersTable({
                 >
                   {/* Customer Code */}
                   <td className="py-3 px-space-base font-body-mono-num font-semibold text-primary whitespace-nowrap">
-                    {customer.customerCode}
+                    {formatCustomerCode(customer.customerCode)}
                   </td>
 
                   {/* Customer Name & Type */}

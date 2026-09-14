@@ -84,7 +84,8 @@ describe('tenant callable contract', () => {
   it('exposes tenant product and inventory write boundaries', () => {
     expect(source).toContain('export const createTenantProductRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
-    expect(source).toContain('await createTenantProduct({ id, organizationId, productCode');
+    expect(source).toContain('await createTenantProduct({ id, organizationId, ...fields');
+    expect(source).not.toContain('d.productCode');
     expect(source).toContain('getTenantProductTrusted({ organizationId, id })');
     expect(source).toContain('function productCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('already-exists'");
@@ -99,7 +100,8 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped customer creation boundary', () => {
     expect(source).toContain('export const createTenantCustomerRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'customers.read')");
-    expect(source).toContain('await createTenantCustomer({ id, organizationId, customerCode');
+    expect(source).toContain('await createTenantCustomer({ id, organizationId, type, name');
+    expect(source).not.toContain('d.customerCode');
     expect(source).toContain('export const updateTenantCustomerRecord = onCall');
     expect(source).toContain('export const changeTenantCustomerStatus = onCall');
   });
@@ -107,7 +109,8 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped supplier creation boundary', () => {
     expect(source).toContain('export const createTenantSupplierRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'suppliers.read')");
-    expect(source).toContain('await createTenantSupplier({ id, organizationId, supplierCode');
+    expect(source).toContain('await createTenantSupplier({ id, organizationId, name, contactPerson');
+    expect(source).not.toContain('d.supplierCode');
     expect(source).toContain('export const changeTenantSupplierStatus = onCall');
     expect(source).toContain('export const updateTenantSupplierRecord = onCall');
     expect(source).toContain('updateTenantSupplier({ organizationId, id');

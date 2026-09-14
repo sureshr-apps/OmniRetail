@@ -16,6 +16,7 @@ import { productService } from '@/features/products/services/productService';
 import { outletService } from '@/features/outlets/services/outletService';
 import { formatOutletCode } from '@/features/outlets/utils/formatOutletCode';
 import { supplierService } from '@/features/suppliers/services/supplierService';
+import { formatSupplierCode } from '@/features/suppliers/utils/formatSupplierCode';
 
 export async function getInventoryLocations(): Promise<InventoryLocation[]> {
   const outlets = await outletService.getAllActiveOutlets();
@@ -29,7 +30,7 @@ export async function getInventorySuppliers(): Promise<SupplierSummary[]> {
   const result = await supplierService.getSuppliers({ page: 1, pageSize: 1000 });
   return [
     { id: 'all', name: 'All Suppliers', code: 'ALL' },
-    ...result.items.map((supplier) => ({ id: supplier.id, name: supplier.name, code: supplier.supplierCode })),
+    ...result.items.map((supplier) => ({ id: supplier.id, name: supplier.name, code: formatSupplierCode(supplier.supplierCode) })),
   ];
 }
 
@@ -647,7 +648,7 @@ class ProductionInventoryService {
     if (search) items = items.filter((item) => `${item.sku} ${item.name} ${item.barcode} ${item.department} ${item.lotNumber ?? ''}`.toLowerCase().includes(search));
     if (query.supplierId && query.supplierId !== 'all') {
       const supplier = await supplierService.getSupplierById(query.supplierId);
-      const supplierNames = new Set([query.supplierId, supplier?.name, supplier?.supplierCode].filter(Boolean));
+      const supplierNames = new Set([query.supplierId, supplier?.name, supplier ? formatSupplierCode(supplier.supplierCode) : undefined].filter(Boolean));
       items = items.filter((item) => supplierNames.has(item.supplierId) || supplierNames.has(item.supplierName));
     }
     if (query.statusTab && query.statusTab !== 'ALL') items = items.filter((item) => deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold) === query.statusTab);

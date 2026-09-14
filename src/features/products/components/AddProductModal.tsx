@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { CreateProductInput, ProductType } from '../types';
 import { productService } from '../services/productService';
 
@@ -13,13 +13,6 @@ export function AddProductModal({
   onClose,
   onCreated,
 }: AddProductModalProps) {
-  const [nextCode, setNextCode] = useState('Loading…');
-
-  useEffect(() => {
-    if (!isOpen) return;
-    productService.getNextProductCode().then(setNextCode).catch(() => setNextCode('Pending assignment'));
-  }, [isOpen]);
-
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('Punarva Studio');
   const [type, setType] = useState<ProductType>('stockable');
@@ -143,9 +136,6 @@ export function AddProductModal({
               <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
                 Add New Product
               </h2>
-              <span className="font-body-mono-num text-caption font-bold text-primary px-1.5 py-0.5 rounded bg-surface-container-high">
-                {nextCode}
-              </span>
             </div>
             <p className="font-caption text-caption text-on-surface-variant mt-0.5">
               Create a new master SKU record for catalogue inventory, tax classification, and replenishment tracking.

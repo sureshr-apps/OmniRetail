@@ -1,5 +1,6 @@
 import React from 'react';
 import { Employee } from '../types';
+import { formatEmployeeCode } from '../utils/formatEmployeeCode';
 
 interface EmployeeStatusConfirmDialogProps {
   employee: Employee | null;
@@ -43,13 +44,13 @@ export function EmployeeStatusConfirmDialog({
                 <>
                   Are you sure you want to deactivate{' '}
                   <strong className="text-on-surface">{employee.displayName}</strong> (
-                  {employee.employeeCode})? This employee will be marked inactive and prevented from
+                  {formatEmployeeCode(employee.employeeCode)})? This employee will be marked inactive and prevented from
                   initiating new POS terminal shifts.
                 </>
               ) : (
                 <>
                   Restore <strong className="text-on-surface">{employee.displayName}</strong> (
-                  {employee.employeeCode}) to Active employment status?
+                  {formatEmployeeCode(employee.employeeCode)}) to Active employment status?
                 </>
               )}
             </p>

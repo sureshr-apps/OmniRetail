@@ -22,7 +22,7 @@ import { customerService } from '@/features/customers/services/customerService';
 import { MalformedCallableResponseError } from '@/shared/utils/callableResponse';
 
 const customerRow = (overrides: Record<string, unknown> = {}) => ({
-  id: 'cust-1', customerCode: 'CUST-105', type: 'INDIVIDUAL', name: 'Jane Doe',
+  id: 'cust-1', customerCode: 105, type: 'INDIVIDUAL', name: 'Jane Doe',
   phone: '+919876543210', email: 'jane@example.com', taxId: null, address: '1 Elm St',
   city: 'Austin', state: 'TX', postalCode: '73301', country: 'United States',
   creditLimit: 1500, preferredContact: 'Email & SMS', dateOfBirth: null, gender: null,
@@ -41,15 +41,15 @@ beforeEach(() => {
 describe('customerService mutations return the canonical entity directly', () => {
   it('createCustomer returns the enriched entity from the callable, with no follow-up list query to locate it', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
-      data: { success: true, organizationId: 'org-1', ...customerRow({ id: 'cust-2', customerCode: 'CUST-106', name: 'New Customer' }) },
+      data: { success: true, organizationId: 'org-1', ...customerRow({ id: 'cust-2', customerCode: 106, name: 'New Customer' }) },
     }));
     const created = await customerService.createCustomer({
       type: 'Individual', name: 'New Customer', phone: '+919876543210', email: 'new@example.com', city: 'Austin', state: 'TX',
     });
-    expect(created).toMatchObject({ id: 'cust-2', customerCode: 'CUST-106', name: 'New Customer' });
-    // listTenantCustomers is used once up-front to compute the next customer code (an input to
-    // the mutation), never afterward to look the newly-created row back up.
-    expect(mocks.listTenantCustomers).toHaveBeenCalledTimes(1);
+    expect(created).toMatchObject({ id: 'cust-2', customerCode: 106, name: 'New Customer' });
+    // customerCode is now a server-assigned serial, so create never needs an
+    // up-front (or follow-up) listTenantCustomers call to compute or locate it.
+    expect(mocks.listTenantCustomers).not.toHaveBeenCalled();
   });
 
   it('updateCustomer returns the enriched entity from the callable, with no follow-up list query to locate it', async () => {
@@ -104,6 +104,6 @@ describe('customerService.getAllCustomers', () => {
   it('fetches the full org-scoped set for pages to hold and derive views from', async () => {
     const customers = await customerService.getAllCustomers();
     expect(customers).toHaveLength(1);
-    expect(customers[0].customerCode).toBe('CUST-105');
+    expect(customers[0].customerCode).toBe(105);
   });
 });

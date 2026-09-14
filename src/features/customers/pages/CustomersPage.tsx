@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { customerService, deriveCustomerView } from '../services/customerService';
 import { exportCustomersToCsv } from '../utils/calculations';
+import { formatCustomerCode } from '../utils/formatCustomerCode';
 import { upsertById } from '@/shared/utils/listState';
 import { CustomersHeader } from '../components/CustomersHeader';
 import { CustomersFilterBar } from '../components/CustomersFilterBar';
@@ -152,7 +153,7 @@ export function CustomersPage() {
   // Add customer
   const handleCreateCustomer = async (input: CreateCustomerInput) => {
     const created = await customerService.createCustomer(input);
-    showToast(`Customer ${created.customerCode} (${created.name}) created successfully.`);
+    showToast(`Customer ${formatCustomerCode(created.customerCode)} (${created.name}) created successfully.`);
     setAllCustomers((prev) => upsertById(prev, created));
     await refreshCustomerMetadata();
   };
@@ -160,7 +161,7 @@ export function CustomersPage() {
   // Edit customer
   const handleUpdateCustomer = async (id: string, input: UpdateCustomerInput) => {
     const updated = await customerService.updateCustomer(id, input);
-    showToast(`Customer ${updated.customerCode} (${updated.name}) updated successfully.`);
+    showToast(`Customer ${formatCustomerCode(updated.customerCode)} (${updated.name}) updated successfully.`);
     setAllCustomers((prev) => upsertById(prev, updated));
     await refreshCustomerMetadata();
   };
@@ -172,7 +173,7 @@ export function CustomersPage() {
       statusDialogCustomer.status === 'Active' ? 'Inactive' : 'Active';
     const updated = await customerService.changeCustomerStatus(statusDialogCustomer.id, newStatus);
     showToast(
-      `Customer ${updated.customerCode} marked as ${newStatus}.`
+      `Customer ${formatCustomerCode(updated.customerCode)} marked as ${newStatus}.`
     );
     setAllCustomers((prev) => upsertById(prev, updated));
     await refreshCustomerMetadata();

@@ -32,7 +32,7 @@ export interface EmployeeActivity {
 
 export interface Employee {
   id: string;
-  employeeCode: string;
+  employeeCode: number;
   firstName: string;
   lastName: string;
   displayName: string;

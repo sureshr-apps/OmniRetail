@@ -16,7 +16,7 @@ export interface CustomerServiceTicket {
 
 export interface Customer {
   id: string;
-  customerCode: string;
+  customerCode: number;
   type: CustomerType;
   name: string;
   phone: string;

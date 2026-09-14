@@ -1,6 +1,7 @@
 import React from 'react';
 import { Supplier } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { formatSupplierCode } from '../utils/formatSupplierCode';
 
 interface SuppliersTableProps {
   suppliers: Supplier[];
@@ -83,7 +84,7 @@ export function SuppliersTable({
                 {/* Supplier Code */}
                 <td className="py-3 px-4 whitespace-nowrap">
                   <span className="font-body-mono-num font-semibold text-primary hover:underline">
-                    {supplier.supplierCode}
+                    {formatSupplierCode(supplier.supplierCode)}
                   </span>
                 </td>
 

@@ -24,7 +24,7 @@ import { MalformedCallableResponseError } from '@/shared/utils/callableResponse'
 const productRow = (overrides: Record<string, unknown> = {}) => ({
   id: 'prod-1',
   organization: { id: 'org-1' },
-  productCode: 'PRD-1030',
+  productCode: 1030,
   name: 'Classic Tee',
   brand: 'Acme',
   categoryId: 'apparel',
@@ -75,13 +75,13 @@ beforeEach(() => {
 describe('productService mutations return the canonical entity directly', () => {
   it('createProduct returns the enriched entity from the callable, with no follow-up list query after the mutation', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
-      data: { success: true, organizationId: 'org-1', ...productRow({ id: 'prod-2', productCode: 'PRD-1031', name: 'New Tee', sku: 'AP-TEE-002' }) },
+      data: { success: true, organizationId: 'org-1', ...productRow({ id: 'prod-2', productCode: 1031, name: 'New Tee', sku: 'AP-TEE-002' }) },
     }));
     const created = await productService.createProduct(createInput());
-    expect(created).toMatchObject({ id: 'prod-2', productCode: 'PRD-1031', name: 'New Tee' });
-    // listTenantProducts is only consulted once, to compute the next product code before the
-    // mutation — there is no second (post-mutation) call to reload the created row.
-    expect(mocks.listTenantProducts).toHaveBeenCalledTimes(1);
+    expect(created).toMatchObject({ id: 'prod-2', productCode: 1031, name: 'New Tee' });
+    // productCode is now a server-assigned serial, so create never needs an
+    // up-front (or follow-up) listTenantProducts call to compute or locate it.
+    expect(mocks.listTenantProducts).not.toHaveBeenCalled();
   });
 
   it('updateProduct returns the enriched entity from the callable, with no follow-up list query after the mutation', async () => {
@@ -129,6 +129,6 @@ describe('productService.getAllProducts', () => {
   it('fetches the full org-scoped set for pages to hold and derive views from', async () => {
     const products = await productService.getAllProducts();
     expect(products).toHaveLength(1);
-    expect(products[0].productCode).toBe('PRD-1030');
+    expect(products[0].productCode).toBe(1030);
   });
 });

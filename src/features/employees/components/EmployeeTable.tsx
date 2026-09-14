@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Employee } from '../types';
+import { formatEmployeeCode } from '../utils/formatEmployeeCode';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -187,7 +188,7 @@ export function EmployeeTable({
                         {employee.displayName}
                       </span>
                       <span className="font-body-mono-num text-micro-label font-semibold text-primary">
-                        {employee.employeeCode}
+                        {formatEmployeeCode(employee.employeeCode)}
                       </span>
                     </div>
                   </div>

@@ -33,7 +33,7 @@ export interface SupplierPurchaseOrderSummary {
 
 export interface Supplier {
   id: string;
-  supplierCode: string; // e.g. SUP-101
+  supplierCode: number; // e.g. 101 (displayed as SUP-101)
   name: string; // e.g. Apex Global Electronics
   contactPerson: string; // e.g. Marcus Vance
   phone: string; // e.g. +1 (555) 382-9100

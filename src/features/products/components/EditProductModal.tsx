@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Product, UpdateProductInput } from '../types';
 import { productService } from '../services/productService';
+import { formatProductCode } from '../utils/formatProductCode';
 
 interface EditProductModalProps {
   product: Product | null;
@@ -154,7 +155,7 @@ export function EditProductModal({
                 Edit Product Master
               </h2>
               <span className="font-body-mono-num text-caption font-bold text-primary px-1.5 py-0.5 rounded bg-surface-container-high">
-                {product.productCode}
+                {formatProductCode(product.productCode)}
               </span>
             </div>
             <p className="font-caption text-caption text-on-surface-variant mt-0.5">

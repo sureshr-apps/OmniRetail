@@ -179,7 +179,7 @@ type Outlet @table {
 type Employee @table {
   organization: Organization!
   user: AppUser
-  employeeCode: String! @unique
+  employeeCode: Int! @col(dataType: "serial") @unique
   fullName: String!
   email: String
   phone: String!
@@ -201,7 +201,7 @@ type EmployeeOutlet @table(key: ["employee", "outlet"]) {
 
 type ServicePerson @table {
   organization: Organization!
-  servicePersonCode: String! @unique
+  servicePersonCode: Int! @col(dataType: "serial") @unique
   fullName: String!
   email: String
   phone: String!
@@ -222,7 +222,7 @@ type ServicePersonOutlet @table(key: ["servicePerson", "outlet"]) {
 
 type Product @table {
   organization: Organization!
-  productCode: String! @unique
+  productCode: Int! @col(dataType: "serial") @unique
   name: String!
   brand: String!
   categoryId: String!
@@ -279,7 +279,7 @@ type InventoryMovement @table {
 
 type Customer @table {
   organization: Organization!
-  customerCode: String! @unique
+  customerCode: Int! @col(dataType: "serial") @unique
   type: CustomerType!
   name: String!
   phone: String!
@@ -302,7 +302,7 @@ type Customer @table {
 
 type Supplier @table {
   organization: Organization!
-  supplierCode: String! @unique
+  supplierCode: Int! @col(dataType: "serial") @unique
   name: String!
   contactPerson: String!
   phone: String!

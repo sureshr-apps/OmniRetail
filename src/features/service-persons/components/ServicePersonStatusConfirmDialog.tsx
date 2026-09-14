@@ -1,5 +1,6 @@
 import React from 'react';
 import { ServicePerson } from '../types';
+import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 
 interface ServicePersonStatusConfirmDialogProps {
   person: ServicePerson | null;
@@ -41,7 +42,7 @@ export function ServicePersonStatusConfirmDialog({
               {willBeInactive ? 'Deactivate Service Person' : 'Activate Service Person'}
             </h3>
             <span className="font-body-mono-num text-caption text-on-surface-variant font-medium">
-              {person.servicePersonCode} · {person.displayName}
+              {formatServicePersonCode(person.servicePersonCode)} · {person.displayName}
             </span>
           </div>
         </div>

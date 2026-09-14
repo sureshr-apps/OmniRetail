@@ -29,7 +29,7 @@ export interface ProductLedgerActivity {
 
 export interface Product {
   id: string;
-  productCode: string; // Internal catalogue identifier, e.g., PRD-1024
+  productCode: number; // Internal catalogue identifier, e.g., 1024 (displayed as PR-1024)
   name: string;
   brand: string;
   categoryId: string;

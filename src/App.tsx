@@ -12,7 +12,7 @@ import { CapabilityRoute } from '@/app/routes/CapabilityRoute';
 import { TenantAccessRoute } from '@/app/routes/TenantAccessRoute';
 import { AppLayout } from '@/shared/layout/AppLayout';
 import { TenantAppLayout } from '@/shared/layout/TenantAppLayout';
-import { getDefaultRoute } from '@/app/auth/tenantAccess';
+import { getDefaultRoute, isTenantUser } from '@/app/auth/tenantAccess';
 import { useAuth } from '@/app/context/AuthContext';
 
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then(({ LoginPage }) => ({ default: LoginPage })));
@@ -35,6 +35,11 @@ const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage').th
 
 function TenantRouteLayout() {
   return <TenantAppLayout />;
+}
+
+function ProfileRouteLayout() {
+  const { user } = useAuth();
+  return isTenantUser(user) ? <TenantAppLayout /> : <AppLayout />;
 }
 
 function TenantPlaceholderPage() {
@@ -100,6 +105,8 @@ export default function App() {
               <Route element={<CapabilityRoute capability="plans.read" />}>
                 <Route path="/plans" element={<PlansPage />} />
               </Route>
+            </Route>
+            <Route element={<ProfileRouteLayout />}>
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>

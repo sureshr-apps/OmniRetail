@@ -41,6 +41,10 @@ export function isMasterAdmin(user: User | null): boolean {
   return hasRole(user, 'master.admin');
 }
 
+export function isTenantUser(user: User | null): boolean {
+  return (user?.organizationIds.length ?? 0) > 0;
+}
+
 export function getDefaultRoute(user: User | null): string {
   if (isOrganizationAdmin(user)) return '/billing';
   return TENANT_HOME_ROUTES.find(({ capability }) => user?.capabilities.includes(capability))?.path ?? '/overview';

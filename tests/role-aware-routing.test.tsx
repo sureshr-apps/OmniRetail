@@ -15,6 +15,7 @@ vi.mock('@/app/context/AuthContext', () => ({ useAuth: () => state }));
 
 import { CapabilityRoute } from '@/app/routes/CapabilityRoute';
 import { PublicRoute } from '@/app/routes/PublicRoute';
+import { isTenantUser } from '@/app/auth/tenantAccess';
 
 afterEach(() => {
   cleanup();
@@ -30,6 +31,12 @@ const organizationAdmin = {
 };
 
 describe('role-aware routing', () => {
+  it('identifies organization users for tenant-shell routes', () => {
+    expect(isTenantUser(organizationAdmin)).toBe(true);
+    expect(isTenantUser({ ...organizationAdmin, organizationIds: [] })).toBe(false);
+    expect(isTenantUser(null)).toBe(false);
+  });
+
   it('sends an authenticated organization admin to the tenant workspace from login', () => {
     state.user = organizationAdmin;
     render(

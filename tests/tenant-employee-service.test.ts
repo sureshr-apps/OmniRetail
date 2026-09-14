@@ -23,7 +23,7 @@ import { MalformedCallableResponseError } from '@/shared/utils/callableResponse'
 
 const employeeRow = (overrides: Record<string, unknown> = {}) => ({
   id: 'employee-1',
-  employeeCode: 'EMP-1001',
+  employeeCode: 1001,
   fullName: 'Alex Doe',
   email: 'alex@example.com',
   phone: '+919876543210',
@@ -62,10 +62,10 @@ beforeEach(() => {
 describe('employeeService mutations return the canonical entity directly', () => {
   it('createEmployee returns the enriched entity from the callable, with no follow-up list query', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
-      data: { success: true, organizationId: 'org-1', ...employeeRow({ id: 'employee-2', employeeCode: 'EMP-1002', fullName: 'Jordan Lee' }) },
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ id: 'employee-2', employeeCode: 1002, fullName: 'Jordan Lee' }) },
     }));
     const created = await employeeService.createEmployee(createInput);
-    expect(created).toMatchObject({ id: 'employee-2', employeeCode: 'EMP-1002', displayName: 'Jordan Lee' });
+    expect(created).toMatchObject({ id: 'employee-2', employeeCode: 1002, displayName: 'Jordan Lee' });
     expect(mocks.listTenantEmployees).not.toHaveBeenCalled();
   });
 
@@ -122,6 +122,6 @@ describe('employeeService.getAllEmployees', () => {
   it('fetches the full org-scoped set for pages to hold and derive views from', async () => {
     const employees = await employeeService.getAllEmployees();
     expect(employees).toHaveLength(1);
-    expect(employees[0].employeeCode).toBe('EMP-1001');
+    expect(employees[0].employeeCode).toBe(1001);
   });
 });

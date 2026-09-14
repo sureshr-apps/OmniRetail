@@ -24,7 +24,7 @@ import { MalformedCallableResponseError } from '@/shared/utils/callableResponse'
 const servicePersonRow = (overrides: Record<string, unknown> = {}) => ({
   id: 'sp-1',
   organization: { id: 'org-1' },
-  servicePersonCode: 'SRV-101',
+  servicePersonCode: 101,
   fullName: 'Marcus Vance',
   email: 'm.vance@omnitrade.internal',
   phone: '+919876543210',
@@ -50,12 +50,12 @@ beforeEach(() => {
 describe('servicePersonService mutations return the canonical entity directly', () => {
   it('createServicePerson returns the enriched entity from the callable, with no follow-up list query', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
-      data: { success: true, organizationId: 'org-1', ...servicePersonRow({ id: 'sp-2', servicePersonCode: 'SRV-102', fullName: 'Elena Rostova' }) },
+      data: { success: true, organizationId: 'org-1', ...servicePersonRow({ id: 'sp-2', servicePersonCode: 102, fullName: 'Elena Rostova' }) },
     }));
     const created = await servicePersonService.createServicePerson({
       firstName: 'Elena', lastName: 'Rostova', phone: '+919876543210', specialization: 'HVAC & Appliance Repair', assignmentScope: 'Entire Organization',
     });
-    expect(created).toMatchObject({ id: 'sp-2', servicePersonCode: 'SRV-102', displayName: 'Elena Rostova' });
+    expect(created).toMatchObject({ id: 'sp-2', servicePersonCode: 102, displayName: 'Elena Rostova' });
     expect(mocks.listTenantServicePersons).not.toHaveBeenCalled();
   });
 
@@ -104,6 +104,6 @@ describe('servicePersonService.getAllServicePersons', () => {
   it('fetches the full org-scoped set for pages to hold and derive views from', async () => {
     const servicePersons = await servicePersonService.getAllServicePersons();
     expect(servicePersons).toHaveLength(1);
-    expect(servicePersons[0].servicePersonCode).toBe('SRV-101');
+    expect(servicePersons[0].servicePersonCode).toBe(101);
   });
 });

@@ -23,7 +23,7 @@ import { MalformedCallableResponseError } from '@/shared/utils/callableResponse'
 
 const supplierRow = (overrides: Record<string, unknown> = {}) => ({
   id: 'supplier-1',
-  supplierCode: 'SUP-101',
+  supplierCode: 101,
   name: 'Apex Global Electronics',
   contactPerson: 'Marcus Vance',
   phone: '+15553829100',
@@ -67,10 +67,10 @@ beforeEach(() => {
 describe('supplierService mutations return the canonical entity directly', () => {
   it('createSupplier returns the enriched entity from the callable, with no follow-up list query', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
-      data: { success: true, organizationId: 'org-1', ...supplierRow({ id: 'supplier-2', supplierCode: 'SUP-102', name: 'New Supplier' }) },
+      data: { success: true, organizationId: 'org-1', ...supplierRow({ id: 'supplier-2', supplierCode: 102, name: 'New Supplier' }) },
     }));
     const created = await supplierService.createSupplier(createInput);
-    expect(created).toMatchObject({ id: 'supplier-2', supplierCode: 'SUP-102', name: 'New Supplier' });
+    expect(created).toMatchObject({ id: 'supplier-2', supplierCode: 102, name: 'New Supplier' });
     expect(mocks.listTenantSuppliers).not.toHaveBeenCalled();
   });
 
@@ -126,6 +126,6 @@ describe('supplierService.getAllSuppliers', () => {
   it('fetches the full org-scoped set for pages to hold and derive views from', async () => {
     const suppliers = await supplierService.getAllSuppliers();
     expect(suppliers).toHaveLength(1);
-    expect(suppliers[0].supplierCode).toBe('SUP-101');
+    expect(suppliers[0].supplierCode).toBe(101);
   });
 });

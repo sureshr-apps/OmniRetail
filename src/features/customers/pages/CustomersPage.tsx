@@ -39,6 +39,8 @@ export function CustomersPage() {
   // Dialog & Drawer state — selection is an id; the record itself is always
   // derived from allCustomers, so it reflects mutations with no extra sync code.
   const [viewingCustomerId, setViewingCustomerId] = useState<string | null>(null);
+  const [recentOrders, setRecentOrders] = useState<import('../types').CustomerRecentOrder[]>([]);
+  const [isLoadingRecentOrders, setIsLoadingRecentOrders] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [statusDialogCustomer, setStatusDialogCustomer] = useState<Customer | null>(null);
@@ -86,6 +88,23 @@ export function CustomersPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!viewingCustomerId) {
+      setRecentOrders([]);
+      return;
+    }
+    let active = true;
+    setIsLoadingRecentOrders(true);
+    customerService.getRecentPurchases(viewingCustomerId)
+      .then((orders) => { if (active) setRecentOrders(orders); })
+      .catch((err) => {
+        console.error('Failed to load customer purchase history:', err);
+        if (active) setRecentOrders([]);
+      })
+      .finally(() => { if (active) setIsLoadingRecentOrders(false); });
+    return () => { active = false; };
+  }, [viewingCustomerId]);
 
   // Load available cities
   useEffect(() => {
@@ -278,6 +297,8 @@ export function CustomersPage() {
         onEdit={(c) => setEditingCustomer(c)}
         onToggleStatus={(c) => setStatusDialogCustomer(c)}
         onDelete={handlePromptDelete}
+        recentOrders={recentOrders}
+        isLoadingRecentOrders={isLoadingRecentOrders}
       />
 
       {/* Confirm Status Change Dialog */}

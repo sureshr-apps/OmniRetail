@@ -43,6 +43,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListTenantProducts*](#listtenantproducts)
   - [*ListTenantInventory*](#listtenantinventory)
   - [*ListTenantCustomers*](#listtenantcustomers)
+  - [*ListTenantCustomerPurchaseHistory*](#listtenantcustomerpurchasehistory)
   - [*ListTenantSuppliers*](#listtenantsuppliers)
   - [*ListTenantPurchases*](#listtenantpurchases)
   - [*ListTenantExpenses*](#listtenantexpenses)
@@ -4269,6 +4270,8 @@ export interface ListTenantCustomersData {
     phone: string;
     email: string;
     taxId?: string | null;
+    documentType?: string | null;
+    documentValue?: string | null;
     address?: string | null;
     city: string;
     state: string;
@@ -4280,8 +4283,6 @@ export interface ListTenantCustomersData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Customer_Key)[];
 }
 ```
@@ -4349,6 +4350,139 @@ executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationMemberships);
   console.log(data.customers);
+});
+```
+
+## ListTenantCustomerPurchaseHistory
+You can execute the `ListTenantCustomerPurchaseHistory` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantCustomerPurchaseHistory(vars: ListTenantCustomerPurchaseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+
+interface ListTenantCustomerPurchaseHistoryRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantCustomerPurchaseHistoryVariables): QueryRef<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+}
+export const listTenantCustomerPurchaseHistoryRef: ListTenantCustomerPurchaseHistoryRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantCustomerPurchaseHistory(dc: DataConnect, vars: ListTenantCustomerPurchaseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+
+interface ListTenantCustomerPurchaseHistoryRef {
+  ...
+  (dc: DataConnect, vars: ListTenantCustomerPurchaseHistoryVariables): QueryRef<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+}
+export const listTenantCustomerPurchaseHistoryRef: ListTenantCustomerPurchaseHistoryRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCustomerPurchaseHistoryRef:
+```typescript
+const name = listTenantCustomerPurchaseHistoryRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantCustomerPurchaseHistoryVariables {
+  organizationId: UUIDString;
+  customerId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `ListTenantCustomerPurchaseHistory` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantCustomerPurchaseHistoryData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantCustomerPurchaseHistoryData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  sales: ({
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    totalNet: number;
+    outlet: {
+      name: string;
+    };
+  })[];
+}
+```
+### Using `ListTenantCustomerPurchaseHistory`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantCustomerPurchaseHistory, ListTenantCustomerPurchaseHistoryVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
+const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
+  organizationId: ..., 
+  customerId: ..., 
+};
+
+// Call the `listTenantCustomerPurchaseHistory()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantCustomerPurchaseHistory(listTenantCustomerPurchaseHistoryVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantCustomerPurchaseHistory({ organizationId: ..., customerId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantCustomerPurchaseHistory(dataConnect, listTenantCustomerPurchaseHistoryVars);
+
+console.log(data.organizationMemberships);
+console.log(data.sales);
+
+// Or, you can use the `Promise` API.
+listTenantCustomerPurchaseHistory(listTenantCustomerPurchaseHistoryVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.sales);
+});
+```
+
+### Using `ListTenantCustomerPurchaseHistory`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantCustomerPurchaseHistoryRef, ListTenantCustomerPurchaseHistoryVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
+const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
+  organizationId: ..., 
+  customerId: ..., 
+};
+
+// Call the `listTenantCustomerPurchaseHistoryRef()` function to get a reference to the query.
+const ref = listTenantCustomerPurchaseHistoryRef(listTenantCustomerPurchaseHistoryVars);
+// Variables can be defined inline as well.
+const ref = listTenantCustomerPurchaseHistoryRef({ organizationId: ..., customerId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantCustomerPurchaseHistoryRef(dataConnect, listTenantCustomerPurchaseHistoryVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationMemberships);
+console.log(data.sales);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.sales);
 });
 ```
 
@@ -5300,6 +5434,8 @@ export interface GetTenantCustomerTrustedData {
     phone: string;
     email: string;
     taxId?: string | null;
+    documentType?: string | null;
+    documentValue?: string | null;
     address?: string | null;
     city: string;
     state: string;
@@ -5311,8 +5447,6 @@ export interface GetTenantCustomerTrustedData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Customer_Key)[];
 }
 ```
@@ -11941,6 +12075,8 @@ export interface CreateTenantCustomerVariables {
   phone: string;
   email: string;
   taxId?: string | null;
+  documentType?: string | null;
+  documentValue?: string | null;
   address?: string | null;
   city: string;
   state: string;
@@ -11981,6 +12117,8 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   phone: ..., 
   email: ..., 
   taxId: ..., // optional
+  documentType: ..., // optional
+  documentValue: ..., // optional
   address: ..., // optional
   city: ..., 
   state: ..., 
@@ -12000,7 +12138,7 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantCustomer(createTenantCustomerVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantCustomer({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantCustomer({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12032,6 +12170,8 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   phone: ..., 
   email: ..., 
   taxId: ..., // optional
+  documentType: ..., // optional
+  documentValue: ..., // optional
   address: ..., // optional
   city: ..., 
   state: ..., 
@@ -12050,7 +12190,7 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
 // Call the `createTenantCustomerRef()` function to get a reference to the mutation.
 const ref = createTenantCustomerRef(createTenantCustomerVars);
 // Variables can be defined inline as well.
-const ref = createTenantCustomerRef({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantCustomerRef({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12112,6 +12252,8 @@ export interface UpdateTenantCustomerVariables {
   phone: string;
   email: string;
   taxId?: string | null;
+  documentType?: string | null;
+  documentValue?: string | null;
   address?: string | null;
   city: string;
   state: string;
@@ -12152,6 +12294,8 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   phone: ..., 
   email: ..., 
   taxId: ..., // optional
+  documentType: ..., // optional
+  documentValue: ..., // optional
   address: ..., // optional
   city: ..., 
   state: ..., 
@@ -12171,7 +12315,7 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantCustomer(updateTenantCustomerVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantCustomer({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantCustomer({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12203,6 +12347,8 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   phone: ..., 
   email: ..., 
   taxId: ..., // optional
+  documentType: ..., // optional
+  documentValue: ..., // optional
   address: ..., // optional
   city: ..., 
   state: ..., 
@@ -12221,7 +12367,7 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
 // Call the `updateTenantCustomerRef()` function to get a reference to the mutation.
 const ref = updateTenantCustomerRef(updateTenantCustomerVars);
 // Variables can be defined inline as well.
-const ref = updateTenantCustomerRef({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantCustomerRef({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

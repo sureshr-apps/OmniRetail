@@ -489,6 +489,12 @@ export function listTenantCustomers(dcOrVarsOrOptions, varsOrOptions, options) {
   return dcInstance.executeQuery('ListTenantCustomers', inputVars, inputOpts);
 }
 
+export function listTenantCustomerPurchaseHistory(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantCustomerPurchaseHistory', inputVars, inputOpts);
+}
+
 export function listTenantSuppliers(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

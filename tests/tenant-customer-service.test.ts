@@ -7,6 +7,8 @@ describe('tenant customer service adapter', () => {
   it('loads customer data through authenticated tenant authorization', () => {
     expect(source).toContain('getCurrentUserAuthorization');
     expect(source).toContain('listTenantCustomers');
+    expect(source).toContain('listTenantCustomerPurchaseHistory');
+    expect(source).toContain('getRecentPurchases(customerId: string)');
     expect(source).toContain('No active organization membership.');
     expect(source).toContain('export const customerService: ICustomerService = new ProductionCustomerService()');
     expect(source).toContain("'createTenantCustomerRecord'");

@@ -1023,6 +1023,21 @@ exports.listTenantCustomers = function listTenantCustomers(dcOrVars, varsOrOptio
 }
 ;
 
+const listTenantCustomerPurchaseHistoryRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantCustomerPurchaseHistory', inputVars);
+}
+listTenantCustomerPurchaseHistoryRef.operationName = 'ListTenantCustomerPurchaseHistory';
+exports.listTenantCustomerPurchaseHistoryRef = listTenantCustomerPurchaseHistoryRef;
+
+exports.listTenantCustomerPurchaseHistory = function listTenantCustomerPurchaseHistory(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantCustomerPurchaseHistoryRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const listTenantSuppliersRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Customer, UpdateCustomerInput, CustomerType, CustomerStatus } from '../types';
+import { Customer, UpdateCustomerInput, CustomerType } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { formatCustomerCode } from '../utils/formatCustomerCode';
+import { formatCustomerDateForDisplay, parseCustomerDate } from '../utils/date';
 
 interface EditCustomerModalProps {
   customer: Customer | null;
@@ -26,20 +27,17 @@ export function EditCustomerModal({
   // Address
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
-  const [state, setState] = useState('TX');
+  const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('United States');
+  const [country, setCountry] = useState('');
 
   // Business & Tax
   const [taxId, setTaxId] = useState('');
   const [creditLimit, setCreditLimit] = useState<string>('5000');
 
-  // Preferences & Status
-  const [preferredContact, setPreferredContact] = useState<
-    'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call'
-  >('Email & SMS');
-  const [status, setStatus] = useState<CustomerStatus>('Active');
   const [notes, setNotes] = useState('');
+  const [documentType, setDocumentType] = useState('');
+  const [documentValue, setDocumentValue] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,18 +48,18 @@ export function EditCustomerModal({
       setName(customer.name);
       setPhone(customer.phone);
       setEmail(customer.email);
-      setDateOfBirth(customer.dateOfBirth || '');
+      setDateOfBirth(formatCustomerDateForDisplay(customer.dateOfBirth));
       setGender(customer.gender || '');
       setAddress(customer.address || '');
       setCity(customer.city);
       setState(customer.state);
       setPostalCode(customer.postalCode || '');
-      setCountry(customer.country || 'United States');
+      setCountry(customer.country || '');
       setTaxId(customer.taxId || '');
       setCreditLimit(customer.creditLimit ? customer.creditLimit.toString() : '5000');
-      setPreferredContact(customer.preferredContact || 'Email & SMS');
-      setStatus(customer.status);
       setNotes(customer.notes || '');
+      setDocumentType(customer.documentType || '');
+      setDocumentValue(customer.documentValue || '');
       setErrors({});
     }
   }, [customer, isOpen]);
@@ -99,7 +97,7 @@ export function EditCustomerModal({
         name,
         phone,
         email,
-        dateOfBirth: dateOfBirth || undefined,
+        dateOfBirth: parseCustomerDate(dateOfBirth),
         gender: gender || undefined,
         address: address || undefined,
         city,
@@ -108,9 +106,9 @@ export function EditCustomerModal({
         country,
         taxId: taxId || undefined,
         creditLimit: creditLimit ? parseFloat(creditLimit) : undefined,
-        preferredContact,
-        status,
         notes: notes || undefined,
+        documentType: documentType || undefined,
+        documentValue: documentValue || undefined,
       });
       onClose();
     } catch (err) {
@@ -213,19 +211,6 @@ export function EditCustomerModal({
                       <span className="font-body-default text-body-default text-on-surface">Business</span>
                     </label>
                   </div>
-                </div>
-                <div>
-                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Account Status
-                  </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value as CustomerStatus)}
-                    className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
@@ -356,7 +341,7 @@ export function EditCustomerModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Tax Registration Number (EIN / VAT)
+                    GST Number
                   </label>
                   <input
                     value={taxId}
@@ -367,7 +352,7 @@ export function EditCustomerModal({
                 </div>
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Credit Limit ($)
+                    Credit Limit (₹)
                   </label>
                   <input
                     value={creditLimit}
@@ -379,33 +364,44 @@ export function EditCustomerModal({
               </div>
             </div>
 
-            {/* Section 4: Preferences & Notes */}
+            {/* Section 4: Documents & Notes */}
             <div className="space-y-space-base">
               <div className="border-b border-outline-variant/20 pb-1">
                 <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-space-xs">
-                  <span className="material-symbols-outlined text-[16px]">tune</span>
-                  <span>Preferences & Notes</span>
+                  <span className="material-symbols-outlined text-[16px]">badge</span>
+                  <span>Documents & Notes</span>
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
-                <div className="md:col-span-2">
+                <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Preferred Contact Method
+                    Document Type
                   </label>
                   <select
-                    value={preferredContact}
-                    onChange={(e) =>
-                      setPreferredContact(
-                        e.target.value as 'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call'
-                      )
-                    }
+                    value={documentType}
+                    onChange={(e) => setDocumentType(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                   >
-                    <option value="Email & SMS">Email & SMS</option>
-                    <option value="Email Only">Email Only</option>
-                    <option value="SMS Text Only">SMS Text Only</option>
-                    <option value="Phone Call">Phone Call</option>
+                    <option value="">Select Document</option>
+                    <option value="Aadhaar">Aadhaar</option>
+                    <option value="PAN">PAN</option>
+                    <option value="Driving Licence">Driving Licence</option>
+                    <option value="Passport">Passport</option>
+                    <option value="Voter ID">Voter ID</option>
+                    <option value="Other">Other</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
+                    Document Value
+                  </label>
+                  <input
+                    value={documentValue}
+                    onChange={(e) => setDocumentValue(e.target.value)}
+                    className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
+                    placeholder="Enter document number"
+                    type="text"
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">

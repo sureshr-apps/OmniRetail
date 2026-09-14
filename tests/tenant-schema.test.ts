@@ -71,6 +71,25 @@ describe('tenant Data Connect foundation schema', () => {
   it('defines an organization-scoped customer master', () => {
     expect(schema).toMatch(/enum CustomerStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
     expect(schema).toMatch(/type Customer @table[\s\S]*organization: Organization![\s\S]*customerCode: Int! @col\(dataType: "serial"\) @unique/);
+    const customer = schema.match(/type Customer @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(customer).toContain('documentType: String');
+    expect(customer).toContain('documentValue: String');
+    expect(customer).not.toContain('createdAt');
+    expect(customer).not.toContain('updatedAt');
+  });
+
+  it('keeps customer purchase history production-backed and removes retired customer detail sections', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(connector).toContain('ListTenantCustomerPurchaseHistory');
+    expect(connector).toContain('customer: { id: { eq: $customerId } }');
+    expect(connector).toContain('documentType documentValue');
+    const customerOperations = connector.match(/(?:query|mutation) (?:ListTenantCustomers|ListTenantCustomerPurchaseHistory|CreateTenantCustomer|UpdateTenantCustomer|ChangeTenantCustomerStatus|GetTenantCustomerTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    for (const operation of customerOperations) {
+      expect(operation).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
+    }
+    const drawer = readFileSync(new URL('../src/features/customers/components/CustomerDetailDrawer.tsx', import.meta.url), 'utf8');
+    expect(drawer).not.toContain('Service & Alteration History');
+    expect(drawer).not.toContain('ORD-8942');
   });
 
   it('defines an organization-scoped supplier master', () => {

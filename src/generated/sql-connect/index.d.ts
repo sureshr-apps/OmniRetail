@@ -564,6 +564,8 @@ export interface CreateTenantCustomerVariables {
   phone: string;
   email: string;
   taxId?: string | null;
+  documentType?: string | null;
+  documentValue?: string | null;
   address?: string | null;
   city: string;
   state: string;
@@ -1440,6 +1442,8 @@ export interface GetTenantCustomerTrustedData {
     phone: string;
     email: string;
     taxId?: string | null;
+    documentType?: string | null;
+    documentValue?: string | null;
     address?: string | null;
     city: string;
     state: string;
@@ -1451,8 +1455,6 @@ export interface GetTenantCustomerTrustedData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Customer_Key)[];
 }
 
@@ -1883,6 +1885,32 @@ export interface ListTenantCategoriesVariables {
   organizationId: UUIDString;
 }
 
+export interface ListTenantCustomerPurchaseHistoryData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  sales: ({
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    totalNet: number;
+    outlet: {
+      name: string;
+    };
+  })[];
+}
+
+export interface ListTenantCustomerPurchaseHistoryVariables {
+  organizationId: UUIDString;
+  customerId: UUIDString;
+}
+
 export interface ListTenantCustomersData {
   organizationMemberships: ({
     role: {
@@ -1905,6 +1933,8 @@ export interface ListTenantCustomersData {
     phone: string;
     email: string;
     taxId?: string | null;
+    documentType?: string | null;
+    documentValue?: string | null;
     address?: string | null;
     city: string;
     state: string;
@@ -1916,8 +1946,6 @@ export interface ListTenantCustomersData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Customer_Key)[];
 }
 
@@ -2759,6 +2787,8 @@ export interface UpdateTenantCustomerVariables {
   phone: string;
   email: string;
   taxId?: string | null;
+  documentType?: string | null;
+  documentValue?: string | null;
   address?: string | null;
   city: string;
   state: string;
@@ -3675,6 +3705,18 @@ export const listTenantCustomersRef: ListTenantCustomersRef;
 
 export function listTenantCustomers(vars: ListTenantCustomersVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomersData, ListTenantCustomersVariables>;
 export function listTenantCustomers(dc: DataConnect, vars: ListTenantCustomersVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomersData, ListTenantCustomersVariables>;
+
+interface ListTenantCustomerPurchaseHistoryRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantCustomerPurchaseHistoryVariables): QueryRef<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListTenantCustomerPurchaseHistoryVariables): QueryRef<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+  operationName: string;
+}
+export const listTenantCustomerPurchaseHistoryRef: ListTenantCustomerPurchaseHistoryRef;
+
+export function listTenantCustomerPurchaseHistory(vars: ListTenantCustomerPurchaseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+export function listTenantCustomerPurchaseHistory(dc: DataConnect, vars: ListTenantCustomerPurchaseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
 
 interface ListTenantSuppliersRef {
   /* Allow users to create refs without passing in DataConnect */

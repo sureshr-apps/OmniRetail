@@ -1,5 +1,5 @@
 import React from 'react';
-import { Customer } from '../types';
+import { Customer, CustomerRecentOrder } from '../types';
 import { formatCurrency, getInitials } from '../utils/calculations';
 import { formatCustomerCode } from '../utils/formatCustomerCode';
 
@@ -10,6 +10,8 @@ interface CustomerDetailDrawerProps {
   onEdit: (customer: Customer) => void;
   onToggleStatus: (customer: Customer) => void;
   onDelete: (customer: Customer) => void;
+  recentOrders: CustomerRecentOrder[];
+  isLoadingRecentOrders: boolean;
 }
 
 export function CustomerDetailDrawer({
@@ -19,6 +21,8 @@ export function CustomerDetailDrawer({
   onEdit,
   onToggleStatus,
   onDelete,
+  recentOrders,
+  isLoadingRecentOrders,
 }: CustomerDetailDrawerProps) {
   if (!isOpen || !customer) return null;
 
@@ -32,12 +36,6 @@ export function CustomerDetailDrawer({
   ]
     .filter(Boolean)
     .join(', ');
-
-  const recentOrders = customer.recentOrders || [
-    { orderId: 'ORD-8942', date: 'Oct 14, 2023', store: 'Downtown #04', amount: 340.0 },
-    { orderId: 'ORD-8510', date: 'Sep 28, 2023', store: 'North Mall #02', amount: 1250.0 },
-    { orderId: 'ORD-7934', date: 'Aug 12, 2023', store: 'Downtown #04', amount: 420.0 },
-  ];
 
   return (
     <div
@@ -139,14 +137,16 @@ export function CustomerDetailDrawer({
                 <span className="text-on-surface-variant block">Billing Address:</span>
                 <strong className="text-on-surface">{fullAddress || 'None provided'}</strong>
               </div>
-              <div>
-                <span className="text-on-surface-variant block">Preferred Contact:</span>
-                <strong className="text-on-surface">{customer.preferredContact || 'Email & SMS'}</strong>
-              </div>
               {customer.taxId && (
                 <div>
-                  <span className="text-on-surface-variant block">Tax Registration (EIN/VAT):</span>
+                  <span className="text-on-surface-variant block">GST Number:</span>
                   <strong className="text-on-surface font-body-mono-num">{customer.taxId}</strong>
+                </div>
+              )}
+              {customer.documentType && customer.documentValue && (
+                <div>
+                  <span className="text-on-surface-variant block">{customer.documentType}:</span>
+                  <strong className="text-on-surface font-body-mono-num">{customer.documentValue}</strong>
                 </div>
               )}
               {customer.creditLimit !== undefined && (
@@ -186,7 +186,11 @@ export function CustomerDetailDrawer({
                     <th className="p-2">Store</th>
                     <th className="p-2 text-right">Amount</th>
                   </tr>
-                  {recentOrders.map((order, i) => (
+                  {isLoadingRecentOrders ? (
+                    <tr><td colSpan={4} className="p-4 text-center text-on-surface-variant">Loading purchase history…</td></tr>
+                  ) : recentOrders.length === 0 ? (
+                    <tr><td colSpan={4} className="p-4 text-center text-on-surface-variant">No completed purchases found.</td></tr>
+                  ) : recentOrders.map((order, i) => (
                     <tr
                       key={order.orderId || i}
                       className="border-b border-outline-variant/20 hover:bg-surface-container-low/50 transition-colors"
@@ -199,53 +203,6 @@ export function CustomerDetailDrawer({
                       </td>
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Service & Alteration History */}
-          <div className="space-y-space-sm">
-            <div className="flex items-center justify-between">
-              <h4 className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
-                <span className="material-symbols-outlined text-[16px] text-primary">support_agent</span>
-                <span>Service & Alteration History</span>
-              </h4>
-            </div>
-            <div className="border border-outline-variant/30 rounded overflow-hidden">
-              <table className="w-full text-left text-caption">
-                <tbody>
-                  <tr className="bg-surface-container-low border-b border-outline-variant/30 font-micro-label text-on-surface-variant uppercase">
-                    <th className="p-2">Ticket #</th>
-                    <th className="p-2">Service Type</th>
-                    <th className="p-2">Status</th>
-                  </tr>
-                  {customer.serviceHistory && customer.serviceHistory.length > 0 ? (
-                    customer.serviceHistory.map((srv, idx) => (
-                      <tr
-                        key={srv.ticketId || idx}
-                        className="border-b border-outline-variant/20 hover:bg-surface-container-low/50"
-                      >
-                        <td className="p-2 font-body-mono-num text-primary">{srv.ticketId}</td>
-                        <td className="p-2 text-on-surface">{srv.serviceType}</td>
-                        <td className="p-2">
-                          <span className="font-micro-label px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 uppercase font-bold">
-                            {srv.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr className="border-b border-outline-variant/20 hover:bg-surface-container-low/50">
-                      <td className="p-2 font-body-mono-num text-primary">SRV-201</td>
-                      <td className="p-2 text-on-surface">Custom Hemming & Tailoring</td>
-                      <td className="p-2">
-                        <span className="font-micro-label px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 uppercase font-bold">
-                          Completed
-                        </span>
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>

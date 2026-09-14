@@ -50,6 +50,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ListTenantProducts*](#listtenantproducts)
   - [*ListTenantInventory*](#listtenantinventory)
   - [*ListTenantCustomers*](#listtenantcustomers)
+  - [*ListTenantCustomerPurchaseHistory*](#listtenantcustomerpurchasehistory)
   - [*ListTenantSuppliers*](#listtenantsuppliers)
   - [*ListTenantPurchases*](#listtenantpurchases)
   - [*ListTenantExpenses*](#listtenantexpenses)
@@ -3446,6 +3447,8 @@ export interface ListTenantCustomersData {
     phone: string;
     email: string;
     taxId?: string | null;
+    documentType?: string | null;
+    documentValue?: string | null;
     address?: string | null;
     city: string;
     state: string;
@@ -3457,8 +3460,6 @@ export interface ListTenantCustomersData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Customer_Key)[];
 }
 ```
@@ -3510,6 +3511,108 @@ export default function ListTenantCustomersComponent() {
   if (query.isSuccess) {
     console.log(query.data.organizationMemberships);
     console.log(query.data.customers);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantCustomerPurchaseHistory
+You can execute the `ListTenantCustomerPurchaseHistory` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantCustomerPurchaseHistory(dc: DataConnect, vars: ListTenantCustomerPurchaseHistoryVariables, options?: useDataConnectQueryOptions<ListTenantCustomerPurchaseHistoryData>): UseDataConnectQueryResult<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantCustomerPurchaseHistory(vars: ListTenantCustomerPurchaseHistoryVariables, options?: useDataConnectQueryOptions<ListTenantCustomerPurchaseHistoryData>): UseDataConnectQueryResult<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
+```
+
+### Variables
+The `ListTenantCustomerPurchaseHistory` Query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantCustomerPurchaseHistoryVariables {
+  organizationId: UUIDString;
+  customerId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ListTenantCustomerPurchaseHistory` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantCustomerPurchaseHistory` Query is of type `ListTenantCustomerPurchaseHistoryData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantCustomerPurchaseHistoryData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  sales: ({
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    totalNet: number;
+    outlet: {
+      name: string;
+    };
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantCustomerPurchaseHistory`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantCustomerPurchaseHistoryVariables } from '@omniretail/sql-connect';
+import { useListTenantCustomerPurchaseHistory } from '@omniretail/sql-connect/react'
+
+export default function ListTenantCustomerPurchaseHistoryComponent() {
+  // The `useListTenantCustomerPurchaseHistory` Query hook requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
+  const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
+    organizationId: ..., 
+    customerId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantCustomerPurchaseHistory(listTenantCustomerPurchaseHistoryVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantCustomerPurchaseHistory({ organizationId: ..., customerId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantCustomerPurchaseHistory(dataConnect, listTenantCustomerPurchaseHistoryVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantCustomerPurchaseHistory(listTenantCustomerPurchaseHistoryVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantCustomerPurchaseHistory(dataConnect, listTenantCustomerPurchaseHistoryVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.sales);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -4270,6 +4373,8 @@ export interface GetTenantCustomerTrustedData {
     phone: string;
     email: string;
     taxId?: string | null;
+    documentType?: string | null;
+    documentValue?: string | null;
     address?: string | null;
     city: string;
     state: string;
@@ -4281,8 +4386,6 @@ export interface GetTenantCustomerTrustedData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Customer_Key)[];
 }
 ```
@@ -9626,6 +9729,8 @@ export interface CreateTenantCustomerVariables {
   phone: string;
   email: string;
   taxId?: string | null;
+  documentType?: string | null;
+  documentValue?: string | null;
   address?: string | null;
   city: string;
   state: string;
@@ -9696,6 +9801,8 @@ export default function CreateTenantCustomerComponent() {
     phone: ..., 
     email: ..., 
     taxId: ..., // optional
+    documentType: ..., // optional
+    documentValue: ..., // optional
     address: ..., // optional
     city: ..., 
     state: ..., 
@@ -9712,7 +9819,7 @@ export default function CreateTenantCustomerComponent() {
   };
   mutation.mutate(createTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9760,6 +9867,8 @@ export interface UpdateTenantCustomerVariables {
   phone: string;
   email: string;
   taxId?: string | null;
+  documentType?: string | null;
+  documentValue?: string | null;
   address?: string | null;
   city: string;
   state: string;
@@ -9830,6 +9939,8 @@ export default function UpdateTenantCustomerComponent() {
     phone: ..., 
     email: ..., 
     taxId: ..., // optional
+    documentType: ..., // optional
+    documentValue: ..., // optional
     address: ..., // optional
     city: ..., 
     state: ..., 
@@ -9846,7 +9957,7 @@ export default function UpdateTenantCustomerComponent() {
   };
   mutation.mutate(updateTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

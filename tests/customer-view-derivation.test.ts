@@ -7,7 +7,6 @@ const customer = (overrides: Partial<Customer> = {}): Customer => ({
   id: 'c1', customerCode: 1, type: 'Individual', name: 'Jane Doe',
   phone: '+919876543210', email: 'jane@example.com', city: 'Austin', state: 'TX',
   status: 'Active', totalPurchases: 0, completedOrdersCount: 0, balance: 0,
-  createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
   ...overrides,
 });
 

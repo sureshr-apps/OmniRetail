@@ -8,12 +8,6 @@ export interface CustomerRecentOrder {
   amount: number;
 }
 
-export interface CustomerServiceTicket {
-  ticketId: string;
-  serviceType: string;
-  status: 'Completed' | 'In Progress' | 'Pending';
-}
-
 export interface Customer {
   id: string;
   customerCode: number;
@@ -22,13 +16,14 @@ export interface Customer {
   phone: string;
   email: string;
   taxId?: string;
+  documentType?: string;
+  documentValue?: string;
   address?: string;
   city: string;
   state: string;
   postalCode?: string;
   country?: string;
   creditLimit?: number;
-  preferredContact?: 'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call';
   dateOfBirth?: string;
   gender?: string;
   status: CustomerStatus;
@@ -36,10 +31,6 @@ export interface Customer {
   totalPurchases: number;
   completedOrdersCount: number;
   balance: number;
-  createdAt: string;
-  updatedAt: string;
-  recentOrders?: CustomerRecentOrder[];
-  serviceHistory?: CustomerServiceTicket[];
   // POS compatibility properties
   tier?: string;
   points?: number;
@@ -52,16 +43,16 @@ export interface CreateCustomerInput {
   phone: string;
   email: string;
   taxId?: string;
+  documentType?: string;
+  documentValue?: string;
   address?: string;
   city: string;
   state: string;
   postalCode?: string;
   country?: string;
   creditLimit?: number;
-  preferredContact?: 'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call';
   dateOfBirth?: string;
   gender?: string;
-  status?: CustomerStatus;
   notes?: string;
 }
 
@@ -71,16 +62,16 @@ export interface UpdateCustomerInput {
   phone?: string;
   email?: string;
   taxId?: string;
+  documentType?: string;
+  documentValue?: string;
   address?: string;
   city?: string;
   state?: string;
   postalCode?: string;
   country?: string;
   creditLimit?: number;
-  preferredContact?: 'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call';
   dateOfBirth?: string;
   gender?: string;
-  status?: CustomerStatus;
   notes?: string;
 }
 

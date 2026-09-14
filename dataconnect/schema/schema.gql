@@ -291,6 +291,8 @@ type Customer @table {
   phone: String!
   email: String!
   taxId: String
+  documentType: String
+  documentValue: String
   address: String
   city: String!
   state: String!
@@ -302,8 +304,6 @@ type Customer @table {
   gender: String
   status: CustomerStatus! @default(value: ACTIVE)
   notes: String
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
 }
 
 type Supplier @table {

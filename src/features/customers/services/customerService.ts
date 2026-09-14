@@ -5,8 +5,9 @@ import {
   CustomerQuery,
   CustomerQueryResult,
   CustomerStatus,
+  CustomerRecentOrder,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantCustomers } from '@omniretail/sql-connect';
+import { getCurrentUserAuthorization, listTenantCustomers, listTenantCustomerPurchaseHistory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
@@ -21,6 +22,7 @@ export interface ICustomerService {
   deleteCustomer(id: string): Promise<void>;
   getCities(): Promise<string[]>;
   getAllCustomers(): Promise<Customer[]>;
+  getRecentPurchases(customerId: string): Promise<CustomerRecentOrder[]>;
 }
 
 type TenantCustomerRow = Awaited<ReturnType<typeof listTenantCustomers>>['data']['customers'][number];
@@ -39,21 +41,20 @@ interface CustomerMutationResponse {
   postalCode: string | null;
   country: string | null;
   creditLimit: number | null;
-  preferredContact: string | null;
   dateOfBirth: string | null;
   gender: string | null;
   status: string;
   notes: string | null;
-  createdAt: string;
-  updatedAt: string;
+  documentType: string | null;
+  documentValue: string | null;
 }
 
 function mapTenantCustomer(row: TenantCustomerRow | CustomerMutationResponse): Customer {
-  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, address: row.address ?? undefined, city: row.city, state: row.state, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, creditLimit: row.creditLimit ?? undefined, preferredContact: row.preferredContact as Customer['preferredContact'], dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: 0, completedOrdersCount: 0, balance: 0, createdAt: row.createdAt, updatedAt: row.updatedAt };
+  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, documentType: row.documentType ?? undefined, documentValue: row.documentValue ?? undefined, address: row.address ?? undefined, city: row.city, state: row.state, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, creditLimit: row.creditLimit ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: 0, completedOrdersCount: 0, balance: 0 };
 }
 
 const CUSTOMER_MUTATION_RESPONSE_KEYS: (keyof CustomerMutationResponse)[] = [
-  'id', 'customerCode', 'type', 'name', 'phone', 'email', 'city', 'state', 'status', 'createdAt', 'updatedAt',
+  'id', 'customerCode', 'type', 'name', 'phone', 'email', 'city', 'state', 'status',
 ];
 
 /**
@@ -82,6 +83,16 @@ class ProductionCustomerService implements ICustomerService {
 
   async getCustomers(query: CustomerQuery): Promise<CustomerQueryResult> {
     return deriveCustomerView(await this.getAllCustomers(), query);
+  }
+  async getRecentPurchases(customerId: string): Promise<CustomerRecentOrder[]> {
+    const organizationId = await this.organizationId();
+    const result = await listTenantCustomerPurchaseHistory(getFirebaseClientServices().dataConnect, { organizationId, customerId });
+    return result.data.sales.map((sale) => ({
+      orderId: sale.receiptNumber,
+      date: new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }).format(new Date(sale.saleTimestamp)),
+      store: sale.outlet?.name ?? 'Organization-wide',
+      amount: sale.totalNet,
+    }));
   }
   async getCustomer(id: string): Promise<Customer | null> { return (await this.getAllCustomers()).find((customer) => customer.id === id || String(customer.customerCode) === id || formatCustomerCode(customer.customerCode) === id) ?? null; }
   async getCities(): Promise<string[]> { return Array.from(new Set((await this.getAllCustomers()).map((customer) => customer.state ? `${customer.city}, ${customer.state}` : customer.city))).sort(); }

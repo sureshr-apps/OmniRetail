@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CreateCustomerInput, CustomerType, CustomerStatus } from '../types';
+import { CreateCustomerInput, CustomerType } from '../types';
+import { parseCustomerDate } from '../utils/date';
 
 interface AddCustomerModalProps {
   isOpen: boolean;
@@ -18,20 +19,17 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
   // Address
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
-  const [state, setState] = useState('TX');
+  const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('United States');
+  const [country, setCountry] = useState('');
 
   // Business & Tax
   const [taxId, setTaxId] = useState('');
   const [creditLimit, setCreditLimit] = useState<string>('5000');
 
-  // Preferences & Status
-  const [preferredContact, setPreferredContact] = useState<
-    'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call'
-  >('Email & SMS');
-  const [status, setStatus] = useState<CustomerStatus>('Active');
   const [notes, setNotes] = useState('');
+  const [documentType, setDocumentType] = useState('');
+  const [documentValue, setDocumentValue] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,14 +44,14 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
       setGender('');
       setAddress('');
       setCity('');
-      setState('TX');
+      setState('');
       setPostalCode('');
-      setCountry('United States');
+      setCountry('');
       setTaxId('');
       setCreditLimit(type === 'Business' ? '10000' : '2500');
-      setPreferredContact('Email & SMS');
-      setStatus('Active');
       setNotes('');
+      setDocumentType('');
+      setDocumentValue('');
     }
   }, [isOpen, type]);
 
@@ -74,6 +72,9 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
     }
     if (!city.trim()) errs.city = 'City is required';
     if (!state.trim()) errs.state = 'State is required';
+    if (dateOfBirth.trim() && !parseCustomerDate(dateOfBirth)) {
+      errs.dateOfBirth = 'Use a valid date in DD/MM/YYYY format';
+    }
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -90,7 +91,7 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
         name,
         phone,
         email,
-        dateOfBirth: dateOfBirth || undefined,
+        dateOfBirth: parseCustomerDate(dateOfBirth),
         gender: gender && gender !== 'Select Gender' ? gender : undefined,
         address: address || undefined,
         city,
@@ -99,9 +100,9 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
         country,
         taxId: taxId || undefined,
         creditLimit: creditLimit ? parseFloat(creditLimit) : undefined,
-        preferredContact,
-        status,
         notes: notes || undefined,
+        documentType: documentType || undefined,
+        documentValue: documentValue || undefined,
       });
       onClose();
     } catch (err) {
@@ -206,7 +207,7 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                     className={`w-full h-9 px-space-base rounded bg-surface-container-low border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
                       errors.phone ? 'border-error ring-1 ring-error' : 'border-outline-variant/50'
                     }`}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+91 98765 43210"
                     type="text"
                   />
                   {errors.phone && <p className="text-[11px] text-error mt-0.5">{errors.phone}</p>}
@@ -234,8 +235,11 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                     value={dateOfBirth}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                    type="date"
+                    placeholder="DD/MM/YYYY"
+                    inputMode="numeric"
+                    type="text"
                   />
+                  {errors.dateOfBirth && <p className="text-[11px] text-error mt-0.5">{errors.dateOfBirth}</p>}
                 </div>
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
@@ -287,7 +291,7 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                     className={`w-full h-9 px-space-base rounded bg-surface-container-low border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
                       errors.city ? 'border-error ring-1 ring-error' : 'border-outline-variant/50'
                     }`}
-                    placeholder="Austin"
+                    placeholder="Mumbai"
                     type="text"
                   />
                   {errors.city && <p className="text-[11px] text-error mt-0.5">{errors.city}</p>}
@@ -302,7 +306,7 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                     className={`w-full h-9 px-space-base rounded bg-surface-container-low border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
                       errors.state ? 'border-error ring-1 ring-error' : 'border-outline-variant/50'
                     }`}
-                    placeholder="TX"
+                    placeholder="Maharashtra"
                     type="text"
                   />
                   {errors.state && <p className="text-[11px] text-error mt-0.5">{errors.state}</p>}
@@ -323,16 +327,13 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
                     Country
                   </label>
-                  <select
+                  <input
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                  >
-                    <option value="United States">United States</option>
-                    <option value="Canada">Canada</option>
-                    <option value="United Kingdom">United Kingdom</option>
-                    <option value="Australia">Australia</option>
-                  </select>
+                    placeholder="India"
+                    type="text"
+                  />
                 </div>
               </div>
             </div>
@@ -348,19 +349,19 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Tax Registration Number (EIN / VAT)
+                    GST Number
                   </label>
                   <input
                     value={taxId}
                     onChange={(e) => setTaxId(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                    placeholder="TX-98234190"
+                    placeholder="22AAAAA0000A1Z5"
                     type="text"
                   />
                 </div>
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Credit Limit ($)
+                    Credit Limit (₹)
                   </label>
                   <input
                     value={creditLimit}
@@ -373,46 +374,44 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
               </div>
             </div>
 
-            {/* Section 4: Preferences & Status */}
+            {/* Section 4: Documents & Notes */}
             <div className="space-y-space-base">
               <div className="border-b border-outline-variant/20 pb-1">
                 <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-space-xs">
-                  <span className="material-symbols-outlined text-[16px]">tune</span>
-                  <span>Preferences & Status</span>
+                  <span className="material-symbols-outlined text-[16px]">badge</span>
+                  <span>Documents & Notes</span>
                 </h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Preferred Contact Method
+                    Document Type
                   </label>
                   <select
-                    value={preferredContact}
-                    onChange={(e) =>
-                      setPreferredContact(
-                        e.target.value as 'Email & SMS' | 'Email Only' | 'SMS Text Only' | 'Phone Call'
-                      )
-                    }
+                    value={documentType}
+                    onChange={(e) => setDocumentType(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                   >
-                    <option value="Email & SMS">Email & SMS</option>
-                    <option value="Email Only">Email Only</option>
-                    <option value="SMS Text Only">SMS Text Only</option>
-                    <option value="Phone Call">Phone Call</option>
+                    <option value="">Select Document</option>
+                    <option value="Aadhaar">Aadhaar</option>
+                    <option value="PAN">PAN</option>
+                    <option value="Driving Licence">Driving Licence</option>
+                    <option value="Passport">Passport</option>
+                    <option value="Voter ID">Voter ID</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Initial Account Status
+                    Document Value
                   </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value as CustomerStatus)}
+                  <input
+                    value={documentValue}
+                    onChange={(e) => setDocumentValue(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
+                    placeholder="Enter document number"
+                    type="text"
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">

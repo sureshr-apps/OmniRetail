@@ -59,6 +59,22 @@ describe('servicePersonService mutations return the canonical entity directly', 
     expect(mocks.listTenantServicePersons).not.toHaveBeenCalled();
   });
 
+  it('accepts omitted nullable specialization and notes from the callable response', async () => {
+    const responseRow = servicePersonRow({ id: 'sp-3', servicePersonCode: 103 });
+    delete (responseRow as { specialization?: string }).specialization;
+    delete (responseRow as { notes?: string }).notes;
+    mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...responseRow },
+    }));
+
+    const created = await servicePersonService.createServicePerson({
+      firstName: 'No', lastName: 'Details', phone: '+919876543210', assignmentScope: 'Entire Organization',
+    });
+
+    expect(created.specialization).toBe('');
+    expect(created.notes).toBeUndefined();
+  });
+
   it('updateServicePerson returns the enriched entity from the callable, with no follow-up list query', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...servicePersonRow({ fullName: 'Marcus Renamed' }) },

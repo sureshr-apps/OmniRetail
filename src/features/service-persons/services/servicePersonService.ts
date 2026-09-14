@@ -41,7 +41,7 @@ interface ServicePersonMutationResponse {
 }
 
 const SERVICE_PERSON_MUTATION_RESPONSE_KEYS: (keyof ServicePersonMutationResponse)[] = [
-  'id', 'servicePersonCode', 'fullName', 'phone', 'specialization', 'assignmentScope', 'status', 'notes',
+  'id', 'servicePersonCode', 'fullName', 'phone', 'assignmentScope', 'status',
   'servicePersonOutlets_on_servicePerson',
 ];
 

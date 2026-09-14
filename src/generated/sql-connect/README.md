@@ -11231,32 +11231,6 @@ The `data` property is an object of type `CreateTenantSupplierData`, which is de
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    supplier?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      supplierCode: string;
-      name: string;
-      contactPerson: string;
-      phone: string;
-      email: string;
-      taxId: string;
-      address?: string | null;
-      city: string;
-      state?: string | null;
-      postalCode?: string | null;
-      country?: string | null;
-      category: string;
-      paymentTerms: string;
-      creditLimit: number;
-      status: SupplierStatus;
-      notes?: string | null;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-    } & Supplier_Key;
-  };
 }
 ```
 ### Using `CreateTenantSupplier`'s action shortcut function
@@ -11301,14 +11275,12 @@ const { data } = await createTenantSupplier(dataConnect, createTenantSupplierVar
 
 console.log(data.supplier_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 createTenantSupplier(createTenantSupplierVars).then((response) => {
   const data = response.data;
   console.log(data.supplier_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -11357,14 +11329,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.supplier_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.supplier_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -11730,33 +11700,6 @@ The `data` property is an object of type `CreateTenantCustomerData`, which is de
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    customer?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      customerCode: string;
-      type: CustomerType;
-      name: string;
-      phone: string;
-      email: string;
-      taxId?: string | null;
-      address?: string | null;
-      city: string;
-      state: string;
-      postalCode?: string | null;
-      country?: string | null;
-      creditLimit?: number | null;
-      preferredContact?: string | null;
-      dateOfBirth?: DateString | null;
-      gender?: string | null;
-      status: CustomerStatus;
-      notes?: string | null;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-    } & Customer_Key;
-  };
 }
 ```
 ### Using `CreateTenantCustomer`'s action shortcut function
@@ -11802,14 +11745,12 @@ const { data } = await createTenantCustomer(dataConnect, createTenantCustomerVar
 
 console.log(data.customer_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 createTenantCustomer(createTenantCustomerVars).then((response) => {
   const data = response.data;
   console.log(data.customer_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -11859,14 +11800,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.customer_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.customer_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -12242,40 +12181,6 @@ The `data` property is an object of type `CreateTenantProductData`, which is def
 export interface CreateTenantProductData {
   product_insert: Product_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    product?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      productCode: string;
-      name: string;
-      brand: string;
-      categoryId: string;
-      categoryName: string;
-      subcategory?: string | null;
-      type: ProductType;
-      sku: string;
-      barcode?: string | null;
-      hsnCode?: string | null;
-      unitOfMeasure?: string | null;
-      sellingPrice: number;
-      mrp?: number | null;
-      cost?: number | null;
-      minSellingPrice?: number | null;
-      discountAllowed: boolean;
-      taxCategory?: string | null;
-      status: ProductStatus;
-      reorderLevel?: number | null;
-      reorderQuantity?: number | null;
-      primarySupplier?: string | null;
-      supplierProductCode?: string | null;
-      description?: string | null;
-      imageUrl?: string | null;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-    } & Product_Key;
-  };
 }
 ```
 ### Using `CreateTenantProduct`'s action shortcut function
@@ -12328,14 +12233,12 @@ const { data } = await createTenantProduct(dataConnect, createTenantProductVars)
 
 console.log(data.product_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 createTenantProduct(createTenantProductVars).then((response) => {
   const data = response.data;
   console.log(data.product_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -12392,14 +12295,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.product_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.product_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -13456,21 +13357,6 @@ The `data` property is an object of type `CreateTenantOutletTrustedData`, which 
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    outlet?: {
-      id: UUIDString;
-      outletCode: number;
-      name: string;
-      contactPerson: string;
-      email?: string | null;
-      phone: string;
-      address: string;
-      status: OutletStatus;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-    } & Outlet_Key;
-  };
 }
 ```
 ### Using `CreateTenantOutletTrusted`'s action shortcut function
@@ -13505,14 +13391,12 @@ const { data } = await createTenantOutletTrusted(dataConnect, createTenantOutlet
 
 console.log(data.outlet_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 createTenantOutletTrusted(createTenantOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -13551,14 +13435,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.outlet_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -13889,38 +13771,6 @@ The `data` property is an object of type `CreateTenantEmployeeProfileTrustedData
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    employee?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      user?: {
-        id: UUIDString;
-        username: string;
-        email: string;
-      } & AppUser_Key;
-      employeeCode: string;
-      fullName: string;
-      email?: string | null;
-      phone: string;
-      designation: string;
-      department?: string | null;
-      dateOfJoining: DateString;
-      assignmentScope: string;
-      employmentStatus: EmploymentStatus;
-      loginAccess: LoginAccessStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      employeeOutlets_on_employee: ({
-        outlet: {
-          id: UUIDString;
-          outletCode: number;
-          name: string;
-        } & Outlet_Key;
-      })[];
-    } & Employee_Key;
-  };
 }
 ```
 ### Using `CreateTenantEmployeeProfileTrusted`'s action shortcut function
@@ -13958,14 +13808,12 @@ const { data } = await createTenantEmployeeProfileTrusted(dataConnect, createTen
 
 console.log(data.employee_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 createTenantEmployeeProfileTrusted(createTenantEmployeeProfileTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employee_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -14007,14 +13855,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.employee_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -14082,38 +13928,6 @@ export interface ProvisionTenantEmployeeTrustedData {
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    employee?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      user?: {
-        id: UUIDString;
-        username: string;
-        email: string;
-      } & AppUser_Key;
-      employeeCode: string;
-      fullName: string;
-      email?: string | null;
-      phone: string;
-      designation: string;
-      department?: string | null;
-      dateOfJoining: DateString;
-      assignmentScope: string;
-      employmentStatus: EmploymentStatus;
-      loginAccess: LoginAccessStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      employeeOutlets_on_employee: ({
-        outlet: {
-          id: UUIDString;
-          outletCode: number;
-          name: string;
-        } & Outlet_Key;
-      })[];
-    } & Employee_Key;
-  };
 }
 ```
 ### Using `ProvisionTenantEmployeeTrusted`'s action shortcut function
@@ -14158,7 +13972,6 @@ console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.employee_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars).then((response) => {
@@ -14168,7 +13981,6 @@ provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars).then((respons
   console.log(data.userRole_upsert);
   console.log(data.employee_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -14217,7 +14029,6 @@ console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.employee_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -14227,7 +14038,6 @@ executeMutation(ref).then((response) => {
   console.log(data.userRole_upsert);
   console.log(data.employee_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -14701,32 +14511,6 @@ The `data` property is an object of type `CreateTenantServicePersonTrustedData`,
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    servicePerson?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      servicePersonCode: string;
-      fullName: string;
-      email?: string | null;
-      phone: string;
-      specialization: string;
-      skills?: string | null;
-      yearsOfExperience?: number | null;
-      assignmentScope: string;
-      status: EmploymentStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      servicePersonOutlets_on_servicePerson: ({
-        outlet: {
-          id: UUIDString;
-          outletCode: number;
-          name: string;
-        } & Outlet_Key;
-      })[];
-    } & ServicePerson_Key;
-  };
 }
 ```
 ### Using `CreateTenantServicePersonTrusted`'s action shortcut function
@@ -14764,14 +14548,12 @@ const { data } = await createTenantServicePersonTrusted(dataConnect, createTenan
 
 console.log(data.servicePerson_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 createTenantServicePersonTrusted(createTenantServicePersonTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 
@@ -14813,14 +14595,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.servicePerson_insert);
 console.log(data.auditEvent_insert);
-console.log(data.query);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_insert);
   console.log(data.auditEvent_insert);
-  console.log(data.query);
 });
 ```
 

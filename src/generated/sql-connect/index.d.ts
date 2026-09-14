@@ -535,33 +535,6 @@ export interface CreateOrganizationVariables {
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    customer?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      customerCode: string;
-      type: CustomerType;
-      name: string;
-      phone: string;
-      email: string;
-      taxId?: string | null;
-      address?: string | null;
-      city: string;
-      state: string;
-      postalCode?: string | null;
-      country?: string | null;
-      creditLimit?: number | null;
-      preferredContact?: string | null;
-      dateOfBirth?: DateString | null;
-      gender?: string | null;
-      status: CustomerStatus;
-      notes?: string | null;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-    } & Customer_Key;
-  };
 }
 
 export interface CreateTenantCustomerVariables {
@@ -591,38 +564,6 @@ export interface CreateTenantCustomerVariables {
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    employee?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      user?: {
-        id: UUIDString;
-        username: string;
-        email: string;
-      } & AppUser_Key;
-      employeeCode: string;
-      fullName: string;
-      email?: string | null;
-      phone: string;
-      designation: string;
-      department?: string | null;
-      dateOfJoining: DateString;
-      assignmentScope: string;
-      employmentStatus: EmploymentStatus;
-      loginAccess: LoginAccessStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      employeeOutlets_on_employee: ({
-        outlet: {
-          id: UUIDString;
-          outletCode: number;
-          name: string;
-        } & Outlet_Key;
-      })[];
-    } & Employee_Key;
-  };
 }
 
 export interface CreateTenantEmployeeProfileTrustedVariables {
@@ -692,21 +633,6 @@ export interface CreateTenantOutletData {
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    outlet?: {
-      id: UUIDString;
-      outletCode: number;
-      name: string;
-      contactPerson: string;
-      email?: string | null;
-      phone: string;
-      address: string;
-      status: OutletStatus;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-    } & Outlet_Key;
-  };
 }
 
 export interface CreateTenantOutletTrustedVariables {
@@ -736,40 +662,6 @@ export interface CreateTenantOutletVariables {
 export interface CreateTenantProductData {
   product_insert: Product_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    product?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      productCode: string;
-      name: string;
-      brand: string;
-      categoryId: string;
-      categoryName: string;
-      subcategory?: string | null;
-      type: ProductType;
-      sku: string;
-      barcode?: string | null;
-      hsnCode?: string | null;
-      unitOfMeasure?: string | null;
-      sellingPrice: number;
-      mrp?: number | null;
-      cost?: number | null;
-      minSellingPrice?: number | null;
-      discountAllowed: boolean;
-      taxCategory?: string | null;
-      status: ProductStatus;
-      reorderLevel?: number | null;
-      reorderQuantity?: number | null;
-      primarySupplier?: string | null;
-      supplierProductCode?: string | null;
-      description?: string | null;
-      imageUrl?: string | null;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-    } & Product_Key;
-  };
 }
 
 export interface CreateTenantProductVariables {
@@ -880,32 +772,6 @@ export interface CreateTenantSaleVariables {
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    servicePerson?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      servicePersonCode: string;
-      fullName: string;
-      email?: string | null;
-      phone: string;
-      specialization: string;
-      skills?: string | null;
-      yearsOfExperience?: number | null;
-      assignmentScope: string;
-      status: EmploymentStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      servicePersonOutlets_on_servicePerson: ({
-        outlet: {
-          id: UUIDString;
-          outletCode: number;
-          name: string;
-        } & Outlet_Key;
-      })[];
-    } & ServicePerson_Key;
-  };
 }
 
 export interface CreateTenantServicePersonTrustedVariables {
@@ -927,32 +793,6 @@ export interface CreateTenantServicePersonTrustedVariables {
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    supplier?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      supplierCode: string;
-      name: string;
-      contactPerson: string;
-      phone: string;
-      email: string;
-      taxId: string;
-      address?: string | null;
-      city: string;
-      state?: string | null;
-      postalCode?: string | null;
-      country?: string | null;
-      category: string;
-      paymentTerms: string;
-      creditLimit: number;
-      status: SupplierStatus;
-      notes?: string | null;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-    } & Supplier_Key;
-  };
 }
 
 export interface CreateTenantSupplierVariables {
@@ -2439,38 +2279,6 @@ export interface ProvisionTenantEmployeeTrustedData {
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
-  query?: {
-    employee?: {
-      id: UUIDString;
-      organization: {
-        id: UUIDString;
-      } & Organization_Key;
-      user?: {
-        id: UUIDString;
-        username: string;
-        email: string;
-      } & AppUser_Key;
-      employeeCode: string;
-      fullName: string;
-      email?: string | null;
-      phone: string;
-      designation: string;
-      department?: string | null;
-      dateOfJoining: DateString;
-      assignmentScope: string;
-      employmentStatus: EmploymentStatus;
-      loginAccess: LoginAccessStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      employeeOutlets_on_employee: ({
-        outlet: {
-          id: UUIDString;
-          outletCode: number;
-          name: string;
-        } & Outlet_Key;
-      })[];
-    } & Employee_Key;
-  };
 }
 
 export interface ProvisionTenantEmployeeTrustedVariables {

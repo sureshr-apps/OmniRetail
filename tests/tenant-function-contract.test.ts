@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
 const deploymentSource = readFileSync(new URL('../.github/workflows/firebase-deploy.yml', import.meta.url), 'utf8');
+const connectorSource = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -40,7 +41,7 @@ describe('tenant callable contract', () => {
     expect(source).toContain('idempotencyKey');
     expect(source).not.toContain('async function nextTenantOutletCode()');
     expect(source).not.toContain('listTenantOutletCodesTrusted');
-    expect(source).toContain('created.data.query?.outlet');
+    expect(source).toContain('getTenantOutletTrusted({ organizationId, id })');
     expect(source).toContain('function outletCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('invalid-argument', 'Some outlet details are invalid.')");
   });
@@ -83,7 +84,8 @@ describe('tenant callable contract', () => {
   it('exposes tenant product and inventory write boundaries', () => {
     expect(source).toContain('export const createTenantProductRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
-    expect(source).toContain('createTenantProduct({ id: randomUUID(), organizationId, productCode');
+    expect(source).toContain('await createTenantProduct({ id, organizationId, productCode');
+    expect(source).toContain('getTenantProductTrusted({ organizationId, id })');
     expect(source).toContain('function productCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('already-exists'");
     expect(source).toContain("new HttpsError('invalid-argument'");
@@ -97,7 +99,7 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped customer creation boundary', () => {
     expect(source).toContain('export const createTenantCustomerRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'customers.read')");
-    expect(source).toContain('createTenantCustomer({ id: randomUUID(), organizationId, customerCode');
+    expect(source).toContain('await createTenantCustomer({ id, organizationId, customerCode');
     expect(source).toContain('export const updateTenantCustomerRecord = onCall');
     expect(source).toContain('export const changeTenantCustomerStatus = onCall');
   });
@@ -105,7 +107,7 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped supplier creation boundary', () => {
     expect(source).toContain('export const createTenantSupplierRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'suppliers.read')");
-    expect(source).toContain('createTenantSupplier({ id: randomUUID(), organizationId, supplierCode');
+    expect(source).toContain('await createTenantSupplier({ id, organizationId, supplierCode');
     expect(source).toContain('export const changeTenantSupplierStatus = onCall');
     expect(source).toContain('export const updateTenantSupplierRecord = onCall');
     expect(source).toContain('updateTenantSupplier({ organizationId, id');
@@ -165,6 +167,25 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const createTenantInventoryStockRecord = onCall');
     expect(source).toContain('createTenantInventoryStock');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'inventory.read')");
+  });
+
+  it('never embeds a same-transaction read-back query in a create mutation (Data Connect does not read your own writes there)', () => {
+    // Regression guard: a `query { <table>(key: { id: $id }) { ... } }` placed after an
+    // `_insert` in the same @transaction mutation does NOT see the just-inserted row at
+    // runtime (verified against the live deployed backend), even though it validates fine
+    // through local schema codegen and passes callable-response unit tests that mock the
+    // SDK. Every create path must instead call a separate trusted `Get<Entity>Trusted`
+    // query after the insert commits, exactly like the update/status-change paths already
+    // do (see functions/src/index.ts and the GetTenant*Trusted queries in identity.gql).
+    expect(connectorSource).not.toMatch(/query \{ \w+\(key: \{ id: \$id \}\)/);
+  });
+
+  it('reads back every newly created entity via a separate trusted query instead of an embedded one', () => {
+    expect(source).toContain('getTenantEmployeeTrusted({ organizationId, id })');
+    expect(source).toContain('getTenantEmployeeTrusted({ organizationId, id: employeeId })');
+    expect(source).toContain('getTenantServicePersonTrusted({ organizationId, id })');
+    expect(source).toContain('getTenantCustomerTrusted({ organizationId, id })');
+    expect(source).toContain('getTenantSupplierTrusted({ organizationId, id })');
   });
 
   it('treats organization administrators as authorized for tenant operational capabilities', () => {

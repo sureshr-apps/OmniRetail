@@ -138,7 +138,9 @@ describe('tenant callable contract', () => {
     expect(source).toContain("permissionProfile === 'Admin' ? '00000000-0000-4000-8000-000000000002'");
     const start = source.indexOf('export const provisionTenantEmployee = onCall');
     const end = source.indexOf('export const createTenantEmployeeProfile = onCall', start);
-    expect(source.slice(start, end)).not.toContain("sendManagedPasswordEmail(email, 'PASSWORD_RESET');");
+    const provisioningHandler = source.slice(start, end);
+    expect(provisioningHandler).not.toContain("sendManagedPasswordEmail(email, 'PASSWORD_RESET');");
+    expect(provisioningHandler).not.toContain('phoneNumber: phone');
   });
 
   it('exposes employee lifecycle callables with Auth synchronization', () => {

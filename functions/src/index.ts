@@ -884,7 +884,7 @@ export const provisionTenantEmployee = onCall(callableOptions, async (request) =
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
     if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username');
     try { await getAuth().getUserByEmail(email); throw new Error('email'); } catch (error: any) { if (error?.message === 'email') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
-    const created = await getAuth().createUser({ email, password: initialPassword, displayName: fullName, phoneNumber: phone, emailVerified: false, disabled: false }); createdUid = created.uid;
+    const created = await getAuth().createUser({ email, password: initialPassword, displayName: fullName, emailVerified: false, disabled: false }); createdUid = created.uid;
     const employeeId = randomUUID();
     await provisionTenantEmployeeTrusted({ id: employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: permissionProfile === 'Admin' ? '00000000-0000-4000-8000-000000000002' : '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
     const row = (await getTenantEmployeeTrusted({ organizationId, id: employeeId })).data.employees[0];

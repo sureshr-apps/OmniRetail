@@ -98,7 +98,7 @@ export function EmployeeModal({
       setState('');
       setPostalCode('');
       setAssignmentScope('Specific Outlets');
-      setSelectedOutlets(availableOutlets.length > 0 ? [availableOutlets[0]] : ['Downtown Flagship #04']);
+      setSelectedOutlets(availableOutlets.length > 0 ? [availableOutlets[0]] : []);
       setAllowLogin(true);
       setUsername('');
       setPermissionProfile('User');
@@ -109,14 +109,6 @@ export function EmployeeModal({
   }, [isOpen, employeeToEdit, availableOutlets]);
 
   if (!isOpen) return null;
-
-  const handleOutletCheckboxToggle = (outletName: string) => {
-    if (selectedOutlets.includes(outletName)) {
-      setSelectedOutlets(selectedOutlets.filter((o) => o !== outletName));
-    } else {
-      setSelectedOutlets([...selectedOutlets, outletName]);
-    }
-  };
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -381,38 +373,44 @@ export function EmployeeModal({
                 <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
                   Designation <span className="text-error">*</span>
                 </label>
-                <select
+                <input
+                  list="employee-designation-options"
                   value={designation}
                   onChange={(e) => setDesignation(e.target.value)}
-                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-caption text-caption text-on-surface focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="Sales Associate">Sales Associate</option>
-                  <option value="Senior Cashier">Senior Cashier</option>
-                  <option value="Cashier">Cashier</option>
-                  <option value="Assistant Manager">Assistant Manager</option>
-                  <option value="Store Manager">Store Manager</option>
-                  <option value="Inventory Specialist">Inventory Specialist</option>
-                  <option value="Visual Merchandiser">Visual Merchandiser</option>
-                  <option value="Inventory Auditor">Inventory Auditor</option>
-                </select>
+                  className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
+                    errors.designation ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
+                  }`}
+                />
+                <datalist id="employee-designation-options">
+                  <option value="Sales Associate" />
+                  <option value="Senior Cashier" />
+                  <option value="Cashier" />
+                  <option value="Assistant Manager" />
+                  <option value="Store Manager" />
+                  <option value="Inventory Specialist" />
+                  <option value="Visual Merchandiser" />
+                  <option value="Inventory Auditor" />
+                </datalist>
               </div>
 
               <div>
                 <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
                   Department
                 </label>
-                <select
+                <input
+                  list="employee-department-options"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-caption text-caption text-on-surface focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="Retail Operations & Sales">Retail Operations &amp; Sales</option>
-                  <option value="Cash & Billing">Cash &amp; Billing</option>
-                  <option value="Warehouse & Logistics">Warehouse &amp; Logistics</option>
-                  <option value="Visual Merchandising">Visual Merchandising</option>
-                  <option value="Store Management">Store Management</option>
-                  <option value="Inventory & Audit">Inventory &amp; Audit</option>
-                </select>
+                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
+                />
+                <datalist id="employee-department-options">
+                  <option value="Retail Operations & Sales" />
+                  <option value="Cash & Billing" />
+                  <option value="Warehouse & Logistics" />
+                  <option value="Visual Merchandising" />
+                  <option value="Store Management" />
+                  <option value="Inventory & Audit" />
+                </datalist>
               </div>
             </div>
 
@@ -520,30 +518,18 @@ export function EmployeeModal({
             {assignmentScope === 'Specific Outlets' && (
               <div>
                 <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
-                  Select Outlet Assignments <span className="text-error">*</span>
+                  Select Outlet <span className="text-error">*</span>
                 </label>
-                <div
-                  className={`grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 rounded bg-surface-container-low border ${
-                    errors.outlets ? 'border-error' : 'border-outline-variant/30'
+                <select
+                  value={selectedOutlets[0] ?? ''}
+                  onChange={(e) => setSelectedOutlets(e.target.value ? [e.target.value] : [])}
+                  className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-caption text-caption text-on-surface focus:outline-none focus:border-primary cursor-pointer ${
+                    errors.outlets ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
                   }`}
                 >
-                  {availableOutlets.map((outletName) => {
-                    const isChecked = selectedOutlets.includes(outletName);
-                    return (
-                      <label key={outletName} className="flex items-center gap-2 cursor-pointer py-1">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleOutletCheckboxToggle(outletName)}
-                          className="rounded text-primary focus:ring-primary"
-                        />
-                        <span className="font-caption text-caption text-on-surface">
-                          {outletName}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
+                  <option value="">Select an outlet</option>
+                  {availableOutlets.map((outletName) => <option key={outletName} value={outletName}>{outletName}</option>)}
+                </select>
                 {errors.outlets && (
                   <p className="text-xs text-error mt-1">{errors.outlets}</p>
                 )}

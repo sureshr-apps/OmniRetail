@@ -117,4 +117,13 @@ describe('requested shell cleanup', () => {
     expect(modal).toContain('<option value="Admin">Admin</option>');
     expect(modal).not.toContain('Cashier / Standard POS');
   });
+
+  it('keeps employee role fields editable with suggestions and outlet selection as a dropdown', () => {
+    const modal = read('features/employees/components/EmployeeModal.tsx');
+
+    expect(modal).toContain('list="employee-designation-options"');
+    expect(modal).toContain('list="employee-department-options"');
+    expect(modal).toContain('value={selectedOutlets[0] ?? \'\'}');
+    expect(modal).not.toContain('handleOutletCheckboxToggle');
+  });
 });

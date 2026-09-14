@@ -50,7 +50,7 @@ function mapTenantOutlet(row: TenantOutletRow | OutletMutationResponse): Outlet 
 }
 
 const OUTLET_MUTATION_RESPONSE_KEYS: (keyof OutletMutationResponse)[] = [
-  'id', 'outletCode', 'name', 'contactPerson', 'phone', 'address', 'status',
+  'id', 'outletCode', 'name', 'contactPerson', 'email', 'phone', 'address', 'status',
 ];
 
 /**
@@ -122,6 +122,7 @@ class ProductionOutletService implements IOutletService {
       organizationId,
       id,
       ...input,
+      email: input.contactEmail,
       requestId: globalThis.crypto.randomUUID(),
     });
     const row = assertCallableEntity<OutletMutationResponse>(response.data, OUTLET_MUTATION_RESPONSE_KEYS, 'updateOutlet');

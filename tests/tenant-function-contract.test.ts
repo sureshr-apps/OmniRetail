@@ -36,12 +36,14 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
-    expect(deploymentSource).toContain('Remove retired Service Person skills column');
+    expect(deploymentSource).toContain('Remove retired Service Person columns');
     expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
     expect(schemaMigrationSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
     expect(schemaMigrationSource).toContain('client_email');
     expect(deploymentSource).toContain('--non-interactive --force');
     expect(schemaMigrationSource).toContain('DROP COLUMN IF EXISTS');
+    expect(schemaMigrationSource).toContain('quoteIdentifier(\'created_at\')');
+    expect(schemaMigrationSource).toContain('quoteIdentifier(\'updated_at\')');
     expect(schemaMigrationSource).toContain('SET LOCAL ROLE');
     expect(schemaMigrationSource).toContain('await client.query(\'BEGIN\')');
     expect(schemaMigrationSource).toContain('await client.query(\'COMMIT\')');
@@ -66,6 +68,7 @@ describe('tenant callable contract', () => {
     expect(source).toContain('requireOrganizationAdmin(actorFirebaseUid, organizationId)');
     expect(source).toContain('getTenantOutletTrusted({ organizationId, id })');
     expect(source).toContain('function mapTrustedOutletRow(row:');
+    expect(source).toContain('email: typeof d.email === \'string\' ? d.email.trim().toLowerCase() || null : null');
   });
 
   it('exposes a guarded organization-admin outlet delete callable', () => {
@@ -114,6 +117,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const updateTenantServicePerson = onCall');
     expect(source).toContain('export const changeTenantServicePersonStatus = onCall');
     expect(source).toContain('createTenantServicePersonTrusted');
+    expect(source).toContain('const notes = typeof d.notes === \'string\' ? d.notes.trim() || null : null');
+    expect(source).toContain('notes, auditId: randomUUID()');
     expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');
     expect(source).toContain('export const assignTenantServicePersonOutlet = onCall');
     expect(source).not.toContain('skills: typeof d.skills');

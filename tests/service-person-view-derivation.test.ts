@@ -14,8 +14,6 @@ const servicePerson = (overrides: Partial<ServicePerson> = {}): ServicePerson =>
   specialization: 'HVAC & Appliance Repair',
   assignmentScope: 'Entire Organization',
   status: 'Active',
-  createdAt: '2023-10-15T08:00:00Z',
-  updatedAt: '2024-09-12T10:15:00Z',
   ...overrides,
 });
 

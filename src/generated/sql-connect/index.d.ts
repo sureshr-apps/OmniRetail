@@ -780,6 +780,7 @@ export interface CreateTenantServicePersonTrustedVariables {
   specialization?: string | null;
   yearsOfExperience?: number | null;
   assignmentScope: string;
+  notes?: string | null;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
@@ -1554,8 +1555,7 @@ export interface GetTenantServicePersonTrustedData {
     yearsOfExperience?: number | null;
     assignmentScope: string;
     status: EmploymentStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
+    notes?: string | null;
     servicePersonOutlets_on_servicePerson: ({
       outlet: {
         id: UUIDString;
@@ -2207,8 +2207,7 @@ export interface ListTenantServicePersonsData {
     yearsOfExperience?: number | null;
     assignmentScope: string;
     status: EmploymentStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
+    notes?: string | null;
     servicePersonOutlets_on_servicePerson: ({
       outlet: {
         id: UUIDString;
@@ -2788,6 +2787,7 @@ export interface UpdateTenantServicePersonTrustedVariables {
   specialization?: string | null;
   yearsOfExperience?: number | null;
   assignmentScope: string;
+  notes?: string | null;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;

@@ -209,8 +209,7 @@ type ServicePerson @table {
   yearsOfExperience: Int
   assignmentScope: String!
   status: EmploymentStatus! @default(value: ACTIVE)
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
+  notes: String
 }
 
 type ServicePersonOutlet @table(key: ["servicePerson", "outlet"]) {

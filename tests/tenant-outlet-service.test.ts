@@ -40,8 +40,9 @@ describe('outletService mutations return the canonical entity directly', () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...outletRow({ id: 'outlet-2', outletCode: 43, name: 'New Outlet' }) },
     }));
-    const created = await outletService.createOutlet({ name: 'New Outlet', contactPerson: 'Alex', phone: '+919876543210', address: '1 Main St' });
-    expect(created).toMatchObject({ id: 'outlet-2', outletCode: 43, name: 'New Outlet' });
+    const created = await outletService.createOutlet({ name: 'New Outlet', contactPerson: 'Alex', contactEmail: 'new@example.com', phone: '+919876543210', address: '1 Main St' });
+    expect(created).toMatchObject({ id: 'outlet-2', outletCode: 43, name: 'New Outlet', contactEmail: 'alex@example.com' });
+    expect(mocks.httpsCallable.mock.results[0]?.value).toHaveBeenCalledWith(expect.objectContaining({ email: 'new@example.com' }));
     expect(mocks.listTenantOutlets).not.toHaveBeenCalled();
   });
 
@@ -49,8 +50,9 @@ describe('outletService mutations return the canonical entity directly', () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...outletRow({ name: 'Renamed Outlet' }) },
     }));
-    const updated = await outletService.updateOutlet('outlet-1', { name: 'Renamed Outlet' });
+    const updated = await outletService.updateOutlet('outlet-1', { name: 'Renamed Outlet', contactEmail: 'renamed@example.com' });
     expect(updated.name).toBe('Renamed Outlet');
+    expect(mocks.httpsCallable.mock.results[0]?.value).toHaveBeenCalledWith(expect.objectContaining({ email: 'renamed@example.com' }));
     expect(mocks.listTenantOutlets).not.toHaveBeenCalled();
   });
 

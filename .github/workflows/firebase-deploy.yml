@@ -83,7 +83,7 @@ jobs:
           npx --no-install firebase-tools experiments:disable fdcapimigration
           npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
 
-      - name: Remove retired Service Person skills column
+      - name: Remove retired Service Person columns
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-service-person-skills.mjs
 

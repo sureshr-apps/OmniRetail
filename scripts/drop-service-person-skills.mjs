@@ -51,10 +51,13 @@ try {
   await client.query('BEGIN');
   await client.query(`SET LOCAL ROLE ${quoteIdentifier(ownerRole)}`);
   await client.query(
-    `ALTER TABLE ${quoteIdentifier(schemaName)}.${quoteIdentifier('service_person')} DROP COLUMN IF EXISTS ${quoteIdentifier('skills')}`,
+    `ALTER TABLE ${quoteIdentifier(schemaName)}.${quoteIdentifier('service_person')}
+      DROP COLUMN IF EXISTS ${quoteIdentifier('skills')},
+      DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
+      DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`,
   );
   await client.query('COMMIT');
-  console.log('Removed the retired service_person.skills column.');
+  console.log('Removed retired service_person columns.');
 } catch (error) {
   await client.query('ROLLBACK');
   throw error;

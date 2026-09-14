@@ -32,8 +32,7 @@ const servicePersonRow = (overrides: Record<string, unknown> = {}) => ({
   yearsOfExperience: 6,
   assignmentScope: 'ORGANIZATION',
   status: 'ACTIVE',
-  createdAt: '2023-10-15T08:00:00Z',
-  updatedAt: '2024-09-12T10:15:00Z',
+  notes: 'Handles priority repair requests.',
   servicePersonOutlets_on_servicePerson: [],
   ...overrides,
 });
@@ -52,9 +51,11 @@ describe('servicePersonService mutations return the canonical entity directly', 
       data: { success: true, organizationId: 'org-1', ...servicePersonRow({ id: 'sp-2', servicePersonCode: 102, fullName: 'Elena Rostova' }) },
     }));
     const created = await servicePersonService.createServicePerson({
-      firstName: 'Elena', lastName: 'Rostova', phone: '+919876543210', specialization: 'HVAC & Appliance Repair', assignmentScope: 'Entire Organization',
+      firstName: 'Elena', lastName: 'Rostova', phone: '+919876543210', specialization: 'HVAC & Appliance Repair', notes: 'Handles priority repair requests.', assignmentScope: 'Entire Organization',
     });
     expect(created).toMatchObject({ id: 'sp-2', servicePersonCode: 102, displayName: 'Elena Rostova' });
+    expect(mocks.httpsCallable.mock.results[0]?.value).toBeDefined();
+    expect(mocks.httpsCallable.mock.results[0]?.value).toHaveBeenCalledWith(expect.objectContaining({ notes: 'Handles priority repair requests.' }));
     expect(mocks.listTenantServicePersons).not.toHaveBeenCalled();
   });
 
@@ -64,6 +65,7 @@ describe('servicePersonService mutations return the canonical entity directly', 
     }));
     const updated = await servicePersonService.updateServicePerson('sp-1', { firstName: 'Marcus', lastName: 'Renamed' });
     expect(updated.displayName).toBe('Marcus Renamed');
+    expect(mocks.httpsCallable.mock.results[0]?.value).toHaveBeenCalledWith(expect.objectContaining({ notes: undefined }));
     expect(mocks.listTenantServicePersons).not.toHaveBeenCalled();
   });
 

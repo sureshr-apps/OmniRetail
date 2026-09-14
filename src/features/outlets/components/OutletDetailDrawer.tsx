@@ -109,36 +109,6 @@ export function OutletDetailDrawer({
               </div>
             </div>
 
-            {/* Recent Outlet Activity Feed */}
-            <div className="space-y-2.5">
-              <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px] text-slate-500">history</span>
-                <span>Recent Outlet Activity</span>
-              </h4>
-              <div className="border-l-2 border-slate-200 pl-3.5 space-y-3.5 py-1">
-                {outlet.recentActivity && outlet.recentActivity.length > 0 ? (
-                  outlet.recentActivity.map((act) => (
-                    <div key={act.id}>
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-semibold text-slate-800">{act.title}</span>
-                        <span className="text-[10px] text-slate-400">{act.timestamp}</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{act.description}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div>
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="font-semibold text-slate-800">Cloud Sync Active</span>
-                      <span className="text-[10px] text-slate-400">Online</span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      Store registers operational and connected with central inventory.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Drawer Footer Actions */}

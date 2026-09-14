@@ -9,21 +9,6 @@ export type ServicePersonSpecialization =
   | 'IT & Network Setup'
   | string;
 
-export interface OpenServiceJob {
-  id: string;
-  title: string;
-  outletName: string;
-  assignedTimeAgo: string;
-  status: 'In Progress' | 'Pending Parts' | 'Scheduled' | 'Completed';
-}
-
-export interface ServicePersonTimelineEvent {
-  id: string;
-  title: string;
-  timestamp: string;
-  isPrimary?: boolean;
-}
-
 export interface ServicePerson {
   id: string;
   servicePersonCode: number; // e.g. 101 (displayed as SVC-101)
@@ -43,11 +28,6 @@ export interface ServicePerson {
   postalCode?: string;
   yearsOfExperience?: number;
   notes?: string;
-  openJobsCount?: number;
-  openJobs?: OpenServiceJob[];
-  timelineEvents?: ServicePersonTimelineEvent[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface ServicePersonQuery {

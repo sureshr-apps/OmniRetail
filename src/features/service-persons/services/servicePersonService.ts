@@ -36,13 +36,12 @@ interface ServicePersonMutationResponse {
   yearsOfExperience: number | null;
   assignmentScope: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  notes: string | null;
   servicePersonOutlets_on_servicePerson: { outlet: { id: string; outletCode: number; name: string } }[];
 }
 
 const SERVICE_PERSON_MUTATION_RESPONSE_KEYS: (keyof ServicePersonMutationResponse)[] = [
-  'id', 'servicePersonCode', 'fullName', 'phone', 'specialization', 'assignmentScope', 'status', 'createdAt', 'updatedAt',
+  'id', 'servicePersonCode', 'fullName', 'phone', 'specialization', 'assignmentScope', 'status', 'notes',
   'servicePersonOutlets_on_servicePerson',
 ];
 
@@ -62,11 +61,7 @@ function mapTenantServicePerson(row: TenantServicePersonRow | ServicePersonMutat
     outletName: row.servicePersonOutlets_on_servicePerson[0]?.outlet.name ?? 'Organization-wide',
     status: row.status === 'ACTIVE' ? 'Active' : 'Inactive',
     yearsOfExperience: row.yearsOfExperience ?? undefined,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    openJobs: [],
-    openJobsCount: 0,
-    timelineEvents: [],
+    notes: row.notes ?? undefined,
   };
 }
 
@@ -130,6 +125,7 @@ class ProductionServicePersonService implements IServicePersonService {
       phone: input.phone,
       specialization: input.specialization,
       yearsOfExperience: input.yearsOfExperience,
+      notes: input.notes,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
       requestId: globalThis.crypto.randomUUID(),
     });
@@ -147,6 +143,7 @@ class ProductionServicePersonService implements IServicePersonService {
       phone: input.phone,
       specialization: input.specialization,
       yearsOfExperience: input.yearsOfExperience,
+      notes: input.notes,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
       requestId: globalThis.crypto.randomUUID(),
     });

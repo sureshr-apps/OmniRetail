@@ -1,12 +1,5 @@
 export type OutletStatus = 'Active' | 'Inactive';
 
-export interface OutletActivity {
-  id: string;
-  title: string;
-  timestamp: string;
-  description: string;
-}
-
 export interface Outlet {
   id: string;
   outletCode: number;
@@ -16,7 +9,6 @@ export interface Outlet {
   phone: string;
   address: string;
   status: OutletStatus;
-  recentActivity?: OutletActivity[];
 }
 
 export interface OutletQuery {

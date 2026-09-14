@@ -50,4 +50,23 @@ describe('requested shell cleanup', () => {
     expect(drawer).not.toContain('Skills &amp; Certifications');
     expect(drawer).not.toContain('person.skills');
   });
+
+  it('does not present placeholder Service Person jobs or activity sections', () => {
+    const drawer = read('features/service-persons/components/ServicePersonDetailDrawer.tsx');
+    expect(drawer).not.toContain('Open Service Jobs');
+    expect(drawer).not.toContain('Recent Activity Timeline');
+    expect(drawer).not.toContain('openJobs');
+    expect(drawer).not.toContain('timelineEvents');
+    expect(drawer).toContain('Service Notes');
+    expect(drawer).toContain('{person.notes}');
+  });
+
+  it('does not present the removed Outlet activity section', () => {
+    const drawer = read('features/outlets/components/OutletDetailDrawer.tsx');
+    const types = read('features/outlets/types/index.ts');
+    expect(drawer).not.toContain('Recent Outlet Activity');
+    expect(drawer).not.toContain('recentActivity');
+    expect(types).not.toContain('OutletActivity');
+    expect(types).not.toContain('recentActivity');
+  });
 });

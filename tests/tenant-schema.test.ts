@@ -96,8 +96,22 @@ describe('tenant Data Connect foundation schema', () => {
     const schema = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
     const servicePerson = schema.match(/type ServicePerson @table \{[\s\S]*?\n\}/)?.[0] ?? '';
     expect(servicePerson).toContain('specialization: String');
+    expect(servicePerson).toContain('notes: String');
     expect(servicePerson).not.toContain('specialization: String!');
     expect(servicePerson).not.toContain('skills');
+    expect(servicePerson).not.toContain('createdAt');
+    expect(servicePerson).not.toContain('updatedAt');
+  });
+
+  it('persists Service Person notes without reintroducing removed timestamps', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const servicePersonOperations = connector.match(/(?:query|mutation) (?:ListTenantServicePersons|CreateTenantServicePersonTrusted|UpdateTenantServicePersonTrusted|ChangeTenantServicePersonStatusTrusted|GetTenantServicePersonTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    expect(servicePersonOperations.length).toBe(5);
+    for (const operation of servicePersonOperations) {
+      expect(operation).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
+    }
+    expect(servicePersonOperations.find((operation) => operation.includes('CreateTenantServicePersonTrusted'))).toContain('notes: $notes');
+    expect(servicePersonOperations.find((operation) => operation.includes('UpdateTenantServicePersonTrusted'))).toContain('notes: $notes');
   });
 
   it('allows organization admins to read the product catalogue', () => {

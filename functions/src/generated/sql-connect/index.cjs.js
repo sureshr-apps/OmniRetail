@@ -543,6 +543,13 @@ function listTenantServicePersons(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.listTenantServicePersons = listTenantServicePersons;
 
+function listTenantCategories(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantCategories', inputVars, inputOpts);
+}
+exports.listTenantCategories = listTenantCategories;
+
 function listTenantProducts(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -732,6 +739,27 @@ function getTenantCustomerTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.getTenantCustomerTrusted = getTenantCustomerTrusted;
 
+function listTenantCategoriesTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantCategoriesTrusted', inputVars, inputOpts);
+}
+exports.listTenantCategoriesTrusted = listTenantCategoriesTrusted;
+
+function createTenantCategoryTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantCategoryTrusted', inputVars, inputOpts);
+}
+exports.createTenantCategoryTrusted = createTenantCategoryTrusted;
+
+function createTenantSubcategoryTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('CreateTenantSubcategoryTrusted', inputVars, inputOpts);
+}
+exports.createTenantSubcategoryTrusted = createTenantSubcategoryTrusted;
+
 function createTenantProduct(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -871,6 +899,20 @@ function deleteTenantProductTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   return dcInstance.executeMutation('DeleteTenantProductTrusted', inputVars, inputOpts);
 }
 exports.deleteTenantProductTrusted = deleteTenantProductTrusted;
+
+function deleteTenantCategoryTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantCategoryTrusted', inputVars, inputOpts);
+}
+exports.deleteTenantCategoryTrusted = deleteTenantCategoryTrusted;
+
+function deleteTenantSubcategoryTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantSubcategoryTrusted', inputVars, inputOpts);
+}
+exports.deleteTenantSubcategoryTrusted = deleteTenantSubcategoryTrusted;
 
 function getTenantOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);

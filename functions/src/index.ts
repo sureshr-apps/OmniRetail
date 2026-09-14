@@ -54,6 +54,11 @@ import {
   adjustTenantInventory,
   createTenantInventoryStock,
   createTenantProduct,
+  listTenantCategoriesTrusted,
+  createTenantCategoryTrusted,
+  createTenantSubcategoryTrusted,
+  deleteTenantCategoryTrusted,
+  deleteTenantSubcategoryTrusted,
   updateTenantProduct,
   changeTenantProductStatus as changeTenantProductStatusSql,
   deleteTenantProductTrusted,
@@ -809,6 +814,44 @@ export const deleteTenantProduct = onCall(callableOptions, async (request) => {
   }
 });
 
+export const deleteTenantCategory = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantCategoryTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantCategory', error);
+    throw tenantDeletionFailure('category', 'You do not have permission to delete categories in this organization.', 'This category has linked subcategories or products and cannot be deleted.')(error);
+  }
+});
+
+export const deleteTenantSubcategory = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantSubcategoryTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantSubcategory', error);
+    throw tenantDeletionFailure('subcategory', 'You do not have permission to delete subcategories in this organization.', 'This subcategory has linked products and cannot be deleted.')(error);
+  }
+});
+
 function mapTrustedEmployeeRow(row: {
   id: string; employeeCode: number; fullName: string; email?: string | null; phone: string;
   designation: string; department?: string | null; dateOfJoining: string; assignmentScope: string;
@@ -978,15 +1021,55 @@ export const createTenantInventoryStockRecord = onCall(callableOptions, async (r
 });
 
 function productFields(d: any) {
-  return { name: typeof d.name === 'string' ? d.name.trim() : '', brand: typeof d.brand === 'string' ? d.brand.trim() : '', categoryId: typeof d.categoryId === 'string' ? d.categoryId.trim() : '', categoryName: typeof d.categoryName === 'string' ? d.categoryName.trim() : '', subcategory: typeof d.subcategory === 'string' ? d.subcategory.trim() || null : null, type: d.type === 'SERVICE' || d.type === 'CONSUMABLE' ? d.type : 'STOCKABLE', sku: typeof d.sku === 'string' ? d.sku.trim() : '', barcode: typeof d.barcode === 'string' ? d.barcode.trim() || null : null, hsnCode: typeof d.hsnCode === 'string' ? d.hsnCode.trim() || null : null, unitOfMeasure: typeof d.unitOfMeasure === 'string' ? d.unitOfMeasure.trim() || null : null, sellingPrice: Number(d.sellingPrice), mrp: Number.isFinite(Number(d.mrp)) ? Number(d.mrp) : null, cost: Number.isFinite(Number(d.cost)) ? Number(d.cost) : null, minSellingPrice: Number.isFinite(Number(d.minSellingPrice)) ? Number(d.minSellingPrice) : null, discountAllowed: d.discountAllowed !== false, taxCategory: typeof d.taxCategory === 'string' ? d.taxCategory.trim() || null : null, reorderLevel: Number.isFinite(Number(d.reorderLevel)) ? Number(d.reorderLevel) : null, reorderQuantity: Number.isFinite(Number(d.reorderQuantity)) ? Number(d.reorderQuantity) : null, primarySupplier: typeof d.primarySupplier === 'string' ? d.primarySupplier.trim() || null : null, supplierProductCode: typeof d.supplierProductCode === 'string' ? d.supplierProductCode.trim() || null : null, description: typeof d.description === 'string' ? d.description.trim() || null : null, imageUrl: typeof d.imageUrl === 'string' ? d.imageUrl.trim() || null : null };
+  return { name: typeof d.name === 'string' ? d.name.trim() : '', brand: typeof d.brand === 'string' ? d.brand.trim() : '', categoryName: typeof d.categoryName === 'string' ? d.categoryName.trim() : '', subcategoryName: typeof d.subcategory === 'string' ? d.subcategory.trim() || null : null, type: d.type === 'SERVICE' || d.type === 'CONSUMABLE' ? d.type : 'STOCKABLE', sku: typeof d.sku === 'string' ? d.sku.trim() : '', barcode: typeof d.barcode === 'string' ? d.barcode.trim() || null : null, hsnCode: typeof d.hsnCode === 'string' ? d.hsnCode.trim() || null : null, unitOfMeasure: typeof d.unitOfMeasure === 'string' ? d.unitOfMeasure.trim() || null : null, sellingPrice: Number(d.sellingPrice), mrp: Number.isFinite(Number(d.mrp)) ? Number(d.mrp) : null, cost: Number.isFinite(Number(d.cost)) ? Number(d.cost) : null, minSellingPrice: Number.isFinite(Number(d.minSellingPrice)) ? Number(d.minSellingPrice) : null, discountAllowed: d.discountAllowed !== false, taxCategory: typeof d.taxCategory === 'string' ? d.taxCategory.trim() || null : null, reorderLevel: Number.isFinite(Number(d.reorderLevel)) ? Number(d.reorderLevel) : null, reorderQuantity: Number.isFinite(Number(d.reorderQuantity)) ? Number(d.reorderQuantity) : null, primarySupplier: typeof d.primarySupplier === 'string' ? d.primarySupplier.trim() || null : null, description: typeof d.description === 'string' ? d.description.trim() || null : null, imageUrl: typeof d.imageUrl === 'string' ? d.imageUrl.trim() || null : null };
+}
+
+async function resolveProductTaxonomy(organizationId: string, categoryName: string, subcategoryName: string | null, requestId: string, actorFirebaseUid: string) {
+  const normalizedCategory = categoryName.trim().toLowerCase();
+  const normalizedSubcategory = subcategoryName?.trim().toLowerCase() ?? '';
+  const loadCategories = async () => (await listTenantCategoriesTrusted({ organizationId })).data.categories;
+  let categories = await loadCategories();
+  let category = categories.find((candidate) => candidate.value.trim().toLowerCase() === normalizedCategory);
+
+  if (!category) {
+    let creationError: unknown;
+    try {
+      await createTenantCategoryTrusted({ id: randomUUID(), organizationId, value: categoryName.trim(), auditId: randomUUID(), requestId, actorFirebaseUid });
+    } catch (error) {
+      creationError = error;
+    }
+    categories = await loadCategories();
+    category = categories.find((candidate) => candidate.value.trim().toLowerCase() === normalizedCategory);
+    if (!category && creationError) throw creationError;
+  }
+  if (!category) throw new Error('category could not be created');
+
+  let subcategory = normalizedSubcategory
+    ? category.subcategories_on_category.find((candidate) => candidate.value.trim().toLowerCase() === normalizedSubcategory)
+    : undefined;
+  if (normalizedSubcategory && !subcategory) {
+    let creationError: unknown;
+    try {
+      await createTenantSubcategoryTrusted({ id: randomUUID(), organizationId, categoryId: category.id, value: subcategoryName!.trim(), auditId: randomUUID(), requestId: `${requestId}:subcategory`, actorFirebaseUid });
+    } catch (error) {
+      creationError = error;
+    }
+    categories = await loadCategories();
+    category = categories.find((candidate) => candidate.id === category!.id);
+    subcategory = category?.subcategories_on_category.find((candidate) => candidate.value.trim().toLowerCase() === normalizedSubcategory);
+    if (!subcategory && creationError) throw creationError;
+  }
+  const resolvedCategory = category;
+  if (!resolvedCategory) throw new Error('category could not be created');
+  return { categoryId: resolvedCategory.id, subcategoryId: subcategory?.id ?? null };
 }
 
 export const createTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const id = randomUUID(); await createTenantProduct({ id, organizationId, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName, requestId, actor); const id = randomUUID(); await createTenantProduct({ id, organizationId, ...productData, ...taxonomy, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
 });
 
 export const updateTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !id || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await updateTenantProduct({ organizationId, id, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to update the product.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !id || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName, requestId, actor); await updateTenantProduct({ organizationId, id, ...productData, ...taxonomy, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to update the product.'); }
 });
 
 export const changeTenantProductStatus = onCall(callableOptions, async (request) => {

@@ -5,12 +5,14 @@ const mocks = vi.hoisted(() => ({
   dataConnect: {},
   functions: {},
   getCurrentUserAuthorization: vi.fn(),
+  listTenantCategories: vi.fn(),
   listTenantProducts: vi.fn(),
   httpsCallable: vi.fn(),
 }));
 
 vi.mock('@omniretail/sql-connect', () => ({
   getCurrentUserAuthorization: mocks.getCurrentUserAuthorization,
+  listTenantCategories: mocks.listTenantCategories,
   listTenantProducts: mocks.listTenantProducts,
 }));
 vi.mock('@/infrastructure/firebase/client', () => ({
@@ -27,8 +29,7 @@ const productRow = (overrides: Record<string, unknown> = {}) => ({
   productCode: 1030,
   name: 'Classic Tee',
   brand: 'Acme',
-  categoryId: 'apparel',
-  categoryName: 'Apparel',
+  category: { id: 'category-1', value: 'Apparel' },
   subcategory: null,
   type: 'STOCKABLE',
   sku: 'AP-TEE-001',
@@ -45,7 +46,6 @@ const productRow = (overrides: Record<string, unknown> = {}) => ({
   reorderLevel: 15,
   reorderQuantity: 30,
   primarySupplier: null,
-  supplierProductCode: null,
   description: null,
   imageUrl: null,
   createdAt: '2024-01-01T00:00:00Z',
@@ -56,7 +56,6 @@ const productRow = (overrides: Record<string, unknown> = {}) => ({
 const createInput = (overrides: Record<string, unknown> = {}) => ({
   name: 'New Tee',
   brand: 'Acme',
-  categoryId: 'apparel',
   categoryName: 'Apparel',
   type: 'stockable' as const,
   sku: 'AP-TEE-002',
@@ -70,6 +69,7 @@ beforeEach(() => {
     data: { appUsers: [{ organizationMemberships_on_user: [{ status: 'ACTIVE', organization: { id: 'org-1' } }] }] },
   });
   mocks.listTenantProducts.mockResolvedValue({ data: { products: [productRow()] } });
+  mocks.listTenantCategories.mockResolvedValue({ data: { categories: [{ id: 'category-1', value: 'Apparel', subcategories_on_category: [{ id: 'subcategory-1', value: 'Tees' }] }] } });
 });
 
 describe('productService mutations return the canonical entity directly', () => {
@@ -78,7 +78,7 @@ describe('productService mutations return the canonical entity directly', () => 
       data: { success: true, organizationId: 'org-1', ...productRow({ id: 'prod-2', productCode: 1031, name: 'New Tee', sku: 'AP-TEE-002' }) },
     }));
     const created = await productService.createProduct(createInput());
-    expect(created).toMatchObject({ id: 'prod-2', productCode: 1031, name: 'New Tee' });
+    expect(created).toMatchObject({ id: 'prod-2', productCode: 1031, name: 'New Tee', categoryId: 'category-1', categoryName: 'Apparel' });
     // productCode is now a server-assigned serial, so create never needs an
     // up-front (or follow-up) listTenantProducts call to compute or locate it.
     expect(mocks.listTenantProducts).not.toHaveBeenCalled();
@@ -113,6 +113,20 @@ describe('productService mutations return the canonical entity directly', () => 
     expect(mocks.listTenantProducts).not.toHaveBeenCalled();
   });
 
+  it('deletes categories and subcategories through admin callables without reloading products', async () => {
+    const callable = vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'category-1' } });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await productService.deleteCategory('category-1');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'deleteTenantCategory');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', id: 'category-1', requestId: expect.any(String) }));
+
+    await productService.deleteSubcategory('subcategory-1');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'deleteTenantSubcategory');
+    expect(callable).toHaveBeenLastCalledWith(expect.objectContaining({ organizationId: 'org-1', id: 'subcategory-1', requestId: expect.any(String) }));
+    expect(mocks.listTenantProducts).not.toHaveBeenCalled();
+  });
+
   it('rejects a malformed create response instead of returning a partial entity', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'prod-2' } }));
     await expect(productService.createProduct(createInput())).rejects.toBeInstanceOf(MalformedCallableResponseError);
@@ -139,5 +153,11 @@ describe('productService.getAllProducts', () => {
     const products = await productService.getAllProducts();
     expect(products).toHaveLength(1);
     expect(products[0].productCode).toBe(1030);
+  });
+
+  it('loads category and subcategory options from the taxonomy masters', async () => {
+    const options = await productService.getCategoryOptions();
+    expect(options).toEqual([{ id: 'category-1', value: 'Apparel', subcategories: [{ id: 'subcategory-1', value: 'Tees' }] }]);
+    expect(mocks.listTenantCategories).toHaveBeenCalledWith(mocks.dataConnect, { organizationId: 'org-1' });
   });
 });

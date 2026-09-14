@@ -7,8 +7,9 @@ import {
   ProductStatus,
   ProductType,
   ProductsKpiSummary,
+  ProductCategoryOption,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantProducts } from '@omniretail/sql-connect';
+import { getCurrentUserAuthorization, listTenantCategories, listTenantProducts } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
@@ -25,7 +26,10 @@ export interface IProductService {
   checkSkuUnique(sku: string, excludeId?: string): Promise<boolean>;
   checkBarcodeUnique(barcode?: string, excludeId?: string): Promise<boolean>;
   getCategories(): Promise<string[]>;
+  getCategoryOptions(): Promise<ProductCategoryOption[]>;
   getBrands(): Promise<string[]>;
+  deleteCategory(id: string): Promise<void>;
+  deleteSubcategory(id: string): Promise<void>;
 }
 
 type TenantProductRow = Awaited<ReturnType<typeof listTenantProducts>>['data']['products'][number];
@@ -35,9 +39,8 @@ interface ProductMutationResponse {
   productCode: number;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  category: { id: string; value: string };
+  subcategory?: { id: string; value: string } | null;
   type: string;
   sku: string;
   barcode?: string | null;
@@ -53,7 +56,6 @@ interface ProductMutationResponse {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   createdAt: string;
@@ -61,7 +63,7 @@ interface ProductMutationResponse {
 }
 
 const PRODUCT_MUTATION_RESPONSE_KEYS: (keyof ProductMutationResponse)[] = [
-  'id', 'productCode', 'name', 'brand', 'categoryId', 'categoryName', 'type', 'sku',
+  'id', 'productCode', 'name', 'brand', 'category', 'type', 'sku',
   'sellingPrice', 'discountAllowed', 'status', 'createdAt', 'updatedAt',
 ];
 
@@ -71,9 +73,10 @@ function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Prod
     productCode: row.productCode,
     name: row.name,
     brand: row.brand,
-    categoryId: row.categoryId,
-    categoryName: row.categoryName,
-    subcategory: row.subcategory ?? undefined,
+    categoryId: row.category.id,
+    categoryName: row.category.value,
+    subcategoryId: row.subcategory?.id,
+    subcategory: row.subcategory?.value,
     type: row.type.toLowerCase() as ProductType,
     sku: row.sku,
     barcode: row.barcode ?? undefined,
@@ -89,7 +92,6 @@ function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Prod
     reorderLevel: row.reorderLevel ?? undefined,
     reorderQuantity: row.reorderQuantity ?? undefined,
     primarySupplier: row.primarySupplier ?? undefined,
-    supplierProductCode: row.supplierProductCode ?? undefined,
     description: row.description ?? undefined,
     imageUrl: row.imageUrl ?? undefined,
     createdAt: row.createdAt,
@@ -150,7 +152,16 @@ class ProductionProductService implements IProductService {
   }
 
   public async getCategories(): Promise<string[]> {
-    return Array.from(new Set((await this.getAllProducts()).map((product) => product.categoryName))).sort();
+    return (await this.getCategoryOptions()).map((category) => category.value);
+  }
+  public async getCategoryOptions(): Promise<ProductCategoryOption[]> {
+    const organizationId = await this.organizationId();
+    const result = await listTenantCategories(getFirebaseClientServices().dataConnect, { organizationId });
+    return result.data.categories.map((category) => ({
+      id: category.id,
+      value: category.value,
+      subcategories: category.subcategories_on_category.map((subcategory) => ({ id: subcategory.id, value: subcategory.value })),
+    }));
   }
   public async getBrands(): Promise<string[]> {
     return Array.from(new Set((await this.getAllProducts()).map((product) => product.brand))).sort();
@@ -215,6 +226,24 @@ class ProductionProductService implements IProductService {
   public async deleteProduct(id: string): Promise<void> {
     const organizationId = await this.context();
     await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantProduct')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
+  }
+
+  public async deleteCategory(id: string): Promise<void> {
+    const organizationId = await this.context();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantCategory')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
+  }
+
+  public async deleteSubcategory(id: string): Promise<void> {
+    const organizationId = await this.context();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantSubcategory')({
       organizationId,
       id,
       requestId: globalThis.crypto.randomUUID(),

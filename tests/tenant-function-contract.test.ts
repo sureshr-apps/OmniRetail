@@ -5,6 +5,8 @@ const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url
 const deploymentSource = readFileSync(new URL('../.github/workflows/firebase-deploy.yml', import.meta.url), 'utf8');
 const connectorSource = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
 const schemaMigrationSource = readFileSync(new URL('../scripts/drop-service-person-skills.mjs', import.meta.url), 'utf8');
+const taxonomyMigrationSource = readFileSync(new URL('../scripts/migrate-product-taxonomy.mjs', import.meta.url), 'utf8');
+const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -31,22 +33,41 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('--only "${{ steps.changes.outputs.targets }}" --non-interactive --force');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain("scripts/drop-service-person-skills\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-service-person-skills|migrate-product-taxonomy)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
-    expect(deploymentSource).toContain('Remove retired Service Person columns');
+    expect(deploymentSource).toContain('Remove retired Service Person and Product columns');
     expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
-    expect(schemaMigrationSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
-    expect(schemaMigrationSource).toContain('client_email');
+    expect(deploymentSource).toContain('node scripts/migrate-product-taxonomy.mjs');
+    expect(deploymentSource).toContain('Prepare Product category migration');
+    expect(deploymentSource.indexOf('Prepare Product category migration')).toBeLessThan(deploymentSource.indexOf('Migrate Data Connect SQL schema'));
+    expect(cloudSqlMigrationHelperSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
+    expect(cloudSqlMigrationHelperSource).toContain('client_email');
     expect(deploymentSource).toContain('--non-interactive --force');
     expect(schemaMigrationSource).toContain('DROP COLUMN IF EXISTS');
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'created_at\')');
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'updated_at\')');
+    expect(schemaMigrationSource).toContain('quoteIdentifier(\'supplier_product_code\')');
+    expect(schemaMigrationSource).toContain("quoteIdentifier('product')");
     expect(schemaMigrationSource).toContain('SET LOCAL ROLE');
     expect(schemaMigrationSource).toContain('await client.query(\'BEGIN\')');
     expect(schemaMigrationSource).toContain('await client.query(\'COMMIT\')');
+    expect(taxonomyMigrationSource).toContain('legacy_category_name');
+    expect(taxonomyMigrationSource).toContain('legacy_subcategory');
+    expect(taxonomyMigrationSource).toContain('legacy_category_id');
+    expect(taxonomyMigrationSource).toContain('CREATE TABLE IF NOT EXISTS');
+    expect(taxonomyMigrationSource).toContain('category_organizationId_lower_value_uidx');
+    expect(taxonomyMigrationSource).toContain('subcategory_categoryId_lower_value_uidx');
+    expect(taxonomyMigrationSource).toContain('hasLegacyCategorySources');
+    expect(taxonomyMigrationSource).toContain('cloud-sql-migration-helpers.mjs');
+    expect(schemaMigrationSource).toContain('cloud-sql-migration-helpers.mjs');
+    expect(taxonomyMigrationSource).toContain('ON CONFLICT');
+    expect(taxonomyMigrationSource).toContain('ALTER TABLE');
+    expect(taxonomyMigrationSource).toContain('category_id');
+    expect(taxonomyMigrationSource).toContain('await client.query(\'BEGIN\')');
+    expect(taxonomyMigrationSource).toContain('await client.query(\'COMMIT\')');
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {
@@ -94,6 +115,19 @@ describe('tenant callable contract', () => {
     expect(connectorSource).toContain('Product has sales history and cannot be deleted.');
   });
 
+  it('exposes guarded organization-admin taxonomy delete callables', () => {
+    expect(source).toContain('export const deleteTenantCategory = onCall');
+    expect(source).toContain('export const deleteTenantSubcategory = onCall');
+    expect(source).toContain('deleteTenantCategoryTrusted');
+    expect(source).toContain('deleteTenantSubcategoryTrusted');
+    expect(source).toContain("This category has linked subcategories or products and cannot be deleted.");
+    expect(source).toContain("This subcategory has linked products and cannot be deleted.");
+    expect(connectorSource).toContain('mutation DeleteTenantCategoryTrusted');
+    expect(connectorSource).toContain('mutation DeleteTenantSubcategoryTrusted');
+    expect(connectorSource).toContain('Category has subcategories and cannot be deleted.');
+    expect(connectorSource).toContain('Subcategory has linked products and cannot be deleted.');
+  });
+
   it('provisions employee login through Firebase Auth and trusted SQL', () => {
     expect(source).toContain('export const provisionTenantEmployee = onCall');
     expect(source).toContain('provisionTenantEmployeeTrusted');
@@ -128,13 +162,19 @@ describe('tenant callable contract', () => {
   it('exposes tenant product and inventory write boundaries', () => {
     expect(source).toContain('export const createTenantProductRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
-    expect(source).toContain('await createTenantProduct({ id, organizationId, ...fields');
+    expect(source).toContain('await createTenantProduct({ id, organizationId, ...productData, ...taxonomy');
     expect(source).not.toContain('d.productCode');
+    expect(source).not.toContain('supplierProductCode');
     expect(source).toContain('getTenantProductTrusted({ organizationId, id })');
     expect(source).toContain('function productCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('already-exists'");
     expect(source).toContain("new HttpsError('invalid-argument'");
     expect(source).toContain('export const updateTenantProductRecord = onCall');
+    expect(source).toContain('resolveProductTaxonomy');
+    expect(source).toContain('createTenantCategoryTrusted');
+    expect(source).toContain('createTenantSubcategoryTrusted');
+    expect(source).toContain('requestId: `${requestId}:subcategory`');
+    expect(source).not.toContain('createTenantCategoryTrusted({ id: randomUUID(), organizationId, value: categoryName.trim(), auditId: randomUUID(), requestId: randomUUID()');
     expect(source).toContain('export const changeTenantProductStatus = onCall');
     expect(source).toContain('export const adjustTenantInventoryStock = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'inventory.read')");

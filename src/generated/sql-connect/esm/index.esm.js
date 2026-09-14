@@ -828,6 +828,19 @@ export function listTenantServicePersons(dcOrVars, varsOrOptions, options) {
   return executeQuery(listTenantServicePersonsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listTenantCategoriesRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantCategories', inputVars);
+}
+listTenantCategoriesRef.operationName = 'ListTenantCategories';
+
+export function listTenantCategories(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantCategoriesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const listTenantProductsRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1162,6 +1175,43 @@ export function getTenantCustomerTrusted(dcOrVars, varsOrOptions, options) {
   return executeQuery(getTenantCustomerTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const listTenantCategoriesTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantCategoriesTrusted', inputVars);
+}
+listTenantCategoriesTrustedRef.operationName = 'ListTenantCategoriesTrusted';
+
+export function listTenantCategoriesTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantCategoriesTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
+export const createTenantCategoryTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreateTenantCategoryTrusted', inputVars);
+}
+createTenantCategoryTrustedRef.operationName = 'CreateTenantCategoryTrusted';
+
+export function createTenantCategoryTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createTenantCategoryTrustedRef(dcInstance, inputVars));
+}
+
+export const createTenantSubcategoryTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'CreateTenantSubcategoryTrusted', inputVars);
+}
+createTenantSubcategoryTrustedRef.operationName = 'CreateTenantSubcategoryTrusted';
+
+export function createTenantSubcategoryTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(createTenantSubcategoryTrustedRef(dcInstance, inputVars));
+}
+
 export const createTenantProductRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1403,6 +1453,30 @@ deleteTenantProductTrustedRef.operationName = 'DeleteTenantProductTrusted';
 export function deleteTenantProductTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(deleteTenantProductTrustedRef(dcInstance, inputVars));
+}
+
+export const deleteTenantCategoryTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantCategoryTrusted', inputVars);
+}
+deleteTenantCategoryTrustedRef.operationName = 'DeleteTenantCategoryTrusted';
+
+export function deleteTenantCategoryTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantCategoryTrustedRef(dcInstance, inputVars));
+}
+
+export const deleteTenantSubcategoryTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantSubcategoryTrusted', inputVars);
+}
+deleteTenantSubcategoryTrustedRef.operationName = 'DeleteTenantSubcategoryTrusted';
+
+export function deleteTenantSubcategoryTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantSubcategoryTrustedRef(dcInstance, inputVars));
 }
 
 export const getTenantOutletTrustedRef = (dcOrVars, vars) => {

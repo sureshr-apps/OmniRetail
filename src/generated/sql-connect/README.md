@@ -39,6 +39,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListTenantOutlets*](#listtenantoutlets)
   - [*ListTenantEmployees*](#listtenantemployees)
   - [*ListTenantServicePersons*](#listtenantservicepersons)
+  - [*ListTenantCategories*](#listtenantcategories)
   - [*ListTenantProducts*](#listtenantproducts)
   - [*ListTenantInventory*](#listtenantinventory)
   - [*ListTenantCustomers*](#listtenantcustomers)
@@ -49,6 +50,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantSupplierTrusted*](#gettenantsuppliertrusted)
   - [*GetTenantCustomerTrusted*](#gettenantcustomertrusted)
+  - [*ListTenantCategoriesTrusted*](#listtenantcategoriestrusted)
   - [*GetTenantProductTrusted*](#gettenantproducttrusted)
   - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
   - [*ResolveTenantEmployeeIdentityTrusted*](#resolvetenantemployeeidentitytrusted)
@@ -99,6 +101,8 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateTenantCustomer*](#createtenantcustomer)
   - [*UpdateTenantCustomer*](#updatetenantcustomer)
   - [*ChangeTenantCustomerStatus*](#changetenantcustomerstatus)
+  - [*CreateTenantCategoryTrusted*](#createtenantcategorytrusted)
+  - [*CreateTenantSubcategoryTrusted*](#createtenantsubcategorytrusted)
   - [*CreateTenantProduct*](#createtenantproduct)
   - [*UpdateTenantProduct*](#updatetenantproduct)
   - [*ChangeTenantProductStatus*](#changetenantproductstatus)
@@ -116,6 +120,8 @@ This README will guide you through the process of using the generated JavaScript
   - [*DeleteTenantCustomerTrusted*](#deletetenantcustomertrusted)
   - [*DeleteTenantSupplierTrusted*](#deletetenantsuppliertrusted)
   - [*DeleteTenantProductTrusted*](#deletetenantproducttrusted)
+  - [*DeleteTenantCategoryTrusted*](#deletetenantcategorytrusted)
+  - [*DeleteTenantSubcategoryTrusted*](#deletetenantsubcategorytrusted)
   - [*CreateTenantEmployeeProfileTrusted*](#createtenantemployeeprofiletrusted)
   - [*ProvisionTenantEmployeeTrusted*](#provisiontenantemployeetrusted)
   - [*UpdateTenantEmployeeTrusted*](#updatetenantemployeetrusted)
@@ -3754,6 +3760,136 @@ executeQuery(ref).then((response) => {
 });
 ```
 
+## ListTenantCategories
+You can execute the `ListTenantCategories` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantCategories(vars: ListTenantCategoriesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+
+interface ListTenantCategoriesRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantCategoriesVariables): QueryRef<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+}
+export const listTenantCategoriesRef: ListTenantCategoriesRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantCategories(dc: DataConnect, vars: ListTenantCategoriesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+
+interface ListTenantCategoriesRef {
+  ...
+  (dc: DataConnect, vars: ListTenantCategoriesVariables): QueryRef<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+}
+export const listTenantCategoriesRef: ListTenantCategoriesRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCategoriesRef:
+```typescript
+const name = listTenantCategoriesRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantCategoriesVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `ListTenantCategories` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantCategoriesData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantCategoriesData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  categories: ({
+    id: UUIDString;
+    value: string;
+    subcategories_on_category: ({
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key)[];
+  } & Category_Key)[];
+}
+```
+### Using `ListTenantCategories`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantCategories, ListTenantCategoriesVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`:
+const listTenantCategoriesVars: ListTenantCategoriesVariables = {
+  organizationId: ..., 
+};
+
+// Call the `listTenantCategories()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantCategories(listTenantCategoriesVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantCategories({ organizationId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantCategories(dataConnect, listTenantCategoriesVars);
+
+console.log(data.organizationMemberships);
+console.log(data.categories);
+
+// Or, you can use the `Promise` API.
+listTenantCategories(listTenantCategoriesVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.categories);
+});
+```
+
+### Using `ListTenantCategories`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantCategoriesRef, ListTenantCategoriesVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`:
+const listTenantCategoriesVars: ListTenantCategoriesVariables = {
+  organizationId: ..., 
+};
+
+// Call the `listTenantCategoriesRef()` function to get a reference to the query.
+const ref = listTenantCategoriesRef(listTenantCategoriesVars);
+// Variables can be defined inline as well.
+const ref = listTenantCategoriesRef({ organizationId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantCategoriesRef(dataConnect, listTenantCategoriesVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationMemberships);
+console.log(data.categories);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.categories);
+});
+```
+
 ## ListTenantProducts
 You can execute the `ListTenantProducts` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
 ```typescript
@@ -3815,9 +3951,14 @@ export interface ListTenantProductsData {
     productCode: number;
     name: string;
     brand: string;
-    categoryId: string;
-    categoryName: string;
-    subcategory?: string | null;
+    category: {
+      id: UUIDString;
+      value: string;
+    } & Category_Key;
+    subcategory?: {
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key;
     type: ProductType;
     sku: string;
     barcode?: string | null;
@@ -3833,7 +3974,6 @@ export interface ListTenantProductsData {
     reorderLevel?: number | null;
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
-    supplierProductCode?: string | null;
     description?: string | null;
     imageUrl?: string | null;
     createdAt: TimestampString;
@@ -3979,7 +4119,9 @@ export interface ListTenantInventoryData {
       name: string;
       sku: string;
       barcode?: string | null;
-      categoryName: string;
+      category: {
+        value: string;
+      };
       brand: string;
       primarySupplier?: string | null;
       sellingPrice: number;
@@ -5239,6 +5381,125 @@ executeQuery(ref).then((response) => {
 });
 ```
 
+## ListTenantCategoriesTrusted
+You can execute the `ListTenantCategoriesTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantCategoriesTrusted(vars: ListTenantCategoriesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+
+interface ListTenantCategoriesTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantCategoriesTrustedVariables): QueryRef<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+}
+export const listTenantCategoriesTrustedRef: ListTenantCategoriesTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantCategoriesTrusted(dc: DataConnect, vars: ListTenantCategoriesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+
+interface ListTenantCategoriesTrustedRef {
+  ...
+  (dc: DataConnect, vars: ListTenantCategoriesTrustedVariables): QueryRef<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+}
+export const listTenantCategoriesTrustedRef: ListTenantCategoriesTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCategoriesTrustedRef:
+```typescript
+const name = listTenantCategoriesTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantCategoriesTrustedVariables {
+  organizationId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `ListTenantCategoriesTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantCategoriesTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantCategoriesTrustedData {
+  categories: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    value: string;
+    subcategories_on_category: ({
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key)[];
+  } & Category_Key)[];
+}
+```
+### Using `ListTenantCategoriesTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantCategoriesTrusted, ListTenantCategoriesTrustedVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`:
+const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
+  organizationId: ..., 
+};
+
+// Call the `listTenantCategoriesTrusted()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantCategoriesTrusted(listTenantCategoriesTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantCategoriesTrusted({ organizationId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantCategoriesTrusted(dataConnect, listTenantCategoriesTrustedVars);
+
+console.log(data.categories);
+
+// Or, you can use the `Promise` API.
+listTenantCategoriesTrusted(listTenantCategoriesTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.categories);
+});
+```
+
+### Using `ListTenantCategoriesTrusted`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantCategoriesTrustedRef, ListTenantCategoriesTrustedVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`:
+const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
+  organizationId: ..., 
+};
+
+// Call the `listTenantCategoriesTrustedRef()` function to get a reference to the query.
+const ref = listTenantCategoriesTrustedRef(listTenantCategoriesTrustedVars);
+// Variables can be defined inline as well.
+const ref = listTenantCategoriesTrustedRef({ organizationId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantCategoriesTrustedRef(dataConnect, listTenantCategoriesTrustedVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.categories);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.categories);
+});
+```
+
 ## GetTenantProductTrusted
 You can execute the `GetTenantProductTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
 ```typescript
@@ -5291,9 +5552,14 @@ export interface GetTenantProductTrustedData {
     productCode: number;
     name: string;
     brand: string;
-    categoryId: string;
-    categoryName: string;
-    subcategory?: string | null;
+    category: {
+      id: UUIDString;
+      value: string;
+    } & Category_Key;
+    subcategory?: {
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key;
     type: ProductType;
     sku: string;
     barcode?: string | null;
@@ -5309,7 +5575,6 @@ export interface GetTenantProductTrustedData {
     reorderLevel?: number | null;
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
-    supplierProductCode?: string | null;
     description?: string | null;
     imageUrl?: string | null;
     createdAt: TimestampString;
@@ -12106,6 +12371,267 @@ executeMutation(ref).then((response) => {
 });
 ```
 
+## CreateTenantCategoryTrusted
+You can execute the `CreateTenantCategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+createTenantCategoryTrusted(vars: CreateTenantCategoryTrustedVariables): MutationPromise<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+
+interface CreateTenantCategoryTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateTenantCategoryTrustedVariables): MutationRef<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+}
+export const createTenantCategoryTrustedRef: CreateTenantCategoryTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+createTenantCategoryTrusted(dc: DataConnect, vars: CreateTenantCategoryTrustedVariables): MutationPromise<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+
+interface CreateTenantCategoryTrustedRef {
+  ...
+  (dc: DataConnect, vars: CreateTenantCategoryTrustedVariables): MutationRef<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+}
+export const createTenantCategoryTrustedRef: CreateTenantCategoryTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantCategoryTrustedRef:
+```typescript
+const name = createTenantCategoryTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface CreateTenantCategoryTrustedVariables {
+  id: UUIDString;
+  organizationId: UUIDString;
+  value: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `CreateTenantCategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CreateTenantCategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CreateTenantCategoryTrustedData {
+  category_insert: Category_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `CreateTenantCategoryTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, createTenantCategoryTrusted, CreateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
+const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
+  id: ..., 
+  organizationId: ..., 
+  value: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `createTenantCategoryTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await createTenantCategoryTrusted(createTenantCategoryTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await createTenantCategoryTrusted({ id: ..., organizationId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await createTenantCategoryTrusted(dataConnect, createTenantCategoryTrustedVars);
+
+console.log(data.category_insert);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+createTenantCategoryTrusted(createTenantCategoryTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.category_insert);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `CreateTenantCategoryTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, createTenantCategoryTrustedRef, CreateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
+const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
+  id: ..., 
+  organizationId: ..., 
+  value: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `createTenantCategoryTrustedRef()` function to get a reference to the mutation.
+const ref = createTenantCategoryTrustedRef(createTenantCategoryTrustedVars);
+// Variables can be defined inline as well.
+const ref = createTenantCategoryTrustedRef({ id: ..., organizationId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = createTenantCategoryTrustedRef(dataConnect, createTenantCategoryTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.category_insert);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.category_insert);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## CreateTenantSubcategoryTrusted
+You can execute the `CreateTenantSubcategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+createTenantSubcategoryTrusted(vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+
+interface CreateTenantSubcategoryTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateTenantSubcategoryTrustedVariables): MutationRef<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+}
+export const createTenantSubcategoryTrustedRef: CreateTenantSubcategoryTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+createTenantSubcategoryTrusted(dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+
+interface CreateTenantSubcategoryTrustedRef {
+  ...
+  (dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables): MutationRef<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+}
+export const createTenantSubcategoryTrustedRef: CreateTenantSubcategoryTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantSubcategoryTrustedRef:
+```typescript
+const name = createTenantSubcategoryTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface CreateTenantSubcategoryTrustedVariables {
+  id: UUIDString;
+  organizationId: UUIDString;
+  categoryId: UUIDString;
+  value: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `CreateTenantSubcategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `CreateTenantSubcategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface CreateTenantSubcategoryTrustedData {
+  subcategory_insert: Subcategory_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `CreateTenantSubcategoryTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, createTenantSubcategoryTrusted, CreateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
+const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
+  id: ..., 
+  organizationId: ..., 
+  categoryId: ..., 
+  value: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `createTenantSubcategoryTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await createTenantSubcategoryTrusted(createTenantSubcategoryTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await createTenantSubcategoryTrusted({ id: ..., organizationId: ..., categoryId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await createTenantSubcategoryTrusted(dataConnect, createTenantSubcategoryTrustedVars);
+
+console.log(data.subcategory_insert);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+createTenantSubcategoryTrusted(createTenantSubcategoryTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.subcategory_insert);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `CreateTenantSubcategoryTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, createTenantSubcategoryTrustedRef, CreateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
+const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
+  id: ..., 
+  organizationId: ..., 
+  categoryId: ..., 
+  value: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `createTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
+const ref = createTenantSubcategoryTrustedRef(createTenantSubcategoryTrustedVars);
+// Variables can be defined inline as well.
+const ref = createTenantSubcategoryTrustedRef({ id: ..., organizationId: ..., categoryId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = createTenantSubcategoryTrustedRef(dataConnect, createTenantSubcategoryTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.subcategory_insert);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.subcategory_insert);
+  console.log(data.auditEvent_insert);
+});
+```
+
 ## CreateTenantProduct
 You can execute the `CreateTenantProduct` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
 ```typescript
@@ -12144,9 +12670,8 @@ export interface CreateTenantProductVariables {
   organizationId: UUIDString;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  categoryId: UUIDString;
+  subcategoryId?: UUIDString | null;
   type: ProductType;
   sku: string;
   barcode?: string | null;
@@ -12161,7 +12686,6 @@ export interface CreateTenantProductVariables {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   auditId: UUIDString;
@@ -12192,8 +12716,7 @@ const createTenantProductVars: CreateTenantProductVariables = {
   name: ..., 
   brand: ..., 
   categoryId: ..., 
-  categoryName: ..., 
-  subcategory: ..., // optional
+  subcategoryId: ..., // optional
   type: ..., 
   sku: ..., 
   barcode: ..., // optional
@@ -12208,7 +12731,6 @@ const createTenantProductVars: CreateTenantProductVariables = {
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
-  supplierProductCode: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
   auditId: ..., 
@@ -12220,7 +12742,7 @@ const createTenantProductVars: CreateTenantProductVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantProduct(createTenantProductVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantProduct({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantProduct({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12250,8 +12772,7 @@ const createTenantProductVars: CreateTenantProductVariables = {
   name: ..., 
   brand: ..., 
   categoryId: ..., 
-  categoryName: ..., 
-  subcategory: ..., // optional
+  subcategoryId: ..., // optional
   type: ..., 
   sku: ..., 
   barcode: ..., // optional
@@ -12266,7 +12787,6 @@ const createTenantProductVars: CreateTenantProductVariables = {
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
-  supplierProductCode: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
   auditId: ..., 
@@ -12277,7 +12797,7 @@ const createTenantProductVars: CreateTenantProductVariables = {
 // Call the `createTenantProductRef()` function to get a reference to the mutation.
 const ref = createTenantProductRef(createTenantProductVars);
 // Variables can be defined inline as well.
-const ref = createTenantProductRef({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantProductRef({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12336,9 +12856,8 @@ export interface UpdateTenantProductVariables {
   id: UUIDString;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  categoryId: UUIDString;
+  subcategoryId?: UUIDString | null;
   type: ProductType;
   sku: string;
   barcode?: string | null;
@@ -12353,7 +12872,6 @@ export interface UpdateTenantProductVariables {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   auditId: UUIDString;
@@ -12384,8 +12902,7 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   name: ..., 
   brand: ..., 
   categoryId: ..., 
-  categoryName: ..., 
-  subcategory: ..., // optional
+  subcategoryId: ..., // optional
   type: ..., 
   sku: ..., 
   barcode: ..., // optional
@@ -12400,7 +12917,6 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
-  supplierProductCode: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
   auditId: ..., 
@@ -12412,7 +12928,7 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantProduct(updateTenantProductVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantProduct({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantProduct({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12442,8 +12958,7 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   name: ..., 
   brand: ..., 
   categoryId: ..., 
-  categoryName: ..., 
-  subcategory: ..., // optional
+  subcategoryId: ..., // optional
   type: ..., 
   sku: ..., 
   barcode: ..., // optional
@@ -12458,7 +12973,6 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
-  supplierProductCode: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
   auditId: ..., 
@@ -12469,7 +12983,7 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
 // Call the `updateTenantProductRef()` function to get a reference to the mutation.
 const ref = updateTenantProductRef(updateTenantProductVars);
 // Variables can be defined inline as well.
-const ref = updateTenantProductRef({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantProductRef({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14460,6 +14974,258 @@ console.log(data.auditEvent_insert);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.product_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantCategoryTrusted
+You can execute the `DeleteTenantCategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantCategoryTrusted(vars: DeleteTenantCategoryTrustedVariables): MutationPromise<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+
+interface DeleteTenantCategoryTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantCategoryTrustedVariables): MutationRef<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+}
+export const deleteTenantCategoryTrustedRef: DeleteTenantCategoryTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantCategoryTrusted(dc: DataConnect, vars: DeleteTenantCategoryTrustedVariables): MutationPromise<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+
+interface DeleteTenantCategoryTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantCategoryTrustedVariables): MutationRef<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+}
+export const deleteTenantCategoryTrustedRef: DeleteTenantCategoryTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantCategoryTrustedRef:
+```typescript
+const name = deleteTenantCategoryTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantCategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantCategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantCategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantCategoryTrustedData {
+  category_delete?: Category_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantCategoryTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantCategoryTrusted, DeleteTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
+const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantCategoryTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantCategoryTrusted(deleteTenantCategoryTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantCategoryTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantCategoryTrusted(dataConnect, deleteTenantCategoryTrustedVars);
+
+console.log(data.category_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantCategoryTrusted(deleteTenantCategoryTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.category_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantCategoryTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantCategoryTrustedRef, DeleteTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
+const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantCategoryTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantCategoryTrustedRef(deleteTenantCategoryTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantCategoryTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantCategoryTrustedRef(dataConnect, deleteTenantCategoryTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.category_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.category_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantSubcategoryTrusted
+You can execute the `DeleteTenantSubcategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantSubcategoryTrusted(vars: DeleteTenantSubcategoryTrustedVariables): MutationPromise<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+
+interface DeleteTenantSubcategoryTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantSubcategoryTrustedVariables): MutationRef<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+}
+export const deleteTenantSubcategoryTrustedRef: DeleteTenantSubcategoryTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantSubcategoryTrusted(dc: DataConnect, vars: DeleteTenantSubcategoryTrustedVariables): MutationPromise<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+
+interface DeleteTenantSubcategoryTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantSubcategoryTrustedVariables): MutationRef<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+}
+export const deleteTenantSubcategoryTrustedRef: DeleteTenantSubcategoryTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantSubcategoryTrustedRef:
+```typescript
+const name = deleteTenantSubcategoryTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantSubcategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantSubcategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantSubcategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantSubcategoryTrustedData {
+  subcategory_delete?: Subcategory_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantSubcategoryTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantSubcategoryTrusted, DeleteTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
+const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantSubcategoryTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantSubcategoryTrusted(deleteTenantSubcategoryTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantSubcategoryTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantSubcategoryTrusted(dataConnect, deleteTenantSubcategoryTrustedVars);
+
+console.log(data.subcategory_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantSubcategoryTrusted(deleteTenantSubcategoryTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.subcategory_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantSubcategoryTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantSubcategoryTrustedRef, DeleteTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
+const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantSubcategoryTrustedRef(deleteTenantSubcategoryTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantSubcategoryTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantSubcategoryTrustedRef(dataConnect, deleteTenantSubcategoryTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.subcategory_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.subcategory_delete);
   console.log(data.auditEvent_insert);
 });
 ```

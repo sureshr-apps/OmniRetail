@@ -608,7 +608,7 @@ function mapTenantInventory(row: TenantInventoryRow): InventoryItem {
     barcode: row.product.barcode ?? '',
     name: row.product.name,
     department: row.product.brand,
-    category: row.product.categoryName,
+    category: row.product.category.value,
     imageUrl: '',
     locationId: row.outlet.id,
     locationName: row.outlet.name,
@@ -672,7 +672,6 @@ class ProductionInventoryService {
     const created = await productService.createProduct({
       name,
       brand: newItem.department?.trim() || 'General',
-      categoryId: categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       categoryName,
       type: 'stockable',
       sku,

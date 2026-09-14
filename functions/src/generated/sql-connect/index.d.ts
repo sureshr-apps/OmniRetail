@@ -235,6 +235,11 @@ export interface BootstrapMasterAdminVariables {
   requestId: string;
 }
 
+export interface Category_Key {
+  id: UUIDString;
+  __typename?: 'Category_Key';
+}
+
 export interface ChangeLicensePlanStatusData {
   licensePlan_update?: LicensePlan_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -507,6 +512,20 @@ export interface CreateOrganizationVariables {
   requestId: string;
 }
 
+export interface CreateTenantCategoryTrustedData {
+  category_insert: Category_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface CreateTenantCategoryTrustedVariables {
+  id: UUIDString;
+  organizationId: UUIDString;
+  value: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
   auditEvent_insert: AuditEvent_Key;
@@ -642,9 +661,8 @@ export interface CreateTenantProductVariables {
   organizationId: UUIDString;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  categoryId: UUIDString;
+  subcategoryId?: UUIDString | null;
   type: ProductType;
   sku: string;
   barcode?: string | null;
@@ -659,7 +677,6 @@ export interface CreateTenantProductVariables {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   auditId: UUIDString;
@@ -761,6 +778,21 @@ export interface CreateTenantServicePersonTrustedVariables {
   actorFirebaseUid: string;
 }
 
+export interface CreateTenantSubcategoryTrustedData {
+  subcategory_insert: Subcategory_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface CreateTenantSubcategoryTrustedVariables {
+  id: UUIDString;
+  organizationId: UUIDString;
+  categoryId: UUIDString;
+  value: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
   auditEvent_insert: AuditEvent_Key;
@@ -832,6 +864,19 @@ export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
 
+export interface DeleteTenantCategoryTrustedData {
+  category_delete?: Category_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantCategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface DeleteTenantCustomerTrustedData {
   customer_delete?: Customer_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -890,6 +935,19 @@ export interface DeleteTenantServicePersonTrustedData {
 }
 
 export interface DeleteTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantSubcategoryTrustedData {
+  subcategory_delete?: Subcategory_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   auditId: UUIDString;
@@ -1485,9 +1543,14 @@ export interface GetTenantProductTrustedData {
     productCode: number;
     name: string;
     brand: string;
-    categoryId: string;
-    categoryName: string;
-    subcategory?: string | null;
+    category: {
+      id: UUIDString;
+      value: string;
+    } & Category_Key;
+    subcategory?: {
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key;
     type: ProductType;
     sku: string;
     barcode?: string | null;
@@ -1503,7 +1566,6 @@ export interface GetTenantProductTrustedData {
     reorderLevel?: number | null;
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
-    supplierProductCode?: string | null;
     description?: string | null;
     imageUrl?: string | null;
     createdAt: TimestampString;
@@ -1753,6 +1815,49 @@ export interface ListOrganizationsTrustedData {
   } & Organization_Key)[];
 }
 
+export interface ListTenantCategoriesData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  categories: ({
+    id: UUIDString;
+    value: string;
+    subcategories_on_category: ({
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key)[];
+  } & Category_Key)[];
+}
+
+export interface ListTenantCategoriesTrustedData {
+  categories: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    value: string;
+    subcategories_on_category: ({
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key)[];
+  } & Category_Key)[];
+}
+
+export interface ListTenantCategoriesTrustedVariables {
+  organizationId: UUIDString;
+}
+
+export interface ListTenantCategoriesVariables {
+  organizationId: UUIDString;
+}
+
 export interface ListTenantCustomersData {
   organizationMemberships: ({
     role: {
@@ -1920,7 +2025,9 @@ export interface ListTenantInventoryData {
       name: string;
       sku: string;
       barcode?: string | null;
-      categoryName: string;
+      category: {
+        value: string;
+      };
       brand: string;
       primarySupplier?: string | null;
       sellingPrice: number;
@@ -1992,9 +2099,14 @@ export interface ListTenantProductsData {
     productCode: number;
     name: string;
     brand: string;
-    categoryId: string;
-    categoryName: string;
-    subcategory?: string | null;
+    category: {
+      id: UUIDString;
+      value: string;
+    } & Category_Key;
+    subcategory?: {
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key;
     type: ProductType;
     sku: string;
     barcode?: string | null;
@@ -2010,7 +2122,6 @@ export interface ListTenantProductsData {
     reorderLevel?: number | null;
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
-    supplierProductCode?: string | null;
     description?: string | null;
     imageUrl?: string | null;
     createdAt: TimestampString;
@@ -2534,6 +2645,11 @@ export interface ServicePerson_Key {
   __typename?: 'ServicePerson_Key';
 }
 
+export interface Subcategory_Key {
+  id: UUIDString;
+  __typename?: 'Subcategory_Key';
+}
+
 export interface Supplier_Key {
   id: UUIDString;
   __typename?: 'Supplier_Key';
@@ -2723,9 +2839,8 @@ export interface UpdateTenantProductVariables {
   id: UUIDString;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  categoryId: UUIDString;
+  subcategoryId?: UUIDString | null;
   type: ProductType;
   sku: string;
   barcode?: string | null;
@@ -2740,7 +2855,6 @@ export interface UpdateTenantProductVariables {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   auditId: UUIDString;
@@ -3104,6 +3218,11 @@ export function listTenantServicePersons(dc: DataConnect, vars: ListTenantServic
 /** Generated Node Admin SDK operation action function for the 'ListTenantServicePersons' Query. Allow users to pass in custom DataConnect instances. */
 export function listTenantServicePersons(vars: ListTenantServicePersonsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantServicePersonsData>>;
 
+/** Generated Node Admin SDK operation action function for the 'ListTenantCategories' Query. Allow users to execute without passing in DataConnect. */
+export function listTenantCategories(dc: DataConnect, vars: ListTenantCategoriesVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantCategoriesData>>;
+/** Generated Node Admin SDK operation action function for the 'ListTenantCategories' Query. Allow users to pass in custom DataConnect instances. */
+export function listTenantCategories(vars: ListTenantCategoriesVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantCategoriesData>>;
+
 /** Generated Node Admin SDK operation action function for the 'ListTenantProducts' Query. Allow users to execute without passing in DataConnect. */
 export function listTenantProducts(dc: DataConnect, vars: ListTenantProductsVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantProductsData>>;
 /** Generated Node Admin SDK operation action function for the 'ListTenantProducts' Query. Allow users to pass in custom DataConnect instances. */
@@ -3239,6 +3358,21 @@ export function getTenantCustomerTrusted(dc: DataConnect, vars: GetTenantCustome
 /** Generated Node Admin SDK operation action function for the 'GetTenantCustomerTrusted' Query. Allow users to pass in custom DataConnect instances. */
 export function getTenantCustomerTrusted(vars: GetTenantCustomerTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantCustomerTrustedData>>;
 
+/** Generated Node Admin SDK operation action function for the 'ListTenantCategoriesTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function listTenantCategoriesTrusted(dc: DataConnect, vars: ListTenantCategoriesTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantCategoriesTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'ListTenantCategoriesTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function listTenantCategoriesTrusted(vars: ListTenantCategoriesTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantCategoriesTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'CreateTenantCategoryTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function createTenantCategoryTrusted(dc: DataConnect, vars: CreateTenantCategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantCategoryTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'CreateTenantCategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createTenantCategoryTrusted(vars: CreateTenantCategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantCategoryTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'CreateTenantSubcategoryTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function createTenantSubcategoryTrusted(dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantSubcategoryTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'CreateTenantSubcategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function createTenantSubcategoryTrusted(vars: CreateTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantSubcategoryTrustedData>>;
+
 /** Generated Node Admin SDK operation action function for the 'CreateTenantProduct' Mutation. Allow users to execute without passing in DataConnect. */
 export function createTenantProduct(dc: DataConnect, vars: CreateTenantProductVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantProductData>>;
 /** Generated Node Admin SDK operation action function for the 'CreateTenantProduct' Mutation. Allow users to pass in custom DataConnect instances. */
@@ -3338,6 +3472,16 @@ export function deleteTenantSupplierTrusted(vars: DeleteTenantSupplierTrustedVar
 export function deleteTenantProductTrusted(dc: DataConnect, vars: DeleteTenantProductTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantProductTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'DeleteTenantProductTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function deleteTenantProductTrusted(vars: DeleteTenantProductTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantProductTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantCategoryTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantCategoryTrusted(dc: DataConnect, vars: DeleteTenantCategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantCategoryTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantCategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantCategoryTrusted(vars: DeleteTenantCategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantCategoryTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantSubcategoryTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantSubcategoryTrusted(dc: DataConnect, vars: DeleteTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantSubcategoryTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantSubcategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantSubcategoryTrusted(vars: DeleteTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantSubcategoryTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'GetTenantOutletTrusted' Query. Allow users to execute without passing in DataConnect. */
 export function getTenantOutletTrusted(dc: DataConnect, vars: GetTenantOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantOutletTrustedData>>;

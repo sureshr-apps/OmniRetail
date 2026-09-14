@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/app/context/AuthContext';
 import {
   Product,
   StatusFilterOption,
   ProductType,
   CreateProductInput,
   UpdateProductInput,
+  ProductCategoryOption,
+  ProductSubcategoryOption,
 } from '../types';
+import { Supplier } from '@/features/suppliers/types';
 import { productService, deriveProductView } from '../services/productService';
+import { supplierService } from '@/features/suppliers/services/supplierService';
 import { formatProductCode } from '../utils/formatProductCode';
 import { upsertById, removeById } from '@/shared/utils/listState';
 import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
@@ -20,12 +25,36 @@ import { ProductsPagination } from '../components/ProductsPagination';
 import { ProductDetailDrawer } from '../components/ProductDetailDrawer';
 import { AddProductModal } from '../components/AddProductModal';
 import { EditProductModal } from '../components/EditProductModal';
+import { ManageProductTaxonomyModal } from '../components/ManageProductTaxonomyModal';
 import { ProductToast, ToastMessage } from '../components/ProductToast';
 import { getProductCreationErrorMessage } from '../services/productError';
 
+function mergeProductCategoryOption(options: ProductCategoryOption[], product: Product): ProductCategoryOption[] {
+  const categoryIndex = options.findIndex((category) => category.id === product.categoryId || category.value.toLowerCase() === product.categoryName.toLowerCase());
+  if (categoryIndex < 0) {
+    return [...options, {
+      id: product.categoryId,
+      value: product.categoryName,
+      subcategories: product.subcategoryId && product.subcategory ? [{ id: product.subcategoryId, value: product.subcategory }] : [],
+    }].sort((a, b) => a.value.localeCompare(b.value));
+  }
+  const next = options.slice();
+  const category = next[categoryIndex];
+  if (product.subcategoryId && product.subcategory && !category.subcategories.some((subcategory) => subcategory.id === product.subcategoryId)) {
+    next[categoryIndex] = { ...category, subcategories: [...category.subcategories, { id: product.subcategoryId, value: product.subcategory }] };
+  }
+  return next;
+}
+
+type TaxonomyDeleteTarget =
+  | { kind: 'category'; category: ProductCategoryOption }
+  | { kind: 'subcategory'; category: ProductCategoryOption; subcategory: ProductSubcategoryOption };
+
 export function ProductsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const isOrganizationAdmin = user?.roles.some((role) => role.code === 'organization.admin') ?? false;
 
   // Data: the full org-scoped set. Mutations upsert into this directly; the
   // visible page, filters, and KPIs are all derived from it below.
@@ -40,9 +69,17 @@ export function ProductsPage() {
   const [typeFilter, setTypeFilter] = useState<ProductType | 'ALL'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<ProductCategoryOption[]>([]);
 
+  const categories = useMemo(
+    () => categoryOptions.map((category) => category.value),
+    [categoryOptions],
+  );
+  const brands = useMemo(
+    () => Array.from(new Set(allProducts.map((product) => product.brand).filter(Boolean))).sort(),
+    [allProducts],
+  );
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -51,6 +88,7 @@ export function ProductsPage() {
   const [viewingProductId, setViewingProductId] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isTaxonomyModalOpen, setIsTaxonomyModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const data = useMemo(
     () => deriveProductView(allProducts, {
@@ -97,7 +135,12 @@ export function ProductsPage() {
   const loadCatalogue = useCallback(async () => {
     setIsLoading(true);
     try {
-      setAllProducts(await productService.getAllProducts());
+      const [products, categoryMasters] = await Promise.all([
+        productService.getAllProducts(),
+        productService.getCategoryOptions(),
+      ]);
+      setAllProducts(products);
+      setCategoryOptions(categoryMasters);
     } catch (err) {
       console.error('Failed to fetch catalogue products:', err);
       setToast({
@@ -116,12 +159,9 @@ export function ProductsPage() {
   }, [loadCatalogue]);
 
   useEffect(() => {
-    void Promise.all([productService.getCategories(), productService.getBrands()])
-      .then(([nextCategories, nextBrands]) => {
-        setCategories(nextCategories);
-        setBrands(nextBrands);
-      })
-      .catch((error) => console.error('Failed to load product filter options:', error));
+    void supplierService.getAllSuppliers()
+      .then(setSuppliers)
+      .catch((error) => console.error('Failed to load product supplier options:', error));
   }, []);
 
   // Global keyboard shortcuts
@@ -144,6 +184,7 @@ export function ProductsPage() {
       // Escape -> Close drawer or modal
       if (e.key === 'Escape') {
         if (isAddModalOpen) setIsAddModalOpen(false);
+        else if (isTaxonomyModalOpen) setIsTaxonomyModalOpen(false);
         else if (editingProductId) setEditingProductId(null);
         else if (viewingProductId) setViewingProductId(null);
       }
@@ -151,7 +192,7 @@ export function ProductsPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAddModalOpen, editingProductId, viewingProductId]);
+  }, [isAddModalOpen, isTaxonomyModalOpen, editingProductId, viewingProductId]);
 
   // Selection handlers
   const handleToggleSelectRow = (id: string) => {
@@ -251,6 +292,7 @@ export function ProductsPage() {
       const created = await productService.createProduct(input);
       setIsAddModalOpen(false);
       setAllProducts((prev) => upsertById(prev, created));
+      setCategoryOptions((prev) => mergeProductCategoryOption(prev, created));
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -274,6 +316,7 @@ export function ProductsPage() {
       const updated = await productService.updateProduct(input.id, input);
       setEditingProductId(null);
       setAllProducts((prev) => upsertById(prev, updated));
+      setCategoryOptions((prev) => mergeProductCategoryOption(prev, updated));
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -313,13 +356,35 @@ export function ProductsPage() {
     deleteConfirmation.open(product);
   };
 
+  const taxonomyDeleteConfirmation = useDeleteConfirmation<TaxonomyDeleteTarget>({
+    deleteRecord: (target) => target.kind === 'category'
+      ? productService.deleteCategory(target.category.id)
+      : productService.deleteSubcategory(target.subcategory.id),
+    onDeleted: (target) => {
+      if (target.kind === 'category') {
+        setCategoryOptions((prev) => prev.filter((category) => category.id !== target.category.id));
+        if (categoryFilter === target.category.value) setCategoryFilter('All Categories');
+        setToast({ id: `toast-${Date.now()}`, type: 'success', title: 'Category Deleted', description: `${target.category.value} was permanently removed.` });
+      } else {
+        setCategoryOptions((prev) => prev.map((category) => category.id === target.category.id
+          ? { ...category, subcategories: category.subcategories.filter((subcategory) => subcategory.id !== target.subcategory.id) }
+          : category));
+        setToast({ id: `toast-${Date.now()}`, type: 'success', title: 'Subcategory Deleted', description: `${target.subcategory.value} was permanently removed.` });
+      }
+    },
+  });
+
+  const handlePromptTaxonomyDelete = (target: TaxonomyDeleteTarget) => {
+    setIsTaxonomyModalOpen(false);
+    taxonomyDeleteConfirmation.open(target);
+  };
+
   // Duplicate Product
   const handleDuplicateProduct = async (product: Product) => {
     try {
       const created = await productService.createProduct({
         name: `${product.name} (Copy)`,
         brand: product.brand,
-        categoryId: product.categoryId,
         categoryName: product.categoryName,
         subcategory: product.subcategory,
         type: product.type,
@@ -340,6 +405,7 @@ export function ProductsPage() {
         variantsConfigured: product.variantsConfigured,
       });
       setAllProducts((prev) => upsertById(prev, created));
+      setCategoryOptions((prev) => mergeProductCategoryOption(prev, created));
       setViewingProductId(created.id);
       setToast({
         id: `toast-${Date.now()}`,
@@ -369,6 +435,7 @@ export function ProductsPage() {
           totalCount={data.totalCount || 10}
           onExportCsv={handleExportCsv}
           onOpenAddModal={() => setIsAddModalOpen(true)}
+          onOpenTaxonomyModal={isOrganizationAdmin ? () => setIsTaxonomyModalOpen(true) : undefined}
         />
 
         {/* 2. KPI Summary Cards */}
@@ -459,6 +526,10 @@ export function ProductsPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onCreated={handleCreateProduct}
+        categories={categories}
+        categoryOptions={categoryOptions}
+        brands={brands}
+        suppliers={suppliers}
       />
 
       {/* Edit Product Modal */}
@@ -467,6 +538,18 @@ export function ProductsPage() {
         isOpen={!!editingProduct}
         onClose={() => setEditingProductId(null)}
         onUpdated={handleUpdateProduct}
+        categories={categories}
+        categoryOptions={categoryOptions}
+        brands={brands}
+        suppliers={suppliers}
+      />
+
+      <ManageProductTaxonomyModal
+        isOpen={isTaxonomyModalOpen}
+        categories={categoryOptions}
+        onClose={() => setIsTaxonomyModalOpen(false)}
+        onDeleteCategory={(category) => handlePromptTaxonomyDelete({ kind: 'category', category })}
+        onDeleteSubcategory={(category, subcategory) => handlePromptTaxonomyDelete({ kind: 'subcategory', category, subcategory })}
       />
 
       <MasterDeleteConfirmDialog
@@ -477,6 +560,16 @@ export function ProductsPage() {
         error={deleteConfirmation.error}
         onClose={deleteConfirmation.close}
         onConfirm={deleteConfirmation.confirm}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel={taxonomyDeleteConfirmation.record?.kind === 'subcategory' ? 'Subcategory' : 'Category'}
+        recordName={taxonomyDeleteConfirmation.record?.kind === 'subcategory' ? taxonomyDeleteConfirmation.record.subcategory.value : taxonomyDeleteConfirmation.record?.category.value ?? ''}
+        isOpen={taxonomyDeleteConfirmation.isOpen}
+        isProcessing={taxonomyDeleteConfirmation.isProcessing}
+        error={taxonomyDeleteConfirmation.error}
+        onClose={taxonomyDeleteConfirmation.close}
+        onConfirm={taxonomyDeleteConfirmation.confirm}
       />
 
       {/* Toast Notification */}

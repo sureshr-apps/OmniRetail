@@ -289,13 +289,7 @@ export function ProductDetailDrawer({
               <div className="flex justify-between">
                 <span className="text-on-surface-variant">Preferred Supplier:</span>
                 <span className="font-semibold text-on-surface">
-                  {product.primarySupplier || 'Zenith Textile Mills (SUP-102)'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-on-surface-variant">Supplier SKU:</span>
-                <span className="font-body-mono-num font-semibold text-on-surface">
-                  {product.supplierProductCode || 'N/A'}
+                  {product.primarySupplier || 'Not linked'}
                 </span>
               </div>
               <div className="flex justify-between">

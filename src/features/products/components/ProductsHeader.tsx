@@ -4,12 +4,14 @@ interface ProductsHeaderProps {
   totalCount: number;
   onExportCsv: () => void;
   onOpenAddModal: () => void;
+  onOpenTaxonomyModal?: () => void;
 }
 
 export function ProductsHeader({
   totalCount,
   onExportCsv,
   onOpenAddModal,
+  onOpenTaxonomyModal,
 }: ProductsHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-base select-none">
@@ -42,6 +44,18 @@ export function ProductsHeader({
             arrow_drop_down
           </span>
         </button>
+
+        {onOpenTaxonomyModal && (
+          <button
+            type="button"
+            onClick={onOpenTaxonomyModal}
+            className="h-10 px-space-base bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-body-medium text-body-medium rounded-lg flex items-center gap-space-xs transition-colors shadow-sm border border-outline-variant/30 cursor-pointer"
+            title="Manage product categories and subcategories"
+          >
+            <span className="material-symbols-outlined text-primary text-[18px]">category</span>
+            <span>Categories</span>
+          </button>
+        )}
 
         <button
           type="button"

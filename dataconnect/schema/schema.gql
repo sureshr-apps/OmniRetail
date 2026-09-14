@@ -218,14 +218,23 @@ type ServicePersonOutlet @table(key: ["servicePerson", "outlet"]) {
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
+type Category @table @unique(fields: ["organization", "value"]) {
+  organization: Organization!
+  value: String!
+}
+
+type Subcategory @table @unique(fields: ["category", "value"]) {
+  category: Category!
+  value: String!
+}
+
 type Product @table {
   organization: Organization!
   productCode: Int! @col(dataType: "serial") @unique
   name: String!
   brand: String!
-  categoryId: String!
-  categoryName: String!
-  subcategory: String
+  category: Category!
+  subcategory: Subcategory
   type: ProductType!
   sku: String! @unique
   barcode: String @unique
@@ -241,7 +250,6 @@ type Product @table {
   reorderLevel: Float
   reorderQuantity: Float
   primarySupplier: String
-  supplierProductCode: String
   description: String
   imageUrl: String
   createdAt: Timestamp! @default(expr: "request.time")

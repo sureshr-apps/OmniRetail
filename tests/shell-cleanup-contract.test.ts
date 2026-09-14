@@ -69,4 +69,38 @@ describe('requested shell cleanup', () => {
     expect(types).not.toContain('OutletActivity');
     expect(types).not.toContain('recentActivity');
   });
+
+  it('keeps the Add Product form aligned to India-market catalogue choices', () => {
+    const modal = read('features/products/components/AddProductModal.tsx');
+    const page = read('features/products/pages/ProductsPage.tsx');
+    const detail = read('features/products/components/ProductDetailDrawer.tsx');
+
+    expect(modal).not.toContain('Service Item');
+    expect(modal).not.toContain('Punarva Studio');
+    expect(modal).not.toContain('Supplier Part Code');
+    expect(modal).not.toContain('supplierProductCode');
+    expect(modal).not.toContain('($)');
+    for (const rate of ['GST 0%', 'GST 5%', 'GST 12%', 'GST 18%', 'GST 28%']) {
+      expect(modal).toContain(rate);
+    }
+    expect(modal).toContain('list="product-category-options"');
+    expect(modal).toContain('list="product-subcategory-options"');
+    expect(modal).toContain('list="product-brand-options"');
+    expect(modal).toContain("type !== 'service' ? Number(reorderLevel)");
+    expect(modal).toContain("suppliers.filter((supplier) => supplier.status === 'Active')");
+    expect(read('features/products/components/EditProductModal.tsx')).toContain('list="edit-product-brand-options"');
+    expect(read('features/products/components/EditProductModal.tsx')).toContain("errs.categoryName = 'Category is required'");
+    expect(read('features/products/components/EditProductModal.tsx')).toContain("suppliers.filter((supplier) => supplier.status === 'Active')");
+    expect(modal).toContain('activeSuppliers.map');
+    expect(page).not.toContain('const subcategories = useMemo');
+    expect(page).toContain('categoryOptions={categoryOptions}');
+    expect(page).toContain('ManageProductTaxonomyModal');
+    expect(page).toContain('productService.deleteCategory');
+    expect(page).toContain('productService.deleteSubcategory');
+    const taxonomyModal = read('features/products/components/ManageProductTaxonomyModal.tsx');
+    expect(taxonomyModal).toContain("event.key === 'Escape'");
+    expect(taxonomyModal).toContain("document.body.style.overflow = 'hidden'");
+    expect(page).toContain('supplierService.getAllSuppliers()');
+    expect(detail).not.toContain('Supplier SKU:');
+  });
 });

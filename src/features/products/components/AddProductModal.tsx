@@ -1,20 +1,29 @@
 import React, { useState } from 'react';
-import { CreateProductInput, ProductType } from '../types';
+import { CreateProductInput, ProductCategoryOption, ProductType } from '../types';
 import { productService } from '../services/productService';
+import { Supplier } from '@/features/suppliers/types';
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated: (newProduct: CreateProductInput) => void;
+  categories: string[];
+  categoryOptions: ProductCategoryOption[];
+  brands: string[];
+  suppliers: Supplier[];
 }
 
 export function AddProductModal({
   isOpen,
   onClose,
   onCreated,
+  categories,
+  categoryOptions,
+  brands,
+  suppliers,
 }: AddProductModalProps) {
   const [name, setName] = useState('');
-  const [brand, setBrand] = useState('Punarva Studio');
+  const [brand, setBrand] = useState('');
   const [type, setType] = useState<ProductType>('stockable');
   const [categoryName, setCategoryName] = useState('Apparel / Shirts');
   const [subcategory, setSubcategory] = useState('');
@@ -30,7 +39,7 @@ export function AddProductModal({
   const [sellingPrice, setSellingPrice] = useState('');
   const [mrp, setMrp] = useState('');
   const [minSellingPrice, setMinSellingPrice] = useState('');
-  const [taxCategory, setTaxCategory] = useState('GST 12% (Standard Apparel)');
+  const [taxCategory, setTaxCategory] = useState('GST 12%');
   const [discountAllowed, setDiscountAllowed] = useState(true);
 
   const [reorderLevel, setReorderLevel] = useState('15');
@@ -40,12 +49,12 @@ export function AddProductModal({
     'Downtown Flagship #01'
   );
 
-  const [primarySupplier, setPrimarySupplier] = useState(
-    'Zenith Textile Mills (SUP-102)'
-  );
-  const [supplierProductCode, setSupplierProductCode] = useState('');
+  const [primarySupplier, setPrimarySupplier] = useState('');
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const selectedCategory = categoryOptions.find((category) => category.value.trim().toLowerCase() === categoryName.trim().toLowerCase());
+  const availableSubcategories = selectedCategory?.subcategories.map((subcategoryOption) => subcategoryOption.value) ?? [];
+  const activeSuppliers = suppliers.filter((supplier) => supplier.status === 'Active');
 
   if (!isOpen) return null;
 
@@ -54,6 +63,9 @@ export function AddProductModal({
 
     if (!name.trim()) {
       errs.name = 'Product name is required';
+    }
+    if (!categoryName.trim()) {
+      errs.categoryName = 'Category is required';
     }
 
     if (!sku.trim()) {
@@ -79,7 +91,7 @@ export function AddProductModal({
     }
 
     if (
-      type === 'stockable' &&
+      type !== 'service' &&
       reorderLevel.trim() &&
       (isNaN(Number(reorderLevel)) || Number(reorderLevel) < 0)
     ) {
@@ -97,15 +109,13 @@ export function AddProductModal({
     const payload: CreateProductInput = {
       name,
       brand,
-      categoryId: categoryName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-      categoryName,
+      categoryName: categoryName.trim(),
       subcategory: subcategory.trim() || undefined,
       type,
       sku: sku.trim(),
       barcode: barcode.trim() || undefined,
       hsnCode: hsnCode.trim() || undefined,
-      unitOfMeasure:
-        type === 'service' ? 'Job / Service' : unitOfMeasure || 'Pieces (Pcs)',
+      unitOfMeasure: unitOfMeasure || 'Pieces (Pcs)',
       sellingPrice: Number(sellingPrice),
       mrp: mrp.trim() ? Number(mrp) : undefined,
       cost: cost.trim() ? Number(cost) : undefined,
@@ -115,10 +125,9 @@ export function AddProductModal({
       status: 'active',
       reorderLevel: type !== 'service' ? Number(reorderLevel) || 15 : undefined,
       reorderQuantity: type !== 'service' ? Number(reorderQuantity) || 30 : undefined,
-      openingStock: type !== 'service' ? Number(openingStock) || 0 : undefined,
+      openingStock: type === 'stockable' ? Number(openingStock) || 0 : undefined,
       openingStoreOutlet,
-      primarySupplier,
-      supplierProductCode: supplierProductCode.trim() || undefined,
+      primarySupplier: primarySupplier || undefined,
       description: description.trim() || undefined,
       variantsConfigured: variantsConfigured.trim() || undefined,
     };
@@ -165,7 +174,7 @@ export function AddProductModal({
               <label className="font-caption text-caption text-on-surface font-medium block">
                 Product Type *
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-xs">
                 <button
                   type="button"
                   onClick={() => {
@@ -183,26 +192,6 @@ export function AddProductModal({
                     <span>Stockable Item</span>
                   </div>
                   <span className="text-[10px] text-on-surface-variant mt-0.5">Physical goods with inventory</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setType('service');
-                    setUnitOfMeasure('Job / Service');
-                    setOpeningStock('0');
-                  }}
-                  className={`p-2.5 rounded-lg border text-left flex flex-col transition-all cursor-pointer ${
-                    type === 'service'
-                      ? 'border-primary bg-primary/10 text-on-surface'
-                      : 'border-outline-variant/40 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant'
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5 font-semibold text-caption text-on-surface">
-                    <span className="material-symbols-outlined text-[16px] text-primary">design_services</span>
-                    <span>Service Item</span>
-                  </div>
-                  <span className="text-[10px] text-on-surface-variant mt-0.5">Alterations, labor, non-stock</span>
                 </button>
 
                 <button
@@ -248,34 +237,33 @@ export function AddProductModal({
                   Brand Name
                 </label>
                 <input
+                  list="product-brand-options"
                   type="text"
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  placeholder="e.g. Punarva Studio"
+                  placeholder="Enter brand name"
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
                 />
+                <datalist id="product-brand-options">
+                  {brands.map((brandOption) => <option key={brandOption} value={brandOption} />)}
+                </datalist>
               </div>
 
               <div>
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
                   Category *
                 </label>
-                <select
+                <input
+                  list="product-category-options"
+                  type="text"
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                >
-                  <option value="Apparel / Shirts">Apparel / Shirts</option>
-                  <option value="Apparel / Bottoms">Apparel / Bottoms</option>
-                  <option value="Apparel / Outerwear">Apparel / Outerwear</option>
-                  <option value="Accessories / Bags">Accessories / Bags</option>
-                  <option value="Accessories / Scarves">Accessories / Scarves</option>
-                  <option value="Footwear / Shoes">Footwear / Shoes</option>
-                  <option value="Fabrics">Fabrics</option>
-                  <option value="Lifestyle">Lifestyle</option>
-                  <option value="Consumables">Consumables</option>
-                  <option value="Service">Service</option>
-                </select>
+                />
+                <datalist id="product-category-options">
+                  {categories.map((category) => <option key={category} value={category} />)}
+                </datalist>
+                {errors.categoryName && <span className="text-error text-[10px]">{errors.categoryName}</span>}
               </div>
 
               <div>
@@ -283,12 +271,16 @@ export function AddProductModal({
                   Subcategory
                 </label>
                 <input
+                  list="product-subcategory-options"
                   type="text"
                   value={subcategory}
                   onChange={(e) => setSubcategory(e.target.value)}
                   placeholder="e.g. Linen Tops / Cuban Collar"
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
                 />
+                <datalist id="product-subcategory-options">
+                  {availableSubcategories.map((subcategoryOption) => <option key={subcategoryOption} value={subcategoryOption} />)}
+                </datalist>
               </div>
 
               <div className="col-span-1 sm:col-span-2">
@@ -338,7 +330,7 @@ export function AddProductModal({
                   type="text"
                   value={barcode}
                   onChange={(e) => setBarcode(e.target.value)}
-                  placeholder={type === 'service' ? 'Not required for services' : 'e.g. 8904512399'}
+                  placeholder="e.g. 8904512399"
                   className={`w-full h-9 px-3 rounded bg-surface-container-low border text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary ${
                     errors.barcode ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
                   }`}
@@ -372,7 +364,6 @@ export function AddProductModal({
                   <option value="Pairs (Prs)">Pairs (Prs)</option>
                   <option value="Meter (Mtr)">Meter (Mtr)</option>
                   <option value="Kilogram (Kg)">Kilogram (Kg)</option>
-                  <option value="Job / Service">Job / Service</option>
                   <option value="Box / Carton">Box / Carton</option>
                 </select>
               </div>
@@ -402,7 +393,7 @@ export function AddProductModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
               <div>
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Purchase Cost ($)
+                  Purchase Cost (₹)
                 </label>
                 <input
                   type="number"
@@ -417,7 +408,7 @@ export function AddProductModal({
 
               <div>
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Selling Price ($) *
+                  Selling Price (₹) *
                 </label>
                 <input
                   type="number"
@@ -436,7 +427,7 @@ export function AddProductModal({
 
               <div>
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  MRP / Sticker Price ($)
+                  MRP / Sticker Price (₹)
                 </label>
                 <input
                   type="number"
@@ -458,21 +449,17 @@ export function AddProductModal({
                   onChange={(e) => setTaxCategory(e.target.value)}
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
-                  <option value="GST 12% (Standard Apparel)">GST 12% (Standard Apparel)</option>
-                  <option value="GST 18% (Luxury Accessories & Footwear)">
-                    GST 18% (Luxury Accessories &amp; Footwear)
-                  </option>
-                  <option value="GST 5% (Essential Textiles & Packaging)">
-                    GST 5% (Essential Textiles &amp; Packaging)
-                  </option>
-                  <option value="GST 18% (Service Rates)">GST 18% (Service Rates)</option>
-                  <option value="Tax Exempt (Zero Rated)">Tax Exempt (Zero Rated)</option>
+                  <option value="GST 0%">GST 0%</option>
+                  <option value="GST 5%">GST 5%</option>
+                  <option value="GST 12%">GST 12%</option>
+                  <option value="GST 18%">GST 18%</option>
+                  <option value="GST 28%">GST 28%</option>
                 </select>
               </div>
 
               <div>
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Floor Price ($)
+                  Floor Price (₹)
                 </label>
                 <input
                   type="number"
@@ -578,26 +565,18 @@ export function AddProductModal({
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
                   Primary Supplier
                 </label>
-                <input
-                  type="text"
+                <select
                   value={primarySupplier}
                   onChange={(e) => setPrimarySupplier(e.target.value)}
-                  placeholder="Zenith Textile Mills (SUP-102)"
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Supplier Part Code
-                </label>
-                <input
-                  type="text"
-                  value={supplierProductCode}
-                  onChange={(e) => setSupplierProductCode(e.target.value)}
-                  placeholder="e.g. ZTM-LIN-09"
-                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                />
+                >
+                  <option value="">Select supplier</option>
+                  {activeSuppliers.map((supplier) => (
+                    <option key={supplier.id} value={supplier.name}>
+                      {supplier.name} (SUP-{supplier.supplierCode})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

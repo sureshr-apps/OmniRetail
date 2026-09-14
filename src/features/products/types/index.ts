@@ -34,6 +34,7 @@ export interface Product {
   brand: string;
   categoryId: string;
   categoryName: string; // e.g. "Apparel / Shirts", "Accessories / Bags", "Service", "Consumables"
+  subcategoryId?: string;
   subcategory?: string;
   type: ProductType;
   sku: string; // Sellable stock identifier, e.g., AP-SH-001
@@ -52,7 +53,6 @@ export interface Product {
   openingStock?: number;
   openingStoreOutlet?: string;
   primarySupplier?: string;
-  supplierProductCode?: string;
   description?: string;
   imageUrl?: string;
   imageAlt?: string;
@@ -61,6 +61,17 @@ export interface Product {
   recentActivity?: ProductLedgerActivity[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProductSubcategoryOption {
+  id: string;
+  value: string;
+}
+
+export interface ProductCategoryOption {
+  id: string;
+  value: string;
+  subcategories: ProductSubcategoryOption[];
 }
 
 export interface ProductsKpiSummary {
@@ -97,7 +108,6 @@ export interface ProductQueryResult {
 export interface CreateProductInput {
   name: string;
   brand: string;
-  categoryId: string;
   categoryName: string;
   subcategory?: string;
   type: ProductType;
@@ -117,7 +127,6 @@ export interface CreateProductInput {
   openingStock?: number;
   openingStoreOutlet?: string;
   primarySupplier?: string;
-  supplierProductCode?: string;
   description?: string;
   imageUrl?: string;
   variantsConfigured?: string;

@@ -605,17 +605,24 @@ query ListTenantServicePersons($organizationId: UUID!) @auth(level: USER) {
   }
 }
 
+query ListTenantCategories($organizationId: UUID!) @auth(level: USER) {
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'products.read'))", message: "Product access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
+  categories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ value: ASC }, { id: ASC }]) {
+    id value subcategories_on_category { id value }
+  }
+}
+
 query ListTenantProducts($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'products.read'))", message: "Product access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   products(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
-    id organization { id } productCode name brand categoryId categoryName subcategory type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier supplierProductCode description imageUrl createdAt updatedAt
+    id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description imageUrl createdAt updatedAt
   }
 }
 
 query ListTenantInventory($organizationId: UUID!, $outletId: UUID) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'inventory.read'))", message: "Inventory access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } } }, orderBy: [{ updatedAt: DESC }]) {
-    _id organization { id } outlet { id outletCode name } product { id productCode name sku barcode categoryName brand primarySupplier sellingPrice cost } binRack onHandQty reorderLevel overstockThreshold incomingPurchaseOrder updatedAt
+    _id organization { id } outlet { id outletCode name } product { id productCode name sku barcode category { value } brand primarySupplier sellingPrice cost } binRack onHandQty reorderLevel overstockThreshold incomingPurchaseOrder updatedAt
   }
 }
 
@@ -774,14 +781,30 @@ query GetTenantCustomerTrusted($organizationId: UUID!, $id: UUID!) @auth(level: 
   }
 }
 
-mutation CreateTenantProduct($id: UUID!, $organizationId: UUID!, $name: String!, $brand: String!, $categoryId: String!, $categoryName: String!, $subcategory: String, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $supplierProductCode: String, $description: String, $imageUrl: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
-  product_insert(data: { id: $id organization: { id: $organizationId } name: $name brand: $brand categoryId: $categoryId categoryName: $categoryName subcategory: $subcategory type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory status: ACTIVE reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier supplierProductCode: $supplierProductCode description: $description imageUrl: $imageUrl })
+query ListTenantCategoriesTrusted($organizationId: UUID!) @auth(level: NO_ACCESS) {
+  categories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ value: ASC }, { id: ASC }]) {
+    id organization { id } value subcategories_on_category { id value }
+  }
+}
+
+mutation CreateTenantCategoryTrusted($id: UUID!, $organizationId: UUID!, $value: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  category_insert(data: { id: $id organization: { id: $organizationId } value: $value })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "category.created" targetType: "Category" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId value: $value } })
+}
+
+mutation CreateTenantSubcategoryTrusted($id: UUID!, $organizationId: UUID!, $categoryId: UUID!, $value: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  subcategory_insert(data: { id: $id category: { id: $categoryId } value: $value })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "subcategory.created" targetType: "Subcategory" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId categoryId: $categoryId value: $value } })
+}
+
+mutation CreateTenantProduct($id: UUID!, $organizationId: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String, $imageUrl: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  product_insert(data: { id: $id organization: { id: $organizationId } name: $name brand: $brand category: { id: $categoryId } subcategory: { id: $subcategoryId } type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory status: ACTIVE reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier description: $description imageUrl: $imageUrl })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.created" targetType: "Product" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
-mutation UpdateTenantProduct($organizationId: UUID!, $id: UUID!, $name: String!, $brand: String!, $categoryId: String!, $categoryName: String!, $subcategory: String, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $supplierProductCode: String, $description: String, $imageUrl: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+mutation UpdateTenantProduct($organizationId: UUID!, $id: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String, $imageUrl: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact { products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } }
-  product_update(id: $id, data: { name: $name brand: $brand categoryId: $categoryId categoryName: $categoryName subcategory: $subcategory type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier supplierProductCode: $supplierProductCode description: $description imageUrl: $imageUrl updatedAt_expr: "request.time" })
+  product_update(id: $id, data: { name: $name brand: $brand category: { id: $categoryId } subcategory: { id: $subcategoryId } type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier description: $description imageUrl: $imageUrl updatedAt_expr: "request.time" })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.updated" targetType: "Product" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
@@ -793,7 +816,7 @@ mutation ChangeTenantProductStatus($organizationId: UUID!, $id: UUID!, $status: 
 
 query GetTenantProductTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } productCode name brand categoryId categoryName subcategory type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier supplierProductCode description imageUrl createdAt updatedAt
+    id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description imageUrl createdAt updatedAt
   }
 }
 
@@ -930,6 +953,25 @@ mutation DeleteTenantProductTrusted($organizationId: UUID!, $id: UUID!, $auditId
   }
   product_delete(id: $id)
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.deleted" targetType: "Product" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantCategoryTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    categories(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Category is not in this organization.") { id }
+    subcategories(where: { category: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Category has subcategories and cannot be deleted.") { id }
+    products(where: { category: { id: { eq: $id } }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() == 0", message: "Category has linked products and cannot be deleted.") { id }
+  }
+  category_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "category.deleted" targetType: "Category" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantSubcategoryTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    subcategories(where: { id: { eq: $id }, category: { organization: { id: { eq: $organizationId } } } }, limit: 1) @check(expr: "this.size() > 0", message: "Subcategory is not in this organization.") { id }
+    products(where: { subcategory: { id: { eq: $id } }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() == 0", message: "Subcategory has linked products and cannot be deleted.") { id }
+  }
+  subcategory_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "subcategory.deleted" targetType: "Subcategory" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
 # Trusted, server-side read-back used immediately after UpdateTenantOutletTrusted /

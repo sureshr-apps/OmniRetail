@@ -43,9 +43,29 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('defines tenant-scoped product catalogue and inventory stock entities', () => {
     expect(schema).toMatch(/enum ProductStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
+    expect(schema).toMatch(/type Category @table[\s\S]*organization: Organization![\s\S]*value: String!/);
+    expect(schema).toMatch(/type Subcategory @table[\s\S]*category: Category![\s\S]*value: String!/);
     expect(schema).toMatch(/type Product @table[\s\S]*organization: Organization![\s\S]*sku: String! @unique/);
+    expect(schema).toMatch(/type Product @table[\s\S]*category: Category![\s\S]*subcategory: Subcategory/);
     expect(schema).toMatch(/type InventoryStock @table\(key: \["organization", "outlet", "product"\]\)/);
     expect(schema).toMatch(/type InventoryStock[\s\S]*outlet: Outlet![\s\S]*product: Product!/);
+  });
+
+  it('removes the retired supplier part-code field from Product storage and connectors', () => {
+    const product = schema.match(/type Product @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const productOperations = connector.match(/(?:query|mutation) (?:ListTenantProducts|CreateTenantProduct|UpdateTenantProduct|GetTenantProductTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+
+    expect(product).not.toContain('supplierProductCode');
+    expect(productOperations.length).toBe(4);
+    for (const operation of productOperations) {
+      expect(operation).not.toMatch(/\bsupplierProductCode\b|\$supplierProductCode\b/);
+    }
+  });
+
+  it('does not keep denormalized category values on Product', () => {
+    const product = schema.match(/type Product @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(product).not.toMatch(/categoryId:|categoryName:|subcategory: String/);
   });
 
   it('defines an organization-scoped customer master', () => {
@@ -76,7 +96,7 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('defines connector operations for tenant-scoped master reads and outlet writes', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
-    for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'DeleteTenantOutletTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'UpdateTenantEmployeeTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'DeleteTenantEmployeeTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'DeleteTenantServicePersonTrusted', 'AssignTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted', 'DeleteTenantCustomerTrusted', 'DeleteTenantSupplierTrusted', 'DeleteTenantProductTrusted']) {
+    for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantCategories', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'DeleteTenantOutletTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'UpdateTenantEmployeeTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'DeleteTenantEmployeeTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'DeleteTenantServicePersonTrusted', 'AssignTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted', 'DeleteTenantCustomerTrusted', 'DeleteTenantSupplierTrusted', 'DeleteTenantProductTrusted', 'DeleteTenantCategoryTrusted', 'DeleteTenantSubcategoryTrusted']) {
       expect(connector).toContain(operation);
     }
   });
@@ -90,6 +110,9 @@ describe('tenant Data Connect foundation schema', () => {
     expect(connector).toContain('inventoryStocks(where: { product: { id: { eq: $id } } }');
     expect(connector).toContain('purchaseLines(where: { product: { id: { eq: $id } } }');
     expect(connector).toContain('saleLines(where: { product: { id: { eq: $id } } }');
+    expect(connector).toContain('subcategories(where: { category: { id: { eq: $id } } }');
+    expect(connector).toContain('products(where: { category: { id: { eq: $id } }');
+    expect(connector).toContain('products(where: { subcategory: { id: { eq: $id } }');
   });
 
   it('keeps Service Person storage aligned with the supported form fields', () => {

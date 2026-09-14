@@ -260,6 +260,11 @@ export interface BootstrapMasterAdminVariables {
   requestId: string;
 }
 
+export interface Category_Key {
+  id: UUIDString;
+  __typename?: 'Category_Key';
+}
+
 export interface ChangeLicensePlanStatusData {
   licensePlan_update?: LicensePlan_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -532,6 +537,20 @@ export interface CreateOrganizationVariables {
   requestId: string;
 }
 
+export interface CreateTenantCategoryTrustedData {
+  category_insert: Category_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface CreateTenantCategoryTrustedVariables {
+  id: UUIDString;
+  organizationId: UUIDString;
+  value: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
   auditEvent_insert: AuditEvent_Key;
@@ -667,9 +686,8 @@ export interface CreateTenantProductVariables {
   organizationId: UUIDString;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  categoryId: UUIDString;
+  subcategoryId?: UUIDString | null;
   type: ProductType;
   sku: string;
   barcode?: string | null;
@@ -684,7 +702,6 @@ export interface CreateTenantProductVariables {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   auditId: UUIDString;
@@ -786,6 +803,21 @@ export interface CreateTenantServicePersonTrustedVariables {
   actorFirebaseUid: string;
 }
 
+export interface CreateTenantSubcategoryTrustedData {
+  subcategory_insert: Subcategory_Key;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface CreateTenantSubcategoryTrustedVariables {
+  id: UUIDString;
+  organizationId: UUIDString;
+  categoryId: UUIDString;
+  value: string;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
   auditEvent_insert: AuditEvent_Key;
@@ -857,6 +889,19 @@ export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
 
+export interface DeleteTenantCategoryTrustedData {
+  category_delete?: Category_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantCategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface DeleteTenantCustomerTrustedData {
   customer_delete?: Customer_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -915,6 +960,19 @@ export interface DeleteTenantServicePersonTrustedData {
 }
 
 export interface DeleteTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantSubcategoryTrustedData {
+  subcategory_delete?: Subcategory_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   auditId: UUIDString;
@@ -1510,9 +1568,14 @@ export interface GetTenantProductTrustedData {
     productCode: number;
     name: string;
     brand: string;
-    categoryId: string;
-    categoryName: string;
-    subcategory?: string | null;
+    category: {
+      id: UUIDString;
+      value: string;
+    } & Category_Key;
+    subcategory?: {
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key;
     type: ProductType;
     sku: string;
     barcode?: string | null;
@@ -1528,7 +1591,6 @@ export interface GetTenantProductTrustedData {
     reorderLevel?: number | null;
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
-    supplierProductCode?: string | null;
     description?: string | null;
     imageUrl?: string | null;
     createdAt: TimestampString;
@@ -1778,6 +1840,49 @@ export interface ListOrganizationsTrustedData {
   } & Organization_Key)[];
 }
 
+export interface ListTenantCategoriesData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  categories: ({
+    id: UUIDString;
+    value: string;
+    subcategories_on_category: ({
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key)[];
+  } & Category_Key)[];
+}
+
+export interface ListTenantCategoriesTrustedData {
+  categories: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    value: string;
+    subcategories_on_category: ({
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key)[];
+  } & Category_Key)[];
+}
+
+export interface ListTenantCategoriesTrustedVariables {
+  organizationId: UUIDString;
+}
+
+export interface ListTenantCategoriesVariables {
+  organizationId: UUIDString;
+}
+
 export interface ListTenantCustomersData {
   organizationMemberships: ({
     role: {
@@ -1945,7 +2050,9 @@ export interface ListTenantInventoryData {
       name: string;
       sku: string;
       barcode?: string | null;
-      categoryName: string;
+      category: {
+        value: string;
+      };
       brand: string;
       primarySupplier?: string | null;
       sellingPrice: number;
@@ -2017,9 +2124,14 @@ export interface ListTenantProductsData {
     productCode: number;
     name: string;
     brand: string;
-    categoryId: string;
-    categoryName: string;
-    subcategory?: string | null;
+    category: {
+      id: UUIDString;
+      value: string;
+    } & Category_Key;
+    subcategory?: {
+      id: UUIDString;
+      value: string;
+    } & Subcategory_Key;
     type: ProductType;
     sku: string;
     barcode?: string | null;
@@ -2035,7 +2147,6 @@ export interface ListTenantProductsData {
     reorderLevel?: number | null;
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
-    supplierProductCode?: string | null;
     description?: string | null;
     imageUrl?: string | null;
     createdAt: TimestampString;
@@ -2559,6 +2670,11 @@ export interface ServicePerson_Key {
   __typename?: 'ServicePerson_Key';
 }
 
+export interface Subcategory_Key {
+  id: UUIDString;
+  __typename?: 'Subcategory_Key';
+}
+
 export interface Supplier_Key {
   id: UUIDString;
   __typename?: 'Supplier_Key';
@@ -2748,9 +2864,8 @@ export interface UpdateTenantProductVariables {
   id: UUIDString;
   name: string;
   brand: string;
-  categoryId: string;
-  categoryName: string;
-  subcategory?: string | null;
+  categoryId: UUIDString;
+  subcategoryId?: UUIDString | null;
   type: ProductType;
   sku: string;
   barcode?: string | null;
@@ -2765,7 +2880,6 @@ export interface UpdateTenantProductVariables {
   reorderLevel?: number | null;
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
-  supplierProductCode?: string | null;
   description?: string | null;
   imageUrl?: string | null;
   auditId: UUIDString;
@@ -3514,6 +3628,18 @@ export const listTenantServicePersonsRef: ListTenantServicePersonsRef;
 export function listTenantServicePersons(vars: ListTenantServicePersonsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantServicePersonsData, ListTenantServicePersonsVariables>;
 export function listTenantServicePersons(dc: DataConnect, vars: ListTenantServicePersonsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantServicePersonsData, ListTenantServicePersonsVariables>;
 
+interface ListTenantCategoriesRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantCategoriesVariables): QueryRef<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListTenantCategoriesVariables): QueryRef<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+  operationName: string;
+}
+export const listTenantCategoriesRef: ListTenantCategoriesRef;
+
+export function listTenantCategories(vars: ListTenantCategoriesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+export function listTenantCategories(dc: DataConnect, vars: ListTenantCategoriesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesData, ListTenantCategoriesVariables>;
+
 interface ListTenantProductsRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: ListTenantProductsVariables): QueryRef<ListTenantProductsData, ListTenantProductsVariables>;
@@ -3838,6 +3964,42 @@ export const getTenantCustomerTrustedRef: GetTenantCustomerTrustedRef;
 export function getTenantCustomerTrusted(vars: GetTenantCustomerTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
 export function getTenantCustomerTrusted(dc: DataConnect, vars: GetTenantCustomerTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
 
+interface ListTenantCategoriesTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantCategoriesTrustedVariables): QueryRef<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListTenantCategoriesTrustedVariables): QueryRef<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+  operationName: string;
+}
+export const listTenantCategoriesTrustedRef: ListTenantCategoriesTrustedRef;
+
+export function listTenantCategoriesTrusted(vars: ListTenantCategoriesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+export function listTenantCategoriesTrusted(dc: DataConnect, vars: ListTenantCategoriesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
+
+interface CreateTenantCategoryTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateTenantCategoryTrustedVariables): MutationRef<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreateTenantCategoryTrustedVariables): MutationRef<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+  operationName: string;
+}
+export const createTenantCategoryTrustedRef: CreateTenantCategoryTrustedRef;
+
+export function createTenantCategoryTrusted(vars: CreateTenantCategoryTrustedVariables): MutationPromise<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+export function createTenantCategoryTrusted(dc: DataConnect, vars: CreateTenantCategoryTrustedVariables): MutationPromise<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
+
+interface CreateTenantSubcategoryTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: CreateTenantSubcategoryTrustedVariables): MutationRef<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables): MutationRef<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+  operationName: string;
+}
+export const createTenantSubcategoryTrustedRef: CreateTenantSubcategoryTrustedRef;
+
+export function createTenantSubcategoryTrusted(vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+export function createTenantSubcategoryTrusted(dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+
 interface CreateTenantProductRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateTenantProductVariables): MutationRef<CreateTenantProductData, CreateTenantProductVariables>;
@@ -4077,6 +4239,30 @@ export const deleteTenantProductTrustedRef: DeleteTenantProductTrustedRef;
 
 export function deleteTenantProductTrusted(vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
 export function deleteTenantProductTrusted(dc: DataConnect, vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+
+interface DeleteTenantCategoryTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantCategoryTrustedVariables): MutationRef<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantCategoryTrustedVariables): MutationRef<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantCategoryTrustedRef: DeleteTenantCategoryTrustedRef;
+
+export function deleteTenantCategoryTrusted(vars: DeleteTenantCategoryTrustedVariables): MutationPromise<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+export function deleteTenantCategoryTrusted(dc: DataConnect, vars: DeleteTenantCategoryTrustedVariables): MutationPromise<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
+
+interface DeleteTenantSubcategoryTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantSubcategoryTrustedVariables): MutationRef<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantSubcategoryTrustedVariables): MutationRef<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantSubcategoryTrustedRef: DeleteTenantSubcategoryTrustedRef;
+
+export function deleteTenantSubcategoryTrusted(vars: DeleteTenantSubcategoryTrustedVariables): MutationPromise<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
+export function deleteTenantSubcategoryTrusted(dc: DataConnect, vars: DeleteTenantSubcategoryTrustedVariables): MutationPromise<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
 
 interface GetTenantOutletTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

@@ -19,6 +19,7 @@ export interface IOutletService {
   createOutlet(input: CreateOutletInput): Promise<Outlet>;
   updateOutlet(id: string, input: UpdateOutletInput): Promise<Outlet>;
   changeOutletStatus(id: string, status: OutletStatus): Promise<Outlet>;
+  deleteOutlet(id: string): Promise<void>;
   getAllActiveOutlets(): Promise<Outlet[]>;
 }
 
@@ -137,6 +138,15 @@ class ProductionOutletService implements IOutletService {
     });
     const row = assertCallableEntity<OutletMutationResponse>(response.data, OUTLET_MUTATION_RESPONSE_KEYS, 'changeOutletStatus');
     return mapTenantOutlet(row);
+  }
+
+  async deleteOutlet(id: string): Promise<void> {
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantOutlet')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
 
   async getAllActiveOutlets(): Promise<Outlet[]> {

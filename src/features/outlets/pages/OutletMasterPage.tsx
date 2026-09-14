@@ -7,7 +7,9 @@ import {
 } from '../types';
 import { outletService, deriveOutletView } from '../services/outletService';
 import { exportOutletsToCsv } from '../utils/exportCsv';
-import { upsertById } from '@/shared/utils/listState';
+import { removeById, upsertById } from '@/shared/utils/listState';
+import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
+import { MasterDeleteConfirmDialog } from '@/shared/components/MasterDeleteConfirmDialog';
 
 import { OutletHeader } from '../components/OutletHeader';
 import { OutletSuccessBanner } from '../components/OutletSuccessBanner';
@@ -60,6 +62,17 @@ export function OutletMasterPage() {
     () => allOutlets.find((o) => o.id === selectedOutletId) ?? null,
     [allOutlets, selectedOutletId],
   );
+
+  const deleteConfirmation = useDeleteConfirmation<Outlet>({
+    deleteRecord: (outlet) => outletService.deleteOutlet(outlet.id),
+    onDeleted: (outlet) => {
+      setAllOutlets((prev) => removeById(prev, outlet.id));
+      setBannerInfo({ message: 'Outlet Deleted.', outletCode: outlet.outletCode, outletName: outlet.name });
+      setShowSuccessBanner(true);
+      setIsDrawerOpen(false);
+      setSelectedOutletId(null);
+    },
+  });
 
   // Load Data — only for the initial mount, an explicit refresh, or error retry.
   // Mutations no longer trigger this; they update allOutlets locally instead.
@@ -285,6 +298,11 @@ export function OutletMasterPage() {
           setIsDrawerOpen(false);
           handleOpenStatusDialog(outlet);
         }}
+        onDelete={(outlet) => {
+          setIsDrawerOpen(false);
+          setSelectedOutletId(null);
+          deleteConfirmation.open(outlet);
+        }}
       />
 
       {/* 5. Add / Edit Outlet Modal */}
@@ -309,6 +327,16 @@ export function OutletMasterPage() {
         }}
         onConfirm={handleConfirmStatusChange}
         isProcessing={isProcessingStatus}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel="Outlet"
+        recordName={deleteConfirmation.record?.name ?? ''}
+        isOpen={deleteConfirmation.isOpen}
+        onClose={deleteConfirmation.close}
+        onConfirm={deleteConfirmation.confirm}
+        isProcessing={deleteConfirmation.isProcessing}
+        error={deleteConfirmation.error}
       />
     </div>
   );

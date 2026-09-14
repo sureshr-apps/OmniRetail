@@ -21,6 +21,7 @@ export interface IProductService {
   createProduct(input: CreateProductInput): Promise<Product>;
   updateProduct(id: string, input: UpdateProductInput): Promise<Product>;
   changeProductStatus(id: string, status: ProductStatus): Promise<Product>;
+  deleteProduct(id: string): Promise<void>;
   checkSkuUnique(sku: string, excludeId?: string): Promise<boolean>;
   checkBarcodeUnique(barcode?: string, excludeId?: string): Promise<boolean>;
   getCategories(): Promise<string[]>;
@@ -209,6 +210,15 @@ class ProductionProductService implements IProductService {
     });
     const row = assertCallableEntity<ProductMutationResponse>(response.data, PRODUCT_MUTATION_RESPONSE_KEYS, 'changeProductStatus');
     return mapTenantProduct(row);
+  }
+
+  public async deleteProduct(id: string): Promise<void> {
+    const organizationId = await this.context();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantProduct')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
 }
 

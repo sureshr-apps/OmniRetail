@@ -9,7 +9,9 @@ import {
 } from '../types';
 import { productService, deriveProductView } from '../services/productService';
 import { formatProductCode } from '../utils/formatProductCode';
-import { upsertById } from '@/shared/utils/listState';
+import { upsertById, removeById } from '@/shared/utils/listState';
+import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
+import { MasterDeleteConfirmDialog } from '@/shared/components/MasterDeleteConfirmDialog';
 import { ProductsHeader } from '../components/ProductsHeader';
 import { ProductsKpiCards } from '../components/ProductsKpiCards';
 import { ProductsFilterToolbar } from '../components/ProductsFilterToolbar';
@@ -50,7 +52,6 @@ export function ProductsPage() {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
-
   const data = useMemo(
     () => deriveProductView(allProducts, {
       search: searchQuery,
@@ -71,6 +72,25 @@ export function ProductsPage() {
     () => allProducts.find((p) => p.id === editingProductId) ?? null,
     [allProducts, editingProductId],
   );
+
+  const deleteConfirmation = useDeleteConfirmation<Product>({
+    deleteRecord: (product) => productService.deleteProduct(product.id),
+    onDeleted: (product) => {
+      setAllProducts((prev) => removeById(prev, product.id));
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(product.id);
+        return next;
+      });
+      setViewingProductId(null);
+      setToast({
+        id: `toast-${Date.now()}`,
+        type: 'success',
+        title: 'Product Deleted',
+        description: `${formatProductCode(product.productCode)} was permanently removed.`,
+      });
+    },
+  });
 
   // Load products catalogue — only for the initial mount or an explicit refresh.
   // Mutations no longer trigger this; they update allProducts locally instead.
@@ -288,6 +308,11 @@ export function ProductsPage() {
     }
   };
 
+  const handlePromptDelete = (product: Product) => {
+    setViewingProductId(null);
+    deleteConfirmation.open(product);
+  };
+
   // Duplicate Product
   const handleDuplicateProduct = async (product: Product) => {
     try {
@@ -420,6 +445,7 @@ export function ProductsPage() {
           setEditingProductId(p.id);
         }}
         onToggleStatus={handleToggleStatus}
+        onDelete={handlePromptDelete}
         onNavigateToInventory={() => {
           if (viewingProduct) {
             handleNavigateToInventory(viewingProduct.sku);
@@ -441,6 +467,16 @@ export function ProductsPage() {
         isOpen={!!editingProduct}
         onClose={() => setEditingProductId(null)}
         onUpdated={handleUpdateProduct}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel="Product"
+        recordName={deleteConfirmation.record?.name ?? ''}
+        isOpen={deleteConfirmation.isOpen}
+        isProcessing={deleteConfirmation.isProcessing}
+        error={deleteConfirmation.error}
+        onClose={deleteConfirmation.close}
+        onConfirm={deleteConfirmation.confirm}
       />
 
       {/* Toast Notification */}

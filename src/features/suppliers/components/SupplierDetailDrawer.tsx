@@ -9,6 +9,7 @@ interface SupplierDetailDrawerProps {
   onClose: () => void;
   onUpdate: (id: string, updates: UpdateSupplierInput) => Promise<void>;
   onToggleStatus: (id: string) => Promise<void>;
+  onDelete: (supplier: Supplier) => void;
   onNewPurchaseOrder?: (supplier: Supplier) => void;
 }
 
@@ -39,6 +40,7 @@ export function SupplierDetailDrawer({
   onClose,
   onUpdate,
   onToggleStatus,
+  onDelete,
   onNewPurchaseOrder,
 }: SupplierDetailDrawerProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -582,6 +584,15 @@ export function SupplierDetailDrawer({
                     <span>New PO</span>
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => onDelete(supplier)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded border border-error/30 text-error hover:bg-error-container/20 transition-colors cursor-pointer"
+                  title="Delete Supplier"
+                >
+                  <span className="material-symbols-outlined text-[16px]">delete</span>
+                  <span>Delete</span>
+                </button>
                 <button
                   type="button"
                   onClick={onClose}

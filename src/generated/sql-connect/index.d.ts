@@ -857,6 +857,84 @@ export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
 
+export interface DeleteTenantCustomerTrustedData {
+  customer_delete?: Customer_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantCustomerTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantEmployeeTrustedData {
+  employee_delete?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantOutletTrustedData {
+  outlet_delete?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantProductTrustedData {
+  product_delete?: Product_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantProductTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantServicePersonTrustedData {
+  servicePerson_delete?: ServicePerson_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantSupplierTrustedData {
+  supplier_delete?: Supplier_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantSupplierTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface EmployeeOutlet_Key {
   employeeId: UUIDString;
   outletId: UUIDString;
@@ -1335,6 +1413,7 @@ export interface GetTenantEmployeeTrustedData {
       id: UUIDString;
       username: string;
       email: string;
+      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: number;
     fullName: string;
@@ -3930,6 +4009,78 @@ export const changeTenantOutletStatusTrustedRef: ChangeTenantOutletStatusTrusted
 
 export function changeTenantOutletStatusTrusted(vars: ChangeTenantOutletStatusTrustedVariables): MutationPromise<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
 export function changeTenantOutletStatusTrusted(dc: DataConnect, vars: ChangeTenantOutletStatusTrustedVariables): MutationPromise<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
+
+interface DeleteTenantOutletTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantOutletTrustedVariables): MutationRef<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantOutletTrustedVariables): MutationRef<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantOutletTrustedRef: DeleteTenantOutletTrustedRef;
+
+export function deleteTenantOutletTrusted(vars: DeleteTenantOutletTrustedVariables): MutationPromise<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+export function deleteTenantOutletTrusted(dc: DataConnect, vars: DeleteTenantOutletTrustedVariables): MutationPromise<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+
+interface DeleteTenantEmployeeTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantEmployeeTrustedVariables): MutationRef<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantEmployeeTrustedVariables): MutationRef<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantEmployeeTrustedRef: DeleteTenantEmployeeTrustedRef;
+
+export function deleteTenantEmployeeTrusted(vars: DeleteTenantEmployeeTrustedVariables): MutationPromise<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+export function deleteTenantEmployeeTrusted(dc: DataConnect, vars: DeleteTenantEmployeeTrustedVariables): MutationPromise<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+
+interface DeleteTenantServicePersonTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantServicePersonTrustedVariables): MutationRef<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantServicePersonTrustedVariables): MutationRef<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantServicePersonTrustedRef: DeleteTenantServicePersonTrustedRef;
+
+export function deleteTenantServicePersonTrusted(vars: DeleteTenantServicePersonTrustedVariables): MutationPromise<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+export function deleteTenantServicePersonTrusted(dc: DataConnect, vars: DeleteTenantServicePersonTrustedVariables): MutationPromise<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+
+interface DeleteTenantCustomerTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantCustomerTrustedVariables): MutationRef<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantCustomerTrustedVariables): MutationRef<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantCustomerTrustedRef: DeleteTenantCustomerTrustedRef;
+
+export function deleteTenantCustomerTrusted(vars: DeleteTenantCustomerTrustedVariables): MutationPromise<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+export function deleteTenantCustomerTrusted(dc: DataConnect, vars: DeleteTenantCustomerTrustedVariables): MutationPromise<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+
+interface DeleteTenantSupplierTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantSupplierTrustedVariables): MutationRef<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantSupplierTrustedVariables): MutationRef<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantSupplierTrustedRef: DeleteTenantSupplierTrustedRef;
+
+export function deleteTenantSupplierTrusted(vars: DeleteTenantSupplierTrustedVariables): MutationPromise<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+export function deleteTenantSupplierTrusted(dc: DataConnect, vars: DeleteTenantSupplierTrustedVariables): MutationPromise<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+
+interface DeleteTenantProductTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantProductTrustedVariables): MutationRef<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteTenantProductTrustedVariables): MutationRef<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+  operationName: string;
+}
+export const deleteTenantProductTrustedRef: DeleteTenantProductTrustedRef;
+
+export function deleteTenantProductTrusted(vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+export function deleteTenantProductTrusted(dc: DataConnect, vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
 
 interface GetTenantOutletTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

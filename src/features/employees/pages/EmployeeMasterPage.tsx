@@ -10,7 +10,9 @@ import {
 import { employeeService, deriveEmployeeView } from '../services/employeeService';
 import { outletService } from '../../outlets/services/outletService';
 import { exportEmployeesToCsv } from '../utils/exportCsv';
-import { upsertById } from '@/shared/utils/listState';
+import { upsertById, removeById } from '@/shared/utils/listState';
+import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
+import { MasterDeleteConfirmDialog } from '@/shared/components/MasterDeleteConfirmDialog';
 import { EmployeeHeader } from '../components/EmployeeHeader';
 import { EmployeeFilterBar } from '../components/EmployeeFilterBar';
 import { EmployeeTable } from '../components/EmployeeTable';
@@ -78,6 +80,15 @@ export function EmployeeMasterPage() {
     () => allEmployees.find((e) => e.id === selectedEmployeeId) ?? null,
     [allEmployees, selectedEmployeeId],
   );
+
+  const deleteConfirmation = useDeleteConfirmation<Employee>({
+    deleteRecord: (employee) => employeeService.deleteEmployee(employee.id),
+    onDeleted: (employee) => {
+      setAllEmployees((prev) => removeById(prev, employee.id));
+      setIsDrawerOpen(false);
+      setSelectedEmployeeId(null);
+    },
+  });
 
   // Load available outlets and departments once on mount
   useEffect(() => {
@@ -211,6 +222,12 @@ export function EmployeeMasterPage() {
   const handleUpdateEmployee = async (id: string, input: UpdateEmployeeInput) => {
     const updated = await employeeService.updateEmployee(id, input);
     setAllEmployees((prev) => upsertById(prev, updated));
+  };
+
+  const handlePromptDelete = (employee: Employee) => {
+    setIsDrawerOpen(false);
+    setSelectedEmployeeId(null);
+    deleteConfirmation.open(employee);
   };
 
   // Action: Confirm Status Change
@@ -349,6 +366,7 @@ export function EmployeeMasterPage() {
         }}
         onToggleStatus={handlePromptToggleStatus}
         onToggleLoginAccess={handlePromptToggleLoginAccess}
+        onDelete={handlePromptDelete}
       />
 
       {/* 6. Add / Edit Employee Modal */}
@@ -383,6 +401,16 @@ export function EmployeeMasterPage() {
         }}
         onConfirm={handleConfirmLoginAccessChange}
         isProcessing={isProcessingAccess}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel="Employee"
+        recordName={deleteConfirmation.record?.displayName ?? ''}
+        isOpen={deleteConfirmation.isOpen}
+        isProcessing={deleteConfirmation.isProcessing}
+        error={deleteConfirmation.error}
+        onClose={deleteConfirmation.close}
+        onConfirm={deleteConfirmation.confirm}
       />
 
       {/* 9. Advanced Filters Modal */}

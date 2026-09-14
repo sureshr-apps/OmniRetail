@@ -711,6 +711,42 @@ export function changeTenantOutletStatusTrusted(dcOrVarsOrOptions, varsOrOptions
   return dcInstance.executeMutation('ChangeTenantOutletStatusTrusted', inputVars, inputOpts);
 }
 
+export function deleteTenantOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantOutletTrusted', inputVars, inputOpts);
+}
+
+export function deleteTenantEmployeeTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantEmployeeTrusted', inputVars, inputOpts);
+}
+
+export function deleteTenantServicePersonTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantServicePersonTrusted', inputVars, inputOpts);
+}
+
+export function deleteTenantCustomerTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantCustomerTrusted', inputVars, inputOpts);
+}
+
+export function deleteTenantSupplierTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantSupplierTrusted', inputVars, inputOpts);
+}
+
+export function deleteTenantProductTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantProductTrusted', inputVars, inputOpts);
+}
+
 export function getTenantOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

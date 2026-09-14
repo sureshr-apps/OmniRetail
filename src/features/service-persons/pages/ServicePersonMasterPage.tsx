@@ -8,7 +8,9 @@ import {
 } from '../types';
 import { servicePersonService, deriveServicePersonView } from '../services/servicePersonService';
 import { outletService } from '../../outlets/services/outletService';
-import { upsertById } from '@/shared/utils/listState';
+import { upsertById, removeById } from '@/shared/utils/listState';
+import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
+import { MasterDeleteConfirmDialog } from '@/shared/components/MasterDeleteConfirmDialog';
 import { ServicePersonHeader } from '../components/ServicePersonHeader';
 import { ServicePersonFilterBar } from '../components/ServicePersonFilterBar';
 import { ServicePersonTable } from '../components/ServicePersonTable';
@@ -63,6 +65,14 @@ export function ServicePersonMasterPage() {
     () => allServicePersons.find((p) => p.id === selectedPersonId) ?? null,
     [allServicePersons, selectedPersonId],
   );
+
+  const deleteConfirmation = useDeleteConfirmation<ServicePerson>({
+    deleteRecord: (person) => servicePersonService.deleteServicePerson(person.id),
+    onDeleted: (person) => {
+      setAllServicePersons((prev) => removeById(prev, person.id));
+      handleCloseDrawer();
+    },
+  });
 
   // Load Outlets & Specializations metadata once on mount
   useEffect(() => {
@@ -179,6 +189,11 @@ export function ServicePersonMasterPage() {
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
     setSelectedPersonId(null);
+  };
+
+  const handlePromptDelete = (person: ServicePerson) => {
+    handleCloseDrawer();
+    deleteConfirmation.open(person);
   };
 
   // Handlers for Status Toggle
@@ -341,6 +356,7 @@ export function ServicePersonMasterPage() {
           setIsDrawerOpen(false);
           handleInitiateToggleStatus(person);
         }}
+        onDelete={handlePromptDelete}
       />
 
       {/* Add / Edit Service Person Modal */}
@@ -360,6 +376,16 @@ export function ServicePersonMasterPage() {
         onClose={() => setIsStatusDialogOpen(false)}
         onConfirm={handleConfirmToggleStatus}
         isProcessing={isProcessingStatus}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel="Service Person"
+        recordName={deleteConfirmation.record?.displayName ?? ''}
+        isOpen={deleteConfirmation.isOpen}
+        isProcessing={deleteConfirmation.isProcessing}
+        error={deleteConfirmation.error}
+        onClose={deleteConfirmation.close}
+        onConfirm={deleteConfirmation.confirm}
       />
     </div>
   );

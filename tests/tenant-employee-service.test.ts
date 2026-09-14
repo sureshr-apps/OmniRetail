@@ -97,6 +97,15 @@ describe('employeeService mutations return the canonical entity directly', () =>
     expect(mocks.listTenantEmployees).not.toHaveBeenCalled();
   });
 
+  it('deleteEmployee calls the organization-scoped delete callable without reloading the list', async () => {
+    const callable = vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'employee-1' } });
+    mocks.httpsCallable.mockReturnValue(callable);
+    await employeeService.deleteEmployee('employee-1');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'deleteTenantEmployee');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', id: 'employee-1', requestId: expect.any(String) }));
+    expect(mocks.listTenantEmployees).not.toHaveBeenCalled();
+  });
+
   it('rejects a malformed create response instead of returning a partial entity', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'employee-2' } }));
     await expect(employeeService.createEmployee(createInput)).rejects.toBeInstanceOf(MalformedCallableResponseError);

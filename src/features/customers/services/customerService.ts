@@ -18,6 +18,7 @@ export interface ICustomerService {
   createCustomer(input: CreateCustomerInput): Promise<Customer>;
   updateCustomer(id: string, input: UpdateCustomerInput): Promise<Customer>;
   changeCustomerStatus(id: string, status: CustomerStatus): Promise<Customer>;
+  deleteCustomer(id: string): Promise<void>;
   getCities(): Promise<string[]>;
   getAllCustomers(): Promise<Customer[]>;
 }
@@ -120,6 +121,15 @@ class ProductionCustomerService implements ICustomerService {
     });
     const row = assertCallableEntity<CustomerMutationResponse>(response.data, CUSTOMER_MUTATION_RESPONSE_KEYS, 'changeCustomerStatus');
     return mapTenantCustomer(row);
+  }
+
+  async deleteCustomer(id: string): Promise<void> {
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantCustomer')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
 }
 

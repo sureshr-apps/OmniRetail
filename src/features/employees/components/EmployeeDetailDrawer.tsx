@@ -9,6 +9,7 @@ interface EmployeeDetailDrawerProps {
   onEdit: (employee: Employee) => void;
   onToggleStatus: (employee: Employee) => void;
   onToggleLoginAccess: (employee: Employee) => void;
+  onDelete: (employee: Employee) => void;
 }
 
 export function EmployeeDetailDrawer({
@@ -18,6 +19,7 @@ export function EmployeeDetailDrawer({
   onEdit,
   onToggleStatus,
   onToggleLoginAccess,
+  onDelete,
 }: EmployeeDetailDrawerProps) {
   const [imgFailed, setImgFailed] = useState(false);
 
@@ -277,6 +279,15 @@ export function EmployeeDetailDrawer({
             >
               <span className="material-symbols-outlined text-[16px]">edit</span>
               <span>Edit Employee</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(employee)}
+              className="h-9 rounded border border-error/30 px-3 font-body-medium text-body-medium text-error transition-colors hover:bg-error-container/20 cursor-pointer flex items-center gap-1"
+              title="Delete Employee"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
             </button>
           </div>
         </div>

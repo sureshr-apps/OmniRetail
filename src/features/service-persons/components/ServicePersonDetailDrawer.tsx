@@ -8,6 +8,7 @@ interface ServicePersonDetailDrawerProps {
   onClose: () => void;
   onEdit: (person: ServicePerson) => void;
   onToggleStatus: (person: ServicePerson) => void;
+  onDelete: (person: ServicePerson) => void;
 }
 
 export function ServicePersonDetailDrawer({
@@ -16,6 +17,7 @@ export function ServicePersonDetailDrawer({
   onClose,
   onEdit,
   onToggleStatus,
+  onDelete,
 }: ServicePersonDetailDrawerProps) {
   if (!isOpen || !person) return null;
 
@@ -257,6 +259,15 @@ export function ServicePersonDetailDrawer({
               {isInactive ? 'lock_open' : 'lock'}
             </span>
             <span>{isInactive ? 'Activate' : 'Deactivate'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(person)}
+            className="flex-1 h-9 rounded-xl border border-error/30 bg-surface hover:bg-error-container/20 text-error font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+            title="Delete Service Person"
+          >
+            <span className="material-symbols-outlined text-[16px]">delete</span>
+            <span>Delete</span>
           </button>
         </div>
       </div>

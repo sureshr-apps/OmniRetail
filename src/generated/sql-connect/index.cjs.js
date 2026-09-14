@@ -1550,6 +1550,90 @@ exports.changeTenantOutletStatusTrusted = function changeTenantOutletStatusTrust
 }
 ;
 
+const deleteTenantOutletTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantOutletTrusted', inputVars);
+}
+deleteTenantOutletTrustedRef.operationName = 'DeleteTenantOutletTrusted';
+exports.deleteTenantOutletTrustedRef = deleteTenantOutletTrustedRef;
+
+exports.deleteTenantOutletTrusted = function deleteTenantOutletTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantOutletTrustedRef(dcInstance, inputVars));
+}
+;
+
+const deleteTenantEmployeeTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantEmployeeTrusted', inputVars);
+}
+deleteTenantEmployeeTrustedRef.operationName = 'DeleteTenantEmployeeTrusted';
+exports.deleteTenantEmployeeTrustedRef = deleteTenantEmployeeTrustedRef;
+
+exports.deleteTenantEmployeeTrusted = function deleteTenantEmployeeTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantEmployeeTrustedRef(dcInstance, inputVars));
+}
+;
+
+const deleteTenantServicePersonTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantServicePersonTrusted', inputVars);
+}
+deleteTenantServicePersonTrustedRef.operationName = 'DeleteTenantServicePersonTrusted';
+exports.deleteTenantServicePersonTrustedRef = deleteTenantServicePersonTrustedRef;
+
+exports.deleteTenantServicePersonTrusted = function deleteTenantServicePersonTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantServicePersonTrustedRef(dcInstance, inputVars));
+}
+;
+
+const deleteTenantCustomerTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantCustomerTrusted', inputVars);
+}
+deleteTenantCustomerTrustedRef.operationName = 'DeleteTenantCustomerTrusted';
+exports.deleteTenantCustomerTrustedRef = deleteTenantCustomerTrustedRef;
+
+exports.deleteTenantCustomerTrusted = function deleteTenantCustomerTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantCustomerTrustedRef(dcInstance, inputVars));
+}
+;
+
+const deleteTenantSupplierTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantSupplierTrusted', inputVars);
+}
+deleteTenantSupplierTrustedRef.operationName = 'DeleteTenantSupplierTrusted';
+exports.deleteTenantSupplierTrustedRef = deleteTenantSupplierTrustedRef;
+
+exports.deleteTenantSupplierTrusted = function deleteTenantSupplierTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantSupplierTrustedRef(dcInstance, inputVars));
+}
+;
+
+const deleteTenantProductTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantProductTrusted', inputVars);
+}
+deleteTenantProductTrustedRef.operationName = 'DeleteTenantProductTrusted';
+exports.deleteTenantProductTrustedRef = deleteTenantProductTrustedRef;
+
+exports.deleteTenantProductTrusted = function deleteTenantProductTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantProductTrustedRef(dcInstance, inputVars));
+}
+;
+
 const getTenantOutletTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

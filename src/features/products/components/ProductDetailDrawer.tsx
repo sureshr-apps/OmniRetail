@@ -7,6 +7,7 @@ interface ProductDetailDrawerProps {
   onClose: () => void;
   onEdit: (product: Product) => void;
   onToggleStatus: (product: Product) => void;
+  onDelete: (product: Product) => void;
   onNavigateToInventory: () => void;
   onDuplicate: (product: Product) => void;
 }
@@ -16,6 +17,7 @@ export function ProductDetailDrawer({
   onClose,
   onEdit,
   onToggleStatus,
+  onDelete,
   onNavigateToInventory,
   onDuplicate,
 }: ProductDetailDrawerProps) {
@@ -383,6 +385,15 @@ export function ProductDetailDrawer({
             <span className="material-symbols-outlined text-[16px]">
               power_settings_new
             </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(product)}
+            className="h-9 px-space-base rounded-lg border border-error/30 bg-surface-container-lowest text-error hover:bg-error-container/20 flex items-center gap-1 transition-colors cursor-pointer"
+            title="Delete Product"
+          >
+            <span className="material-symbols-outlined text-[16px]">delete</span>
+            <span>Delete</span>
           </button>
         </div>
       </div>

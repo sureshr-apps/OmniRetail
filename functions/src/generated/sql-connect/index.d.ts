@@ -832,6 +832,84 @@ export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
 
+export interface DeleteTenantCustomerTrustedData {
+  customer_delete?: Customer_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantCustomerTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantEmployeeTrustedData {
+  employee_delete?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantOutletTrustedData {
+  outlet_delete?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantProductTrustedData {
+  product_delete?: Product_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantProductTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantServicePersonTrustedData {
+  servicePerson_delete?: ServicePerson_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface DeleteTenantSupplierTrustedData {
+  supplier_delete?: Supplier_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantSupplierTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface EmployeeOutlet_Key {
   employeeId: UUIDString;
   outletId: UUIDString;
@@ -1310,6 +1388,7 @@ export interface GetTenantEmployeeTrustedData {
       id: UUIDString;
       username: string;
       email: string;
+      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: number;
     fullName: string;
@@ -3233,6 +3312,36 @@ export function updateTenantOutletTrusted(vars: UpdateTenantOutletTrustedVariabl
 export function changeTenantOutletStatusTrusted(dc: DataConnect, vars: ChangeTenantOutletStatusTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantOutletStatusTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'ChangeTenantOutletStatusTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function changeTenantOutletStatusTrusted(vars: ChangeTenantOutletStatusTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantOutletStatusTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantOutletTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantOutletTrusted(dc: DataConnect, vars: DeleteTenantOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantOutletTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantOutletTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantOutletTrusted(vars: DeleteTenantOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantOutletTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantEmployeeTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantEmployeeTrusted(dc: DataConnect, vars: DeleteTenantEmployeeTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantEmployeeTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantEmployeeTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantEmployeeTrusted(vars: DeleteTenantEmployeeTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantEmployeeTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantServicePersonTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantServicePersonTrusted(dc: DataConnect, vars: DeleteTenantServicePersonTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantServicePersonTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantServicePersonTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantServicePersonTrusted(vars: DeleteTenantServicePersonTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantServicePersonTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantCustomerTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantCustomerTrusted(dc: DataConnect, vars: DeleteTenantCustomerTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantCustomerTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantCustomerTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantCustomerTrusted(vars: DeleteTenantCustomerTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantCustomerTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantSupplierTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantSupplierTrusted(dc: DataConnect, vars: DeleteTenantSupplierTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantSupplierTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantSupplierTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantSupplierTrusted(vars: DeleteTenantSupplierTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantSupplierTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantProductTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantProductTrusted(dc: DataConnect, vars: DeleteTenantProductTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantProductTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantProductTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantProductTrusted(vars: DeleteTenantProductTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantProductTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'GetTenantOutletTrusted' Query. Allow users to execute without passing in DataConnect. */
 export function getTenantOutletTrusted(dc: DataConnect, vars: GetTenantOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantOutletTrustedData>>;

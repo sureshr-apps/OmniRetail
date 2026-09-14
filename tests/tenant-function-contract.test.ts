@@ -54,6 +54,29 @@ describe('tenant callable contract', () => {
     expect(source).toContain('function mapTrustedOutletRow(row:');
   });
 
+  it('exposes a guarded organization-admin outlet delete callable', () => {
+    expect(source).toContain('export const deleteTenantOutlet = onCall');
+    expect(source).toContain('deleteTenantOutletTrusted');
+    expect(source).toContain("requireOrganizationAdmin(actorFirebaseUid, organizationId)");
+    expect(connectorSource).toContain('mutation DeleteTenantOutletTrusted');
+    expect(connectorSource).toContain('Outlet has sales history and cannot be deleted.');
+  });
+
+  it('exposes guarded organization-admin delete callables for tenant masters', () => {
+    for (const entity of ['Employee', 'ServicePerson', 'Customer', 'Supplier', 'Product']) {
+      expect(source).toContain(`export const deleteTenant${entity} = onCall`);
+      expect(source).toContain(`deleteTenant${entity}Trusted`);
+      expect(source).toContain('requireOrganizationAdmin(actorFirebaseUid, organizationId)');
+      expect(connectorSource).toContain(`mutation DeleteTenant${entity}Trusted`);
+    }
+    expect(source).toContain('employee login must be disabled before deletion');
+    expect(source).toContain('deleteAppUserTrusted');
+    expect(source).toContain('getAuth().deleteUser(employee.user.firebaseUid)');
+    expect(connectorSource).toContain("this[0].loginAccess == 'DISABLED'");
+    expect(connectorSource).toContain('Employee login access must be disabled before deletion.');
+    expect(connectorSource).toContain('Product has sales history and cannot be deleted.');
+  });
+
   it('provisions employee login through Firebase Auth and trusted SQL', () => {
     expect(source).toContain('export const provisionTenantEmployee = onCall');
     expect(source).toContain('provisionTenantEmployeeTrusted');

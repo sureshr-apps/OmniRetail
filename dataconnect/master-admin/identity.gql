@@ -869,6 +869,69 @@ mutation ChangeTenantOutletStatusTrusted($organizationId: UUID!, $id: UUID!, $st
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.status_changed" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId status: $status } })
 }
 
+mutation DeleteTenantOutletTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    outlets(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { id }
+    employeeOutlets(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has employee assignments and cannot be deleted.") { employee { id } }
+    servicePersonOutlets(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has service-person assignments and cannot be deleted.") { servicePerson { id } }
+    inventoryStocks(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has inventory records and cannot be deleted.") { _id }
+    inventoryMovements(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has inventory history and cannot be deleted.") { id }
+    purchases(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has purchase history and cannot be deleted.") { id }
+    expenses(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has expense history and cannot be deleted.") { id }
+    sales(where: { outlet: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Outlet has sales history and cannot be deleted.") { id }
+  }
+  outlet_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "outlet.deleted" targetType: "Outlet" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0 && this[0].loginAccess == 'DISABLED'", message: "Employee login access must be disabled before deletion.") { id loginAccess }
+    employeeOutlets(where: { employee: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Employee has outlet assignments and cannot be deleted.") { outlet { id } }
+  }
+  employee_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.deleted" targetType: "Employee" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantServicePersonTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    servicePeople(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { id }
+    servicePersonOutlets(where: { servicePerson: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Service person has outlet assignments and cannot be deleted.") { outlet { id } }
+  }
+  servicePerson_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.deleted" targetType: "ServicePerson" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantCustomerTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    customers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Customer is not in this organization.") { id }
+    sales(where: { customer: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Customer has sales history and cannot be deleted.") { id }
+  }
+  customer_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "customer.deleted" targetType: "Customer" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantSupplierTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id }
+    purchases(where: { supplier: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Supplier has purchase history and cannot be deleted.") { id }
+  }
+  supplier_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "supplier.deleted" targetType: "Supplier" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
+mutation DeleteTenantProductTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id }
+    inventoryStocks(where: { product: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Product has inventory records and cannot be deleted.") { _id }
+    inventoryMovements(where: { product: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Product has inventory history and cannot be deleted.") { id }
+    purchaseLines(where: { product: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Product has purchase history and cannot be deleted.") { purchase { id } }
+    saleLines(where: { product: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "Product has sales history and cannot be deleted.") { sale { id } }
+  }
+  product_delete(id: $id)
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "product.deleted" targetType: "Product" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
+}
+
 # Trusted, server-side read-back used immediately after UpdateTenantOutletTrusted /
 # ChangeTenantOutletStatusTrusted commit, since Data Connect does not yet support a
 # second `query` block in the same transactional mutation (selecting `query` again
@@ -917,7 +980,7 @@ mutation ChangeTenantEmployeeLoginAccessTrusted($organizationId: UUID!, $id: UUI
 # separate operation rather than a second `query` block in the same mutation).
 query GetTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } user { id username email } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
+    id organization { id } user { id username email firebaseUid } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
     employeeOutlets_on_employee { outlet { id outletCode name } }
   }
 }

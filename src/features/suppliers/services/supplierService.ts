@@ -20,6 +20,7 @@ export interface ISupplierService {
   createSupplier(input: CreateSupplierInput): Promise<Supplier>;
   updateSupplier(id: string, input: UpdateSupplierInput): Promise<Supplier>;
   toggleSupplierStatus(id: string): Promise<Supplier>;
+  deleteSupplier(id: string): Promise<void>;
   getCities(): Promise<string[]>;
   getCategories(): Promise<string[]>;
 }
@@ -145,6 +146,15 @@ class ProductionSupplierService implements ISupplierService {
     });
     const row = assertCallableEntity<SupplierMutationResponse>(response.data, SUPPLIER_MUTATION_RESPONSE_KEYS, 'toggleSupplierStatus');
     return mapTenantSupplier(row);
+  }
+
+  async deleteSupplier(id: string): Promise<void> {
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantSupplier')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
 }
 

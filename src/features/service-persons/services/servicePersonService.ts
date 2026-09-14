@@ -19,6 +19,7 @@ export interface IServicePersonService {
   createServicePerson(input: CreateServicePersonInput): Promise<ServicePerson>;
   updateServicePerson(id: string, input: UpdateServicePersonInput): Promise<ServicePerson>;
   changeServicePersonStatus(id: string, status: ServicePersonStatus): Promise<ServicePerson>;
+  deleteServicePerson(id: string): Promise<void>;
   getSpecializations(): Promise<string[]>;
   getActiveCount(): Promise<number>;
 }
@@ -167,6 +168,15 @@ class ProductionServicePersonService implements IServicePersonService {
     });
     const row = assertCallableEntity<ServicePersonMutationResponse>(response.data, SERVICE_PERSON_MUTATION_RESPONSE_KEYS, 'changeServicePersonStatus');
     return mapTenantServicePerson(row);
+  }
+
+  async deleteServicePerson(id: string): Promise<void> {
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantServicePerson')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
 
   async getSpecializations(): Promise<string[]> {

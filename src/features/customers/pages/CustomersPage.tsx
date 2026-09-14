@@ -9,7 +9,9 @@ import {
 import { customerService, deriveCustomerView } from '../services/customerService';
 import { exportCustomersToCsv } from '../utils/calculations';
 import { formatCustomerCode } from '../utils/formatCustomerCode';
-import { upsertById } from '@/shared/utils/listState';
+import { upsertById, removeById } from '@/shared/utils/listState';
+import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
+import { MasterDeleteConfirmDialog } from '@/shared/components/MasterDeleteConfirmDialog';
 import { CustomersHeader } from '../components/CustomersHeader';
 import { CustomersFilterBar } from '../components/CustomersFilterBar';
 import { CustomersTable } from '../components/CustomersTable';
@@ -40,7 +42,6 @@ export function CustomersPage() {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [statusDialogCustomer, setStatusDialogCustomer] = useState<Customer | null>(null);
-
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -150,6 +151,16 @@ export function CustomersPage() {
     setCities(await customerService.getCities());
   };
 
+  const deleteConfirmation = useDeleteConfirmation<Customer>({
+    deleteRecord: (customer) => customerService.deleteCustomer(customer.id),
+    onDeleted: async (customer) => {
+      setAllCustomers((prev) => removeById(prev, customer.id));
+      showToast(`Customer ${formatCustomerCode(customer.customerCode)} deleted successfully.`);
+      setViewingCustomerId(null);
+      await refreshCustomerMetadata();
+    },
+  });
+
   // Add customer
   const handleCreateCustomer = async (input: CreateCustomerInput) => {
     const created = await customerService.createCustomer(input);
@@ -164,6 +175,11 @@ export function CustomersPage() {
     showToast(`Customer ${formatCustomerCode(updated.customerCode)} (${updated.name}) updated successfully.`);
     setAllCustomers((prev) => upsertById(prev, updated));
     await refreshCustomerMetadata();
+  };
+
+  const handlePromptDelete = (customer: Customer) => {
+    setViewingCustomerId(null);
+    deleteConfirmation.open(customer);
   };
 
   // Toggle status with confirmation
@@ -261,6 +277,7 @@ export function CustomersPage() {
         onClose={() => setViewingCustomerId(null)}
         onEdit={(c) => setEditingCustomer(c)}
         onToggleStatus={(c) => setStatusDialogCustomer(c)}
+        onDelete={handlePromptDelete}
       />
 
       {/* Confirm Status Change Dialog */}
@@ -270,6 +287,16 @@ export function CustomersPage() {
         onClose={() => setStatusDialogCustomer(null)}
         onConfirm={handleToggleStatusConfirm}
         actionType={statusDialogCustomer?.status === 'Active' ? 'deactivate' : 'activate'}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel="Customer"
+        recordName={deleteConfirmation.record?.name ?? ''}
+        isOpen={deleteConfirmation.isOpen}
+        isProcessing={deleteConfirmation.isProcessing}
+        error={deleteConfirmation.error}
+        onClose={deleteConfirmation.close}
+        onConfirm={deleteConfirmation.confirm}
       />
     </div>
   );

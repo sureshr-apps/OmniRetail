@@ -9,6 +9,7 @@ interface CustomerDetailDrawerProps {
   onClose: () => void;
   onEdit: (customer: Customer) => void;
   onToggleStatus: (customer: Customer) => void;
+  onDelete: (customer: Customer) => void;
 }
 
 export function CustomerDetailDrawer({
@@ -17,6 +18,7 @@ export function CustomerDetailDrawer({
   onClose,
   onEdit,
   onToggleStatus,
+  onDelete,
 }: CustomerDetailDrawerProps) {
   if (!isOpen || !customer) return null;
 
@@ -291,6 +293,15 @@ export function CustomerDetailDrawer({
               }`}
             >
               {customer.status === 'Active' ? 'Deactivate' : 'Activate'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(customer)}
+              className="h-9 px-space-base rounded border border-error/30 font-body-medium text-body-medium text-error transition-colors hover:bg-error-container/20 flex items-center gap-1 cursor-pointer"
+              title="Delete Customer"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
             </button>
           </div>
         </div>

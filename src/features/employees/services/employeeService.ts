@@ -22,6 +22,7 @@ export interface IEmployeeService {
   updateEmployee(id: string, input: UpdateEmployeeInput): Promise<Employee>;
   changeEmployeeStatus(id: string, status: EmployeeStatus): Promise<Employee>;
   changeLoginAccess(id: string, access: LoginAccessStatus): Promise<Employee>;
+  deleteEmployee(id: string): Promise<void>;
   getDepartments(): Promise<string[]>;
   getDesignations(): Promise<string[]>;
 }
@@ -154,6 +155,15 @@ class ProductionEmployeeService implements IEmployeeService {
     });
     const row = assertCallableEntity<EmployeeMutationResponse>(response.data, EMPLOYEE_MUTATION_RESPONSE_KEYS, 'changeLoginAccess');
     return this.map(row);
+  }
+
+  public async deleteEmployee(id: string): Promise<void> {
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'deleteTenantEmployee')({
+      organizationId,
+      id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
   }
 }
 

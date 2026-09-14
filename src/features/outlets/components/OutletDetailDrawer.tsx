@@ -8,6 +8,7 @@ interface OutletDetailDrawerProps {
   onClose: () => void;
   onEdit: (outlet: Outlet) => void;
   onToggleStatus: (outlet: Outlet) => void;
+  onDelete: (outlet: Outlet) => void;
 }
 
 export function OutletDetailDrawer({
@@ -16,6 +17,7 @@ export function OutletDetailDrawer({
   onClose,
   onEdit,
   onToggleStatus,
+  onDelete,
 }: OutletDetailDrawerProps) {
   if (!isOpen || !outlet) return null;
 
@@ -167,6 +169,15 @@ export function OutletDetailDrawer({
                 {outlet.status === 'Active' ? 'power_settings_new' : 'check_circle'}
               </span>
               <span>{outlet.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(outlet)}
+              className="inline-flex items-center justify-center border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 font-semibold text-xs py-2 px-3 rounded shadow-2xs transition-colors cursor-pointer"
+              title="Delete Outlet"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
             </button>
           </div>
         </div>

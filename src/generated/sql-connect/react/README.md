@@ -117,6 +117,12 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*CreateTenantOutletTrusted*](#createtenantoutlettrusted)
   - [*UpdateTenantOutletTrusted*](#updatetenantoutlettrusted)
   - [*ChangeTenantOutletStatusTrusted*](#changetenantoutletstatustrusted)
+  - [*DeleteTenantOutletTrusted*](#deletetenantoutlettrusted)
+  - [*DeleteTenantEmployeeTrusted*](#deletetenantemployeetrusted)
+  - [*DeleteTenantServicePersonTrusted*](#deletetenantservicepersontrusted)
+  - [*DeleteTenantCustomerTrusted*](#deletetenantcustomertrusted)
+  - [*DeleteTenantSupplierTrusted*](#deletetenantsuppliertrusted)
+  - [*DeleteTenantProductTrusted*](#deletetenantproducttrusted)
   - [*CreateTenantEmployeeProfileTrusted*](#createtenantemployeeprofiletrusted)
   - [*ProvisionTenantEmployeeTrusted*](#provisiontenantemployeetrusted)
   - [*UpdateTenantEmployeeTrusted*](#updatetenantemployeetrusted)
@@ -4663,6 +4669,7 @@ export interface GetTenantEmployeeTrustedData {
       id: UUIDString;
       username: string;
       email: string;
+      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: number;
     fullName: string;
@@ -11049,6 +11056,630 @@ export default function ChangeTenantOutletStatusTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_update);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteTenantOutletTrusted
+You can execute the `DeleteTenantOutletTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteTenantOutletTrusted(options?: useDataConnectMutationOptions<DeleteTenantOutletTrustedData, FirebaseError, DeleteTenantOutletTrustedVariables>): UseDataConnectMutationResult<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteTenantOutletTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteTenantOutletTrustedData, FirebaseError, DeleteTenantOutletTrustedVariables>): UseDataConnectMutationResult<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+```
+
+### Variables
+The `DeleteTenantOutletTrusted` Mutation requires an argument of type `DeleteTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteTenantOutletTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteTenantOutletTrusted` Mutation is of type `DeleteTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteTenantOutletTrustedData {
+  outlet_delete?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteTenantOutletTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteTenantOutletTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteTenantOutletTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteTenantOutletTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteTenantOutletTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteTenantOutletTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantOutletTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantOutletTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteTenantOutletTrusted` Mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
+  const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteTenantOutletTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteTenantOutletTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.outlet_delete);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteTenantEmployeeTrusted
+You can execute the `DeleteTenantEmployeeTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteTenantEmployeeTrusted(options?: useDataConnectMutationOptions<DeleteTenantEmployeeTrustedData, FirebaseError, DeleteTenantEmployeeTrustedVariables>): UseDataConnectMutationResult<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteTenantEmployeeTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteTenantEmployeeTrustedData, FirebaseError, DeleteTenantEmployeeTrustedVariables>): UseDataConnectMutationResult<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+```
+
+### Variables
+The `DeleteTenantEmployeeTrusted` Mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteTenantEmployeeTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteTenantEmployeeTrusted` Mutation is of type `DeleteTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteTenantEmployeeTrustedData {
+  employee_delete?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteTenantEmployeeTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteTenantEmployeeTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteTenantEmployeeTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteTenantEmployeeTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteTenantEmployeeTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantEmployeeTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantEmployeeTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteTenantEmployeeTrusted` Mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
+  const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteTenantEmployeeTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteTenantEmployeeTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employee_delete);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteTenantServicePersonTrusted
+You can execute the `DeleteTenantServicePersonTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteTenantServicePersonTrusted(options?: useDataConnectMutationOptions<DeleteTenantServicePersonTrustedData, FirebaseError, DeleteTenantServicePersonTrustedVariables>): UseDataConnectMutationResult<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteTenantServicePersonTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteTenantServicePersonTrustedData, FirebaseError, DeleteTenantServicePersonTrustedVariables>): UseDataConnectMutationResult<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+```
+
+### Variables
+The `DeleteTenantServicePersonTrusted` Mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteTenantServicePersonTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteTenantServicePersonTrusted` Mutation is of type `DeleteTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteTenantServicePersonTrustedData {
+  servicePerson_delete?: ServicePerson_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteTenantServicePersonTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteTenantServicePersonTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteTenantServicePersonTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteTenantServicePersonTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteTenantServicePersonTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantServicePersonTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantServicePersonTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteTenantServicePersonTrusted` Mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
+  const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteTenantServicePersonTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteTenantServicePersonTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.servicePerson_delete);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteTenantCustomerTrusted
+You can execute the `DeleteTenantCustomerTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteTenantCustomerTrusted(options?: useDataConnectMutationOptions<DeleteTenantCustomerTrustedData, FirebaseError, DeleteTenantCustomerTrustedVariables>): UseDataConnectMutationResult<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteTenantCustomerTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteTenantCustomerTrustedData, FirebaseError, DeleteTenantCustomerTrustedVariables>): UseDataConnectMutationResult<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+```
+
+### Variables
+The `DeleteTenantCustomerTrusted` Mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteTenantCustomerTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteTenantCustomerTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteTenantCustomerTrusted` Mutation is of type `DeleteTenantCustomerTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteTenantCustomerTrustedData {
+  customer_delete?: Customer_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteTenantCustomerTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteTenantCustomerTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteTenantCustomerTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteTenantCustomerTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteTenantCustomerTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantCustomerTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantCustomerTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteTenantCustomerTrusted` Mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
+  const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteTenantCustomerTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteTenantCustomerTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.customer_delete);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteTenantSupplierTrusted
+You can execute the `DeleteTenantSupplierTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteTenantSupplierTrusted(options?: useDataConnectMutationOptions<DeleteTenantSupplierTrustedData, FirebaseError, DeleteTenantSupplierTrustedVariables>): UseDataConnectMutationResult<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteTenantSupplierTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteTenantSupplierTrustedData, FirebaseError, DeleteTenantSupplierTrustedVariables>): UseDataConnectMutationResult<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+```
+
+### Variables
+The `DeleteTenantSupplierTrusted` Mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteTenantSupplierTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteTenantSupplierTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteTenantSupplierTrusted` Mutation is of type `DeleteTenantSupplierTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteTenantSupplierTrustedData {
+  supplier_delete?: Supplier_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteTenantSupplierTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteTenantSupplierTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteTenantSupplierTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteTenantSupplierTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteTenantSupplierTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantSupplierTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantSupplierTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteTenantSupplierTrusted` Mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
+  const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteTenantSupplierTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteTenantSupplierTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.supplier_delete);
+    console.log(mutation.data.auditEvent_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## DeleteTenantProductTrusted
+You can execute the `DeleteTenantProductTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useDeleteTenantProductTrusted(options?: useDataConnectMutationOptions<DeleteTenantProductTrustedData, FirebaseError, DeleteTenantProductTrustedVariables>): UseDataConnectMutationResult<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useDeleteTenantProductTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<DeleteTenantProductTrustedData, FirebaseError, DeleteTenantProductTrustedVariables>): UseDataConnectMutationResult<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+```
+
+### Variables
+The `DeleteTenantProductTrusted` Mutation requires an argument of type `DeleteTenantProductTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface DeleteTenantProductTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that calling the `DeleteTenantProductTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `DeleteTenantProductTrusted` Mutation is of type `DeleteTenantProductTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface DeleteTenantProductTrustedData {
+  product_delete?: Product_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `DeleteTenantProductTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, DeleteTenantProductTrustedVariables } from '@omniretail/sql-connect';
+import { useDeleteTenantProductTrusted } from '@omniretail/sql-connect/react'
+
+export default function DeleteTenantProductTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useDeleteTenantProductTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useDeleteTenantProductTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantProductTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useDeleteTenantProductTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useDeleteTenantProductTrusted` Mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
+  const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    auditId: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
+  };
+  mutation.mutate(deleteTenantProductTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(deleteTenantProductTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.product_delete);
     console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;

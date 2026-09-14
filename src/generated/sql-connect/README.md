@@ -110,6 +110,12 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateTenantOutletTrusted*](#createtenantoutlettrusted)
   - [*UpdateTenantOutletTrusted*](#updatetenantoutlettrusted)
   - [*ChangeTenantOutletStatusTrusted*](#changetenantoutletstatustrusted)
+  - [*DeleteTenantOutletTrusted*](#deletetenantoutlettrusted)
+  - [*DeleteTenantEmployeeTrusted*](#deletetenantemployeetrusted)
+  - [*DeleteTenantServicePersonTrusted*](#deletetenantservicepersontrusted)
+  - [*DeleteTenantCustomerTrusted*](#deletetenantcustomertrusted)
+  - [*DeleteTenantSupplierTrusted*](#deletetenantsuppliertrusted)
+  - [*DeleteTenantProductTrusted*](#deletetenantproducttrusted)
   - [*CreateTenantEmployeeProfileTrusted*](#createtenantemployeeprofiletrusted)
   - [*ProvisionTenantEmployeeTrusted*](#provisiontenantemployeetrusted)
   - [*UpdateTenantEmployeeTrusted*](#updatetenantemployeetrusted)
@@ -5803,6 +5809,7 @@ export interface GetTenantEmployeeTrustedData {
       id: UUIDString;
       username: string;
       email: string;
+      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: number;
     fullName: string;
@@ -13701,6 +13708,762 @@ console.log(data.auditEvent_insert);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantOutletTrusted
+You can execute the `DeleteTenantOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantOutletTrusted(vars: DeleteTenantOutletTrustedVariables): MutationPromise<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+
+interface DeleteTenantOutletTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantOutletTrustedVariables): MutationRef<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+}
+export const deleteTenantOutletTrustedRef: DeleteTenantOutletTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantOutletTrusted(dc: DataConnect, vars: DeleteTenantOutletTrustedVariables): MutationPromise<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+
+interface DeleteTenantOutletTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantOutletTrustedVariables): MutationRef<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
+}
+export const deleteTenantOutletTrustedRef: DeleteTenantOutletTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantOutletTrustedRef:
+```typescript
+const name = deleteTenantOutletTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantOutletTrustedData {
+  outlet_delete?: Outlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantOutletTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantOutletTrusted, DeleteTenantOutletTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
+const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantOutletTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantOutletTrusted(deleteTenantOutletTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantOutletTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantOutletTrusted(dataConnect, deleteTenantOutletTrustedVars);
+
+console.log(data.outlet_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantOutletTrusted(deleteTenantOutletTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.outlet_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantOutletTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantOutletTrustedRef, DeleteTenantOutletTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
+const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantOutletTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantOutletTrustedRef(deleteTenantOutletTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantOutletTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantOutletTrustedRef(dataConnect, deleteTenantOutletTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.outlet_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.outlet_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantEmployeeTrusted
+You can execute the `DeleteTenantEmployeeTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantEmployeeTrusted(vars: DeleteTenantEmployeeTrustedVariables): MutationPromise<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+
+interface DeleteTenantEmployeeTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantEmployeeTrustedVariables): MutationRef<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+}
+export const deleteTenantEmployeeTrustedRef: DeleteTenantEmployeeTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantEmployeeTrusted(dc: DataConnect, vars: DeleteTenantEmployeeTrustedVariables): MutationPromise<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+
+interface DeleteTenantEmployeeTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantEmployeeTrustedVariables): MutationRef<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
+}
+export const deleteTenantEmployeeTrustedRef: DeleteTenantEmployeeTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantEmployeeTrustedRef:
+```typescript
+const name = deleteTenantEmployeeTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantEmployeeTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantEmployeeTrustedData {
+  employee_delete?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantEmployeeTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantEmployeeTrusted, DeleteTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
+const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantEmployeeTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantEmployeeTrusted(deleteTenantEmployeeTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantEmployeeTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantEmployeeTrusted(dataConnect, deleteTenantEmployeeTrustedVars);
+
+console.log(data.employee_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantEmployeeTrusted(deleteTenantEmployeeTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.employee_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantEmployeeTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantEmployeeTrustedRef, DeleteTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
+const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantEmployeeTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantEmployeeTrustedRef(deleteTenantEmployeeTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantEmployeeTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantEmployeeTrustedRef(dataConnect, deleteTenantEmployeeTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.employee_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.employee_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantServicePersonTrusted
+You can execute the `DeleteTenantServicePersonTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantServicePersonTrusted(vars: DeleteTenantServicePersonTrustedVariables): MutationPromise<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+
+interface DeleteTenantServicePersonTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantServicePersonTrustedVariables): MutationRef<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+}
+export const deleteTenantServicePersonTrustedRef: DeleteTenantServicePersonTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantServicePersonTrusted(dc: DataConnect, vars: DeleteTenantServicePersonTrustedVariables): MutationPromise<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+
+interface DeleteTenantServicePersonTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantServicePersonTrustedVariables): MutationRef<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
+}
+export const deleteTenantServicePersonTrustedRef: DeleteTenantServicePersonTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantServicePersonTrustedRef:
+```typescript
+const name = deleteTenantServicePersonTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantServicePersonTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantServicePersonTrustedData {
+  servicePerson_delete?: ServicePerson_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantServicePersonTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantServicePersonTrusted, DeleteTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
+const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantServicePersonTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantServicePersonTrusted(deleteTenantServicePersonTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantServicePersonTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantServicePersonTrusted(dataConnect, deleteTenantServicePersonTrustedVars);
+
+console.log(data.servicePerson_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantServicePersonTrusted(deleteTenantServicePersonTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.servicePerson_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantServicePersonTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantServicePersonTrustedRef, DeleteTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
+const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantServicePersonTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantServicePersonTrustedRef(deleteTenantServicePersonTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantServicePersonTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantServicePersonTrustedRef(dataConnect, deleteTenantServicePersonTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.servicePerson_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.servicePerson_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantCustomerTrusted
+You can execute the `DeleteTenantCustomerTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantCustomerTrusted(vars: DeleteTenantCustomerTrustedVariables): MutationPromise<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+
+interface DeleteTenantCustomerTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantCustomerTrustedVariables): MutationRef<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+}
+export const deleteTenantCustomerTrustedRef: DeleteTenantCustomerTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantCustomerTrusted(dc: DataConnect, vars: DeleteTenantCustomerTrustedVariables): MutationPromise<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+
+interface DeleteTenantCustomerTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantCustomerTrustedVariables): MutationRef<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
+}
+export const deleteTenantCustomerTrustedRef: DeleteTenantCustomerTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantCustomerTrustedRef:
+```typescript
+const name = deleteTenantCustomerTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantCustomerTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantCustomerTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantCustomerTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantCustomerTrustedData {
+  customer_delete?: Customer_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantCustomerTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantCustomerTrusted, DeleteTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
+const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantCustomerTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantCustomerTrusted(deleteTenantCustomerTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantCustomerTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantCustomerTrusted(dataConnect, deleteTenantCustomerTrustedVars);
+
+console.log(data.customer_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantCustomerTrusted(deleteTenantCustomerTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.customer_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantCustomerTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantCustomerTrustedRef, DeleteTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
+const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantCustomerTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantCustomerTrustedRef(deleteTenantCustomerTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantCustomerTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantCustomerTrustedRef(dataConnect, deleteTenantCustomerTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.customer_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.customer_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantSupplierTrusted
+You can execute the `DeleteTenantSupplierTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantSupplierTrusted(vars: DeleteTenantSupplierTrustedVariables): MutationPromise<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+
+interface DeleteTenantSupplierTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantSupplierTrustedVariables): MutationRef<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+}
+export const deleteTenantSupplierTrustedRef: DeleteTenantSupplierTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantSupplierTrusted(dc: DataConnect, vars: DeleteTenantSupplierTrustedVariables): MutationPromise<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+
+interface DeleteTenantSupplierTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantSupplierTrustedVariables): MutationRef<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
+}
+export const deleteTenantSupplierTrustedRef: DeleteTenantSupplierTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantSupplierTrustedRef:
+```typescript
+const name = deleteTenantSupplierTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantSupplierTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantSupplierTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantSupplierTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantSupplierTrustedData {
+  supplier_delete?: Supplier_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantSupplierTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantSupplierTrusted, DeleteTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
+const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantSupplierTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantSupplierTrusted(deleteTenantSupplierTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantSupplierTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantSupplierTrusted(dataConnect, deleteTenantSupplierTrustedVars);
+
+console.log(data.supplier_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantSupplierTrusted(deleteTenantSupplierTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.supplier_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantSupplierTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantSupplierTrustedRef, DeleteTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
+const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantSupplierTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantSupplierTrustedRef(deleteTenantSupplierTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantSupplierTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantSupplierTrustedRef(dataConnect, deleteTenantSupplierTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.supplier_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.supplier_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+## DeleteTenantProductTrusted
+You can execute the `DeleteTenantProductTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+deleteTenantProductTrusted(vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+
+interface DeleteTenantProductTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteTenantProductTrustedVariables): MutationRef<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+}
+export const deleteTenantProductTrustedRef: DeleteTenantProductTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteTenantProductTrusted(dc: DataConnect, vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+
+interface DeleteTenantProductTrustedRef {
+  ...
+  (dc: DataConnect, vars: DeleteTenantProductTrustedVariables): MutationRef<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
+}
+export const deleteTenantProductTrustedRef: DeleteTenantProductTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantProductTrustedRef:
+```typescript
+const name = deleteTenantProductTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteTenantProductTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+```
+### Return Type
+Recall that executing the `DeleteTenantProductTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteTenantProductTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteTenantProductTrustedData {
+  product_delete?: Product_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+```
+### Using `DeleteTenantProductTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantProductTrusted, DeleteTenantProductTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
+const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantProductTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteTenantProductTrusted(deleteTenantProductTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await deleteTenantProductTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteTenantProductTrusted(dataConnect, deleteTenantProductTrustedVars);
+
+console.log(data.product_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+deleteTenantProductTrusted(deleteTenantProductTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.product_delete);
+  console.log(data.auditEvent_insert);
+});
+```
+
+### Using `DeleteTenantProductTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteTenantProductTrustedRef, DeleteTenantProductTrustedVariables } from '@omniretail/sql-connect';
+
+// The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
+const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
+  organizationId: ..., 
+  id: ..., 
+  auditId: ..., 
+  requestId: ..., 
+  actorFirebaseUid: ..., 
+};
+
+// Call the `deleteTenantProductTrustedRef()` function to get a reference to the mutation.
+const ref = deleteTenantProductTrustedRef(deleteTenantProductTrustedVars);
+// Variables can be defined inline as well.
+const ref = deleteTenantProductTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteTenantProductTrustedRef(dataConnect, deleteTenantProductTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.product_delete);
+console.log(data.auditEvent_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.product_delete);
   console.log(data.auditEvent_insert);
 });
 ```

@@ -63,6 +63,15 @@ describe('outletService mutations return the canonical entity directly', () => {
     expect(mocks.listTenantOutlets).not.toHaveBeenCalled();
   });
 
+  it('deleteOutlet calls the organization-scoped delete callable without a list reload', async () => {
+    const callable = vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'outlet-1' } });
+    mocks.httpsCallable.mockReturnValue(callable);
+    await outletService.deleteOutlet('outlet-1');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'deleteTenantOutlet');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', id: 'outlet-1', requestId: expect.any(String) }));
+    expect(mocks.listTenantOutlets).not.toHaveBeenCalled();
+  });
+
   it('rejects a malformed create response instead of returning a partial entity', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'outlet-2' } }));
     await expect(outletService.createOutlet({ name: 'New Outlet', contactPerson: 'Alex', phone: '+919876543210', address: '1 Main St' }))

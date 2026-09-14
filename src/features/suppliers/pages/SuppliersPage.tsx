@@ -9,7 +9,9 @@ import {
 import { supplierService, deriveSupplierView } from '../services/supplierService';
 import { exportSuppliersToCsv } from '../utils/calculations';
 import { formatSupplierCode } from '../utils/formatSupplierCode';
-import { upsertById } from '@/shared/utils/listState';
+import { upsertById, removeById } from '@/shared/utils/listState';
+import { useDeleteConfirmation } from '@/shared/hooks/useDeleteConfirmation';
+import { MasterDeleteConfirmDialog } from '@/shared/components/MasterDeleteConfirmDialog';
 import { SuppliersHeader } from '../components/SuppliersHeader';
 import { SuppliersKpiCards } from '../components/SuppliersKpiCards';
 import { SuppliersFilterToolbar } from '../components/SuppliersFilterToolbar';
@@ -59,6 +61,20 @@ export function SuppliersPage() {
     () => allSuppliers.find((s) => s.id === selectedSupplierId) ?? null,
     [allSuppliers, selectedSupplierId],
   );
+
+  const deleteConfirmation = useDeleteConfirmation<Supplier>({
+    deleteRecord: (supplier) => supplierService.deleteSupplier(supplier.id),
+    onDeleted: (supplier) => {
+      setAllSuppliers((prev) => removeById(prev, supplier.id));
+      setToast({
+        id: `del-${Date.now()}`,
+        type: 'success',
+        title: 'Supplier Deleted',
+        description: `${supplier.name} was permanently removed.`,
+      });
+      setSelectedSupplierId(null);
+    },
+  });
 
   // Load auxiliary lists (cities, categories)
   useEffect(() => {
@@ -194,6 +210,11 @@ export function SuppliersPage() {
     setAllSuppliers((prev) => upsertById(prev, updated));
   };
 
+  const handlePromptDelete = (supplier: Supplier) => {
+    setSelectedSupplierId(null);
+    deleteConfirmation.open(supplier);
+  };
+
   const handleToggleStatus = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
@@ -307,7 +328,18 @@ export function SuppliersPage() {
         onClose={() => setSelectedSupplierId(null)}
         onUpdate={handleUpdateSupplier}
         onToggleStatus={handleToggleStatus}
+        onDelete={handlePromptDelete}
         onNewPurchaseOrder={handleNewPurchaseOrder}
+      />
+
+      <MasterDeleteConfirmDialog
+        entityLabel="Supplier"
+        recordName={deleteConfirmation.record?.name ?? ''}
+        isOpen={deleteConfirmation.isOpen}
+        isProcessing={deleteConfirmation.isProcessing}
+        error={deleteConfirmation.error}
+        onClose={deleteConfirmation.close}
+        onConfirm={deleteConfirmation.confirm}
       />
 
       {/* Toast Notification */}

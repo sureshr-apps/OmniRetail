@@ -76,9 +76,20 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('defines connector operations for tenant-scoped master reads and outlet writes', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
-    for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'UpdateTenantEmployeeTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'AssignTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted']) {
+    for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'DeleteTenantOutletTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'UpdateTenantEmployeeTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'DeleteTenantEmployeeTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'DeleteTenantServicePersonTrusted', 'AssignTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted', 'DeleteTenantCustomerTrusted', 'DeleteTenantSupplierTrusted', 'DeleteTenantProductTrusted']) {
       expect(connector).toContain(operation);
     }
+  });
+
+  it('guards tenant master deletes against linked operational history', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(connector).toContain('employeeOutlets(where: { employee: { id: { eq: $id } } }');
+    expect(connector).toContain('servicePersonOutlets(where: { servicePerson: { id: { eq: $id } } }');
+    expect(connector).toContain('sales(where: { customer: { id: { eq: $id } } }');
+    expect(connector).toContain('purchases(where: { supplier: { id: { eq: $id } } }');
+    expect(connector).toContain('inventoryStocks(where: { product: { id: { eq: $id } } }');
+    expect(connector).toContain('purchaseLines(where: { product: { id: { eq: $id } } }');
+    expect(connector).toContain('saleLines(where: { product: { id: { eq: $id } } }');
   });
 
   it('allows organization admins to read the product catalogue', () => {
@@ -91,8 +102,8 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('does not expose removed outlet fields through tenant connectors', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
-    const outletOperations = connector.match(/(?:query|mutation) (?:ListTenantOutlets|CreateTenantOutlet|UpdateTenantOutlet|CreateTenantOutletTrusted|UpdateTenantOutletTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
-    expect(outletOperations.length).toBe(5);
+    const outletOperations = connector.match(/(?:query|mutation) (?:ListTenantOutlets|CreateTenantOutlet|UpdateTenantOutlet|CreateTenantOutletTrusted|UpdateTenantOutletTrusted|DeleteTenantOutletTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    expect(outletOperations.length).toBe(6);
     for (const operation of outletOperations) {
       for (const removedField of ['city', 'state', 'postalCode', 'country', 'registerCount', 'timezone', 'currency', 'createdAt', 'updatedAt']) {
         expect(operation).not.toMatch(new RegExp(`\\$${removedField}\\b|\\b${removedField}:`));

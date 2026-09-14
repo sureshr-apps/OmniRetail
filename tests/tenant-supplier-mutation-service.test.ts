@@ -93,6 +93,15 @@ describe('supplierService mutations return the canonical entity directly', () =>
     expect(mocks.listTenantSuppliers).toHaveBeenCalledTimes(1);
   });
 
+  it('deleteSupplier calls the organization-scoped delete callable without reloading the list', async () => {
+    const callable = vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'supplier-1' } });
+    mocks.httpsCallable.mockReturnValue(callable);
+    await supplierService.deleteSupplier('supplier-1');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'deleteTenantSupplier');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', id: 'supplier-1', requestId: expect.any(String) }));
+    expect(mocks.listTenantSuppliers).not.toHaveBeenCalled();
+  });
+
   it('rejects a malformed create response instead of returning a partial entity', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'supplier-2' } }));
     await expect(supplierService.createSupplier(createInput))

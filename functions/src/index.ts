@@ -35,7 +35,9 @@ import {
   createTenantOutletTrusted,
   updateTenantOutletTrusted,
   changeTenantOutletStatusTrusted,
+  deleteTenantOutletTrusted,
   getTenantOutletTrusted,
+  deleteTenantEmployeeTrusted,
   provisionTenantEmployeeTrusted,
   updateTenantEmployeeTrusted,
   changeTenantEmployeeStatusTrusted,
@@ -45,6 +47,7 @@ import {
   createTenantServicePersonTrusted,
   updateTenantServicePersonTrusted,
   changeTenantServicePersonStatusTrusted,
+  deleteTenantServicePersonTrusted,
   getTenantServicePersonTrusted,
   assignTenantEmployeeOutletTrusted,
   assignTenantServicePersonOutletTrusted,
@@ -53,13 +56,16 @@ import {
   createTenantProduct,
   updateTenantProduct,
   changeTenantProductStatus as changeTenantProductStatusSql,
+  deleteTenantProductTrusted,
   getTenantProductTrusted,
   createTenantCustomer,
   updateTenantCustomer,
   changeTenantCustomerStatus as changeTenantCustomerStatusSql,
+  deleteTenantCustomerTrusted,
   getTenantCustomerTrusted,
   createTenantSupplier,
   updateTenantSupplier,
+  deleteTenantSupplierTrusted,
   getTenantSupplierTrusted,
   getOrganizationAdministratorTrusted,
   createTenantPurchase, createTenantPurchaseLine,
@@ -657,6 +663,151 @@ export const changeTenantOutletStatus = onCall(callableOptions, async (request) 
     if (!row) throw new Error('outlet not found after status change');
     return { success: true, organizationId, ...mapTrustedOutletRow(row) };
   } catch (error) { logCallableFailure('changeTenantOutletStatus', error); throw new HttpsError('permission-denied', 'Unable to change the outlet status.'); }
+});
+
+export const deleteTenantOutlet = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'outlets.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantOutletTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantOutlet', error);
+    throw tenantDeletionFailure('outlet', 'You do not have permission to delete outlets in this organization.', 'This outlet has linked operational or historical records and cannot be deleted. Deactivate it instead.')(error);
+  }
+});
+
+function tenantDeletionFailure(entity: string, permissionMessage: string, linkedMessage: string): (error: unknown) => HttpsError {
+  return (error: unknown): HttpsError => {
+    if (error instanceof HttpsError) return error;
+    const value = error as { message?: unknown } | null;
+    const message = typeof value?.message === 'string' ? value.message : '';
+    if (message === 'scope') return new HttpsError('permission-denied', permissionMessage);
+    if (/cannot be deleted|login must be disabled/i.test(message)) return new HttpsError('failed-precondition', linkedMessage);
+    if (/not found|not in.*organization/i.test(message)) return new HttpsError('not-found', `The ${entity} was not found in this organization.`);
+    return new HttpsError('internal', `Unable to delete the ${entity}.`);
+  };
+}
+
+export const deleteTenantEmployee = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'employees.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    const employee = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
+    if (!employee) throw new Error('employee not found');
+    if (employee.user && employee.loginAccess === 'ENABLED') throw new Error('employee login must be disabled before deletion');
+    const deleteInput = { organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid };
+    await deleteTenantEmployeeTrusted(deleteInput);
+    if (employee.user) {
+      try {
+        await deleteAppUserTrusted({ id: employee.user.id });
+        await getAuth().deleteUser(employee.user.firebaseUid);
+      } catch (cleanupError: any) {
+        if (cleanupError?.code !== 'auth/user-not-found') {
+          await recordProvisioningReconciliation({
+            idempotencyKey: `employee-delete:${organizationId}:${employee.user.id}`,
+            firebaseUid: employee.user.firebaseUid,
+            errorClass: 'auth_delete_failed',
+          }).catch(() => undefined);
+          throw new Error('employee login cleanup failed');
+        }
+      }
+    }
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantEmployee', error);
+    throw tenantDeletionFailure('employee', 'You do not have permission to delete employees in this organization.', 'This employee has linked assignments, a login identity, or other records and cannot be deleted. Deactivate it instead.')(error);
+  }
+});
+
+export const deleteTenantServicePerson = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'service_persons.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantServicePersonTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantServicePerson', error);
+    throw tenantDeletionFailure('service person', 'You do not have permission to delete service persons in this organization.', 'This service person has linked outlet assignments or other records and cannot be deleted. Deactivate it instead.')(error);
+  }
+});
+
+export const deleteTenantCustomer = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'customers.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantCustomerTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantCustomer', error);
+    throw tenantDeletionFailure('customer', 'You do not have permission to delete customers in this organization.', 'This customer has sales history and cannot be deleted. Deactivate it instead.')(error);
+  }
+});
+
+export const deleteTenantSupplier = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'suppliers.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantSupplierTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantSupplier', error);
+    throw tenantDeletionFailure('supplier', 'You do not have permission to delete suppliers in this organization.', 'This supplier has purchase history and cannot be deleted. Deactivate it instead.')(error);
+  }
+});
+
+export const deleteTenantProduct = onCall(callableOptions, async (request) => {
+  try {
+    const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actorFirebaseUid);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    await deleteTenantProductTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
+    return { success: true, organizationId, id };
+  } catch (error) {
+    logCallableFailure('deleteTenantProduct', error);
+    throw tenantDeletionFailure('product', 'You do not have permission to delete products in this organization.', 'This product has inventory, purchase, or sales history and cannot be deleted. Deactivate it instead.')(error);
+  }
 });
 
 function mapTrustedEmployeeRow(row: {

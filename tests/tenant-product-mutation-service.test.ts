@@ -104,6 +104,15 @@ describe('productService mutations return the canonical entity directly', () => 
     expect(mocks.listTenantProducts).not.toHaveBeenCalled();
   });
 
+  it('deleteProduct calls the organization-scoped delete callable without reloading the list', async () => {
+    const callable = vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'prod-1' } });
+    mocks.httpsCallable.mockReturnValue(callable);
+    await productService.deleteProduct('prod-1');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'deleteTenantProduct');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ organizationId: 'org-1', id: 'prod-1', requestId: expect.any(String) }));
+    expect(mocks.listTenantProducts).not.toHaveBeenCalled();
+  });
+
   it('rejects a malformed create response instead of returning a partial entity', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'prod-2' } }));
     await expect(productService.createProduct(createInput())).rejects.toBeInstanceOf(MalformedCallableResponseError);

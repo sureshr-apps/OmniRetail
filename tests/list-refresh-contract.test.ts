@@ -63,12 +63,12 @@ describe('post-mutation list refresh contracts', () => {
     ['outlet create', 'outlets/pages/OutletMasterPage.tsx', 'const handleCreateOutlet', 'const handleUpdateOutlet', 'loadData('],
     ['outlet update', 'outlets/pages/OutletMasterPage.tsx', 'const handleUpdateOutlet', 'const handleViewDetails', 'loadData('],
     ['outlet status', 'outlets/pages/OutletMasterPage.tsx', 'const handleConfirmStatusChange', 'const hasActiveFilters', 'loadData('],
-    ['employee create', 'employees/pages/EmployeeMasterPage.tsx', 'const handleCreateEmployee', 'const handleUpdateEmployee', 'fetchEmployees('],
-    ['employee update', 'employees/pages/EmployeeMasterPage.tsx', 'const handleUpdateEmployee', 'const handlePromptToggleStatus', 'fetchEmployees('],
-    ['employee status', 'employees/pages/EmployeeMasterPage.tsx', 'const handleConfirmStatusChange', 'const handlePromptToggleLoginAccess', 'fetchEmployees('],
-    ['employee login access', 'employees/pages/EmployeeMasterPage.tsx', 'const handleConfirmLoginAccessChange', 'const handleExportCsv', 'fetchEmployees('],
-    ['service person save', 'service-persons/pages/ServicePersonMasterPage.tsx', 'const handleModalSubmit', 'const handleViewPerson', 'fetchServicePersons('],
-    ['service person status', 'service-persons/pages/ServicePersonMasterPage.tsx', 'const handleConfirmToggleStatus', 'return (', 'fetchServicePersons('],
+    ['employee create', 'employees/pages/EmployeeMasterPage.tsx', 'const handleCreateEmployee', 'const handleUpdateEmployee', 'loadData('],
+    ['employee update', 'employees/pages/EmployeeMasterPage.tsx', 'const handleUpdateEmployee', 'const handlePromptToggleStatus', 'loadData('],
+    ['employee status', 'employees/pages/EmployeeMasterPage.tsx', 'const handleConfirmStatusChange', 'const handlePromptToggleLoginAccess', 'loadData('],
+    ['employee login access', 'employees/pages/EmployeeMasterPage.tsx', 'const handleConfirmLoginAccessChange', 'const handleExportCsv', 'loadData('],
+    ['service person save', 'service-persons/pages/ServicePersonMasterPage.tsx', 'const handleModalSubmit', 'const handleViewPerson', 'loadData('],
+    ['service person status', 'service-persons/pages/ServicePersonMasterPage.tsx', 'const handleConfirmToggleStatus', 'return (', 'loadData('],
     ['supplier create', 'suppliers/pages/SuppliersPage.tsx', 'const handleAddSupplier', 'const handleUpdateSupplier', 'loadDirectory('],
     ['supplier update', 'suppliers/pages/SuppliersPage.tsx', 'const handleUpdateSupplier', 'const handleToggleStatus', 'loadDirectory('],
     ['supplier status', 'suppliers/pages/SuppliersPage.tsx', 'const handleToggleStatus', 'const handleNewPurchaseOrder', 'loadDirectory('],
@@ -76,13 +76,28 @@ describe('post-mutation list refresh contracts', () => {
     ['product update', 'products/pages/ProductsPage.tsx', 'const handleUpdateProduct', 'const handleToggleStatus', 'loadCatalogue('],
     ['product status', 'products/pages/ProductsPage.tsx', 'const handleToggleStatus', 'const handleDuplicateProduct', 'loadCatalogue('],
     ['product duplicate', 'products/pages/ProductsPage.tsx', 'const handleDuplicateProduct', 'const handleNavigateToInventory', 'loadCatalogue('],
-    ['customer create', 'customers/pages/CustomersPage.tsx', 'const handleCreateCustomer', 'const handleUpdateCustomer', 'refreshCustomerData('],
-    ['customer update', 'customers/pages/CustomersPage.tsx', 'const handleUpdateCustomer', 'const handleToggleStatusConfirm', 'refreshCustomerData('],
-    ['customer status', 'customers/pages/CustomersPage.tsx', 'const handleToggleStatusConfirm', 'return (', 'refreshCustomerData('],
+    ['customer create', 'customers/pages/CustomersPage.tsx', 'const handleCreateCustomer', 'const handleUpdateCustomer', 'loadData('],
+    ['customer update', 'customers/pages/CustomersPage.tsx', 'const handleUpdateCustomer', 'const handleToggleStatusConfirm', 'loadData('],
+    ['customer status', 'customers/pages/CustomersPage.tsx', 'const handleToggleStatusConfirm', 'return (', 'loadData('],
   ])('%s applies the mutation response to local state directly, with no post-mutation list reload', (_name, path, start, end, staleRefreshCall) => {
     const handler = section(read(path), start, end);
     expect(handler).toMatch(/upsertById\(prev,/);
     expect(handler).not.toContain(`await ${staleRefreshCall}`);
+  });
+
+  it.each([
+    ['outlet', 'outlets/pages/OutletMasterPage.tsx', 'outlet.id', 'const handleRefresh'],
+    ['employee', 'employees/pages/EmployeeMasterPage.tsx', 'employee.id', 'const handlePromptToggleStatus'],
+    ['service person', 'service-persons/pages/ServicePersonMasterPage.tsx', 'person.id', 'const handleInitiateToggleStatus'],
+    ['customer', 'customers/pages/CustomersPage.tsx', 'customer.id', 'const handleToggleStatusConfirm'],
+    ['supplier', 'suppliers/pages/SuppliersPage.tsx', 'supplier.id', 'const handleToggleStatus'],
+    ['product', 'products/pages/ProductsPage.tsx', 'product.id', 'const handleDuplicateProduct'],
+  ])('%s delete removes the confirmed record locally without a list reload', (_name, path, recordExpression, endMarker) => {
+    const handler = section(read(path), 'const deleteConfirmation', endMarker);
+    expect(handler).toContain(`removeById(prev, ${recordExpression})`);
+    expect(handler).not.toContain('await loadData(');
+    expect(handler).not.toContain('await loadDirectory(');
+    expect(handler).not.toContain('await loadCatalogue(');
   });
 
   it.each([

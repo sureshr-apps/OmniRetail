@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 const source = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
 const deploymentSource = readFileSync(new URL('../.github/workflows/firebase-deploy.yml', import.meta.url), 'utf8');
 const connectorSource = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+const schemaMigrationSource = readFileSync(new URL('../scripts/drop-service-person-skills.mjs', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -34,7 +35,13 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
+    expect(deploymentSource).toContain('Remove retired Service Person skills column');
+    expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
     expect(deploymentSource).toContain('--non-interactive --force');
+    expect(schemaMigrationSource).toContain('DROP COLUMN IF EXISTS');
+    expect(schemaMigrationSource).toContain('SET LOCAL ROLE');
+    expect(schemaMigrationSource).toContain('await client.query(\'BEGIN\')');
+    expect(schemaMigrationSource).toContain('await client.query(\'COMMIT\')');
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

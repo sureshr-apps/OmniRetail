@@ -80,6 +80,14 @@ jobs:
           npx --no-install firebase-tools experiments:disable fdcapimigration
           npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
 
+      - name: Remove retired Service Person skills column
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: |
+          CLOUD_SQL_IAM_USER="$(gcloud auth list --filter=status:ACTIVE --format='value(account)' | sed 's/\.gserviceaccount\.com$//')"
+          test -n "$CLOUD_SQL_IAM_USER"
+          export CLOUD_SQL_IAM_USER
+          node scripts/drop-service-person-skills.mjs
+
       - name: Build frontend
         env:
           VITE_FIREBASE_API_KEY: "AIzaSyAyQboFxYrp5xTLGREny35543ICAqreNYM"

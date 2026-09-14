@@ -89,7 +89,6 @@ export interface CreateEmployeeInput {
   designation: string;
   department?: string;
   phone: string;
-  email: string;
   gender?: string;
   dateOfBirth?: string;
   dateOfJoining?: string;
@@ -102,6 +101,7 @@ export interface CreateEmployeeInput {
   allowLogin: boolean;
   username?: string;
   permissionProfile?: string;
+  initialPassword?: string;
 }
 
 export interface UpdateEmployeeInput {

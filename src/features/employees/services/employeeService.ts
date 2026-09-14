@@ -98,7 +98,6 @@ class ProductionEmployeeService implements IEmployeeService {
     const payload = {
       organizationId,
       fullName,
-      email: input.email.trim().toLowerCase(),
       phone: input.phone.trim(),
       designation: input.designation.trim(),
       department: input.department?.trim(),
@@ -107,7 +106,7 @@ class ProductionEmployeeService implements IEmployeeService {
       requestId: globalThis.crypto.randomUUID(),
     };
     const response = input.allowLogin
-      ? await httpsCallable(getFirebaseClientServices().functions, 'provisionTenantEmployee')({ ...payload, username: input.username?.trim().toLowerCase() ?? '' })
+      ? await httpsCallable(getFirebaseClientServices().functions, 'provisionTenantEmployee')({ ...payload, username: input.username?.trim().toLowerCase() ?? '', permissionProfile: input.permissionProfile ?? 'User', initialPassword: input.initialPassword ?? '' })
       : await httpsCallable(getFirebaseClientServices().functions, 'createTenantEmployeeProfile')(payload);
     const row = assertCallableEntity<EmployeeMutationResponse>(response.data, EMPLOYEE_MUTATION_RESPONSE_KEYS, 'createEmployee');
     return this.map(row);

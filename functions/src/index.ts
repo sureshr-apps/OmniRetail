@@ -132,6 +132,10 @@ async function loadAuthorization(firebaseUid: string): Promise<AuthorizationReco
   return record;
 }
 
+function employeeAuthEmail(username: string): string {
+  return `${username}@login.omniretail.local`;
+}
+
 function requireCapability(record: AuthorizationRecord, capability: string): void {
   const authorized = toAuthorizedUser(record);
   const tenantOperationalCapabilities = new Set([
@@ -874,16 +878,15 @@ export const provisionTenantEmployee = onCall(callableOptions, async (request) =
   let createdUid: string | undefined;
   try {
     const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actorFirebaseUid); requireCapability(caller, 'employees.read');
-    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const username = normalizeUsername(d.username); const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : '';
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const username = normalizeUsername(d.username); const email = employeeAuthEmail(username); const initialPassword = typeof d.initialPassword === 'string' ? d.initialPassword : ''; const permissionProfile = d.permissionProfile === 'Admin' ? 'Admin' : d.permissionProfile === 'User' || d.permissionProfile === undefined ? 'User' : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    if (!organizationId || !username || !permissionProfile || initialPassword.length < 6 || initialPassword.length > 4096 || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
     if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username');
     try { await getAuth().getUserByEmail(email); throw new Error('email'); } catch (error: any) { if (error?.message === 'email') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
-    const created = await getAuth().createUser({ email, password: randomBytes(32).toString('base64url'), displayName: fullName, phoneNumber: phone, emailVerified: false, disabled: false }); createdUid = created.uid;
+    const created = await getAuth().createUser({ email, password: initialPassword, displayName: fullName, phoneNumber: phone, emailVerified: false, disabled: false }); createdUid = created.uid;
     const employeeId = randomUUID();
-    await provisionTenantEmployeeTrusted({ id: employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
-    await sendManagedPasswordEmail(email, 'PASSWORD_RESET');
+    await provisionTenantEmployeeTrusted({ id: employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: permissionProfile === 'Admin' ? '00000000-0000-4000-8000-000000000002' : '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
     const row = (await getTenantEmployeeTrusted({ organizationId, id: employeeId })).data.employees[0];
     if (!row) throw new Error('employee not found after provisioning');
     return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };

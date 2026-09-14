@@ -45,7 +45,6 @@ const createInput = {
   lastName: 'Lee',
   designation: 'Cashier',
   phone: '+919876543210',
-  email: 'jordan@example.com',
   assignmentScope: 'Specific Outlets' as const,
   outletAssignment: ['Main Street'],
   allowLogin: false,
@@ -67,6 +66,29 @@ describe('employeeService mutations return the canonical entity directly', () =>
     const created = await employeeService.createEmployee(createInput);
     expect(created).toMatchObject({ id: 'employee-2', employeeCode: 1002, displayName: 'Jordan Lee' });
     expect(mocks.listTenantEmployees).not.toHaveBeenCalled();
+  });
+
+  it('passes the administrator-provided initial password and selected login role to provisioning', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ id: 'employee-3', employeeCode: 1003 }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await employeeService.createEmployee({
+      ...createInput,
+      allowLogin: true,
+      username: 'jordan.lee',
+      permissionProfile: 'Admin',
+      initialPassword: 'initial-secret',
+    });
+
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'provisionTenantEmployee');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({
+      username: 'jordan.lee',
+      permissionProfile: 'Admin',
+      initialPassword: 'initial-secret',
+    }));
+    expect(callable.mock.calls[0][0]).not.toHaveProperty('email');
   });
 
   it('updateEmployee returns the enriched entity from the callable, with no follow-up list query after the mutation', async () => {

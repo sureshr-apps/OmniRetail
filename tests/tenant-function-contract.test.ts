@@ -133,6 +133,12 @@ describe('tenant callable contract', () => {
     expect(source).toContain('provisionTenantEmployeeTrusted');
     expect(source).toContain("requireOrganizationAdmin(actorFirebaseUid, organizationId)");
     expect(source).toContain("getAuth().createUser({ email, password:");
+    expect(source).toContain('function employeeAuthEmail(username: string)');
+    expect(source).toContain('const initialPassword = typeof d.initialPassword === \'string\' ? d.initialPassword : \'\'');
+    expect(source).toContain("permissionProfile === 'Admin' ? '00000000-0000-4000-8000-000000000002'");
+    const start = source.indexOf('export const provisionTenantEmployee = onCall');
+    const end = source.indexOf('export const createTenantEmployeeProfile = onCall', start);
+    expect(source.slice(start, end)).not.toContain("sendManagedPasswordEmail(email, 'PASSWORD_RESET');");
   });
 
   it('exposes employee lifecycle callables with Auth synchronization', () => {

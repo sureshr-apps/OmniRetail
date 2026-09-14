@@ -31,12 +31,11 @@ export function EmployeeModal({
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [dateOfJoining, setDateOfJoining] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
   const [designation, setDesignation] = useState('Sales Associate');
   const [department, setDepartment] = useState('Retail Operations & Sales');
   const [residentialAddress, setResidentialAddress] = useState('');
   const [city, setCity] = useState('');
-  const [state, setState] = useState('Texas');
+  const [state, setState] = useState('');
   const [postalCode, setPostalCode] = useState('');
 
   // Scope & Outlets
@@ -46,7 +45,8 @@ export function EmployeeModal({
   // Application Login & Security
   const [allowLogin, setAllowLogin] = useState(true);
   const [username, setUsername] = useState('');
-  const [permissionProfile, setPermissionProfile] = useState('Cashier / Standard POS');
+  const [permissionProfile, setPermissionProfile] = useState('User');
+  const [initialPassword, setInitialPassword] = useState('');
 
   // Validation & UI State
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,18 +70,18 @@ export function EmployeeModal({
       setDateOfBirth(employeeToEdit.dateOfBirth || '');
       setDateOfJoining(employeeToEdit.dateOfJoining || '');
       setPhone(employeeToEdit.phone || '');
-      setEmail(employeeToEdit.email || '');
       setDesignation(employeeToEdit.designation || 'Sales Associate');
       setDepartment(employeeToEdit.department || 'Retail Operations & Sales');
       setResidentialAddress(employeeToEdit.residentialAddress || '');
       setCity(employeeToEdit.city || '');
-      setState(employeeToEdit.state || 'Texas');
+      setState(employeeToEdit.state || '');
       setPostalCode(employeeToEdit.postalCode || '');
       setAssignmentScope(employeeToEdit.assignmentScope || 'Specific Outlets');
       setSelectedOutlets(employeeToEdit.outletAssignment || []);
       setAllowLogin(employeeToEdit.loginAccess === 'Enabled');
       setUsername(employeeToEdit.username || '');
-      setPermissionProfile(employeeToEdit.permissionProfile || 'Cashier / Standard POS');
+      setPermissionProfile(employeeToEdit.permissionProfile || 'User');
+      setInitialPassword('');
     } else {
       // Default new employee
       setFirstName('');
@@ -91,18 +91,18 @@ export function EmployeeModal({
       const today = new Date().toISOString().split('T')[0];
       setDateOfJoining(today);
       setPhone('');
-      setEmail('');
       setDesignation('Sales Associate');
       setDepartment('Retail Operations & Sales');
       setResidentialAddress('');
-      setCity('Austin');
-      setState('Texas');
+      setCity('');
+      setState('');
       setPostalCode('');
       setAssignmentScope('Specific Outlets');
       setSelectedOutlets(availableOutlets.length > 0 ? [availableOutlets[0]] : ['Downtown Flagship #04']);
       setAllowLogin(true);
       setUsername('');
-      setPermissionProfile('Cashier / Standard POS');
+      setPermissionProfile('User');
+      setInitialPassword('');
     }
     setErrors({});
     setShowSuccessNotification(false);
@@ -131,14 +131,13 @@ export function EmployeeModal({
       errs.phone = 'Please enter a valid phone number.';
     }
 
-    if (!email.trim()) {
-      errs.email = 'Email address is required.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errs.email = 'Please enter a valid email address.';
-    }
-
     if (!dateOfJoining) {
       errs.dateOfJoining = 'Date of joining is required.';
+    }
+
+    if (!isEditing && allowLogin) {
+      if (!username.trim()) errs.username = 'Username is required when login access is enabled.';
+      if (initialPassword.length < 6) errs.initialPassword = 'Initial password must be at least 6 characters.';
     }
 
     if (assignmentScope === 'Specific Outlets' && selectedOutlets.length === 0) {
@@ -163,7 +162,6 @@ export function EmployeeModal({
           designation,
           department,
           phone,
-          email,
           gender,
           dateOfBirth,
           dateOfJoining,
@@ -183,7 +181,6 @@ export function EmployeeModal({
           designation,
           department,
           phone,
-          email,
           gender,
           dateOfBirth,
           dateOfJoining,
@@ -196,6 +193,7 @@ export function EmployeeModal({
           allowLogin,
           username: username.trim() || undefined,
           permissionProfile,
+          initialPassword: allowLogin ? initialPassword : undefined,
         });
       }
 
@@ -376,20 +374,6 @@ export function EmployeeModal({
                 />
               </div>
 
-              <div>
-                <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
-                  Email Address <span className="text-error">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="rachel.g@punarvafashion.com"
-                  className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
-                    errors.email ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
-                  }`}
-                />
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
@@ -622,6 +606,22 @@ export function EmployeeModal({
 
                   <div>
                     <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
+                      Initial Password <span className="text-error">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      value={initialPassword}
+                      onChange={(e) => setInitialPassword(e.target.value)}
+                      placeholder="At least 6 characters"
+                      autoComplete="new-password"
+                      className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
+                        errors.initialPassword ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
                       Login Role / Permission Profile
                     </label>
                     <select
@@ -629,19 +629,10 @@ export function EmployeeModal({
                       onChange={(e) => setPermissionProfile(e.target.value)}
                       className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-caption text-caption text-on-surface focus:outline-none focus:border-primary cursor-pointer"
                     >
-                      <option value="Cashier / Standard POS">Cashier / Standard POS</option>
-                      <option value="Assistant Store Manager">Assistant Store Manager</option>
-                      <option value="Store Manager (Full Control)">Store Manager (Full Control)</option>
-                      <option value="Inventory Auditor">Inventory Auditor</option>
+                      <option value="User">User</option>
+                      <option value="Admin">Admin</option>
                     </select>
                   </div>
-                </div>
-
-                <div className="p-space-xs px-space-base rounded bg-tertiary-fixed/30 border border-tertiary-fixed text-on-tertiary-fixed font-caption text-caption flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[16px] text-tertiary shrink-0">info</span>
-                  <span>
-                    Temporary secure activation link will be automatically generated and emailed upon creation. No manual password entry required.
-                  </span>
                 </div>
               </div>
             </div>

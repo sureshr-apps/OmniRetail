@@ -103,4 +103,18 @@ describe('requested shell cleanup', () => {
     expect(page).toContain('supplierService.getAllSuppliers()');
     expect(detail).not.toContain('Supplier SKU:');
   });
+
+  it('keeps employee login setup username/password based and removes unsupported defaults', () => {
+    const modal = read('features/employees/components/EmployeeModal.tsx');
+
+    expect(modal).not.toContain('Email Address');
+    expect(modal).not.toContain('Temporary secure activation link');
+    expect(modal).not.toContain("setCity('Austin')");
+    expect(modal).not.toContain("setState('Texas')");
+    expect(modal).toContain('Initial Password');
+    expect(modal).toContain('initialPassword');
+    expect(modal).toContain('<option value="User">User</option>');
+    expect(modal).toContain('<option value="Admin">Admin</option>');
+    expect(modal).not.toContain('Cashier / Standard POS');
+  });
 });

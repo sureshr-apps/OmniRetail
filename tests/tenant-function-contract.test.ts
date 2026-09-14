@@ -164,6 +164,10 @@ describe('tenant callable contract', () => {
     expect(source).toContain('notes, auditId: randomUUID()');
     expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');
     expect(source).toContain('export const assignTenantServicePersonOutlet = onCall');
+    expect(source).toContain("const outletId = typeof d.outletId === 'string' ? d.outletId : ''");
+    expect(source).toContain("if (assignmentScope === 'OUTLET') await assignTenantServicePersonOutletTrusted");
+    expect(source.indexOf('assignTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id'))
+      .toBeLessThan(source.indexOf('getTenantServicePersonTrusted({ organizationId, id })'));
     expect(source).not.toContain('skills: typeof d.skills');
     expect(source).not.toContain("!specialization ||");
   });

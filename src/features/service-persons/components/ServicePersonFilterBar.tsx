@@ -8,9 +8,6 @@ interface ServicePersonFilterBarProps {
   onStatusChange: (status: 'All' | ServicePersonStatus) => void;
   assignmentFilter: 'All' | ServicePersonScope;
   onAssignmentChange: (scope: 'All' | ServicePersonScope) => void;
-  specializationFilter: string;
-  onSpecializationChange: (spec: string) => void;
-  specializations: string[];
   onResetFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -22,9 +19,6 @@ export function ServicePersonFilterBar({
   onStatusChange,
   assignmentFilter,
   onAssignmentChange,
-  specializationFilter,
-  onSpecializationChange,
-  specializations,
   onResetFilters,
   hasActiveFilters,
 }: ServicePersonFilterBarProps) {
@@ -83,24 +77,6 @@ export function ServicePersonFilterBar({
             <option value="All">All Assignments</option>
             <option value="Entire Organization">Entire Organization</option>
             <option value="Specific Outlet">Specific Outlet</option>
-          </select>
-        </div>
-
-        {/* Specialization Filter */}
-        <div className="flex items-center gap-space-xs">
-          <span className="font-caption text-caption text-on-surface-variant">Specialization:</span>
-          <select
-            id="specFilter"
-            value={specializationFilter}
-            onChange={(e) => onSpecializationChange(e.target.value)}
-            className="h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-caption text-caption text-on-surface focus:outline-none focus:border-primary"
-          >
-            <option value="All">All Specializations</option>
-            {specializations.map((spec) => (
-              <option key={spec} value={spec}>
-                {spec}
-              </option>
-            ))}
           </select>
         </div>
 

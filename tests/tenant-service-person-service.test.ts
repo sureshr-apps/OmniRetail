@@ -85,6 +85,20 @@ describe('servicePersonService mutations return the canonical entity directly', 
     expect(mocks.listTenantServicePersons).not.toHaveBeenCalled();
   });
 
+  it('passes the selected outlet when a service person is assigned to a specific outlet', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...servicePersonRow({ assignmentScope: 'OUTLET', servicePersonOutlets_on_servicePerson: [{ outlet: { id: 'out-2', outletCode: 2, name: 'Outlet 2' } }] }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    const updated = await servicePersonService.updateServicePerson('sp-1', {
+      firstName: 'Marcus', lastName: 'Renamed', assignmentScope: 'Specific Outlet', outletId: 'out-2',
+    });
+
+    expect(updated.outletId).toBe('out-2');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ assignmentScope: 'OUTLET', outletId: 'out-2' }));
+  });
+
   it('changeServicePersonStatus returns the enriched entity from the callable, with no follow-up list query', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...servicePersonRow({ status: 'INACTIVE' }) },

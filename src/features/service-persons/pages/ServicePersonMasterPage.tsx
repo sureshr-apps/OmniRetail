@@ -24,7 +24,6 @@ export function ServicePersonMasterPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | ServicePersonStatus>('All');
   const [assignmentFilter, setAssignmentFilter] = useState<'All' | ServicePersonScope>('All');
-  const [specializationFilter, setSpecializationFilter] = useState('All');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -55,11 +54,10 @@ export function ServicePersonMasterPage() {
       search: searchQuery,
       status: statusFilter,
       assignmentScope: assignmentFilter,
-      specialization: specializationFilter,
       page,
       pageSize,
     }),
-    [allServicePersons, searchQuery, statusFilter, assignmentFilter, specializationFilter, page, pageSize],
+    [allServicePersons, searchQuery, statusFilter, assignmentFilter, page, pageSize],
   );
   const selectedPerson = useMemo(
     () => allServicePersons.find((p) => p.id === selectedPersonId) ?? null,
@@ -135,24 +133,17 @@ export function ServicePersonMasterPage() {
     setPage(1);
   };
 
-  const handleSpecializationChange = (spec: string) => {
-    setSpecializationFilter(spec);
-    setPage(1);
-  };
-
   const handleResetFilters = () => {
     setSearchQuery('');
     setStatusFilter('All');
     setAssignmentFilter('All');
-    setSpecializationFilter('All');
     setPage(1);
   };
 
   const hasActiveFilters =
     searchQuery.trim() !== '' ||
     statusFilter !== 'All' ||
-    assignmentFilter !== 'All' ||
-    specializationFilter !== 'All';
+    assignmentFilter !== 'All';
 
   // Handlers for Add / Edit
   const handleOpenAddModal = () => {
@@ -239,9 +230,6 @@ export function ServicePersonMasterPage() {
         onStatusChange={handleStatusChange}
         assignmentFilter={assignmentFilter}
         onAssignmentChange={handleAssignmentChange}
-        specializationFilter={specializationFilter}
-        onSpecializationChange={handleSpecializationChange}
-        specializations={specializations}
         onResetFilters={handleResetFilters}
         hasActiveFilters={hasActiveFilters}
       />

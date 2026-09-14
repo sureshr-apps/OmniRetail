@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { ProtectedRoute } from '@/app/routes/ProtectedRoute';
@@ -14,24 +14,25 @@ import { AppLayout } from '@/shared/layout/AppLayout';
 import { TenantAppLayout } from '@/shared/layout/TenantAppLayout';
 import { getDefaultRoute, isTenantUser } from '@/app/auth/tenantAccess';
 import { useAuth } from '@/app/context/AuthContext';
+import { lazyWithChunkRecovery } from '@/app/routing/lazyWithChunkRecovery';
 
-const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then(({ LoginPage }) => ({ default: LoginPage })));
-const BillingPage = lazy(() => import('@/features/billing/pages/BillingPage').then(({ BillingPage }) => ({ default: BillingPage })));
-const SalesPage = lazy(() => import('@/features/sales/pages/SalesPage').then(({ SalesPage }) => ({ default: SalesPage })));
-const InventoryPage = lazy(() => import('@/features/inventory/pages/InventoryPage').then(({ InventoryPage }) => ({ default: InventoryPage })));
-const ProductsPage = lazy(() => import('@/features/products/pages/ProductsPage').then(({ ProductsPage }) => ({ default: ProductsPage })));
-const PurchasesPage = lazy(() => import('@/features/purchases/pages/PurchasesPage').then(({ PurchasesPage }) => ({ default: PurchasesPage })));
-const SuppliersPage = lazy(() => import('@/features/suppliers/pages/SuppliersPage').then(({ SuppliersPage }) => ({ default: SuppliersPage })));
-const CustomersPage = lazy(() => import('@/features/customers/pages/CustomersPage').then(({ CustomersPage }) => ({ default: CustomersPage })));
-const ExpensesPage = lazy(() => import('@/features/expenses/pages/ExpensesPage').then(({ ExpensesPage }) => ({ default: ExpensesPage })));
-const OutletMasterPage = lazy(() => import('@/features/outlets/pages/OutletMasterPage').then(({ OutletMasterPage }) => ({ default: OutletMasterPage })));
-const EmployeeMasterPage = lazy(() => import('@/features/employees/pages/EmployeeMasterPage').then(({ EmployeeMasterPage }) => ({ default: EmployeeMasterPage })));
-const ServicePersonMasterPage = lazy(() => import('@/features/service-persons/pages/ServicePersonMasterPage').then(({ ServicePersonMasterPage }) => ({ default: ServicePersonMasterPage })));
-const OverviewPage = lazy(() => import('@/features/overview/pages/OverviewPage').then(({ OverviewPage }) => ({ default: OverviewPage })));
-const OrganizationsPage = lazy(() => import('@/features/organizations/pages/OrganizationsPage').then(({ OrganizationsPage }) => ({ default: OrganizationsPage })));
-const OrganizationDetailsPage = lazy(() => import('@/features/organizations/pages/OrganizationDetailsPage').then(({ OrganizationDetailsPage }) => ({ default: OrganizationDetailsPage })));
-const PlansPage = lazy(() => import('@/features/plans/pages/PlansPage').then(({ PlansPage }) => ({ default: PlansPage })));
-const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage').then(({ ProfilePage }) => ({ default: ProfilePage })));
+const LoginPage = lazyWithChunkRecovery(() => import('@/features/auth/pages/LoginPage').then(({ LoginPage }) => ({ default: LoginPage })));
+const BillingPage = lazyWithChunkRecovery(() => import('@/features/billing/pages/BillingPage').then(({ BillingPage }) => ({ default: BillingPage })));
+const SalesPage = lazyWithChunkRecovery(() => import('@/features/sales/pages/SalesPage').then(({ SalesPage }) => ({ default: SalesPage })));
+const InventoryPage = lazyWithChunkRecovery(() => import('@/features/inventory/pages/InventoryPage').then(({ InventoryPage }) => ({ default: InventoryPage })));
+const ProductsPage = lazyWithChunkRecovery(() => import('@/features/products/pages/ProductsPage').then(({ ProductsPage }) => ({ default: ProductsPage })));
+const PurchasesPage = lazyWithChunkRecovery(() => import('@/features/purchases/pages/PurchasesPage').then(({ PurchasesPage }) => ({ default: PurchasesPage })));
+const SuppliersPage = lazyWithChunkRecovery(() => import('@/features/suppliers/pages/SuppliersPage').then(({ SuppliersPage }) => ({ default: SuppliersPage })));
+const CustomersPage = lazyWithChunkRecovery(() => import('@/features/customers/pages/CustomersPage').then(({ CustomersPage }) => ({ default: CustomersPage })));
+const ExpensesPage = lazyWithChunkRecovery(() => import('@/features/expenses/pages/ExpensesPage').then(({ ExpensesPage }) => ({ default: ExpensesPage })));
+const OutletMasterPage = lazyWithChunkRecovery(() => import('@/features/outlets/pages/OutletMasterPage').then(({ OutletMasterPage }) => ({ default: OutletMasterPage })));
+const EmployeeMasterPage = lazyWithChunkRecovery(() => import('@/features/employees/pages/EmployeeMasterPage').then(({ EmployeeMasterPage }) => ({ default: EmployeeMasterPage })));
+const ServicePersonMasterPage = lazyWithChunkRecovery(() => import('@/features/service-persons/pages/ServicePersonMasterPage').then(({ ServicePersonMasterPage }) => ({ default: ServicePersonMasterPage })));
+const OverviewPage = lazyWithChunkRecovery(() => import('@/features/overview/pages/OverviewPage').then(({ OverviewPage }) => ({ default: OverviewPage })));
+const OrganizationsPage = lazyWithChunkRecovery(() => import('@/features/organizations/pages/OrganizationsPage').then(({ OrganizationsPage }) => ({ default: OrganizationsPage })));
+const OrganizationDetailsPage = lazyWithChunkRecovery(() => import('@/features/organizations/pages/OrganizationDetailsPage').then(({ OrganizationDetailsPage }) => ({ default: OrganizationDetailsPage })));
+const PlansPage = lazyWithChunkRecovery(() => import('@/features/plans/pages/PlansPage').then(({ PlansPage }) => ({ default: PlansPage })));
+const ProfilePage = lazyWithChunkRecovery(() => import('@/features/profile/pages/ProfilePage').then(({ ProfilePage }) => ({ default: ProfilePage })));
 
 function TenantRouteLayout() {
   return <TenantAppLayout />;

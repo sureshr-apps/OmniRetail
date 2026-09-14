@@ -127,6 +127,7 @@ class ProductionServicePersonService implements IServicePersonService {
       yearsOfExperience: input.yearsOfExperience,
       notes: input.notes,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
+      outletId: input.outletId,
       requestId: globalThis.crypto.randomUUID(),
     });
     const row = assertCallableEntity<ServicePersonMutationResponse>(response.data, SERVICE_PERSON_MUTATION_RESPONSE_KEYS, 'createServicePerson');
@@ -145,6 +146,7 @@ class ProductionServicePersonService implements IServicePersonService {
       yearsOfExperience: input.yearsOfExperience,
       notes: input.notes,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
+      outletId: input.outletId,
       requestId: globalThis.crypto.randomUUID(),
     });
     const row = assertCallableEntity<ServicePersonMutationResponse>(response.data, SERVICE_PERSON_MUTATION_RESPONSE_KEYS, 'updateServicePerson');

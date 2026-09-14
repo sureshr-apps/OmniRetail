@@ -5,7 +5,8 @@ const mocks = vi.hoisted(() => ({
   functions: {},
   createLicensePlan: vi.fn(), updateLicensePlan: vi.fn(), getLicensePlan: vi.fn(),
   createOrganization: vi.fn(), updateOrganization: vi.fn(), getOrganization: vi.fn(),
-  updateOrganizationAdministrator: vi.fn(), listOrganizationAdministrators: vi.fn(),
+  updateOrganizationAdministrator: vi.fn(), listOrganizationAdministrators: vi.fn(), getOrganizationAdministrator: vi.fn(),
+  changeOrganizationAdministratorStatus: vi.fn(),
   httpsCallable: vi.fn(),
 }));
 
@@ -13,6 +14,7 @@ vi.mock('@omniretail/sql-connect', () => ({
   createLicensePlan: mocks.createLicensePlan, updateLicensePlan: mocks.updateLicensePlan, getLicensePlan: mocks.getLicensePlan,
   createOrganization: mocks.createOrganization, updateOrganization: mocks.updateOrganization, getOrganization: mocks.getOrganization,
   updateOrganizationAdministrator: mocks.updateOrganizationAdministrator, listOrganizationAdministrators: mocks.listOrganizationAdministrators,
+  getOrganizationAdministrator: mocks.getOrganizationAdministrator,
   LicensePlanStatus: { ACTIVE: 'ACTIVE', INACTIVE: 'INACTIVE' },
 }));
 vi.mock('@/infrastructure/firebase/client', () => ({
@@ -37,11 +39,14 @@ beforeEach(() => {
   mocks.updateOrganization.mockResolvedValue({ data: {} });
   mocks.getOrganization.mockResolvedValue({ data: { organization: orgRow() } });
   mocks.updateOrganizationAdministrator.mockResolvedValue({ data: {} });
-  mocks.listOrganizationAdministrators.mockResolvedValue({ data: { organizationMemberships: [{ createdAt: '2026-01-01T00:00:00Z', status: 'ACTIVE', user: { id: 'admin-1', username: 'owner', email: 'owner@example.com', displayName: 'Owner', phone: '+919876543210', status: 'ACTIVE', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', lastLoginAt: null } }] } });
+  const adminMembershipRow = { createdAt: '2026-01-01T00:00:00Z', status: 'ACTIVE', user: { id: 'admin-1', username: 'owner', email: 'owner@example.com', displayName: 'Updated Owner', phone: '+919876543210', status: 'ACTIVE', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', lastLoginAt: null } };
+  mocks.listOrganizationAdministrators.mockResolvedValue({ data: { organizationMemberships: [adminMembershipRow] } });
+  mocks.getOrganizationAdministrator.mockResolvedValue({ data: { organizationMemberships: [adminMembershipRow] } });
   mocks.httpsCallable.mockImplementation((_functions: unknown, name: string) => {
     if (name === 'listOrganizationsDirectory') return vi.fn().mockResolvedValue({ data: { organizations: [orgRow()] } });
     if (name === 'assignOrganizationLicense') return vi.fn().mockResolvedValue({ data: { licenseId: 'lic-1', organizationId: 'org-1', planId: 'plan-1', startDate: '2026-01-01', expiryDate: '2026-12-31', negotiatedPrice: 10, currency: 'INR' } });
     if (name === 'provisionOrganizationAdministrator') return vi.fn().mockResolvedValue({ data: { appUserId: 'admin-1', organizationMembershipId: 'membership-1', organizationId: 'org-1', username: 'owner', displayName: 'Owner', email: 'owner@example.com', phone: '+919876543210', status: 'active' } });
+    if (name === 'changeOrganizationAdministratorStatus') return mocks.changeOrganizationAdministratorStatus;
     throw new Error(`unexpected callable ${name}`);
   });
 });
@@ -62,9 +67,13 @@ describe('mutation refresh regressions', () => {
     expect(created.id).toBe('plan-1');
   });
 
-  it('reloads persisted organization data after add and edit', async () => {
+  it('creates and edits organizations via a single targeted read-back, not a full directory reload', async () => {
     const created = await organizationService.createOrganization({ name: 'Acme', primaryContactName: 'Owner', email: 'OWNER@example.com', phone: '+919876543210' });
-    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'listOrganizationsDirectory');
+    expect(mocks.createOrganization).toHaveBeenCalledOnce();
+    const createArgs = mocks.createOrganization.mock.calls[0][1] as { id: unknown };
+    expect(typeof createArgs.id).toBe('string');
+    expect(mocks.getOrganization).toHaveBeenCalledWith(mocks.dataConnect, { id: createArgs.id });
+    expect(mocks.httpsCallable).not.toHaveBeenCalledWith(mocks.functions, 'listOrganizationsDirectory');
     expect(created.organizationCode).toBe('ORG-1');
     await organizationService.updateOrganization('org-1', { name: 'Updated Acme', primaryContactName: 'New Owner', email: 'new@example.com', phone: '+919876543210' });
     expect(mocks.getOrganization).toHaveBeenCalledWith(mocks.dataConnect, { id: 'org-1' });
@@ -76,9 +85,10 @@ describe('mutation refresh regressions', () => {
     expect(JSON.stringify(license)).not.toContain('mock');
   });
 
-  it('reloads administrators after edit and maps the AppUser ID consistently', async () => {
+  it('updates administrators via a single targeted read-back, not a full list reload', async () => {
     const updated = await organizationAdminService.updateAdministrator('org-1', 'admin-1', { name: 'Updated Owner', email: 'owner@example.com', phone: '+919876543210' });
-    expect(mocks.listOrganizationAdministrators).toHaveBeenCalledWith(mocks.dataConnect, { organizationId: 'org-1' });
+    expect(mocks.getOrganizationAdministrator).toHaveBeenCalledWith(mocks.dataConnect, { organizationId: 'org-1', userId: 'admin-1' });
+    expect(mocks.listOrganizationAdministrators).not.toHaveBeenCalled();
     expect(updated.id).toBe('admin-1');
     expect(updated.name).toBe('Updated Owner');
   });
@@ -88,5 +98,18 @@ describe('mutation refresh regressions', () => {
     expect(created.id).toBe('admin-1');
     expect(created.organizationId).toBe('org-1');
     expect(created.name).toBe('Owner');
+  });
+
+  it('returns the enriched administrator from changeAdministratorStatus with no follow-up query', async () => {
+    mocks.changeOrganizationAdministratorStatus.mockResolvedValue({ data: { success: true, id: 'admin-1', organizationId: 'org-1', name: 'Owner', username: 'owner', email: 'owner@example.com', phone: '+919876543210', status: 'inactive', createdAt: '2026-01-01T00:00:00Z', lastLoginAt: null } });
+    const updated = await organizationAdminService.changeAdministratorStatus('org-1', 'admin-1', 'inactive');
+    expect(updated).toMatchObject({ id: 'admin-1', organizationId: 'org-1', status: 'inactive' });
+    expect(mocks.listOrganizationAdministrators).not.toHaveBeenCalled();
+    expect(mocks.getOrganizationAdministrator).not.toHaveBeenCalled();
+  });
+
+  it('rejects a malformed changeAdministratorStatus response instead of returning a partial entity', async () => {
+    mocks.changeOrganizationAdministratorStatus.mockResolvedValue({ data: { success: true, id: 'admin-1' } });
+    await expect(organizationAdminService.changeAdministratorStatus('org-1', 'admin-1', 'inactive')).rejects.toThrow();
   });
 });

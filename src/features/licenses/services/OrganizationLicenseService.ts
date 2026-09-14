@@ -4,6 +4,25 @@ import { httpsCallable } from 'firebase/functions';
 import { OrganizationLicense, OrganizationLicenseHistory, AssignLicenseInput, ChangePlanInput, ModifyCommercialTermsInput, RenewLicenseInput, EnrichedOrganizationLicense } from '../types';
 import { calculateLicenseStatus } from '../utils/licenseStatus';
 import { licensePlanService } from '@/features/plans/services/LicensePlanService';
+import { assertCallableEntity } from '@/shared/utils/callableResponse';
+
+interface LicenseMutationResponse {
+  licenseId: string;
+  organizationId: string;
+  planId: string;
+  startDate: string;
+  expiryDate: string;
+  negotiatedPrice: number;
+  currency: string;
+}
+
+const LICENSE_MUTATION_RESPONSE_KEYS: (keyof LicenseMutationResponse)[] = [
+  'licenseId', 'organizationId', 'planId', 'startDate', 'expiryDate', 'negotiatedPrice', 'currency',
+];
+
+function mapLicenseMutationResponse(x: LicenseMutationResponse): OrganizationLicense {
+  return { id: x.licenseId, organizationId: x.organizationId, planId: x.planId, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+}
 
 export interface IOrganizationLicenseService {
   getCurrentLicense(organizationId: string): Promise<OrganizationLicense | null>;
@@ -20,13 +39,25 @@ class ProductionOrganizationLicenseService implements IOrganizationLicenseServic
   async getLicenseWithPlan(organizationId: string) { const license = await this.getCurrentLicense(organizationId); if (!license) return { license: null, plan: null, status: 'not_assigned' as const }; const plan = await licensePlanService.getPlan(license.planId); return { license, plan, status: calculateLicenseStatus(license) }; }
   async getLicenseHistory(organizationId: string) { const r = await getOrganizationLicenseHistory(services().dataConnect, { organizationId }); return r.data.licenseHistories.map(x => ({ id: x.id, organizationId: x.organization.id, eventType: x.eventType.toLowerCase() as OrganizationLicenseHistory['eventType'], eventAt: x.eventAt, planSnapshot: { planId: x.planCode, planName: x.planName, planLevel: x.planLevel, maxStores: x.maxStores, maxUsers: x.maxUsers }, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, changes: (x.changes as OrganizationLicenseHistory['changes']) ?? undefined })); }
   async assignLicense(organizationId: string, input: AssignLicenseInput) {
-    const call = httpsCallable<typeof input & { organizationId: string; idempotencyKey: string }, { licenseId: string; organizationId: string; planId: string; startDate: string; expiryDate: string; negotiatedPrice: number; currency: string }>(services().functions, 'assignOrganizationLicense');
+    const call = httpsCallable(services().functions, 'assignOrganizationLicense');
     const result = await call({ organizationId, ...input, idempotencyKey: uuid() });
-    const x = result.data;
-    return { id: x.licenseId, organizationId: x.organizationId, planId: x.planId, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'assignLicense');
+    return mapLicenseMutationResponse(x);
   }
-  async changePlan(organizationId: string, input: ChangePlanInput) { await httpsCallable(services().functions, 'changeOrganizationLicensePlan')({ organizationId, targetPlanId: input.newPlanId, negotiatedPrice: input.newNegotiatedPrice, currency: input.currency, idempotencyKey: uuid() }); const x = await this.getCurrentLicense(organizationId); if (!x) throw new Error('Unable to load the updated license.'); return x; }
-  async modifyCommercialTerms(organizationId: string, input: ModifyCommercialTermsInput) { await httpsCallable(services().functions, 'modifyOrganizationCommercialTerms')({ organizationId, ...input, idempotencyKey: uuid() }); const x = await this.getCurrentLicense(organizationId); if (!x) throw new Error('Unable to load the updated license.'); return x; }
-  async renewLicense(organizationId: string, input: RenewLicenseInput) { await httpsCallable(services().functions, 'renewOrganizationLicense')({ organizationId, ...input, idempotencyKey: uuid() }); const x = await this.getCurrentLicense(organizationId); if (!x) throw new Error('Unable to load the renewed license.'); return x; }
+  async changePlan(organizationId: string, input: ChangePlanInput) {
+    const result = await httpsCallable(services().functions, 'changeOrganizationLicensePlan')({ organizationId, targetPlanId: input.newPlanId, negotiatedPrice: input.newNegotiatedPrice, currency: input.currency, idempotencyKey: uuid() });
+    const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'changePlan');
+    return mapLicenseMutationResponse(x);
+  }
+  async modifyCommercialTerms(organizationId: string, input: ModifyCommercialTermsInput) {
+    const result = await httpsCallable(services().functions, 'modifyOrganizationCommercialTerms')({ organizationId, ...input, idempotencyKey: uuid() });
+    const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'modifyCommercialTerms');
+    return mapLicenseMutationResponse(x);
+  }
+  async renewLicense(organizationId: string, input: RenewLicenseInput) {
+    const result = await httpsCallable(services().functions, 'renewOrganizationLicense')({ organizationId, ...input, idempotencyKey: uuid() });
+    const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'renewLicense');
+    return mapLicenseMutationResponse(x);
+  }
 }
 export const organizationLicenseService: IOrganizationLicenseService = new ProductionOrganizationLicenseService();

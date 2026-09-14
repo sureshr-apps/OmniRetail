@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Employee,
   EmployeeStatus,
@@ -7,9 +7,10 @@ import {
   CreateEmployeeInput,
   UpdateEmployeeInput,
 } from '../types';
-import { employeeService } from '../services/employeeService';
+import { employeeService, deriveEmployeeView } from '../services/employeeService';
 import { outletService } from '../../outlets/services/outletService';
 import { exportEmployeesToCsv } from '../utils/exportCsv';
+import { upsertById } from '@/shared/utils/listState';
 import { EmployeeHeader } from '../components/EmployeeHeader';
 import { EmployeeFilterBar } from '../components/EmployeeFilterBar';
 import { EmployeeTable } from '../components/EmployeeTable';
@@ -31,11 +32,9 @@ export function EmployeeMasterPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
 
-  // Data & Results
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [totalEmployees, setTotalEmployees] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [activeCount, setActiveCount] = useState(24);
+  // Data: the full org-scoped set. Mutations upsert into this directly; the
+  // visible page, sort, and aggregate counts are all derived from it below.
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<string[]>([]);
   const [availableDepartments, setAvailableDepartments] = useState<string[]>([]);
   const [nextEmployeeCode, setNextEmployeeCode] = useState('EMP-125');
@@ -44,8 +43,9 @@ export function EmployeeMasterPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Modals & Drawers
-  const [selectedEmployeeForDrawer, setSelectedEmployeeForDrawer] = useState<Employee | null>(null);
+  // Modals & Drawers — selection is an id; the record itself is always derived
+  // from allEmployees, so it reflects mutations with no extra sync code.
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +60,25 @@ export function EmployeeMasterPage() {
   const [isProcessingAccess, setIsProcessingAccess] = useState(false);
 
   const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
+
+  const view = useMemo(
+    () =>
+      deriveEmployeeView(allEmployees, {
+        search: searchQuery,
+        status: statusFilter,
+        scope: scopeFilter,
+        loginAccess: loginFilter,
+        outlet: outletFilter,
+        department: departmentFilter,
+        page,
+        pageSize,
+      }),
+    [allEmployees, searchQuery, statusFilter, scopeFilter, loginFilter, outletFilter, departmentFilter, page, pageSize],
+  );
+  const selectedEmployee = useMemo(
+    () => allEmployees.find((e) => e.id === selectedEmployeeId) ?? null,
+    [allEmployees, selectedEmployeeId],
+  );
 
   // Load available outlets and departments once on mount
   useEffect(() => {
@@ -78,57 +97,33 @@ export function EmployeeMasterPage() {
     loadMetadata();
   }, []);
 
-  // Fetch employees
-  const fetchEmployees = useCallback(async () => {
+  // Load Data — only for the initial mount or an error retry. Mutations no
+  // longer trigger this; they update allEmployees locally instead.
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-
-      const result = await employeeService.getEmployees({
-        search: searchQuery,
-        status: statusFilter,
-        scope: scopeFilter,
-        loginAccess: loginFilter,
-        outlet: outletFilter,
-        department: departmentFilter,
-        page,
-        pageSize,
-      });
-
-      setEmployees(result.employees);
-      setTotalEmployees(result.total);
-      setTotalPages(result.totalPages);
-      setActiveCount(result.activeCount);
+      setAllEmployees(await employeeService.getAllEmployees());
       setNextEmployeeCode(employeeService.getNextEmployeeCode());
-
-      // If a drawer is open, keep its data fresh
-      if (selectedEmployeeForDrawer) {
-        const refreshed = await employeeService.getEmployee(selectedEmployeeForDrawer.id);
-        if (refreshed) {
-          setSelectedEmployeeForDrawer(refreshed);
-        }
-      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to connect to employee registry.';
       setError(msg);
     } finally {
       setIsLoading(false);
     }
-  }, [
-    searchQuery,
-    statusFilter,
-    scopeFilter,
-    loginFilter,
-    outletFilter,
-    departmentFilter,
-    page,
-    pageSize,
-    selectedEmployeeForDrawer?.id,
-  ]);
+  }, []);
 
   useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
+    loadData();
+  }, [loadData]);
+
+  // If a mutation removes the last item(s) from the current page, fall back
+  // to the previous page instead of showing an empty page.
+  useEffect(() => {
+    if (view.total > 0 && view.employees.length === 0 && page > 1) {
+      setPage(view.totalPages);
+    }
+  }, [view, page]);
 
   // Handlers for search & filters
   const handleSearchChange = (query: string) => {
@@ -204,23 +199,21 @@ export function EmployeeMasterPage() {
 
   // Action: Open Details Drawer
   const handleViewDetails = (emp: Employee) => {
-    setSelectedEmployeeForDrawer(emp);
+    setSelectedEmployeeId(emp.id);
     setIsDrawerOpen(true);
   };
 
   // Action: Submit Create Employee
   const handleCreateEmployee = async (input: CreateEmployeeInput) => {
-    await employeeService.createEmployee(input);
-    await fetchEmployees();
+    const created = await employeeService.createEmployee(input);
+    setAllEmployees((prev) => upsertById(prev, created));
+    setNextEmployeeCode(employeeService.getNextEmployeeCode());
   };
 
   // Action: Submit Update Employee
   const handleUpdateEmployee = async (id: string, input: UpdateEmployeeInput) => {
     const updated = await employeeService.updateEmployee(id, input);
-    if (selectedEmployeeForDrawer && selectedEmployeeForDrawer.id === id) {
-      setSelectedEmployeeForDrawer(updated);
-    }
-    await fetchEmployees();
+    setAllEmployees((prev) => upsertById(prev, updated));
   };
 
   // Action: Confirm Status Change
@@ -240,13 +233,10 @@ export function EmployeeMasterPage() {
         newStatus
       );
 
-      if (selectedEmployeeForDrawer && selectedEmployeeForDrawer.id === updated.id) {
-        setSelectedEmployeeForDrawer(updated);
-      }
+      setAllEmployees((prev) => upsertById(prev, updated));
 
       setIsStatusDialogOpen(false);
       setEmployeeForStatusChange(null);
-      await fetchEmployees();
     } catch (err) {
       console.error('Failed to change employee status:', err);
     } finally {
@@ -271,13 +261,10 @@ export function EmployeeMasterPage() {
         newAccess
       );
 
-      if (selectedEmployeeForDrawer && selectedEmployeeForDrawer.id === updated.id) {
-        setSelectedEmployeeForDrawer(updated);
-      }
+      setAllEmployees((prev) => upsertById(prev, updated));
 
       setIsAccessDialogOpen(false);
       setEmployeeForAccessChange(null);
-      await fetchEmployees();
     } catch (err) {
       console.error('Failed to change login access:', err);
     } finally {
@@ -285,10 +272,10 @@ export function EmployeeMasterPage() {
     }
   };
 
-  // Action: Export CSV
-  const handleExportCsv = async () => {
-    // Export all matching current filters
-    const result = await employeeService.getEmployees({
+  // Action: Export CSV — derived locally from the already-loaded full set,
+  // matching the current filters, with no extra network call.
+  const handleExportCsv = () => {
+    const res = deriveEmployeeView(allEmployees, {
       search: searchQuery,
       status: statusFilter,
       scope: scopeFilter,
@@ -296,15 +283,15 @@ export function EmployeeMasterPage() {
       outlet: outletFilter,
       department: departmentFilter,
       page: 1,
-      pageSize: 500,
+      pageSize: Math.max(allEmployees.length, 1),
     });
-    exportEmployeesToCsv(result.employees);
+    exportEmployeesToCsv(res.employees);
   };
 
   return (
     <div className="p-space-xl max-w-7xl mx-auto space-y-space-xl">
       {/* 1. Header with Title, Meta, and Add Employee Button */}
-      <EmployeeHeader activeCount={activeCount} onAddEmployee={handleOpenAddModal} />
+      <EmployeeHeader activeCount={view.activeCount} onAddEmployee={handleOpenAddModal} />
 
       {/* 2. Filter Bar */}
       <EmployeeFilterBar
@@ -328,11 +315,11 @@ export function EmployeeMasterPage() {
       {/* 3. Table Container */}
       <div className="bg-surface-container-lowest rounded-lg border border-outline-variant/30 shadow-xs overflow-hidden">
         <EmployeeTable
-          employees={employees}
+          employees={view.employees}
           isLoading={isLoading}
           error={error}
           onViewDetails={handleViewDetails}
-          onRetry={fetchEmployees}
+          onRetry={loadData}
           hasActiveFilters={hasActiveFilters}
           onClearFilters={handleClearFilters}
           onAddEmployee={handleOpenAddModal}
@@ -343,8 +330,8 @@ export function EmployeeMasterPage() {
           <EmployeePagination
             currentPage={page}
             pageSize={pageSize}
-            totalItems={totalEmployees}
-            totalPages={totalPages}
+            totalItems={view.total}
+            totalPages={view.totalPages}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
           />
@@ -353,9 +340,12 @@ export function EmployeeMasterPage() {
 
       {/* 5. Detail Drawer */}
       <EmployeeDetailDrawer
-        employee={selectedEmployeeForDrawer}
+        employee={selectedEmployee}
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setSelectedEmployeeId(null);
+        }}
         onEdit={(emp) => {
           setIsDrawerOpen(false);
           handleOpenEditModal(emp);

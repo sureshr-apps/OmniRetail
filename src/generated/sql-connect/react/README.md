@@ -33,6 +33,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*GetOrganizationTrusted*](#getorganizationtrusted)
   - [*ListOrganizationAdministrators*](#listorganizationadministrators)
   - [*GetOrganizationAdministrator*](#getorganizationadministrator)
+  - [*GetOrganizationAdministratorTrusted*](#getorganizationadministratortrusted)
   - [*ResolveOrganizationAdministratorIdentity*](#resolveorganizationadministratoridentity)
   - [*GetLifecycleIdempotency*](#getlifecycleidempotency)
   - [*GetOrganizationLicense*](#getorganizationlicense)
@@ -53,8 +54,14 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ListTenantExpenses*](#listtenantexpenses)
   - [*ListTenantSales*](#listtenantsales)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
+  - [*GetTenantSupplierTrusted*](#gettenantsuppliertrusted)
+  - [*GetTenantCustomerTrusted*](#gettenantcustomertrusted)
+  - [*GetTenantProductTrusted*](#gettenantproducttrusted)
   - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
   - [*ResolveTenantEmployeeIdentityTrusted*](#resolvetenantemployeeidentitytrusted)
+  - [*GetTenantOutletTrusted*](#gettenantoutlettrusted)
+  - [*GetTenantEmployeeTrusted*](#gettenantemployeetrusted)
+  - [*GetTenantServicePersonTrusted*](#gettenantservicepersontrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
@@ -1674,6 +1681,104 @@ export default function GetOrganizationAdministratorComponent() {
   const dataConnect = getDataConnect(connectorConfig);
   const options = { staleTime: 5 * 1000 };
   const query = useGetOrganizationAdministrator(dataConnect, getOrganizationAdministratorVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetOrganizationAdministratorTrusted
+You can execute the `GetOrganizationAdministratorTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetOrganizationAdministratorTrusted(dc: DataConnect, vars: GetOrganizationAdministratorTrustedVariables, options?: useDataConnectQueryOptions<GetOrganizationAdministratorTrustedData>): UseDataConnectQueryResult<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetOrganizationAdministratorTrusted(vars: GetOrganizationAdministratorTrustedVariables, options?: useDataConnectQueryOptions<GetOrganizationAdministratorTrustedData>): UseDataConnectQueryResult<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
+```
+
+### Variables
+The `GetOrganizationAdministratorTrusted` Query requires an argument of type `GetOrganizationAdministratorTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetOrganizationAdministratorTrustedVariables {
+  organizationId: UUIDString;
+  userId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetOrganizationAdministratorTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetOrganizationAdministratorTrusted` Query is of type `GetOrganizationAdministratorTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetOrganizationAdministratorTrustedData {
+  organizationMemberships: ({
+    createdAt: TimestampString;
+    status: MembershipStatus;
+    user: {
+      id: UUIDString;
+      username: string;
+      email: string;
+      displayName: string;
+      phone?: string | null;
+      status: AppUserStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      lastLoginAt?: TimestampString | null;
+    } & AppUser_Key;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetOrganizationAdministratorTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetOrganizationAdministratorTrustedVariables } from '@omniretail/sql-connect';
+import { useGetOrganizationAdministratorTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetOrganizationAdministratorTrustedComponent() {
+  // The `useGetOrganizationAdministratorTrusted` Query hook requires an argument of type `GetOrganizationAdministratorTrustedVariables`:
+  const getOrganizationAdministratorTrustedVars: GetOrganizationAdministratorTrustedVariables = {
+    organizationId: ..., 
+    userId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetOrganizationAdministratorTrusted(getOrganizationAdministratorTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetOrganizationAdministratorTrusted({ organizationId: ..., userId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetOrganizationAdministratorTrusted(dataConnect, getOrganizationAdministratorTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationAdministratorTrusted(getOrganizationAdministratorTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetOrganizationAdministratorTrusted(dataConnect, getOrganizationAdministratorTrustedVars, options);
 
   // Then, you can render your component dynamically based on the status of the Query.
   if (query.isPending) {
@@ -3903,6 +4008,336 @@ export default function GetTenantInventoryStockTrustedComponent() {
 }
 ```
 
+## GetTenantSupplierTrusted
+You can execute the `GetTenantSupplierTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantSupplierTrusted(dc: DataConnect, vars: GetTenantSupplierTrustedVariables, options?: useDataConnectQueryOptions<GetTenantSupplierTrustedData>): UseDataConnectQueryResult<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantSupplierTrusted(vars: GetTenantSupplierTrustedVariables, options?: useDataConnectQueryOptions<GetTenantSupplierTrustedData>): UseDataConnectQueryResult<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
+```
+
+### Variables
+The `GetTenantSupplierTrusted` Query requires an argument of type `GetTenantSupplierTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantSupplierTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantSupplierTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantSupplierTrusted` Query is of type `GetTenantSupplierTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantSupplierTrustedData {
+  suppliers: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    supplierCode: string;
+    name: string;
+    contactPerson: string;
+    phone: string;
+    email: string;
+    taxId: string;
+    address?: string | null;
+    city: string;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    category: string;
+    paymentTerms: string;
+    creditLimit: number;
+    status: SupplierStatus;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Supplier_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantSupplierTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantSupplierTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantSupplierTrustedComponent() {
+  // The `useGetTenantSupplierTrusted` Query hook requires an argument of type `GetTenantSupplierTrustedVariables`:
+  const getTenantSupplierTrustedVars: GetTenantSupplierTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantSupplierTrusted(getTenantSupplierTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantSupplierTrusted({ organizationId: ..., id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantSupplierTrusted(dataConnect, getTenantSupplierTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantSupplierTrusted(getTenantSupplierTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantSupplierTrusted(dataConnect, getTenantSupplierTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.suppliers);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantCustomerTrusted
+You can execute the `GetTenantCustomerTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantCustomerTrusted(dc: DataConnect, vars: GetTenantCustomerTrustedVariables, options?: useDataConnectQueryOptions<GetTenantCustomerTrustedData>): UseDataConnectQueryResult<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantCustomerTrusted(vars: GetTenantCustomerTrustedVariables, options?: useDataConnectQueryOptions<GetTenantCustomerTrustedData>): UseDataConnectQueryResult<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
+```
+
+### Variables
+The `GetTenantCustomerTrusted` Query requires an argument of type `GetTenantCustomerTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantCustomerTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantCustomerTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantCustomerTrusted` Query is of type `GetTenantCustomerTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantCustomerTrustedData {
+  customers: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    customerCode: string;
+    type: CustomerType;
+    name: string;
+    phone: string;
+    email: string;
+    taxId?: string | null;
+    address?: string | null;
+    city: string;
+    state: string;
+    postalCode?: string | null;
+    country?: string | null;
+    creditLimit?: number | null;
+    preferredContact?: string | null;
+    dateOfBirth?: DateString | null;
+    gender?: string | null;
+    status: CustomerStatus;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Customer_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantCustomerTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantCustomerTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantCustomerTrustedComponent() {
+  // The `useGetTenantCustomerTrusted` Query hook requires an argument of type `GetTenantCustomerTrustedVariables`:
+  const getTenantCustomerTrustedVars: GetTenantCustomerTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantCustomerTrusted(getTenantCustomerTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantCustomerTrusted({ organizationId: ..., id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantCustomerTrusted(dataConnect, getTenantCustomerTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantCustomerTrusted(getTenantCustomerTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantCustomerTrusted(dataConnect, getTenantCustomerTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.customers);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantProductTrusted
+You can execute the `GetTenantProductTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantProductTrusted(dc: DataConnect, vars: GetTenantProductTrustedVariables, options?: useDataConnectQueryOptions<GetTenantProductTrustedData>): UseDataConnectQueryResult<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantProductTrusted(vars: GetTenantProductTrustedVariables, options?: useDataConnectQueryOptions<GetTenantProductTrustedData>): UseDataConnectQueryResult<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
+```
+
+### Variables
+The `GetTenantProductTrusted` Query requires an argument of type `GetTenantProductTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantProductTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantProductTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantProductTrusted` Query is of type `GetTenantProductTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantProductTrustedData {
+  products: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    productCode: string;
+    name: string;
+    brand: string;
+    categoryId: string;
+    categoryName: string;
+    subcategory?: string | null;
+    type: ProductType;
+    sku: string;
+    barcode?: string | null;
+    hsnCode?: string | null;
+    unitOfMeasure?: string | null;
+    sellingPrice: number;
+    mrp?: number | null;
+    cost?: number | null;
+    minSellingPrice?: number | null;
+    discountAllowed: boolean;
+    taxCategory?: string | null;
+    status: ProductStatus;
+    reorderLevel?: number | null;
+    reorderQuantity?: number | null;
+    primarySupplier?: string | null;
+    supplierProductCode?: string | null;
+    description?: string | null;
+    imageUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Product_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantProductTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantProductTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantProductTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantProductTrustedComponent() {
+  // The `useGetTenantProductTrusted` Query hook requires an argument of type `GetTenantProductTrustedVariables`:
+  const getTenantProductTrustedVars: GetTenantProductTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantProductTrusted(getTenantProductTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantProductTrusted({ organizationId: ..., id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantProductTrusted(dataConnect, getTenantProductTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantProductTrusted(getTenantProductTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantProductTrusted(dataConnect, getTenantProductTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.products);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
 ## GetTenantMembershipTrusted
 You can execute the `GetTenantMembershipTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
 
@@ -4090,6 +4525,322 @@ export default function ResolveTenantEmployeeIdentityTrustedComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.employees);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantOutletTrusted
+You can execute the `GetTenantOutletTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantOutletTrusted(dc: DataConnect, vars: GetTenantOutletTrustedVariables, options?: useDataConnectQueryOptions<GetTenantOutletTrustedData>): UseDataConnectQueryResult<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantOutletTrusted(vars: GetTenantOutletTrustedVariables, options?: useDataConnectQueryOptions<GetTenantOutletTrustedData>): UseDataConnectQueryResult<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
+```
+
+### Variables
+The `GetTenantOutletTrusted` Query requires an argument of type `GetTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantOutletTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantOutletTrusted` Query is of type `GetTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantOutletTrustedData {
+  outlets: ({
+    id: UUIDString;
+    outletCode: number;
+    name: string;
+    contactPerson: string;
+    email?: string | null;
+    phone: string;
+    address: string;
+    status: OutletStatus;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+  } & Outlet_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantOutletTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantOutletTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantOutletTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantOutletTrustedComponent() {
+  // The `useGetTenantOutletTrusted` Query hook requires an argument of type `GetTenantOutletTrustedVariables`:
+  const getTenantOutletTrustedVars: GetTenantOutletTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantOutletTrusted(getTenantOutletTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantOutletTrusted({ organizationId: ..., id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantOutletTrusted(dataConnect, getTenantOutletTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantOutletTrusted(getTenantOutletTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantOutletTrusted(dataConnect, getTenantOutletTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.outlets);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantEmployeeTrusted
+You can execute the `GetTenantEmployeeTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantEmployeeTrusted(dc: DataConnect, vars: GetTenantEmployeeTrustedVariables, options?: useDataConnectQueryOptions<GetTenantEmployeeTrustedData>): UseDataConnectQueryResult<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantEmployeeTrusted(vars: GetTenantEmployeeTrustedVariables, options?: useDataConnectQueryOptions<GetTenantEmployeeTrustedData>): UseDataConnectQueryResult<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
+```
+
+### Variables
+The `GetTenantEmployeeTrusted` Query requires an argument of type `GetTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantEmployeeTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantEmployeeTrusted` Query is of type `GetTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantEmployeeTrustedData {
+  employees: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    user?: {
+      id: UUIDString;
+      username: string;
+      email: string;
+    } & AppUser_Key;
+    employeeCode: string;
+    fullName: string;
+    email?: string | null;
+    phone: string;
+    designation: string;
+    department?: string | null;
+    dateOfJoining: DateString;
+    assignmentScope: string;
+    employmentStatus: EmploymentStatus;
+    loginAccess: LoginAccessStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    employeeOutlets_on_employee: ({
+      outlet: {
+        id: UUIDString;
+        outletCode: number;
+        name: string;
+      } & Outlet_Key;
+    })[];
+  } & Employee_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantEmployeeTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantEmployeeTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantEmployeeTrustedComponent() {
+  // The `useGetTenantEmployeeTrusted` Query hook requires an argument of type `GetTenantEmployeeTrustedVariables`:
+  const getTenantEmployeeTrustedVars: GetTenantEmployeeTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantEmployeeTrusted(getTenantEmployeeTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantEmployeeTrusted({ organizationId: ..., id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantEmployeeTrusted(dataConnect, getTenantEmployeeTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantEmployeeTrusted(getTenantEmployeeTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantEmployeeTrusted(dataConnect, getTenantEmployeeTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.employees);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## GetTenantServicePersonTrusted
+You can execute the `GetTenantServicePersonTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useGetTenantServicePersonTrusted(dc: DataConnect, vars: GetTenantServicePersonTrustedVariables, options?: useDataConnectQueryOptions<GetTenantServicePersonTrustedData>): UseDataConnectQueryResult<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useGetTenantServicePersonTrusted(vars: GetTenantServicePersonTrustedVariables, options?: useDataConnectQueryOptions<GetTenantServicePersonTrustedData>): UseDataConnectQueryResult<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
+```
+
+### Variables
+The `GetTenantServicePersonTrusted` Query requires an argument of type `GetTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface GetTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `GetTenantServicePersonTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `GetTenantServicePersonTrusted` Query is of type `GetTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface GetTenantServicePersonTrustedData {
+  servicePeople: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    servicePersonCode: string;
+    fullName: string;
+    email?: string | null;
+    phone: string;
+    specialization: string;
+    skills?: string | null;
+    yearsOfExperience?: number | null;
+    assignmentScope: string;
+    status: EmploymentStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    servicePersonOutlets_on_servicePerson: ({
+      outlet: {
+        id: UUIDString;
+        outletCode: number;
+        name: string;
+      } & Outlet_Key;
+    })[];
+  } & ServicePerson_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `GetTenantServicePersonTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, GetTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
+import { useGetTenantServicePersonTrusted } from '@omniretail/sql-connect/react'
+
+export default function GetTenantServicePersonTrustedComponent() {
+  // The `useGetTenantServicePersonTrusted` Query hook requires an argument of type `GetTenantServicePersonTrustedVariables`:
+  const getTenantServicePersonTrustedVars: GetTenantServicePersonTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useGetTenantServicePersonTrusted(getTenantServicePersonTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useGetTenantServicePersonTrusted({ organizationId: ..., id: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useGetTenantServicePersonTrusted(dataConnect, getTenantServicePersonTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantServicePersonTrusted(getTenantServicePersonTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useGetTenantServicePersonTrusted(dataConnect, getTenantServicePersonTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.servicePeople);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -6619,6 +7370,7 @@ The `CreateOrganization` Mutation requires an argument of type `CreateOrganizati
 
 ```javascript
 export interface CreateOrganizationVariables {
+  id: UUIDString;
   organizationCode: string;
   businessName: string;
   legalEntityName?: string | null;
@@ -6684,6 +7436,7 @@ export default function CreateOrganizationComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateOrganization` Mutation requires an argument of type `CreateOrganizationVariables`:
   const createOrganizationVars: CreateOrganizationVariables = {
+    id: ..., 
     organizationCode: ..., 
     businessName: ..., 
     legalEntityName: ..., // optional
@@ -6702,7 +7455,7 @@ export default function CreateOrganizationComponent() {
   };
   mutation.mutate(createOrganizationVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8285,6 +9038,7 @@ The `CreateTenantSupplier` Mutation requires an argument of type `CreateTenantSu
 
 ```javascript
 export interface CreateTenantSupplierVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   supplierCode: string;
   name: string;
@@ -8318,6 +9072,32 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    supplier?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      supplierCode: string;
+      name: string;
+      contactPerson: string;
+      phone: string;
+      email: string;
+      taxId: string;
+      address?: string | null;
+      city: string;
+      state?: string | null;
+      postalCode?: string | null;
+      country?: string | null;
+      category: string;
+      paymentTerms: string;
+      creditLimit: number;
+      status: SupplierStatus;
+      notes?: string | null;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+    } & Supplier_Key;
+  };
 }
 ```
 
@@ -8354,6 +9134,7 @@ export default function CreateTenantSupplierComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantSupplier` Mutation requires an argument of type `CreateTenantSupplierVariables`:
   const createTenantSupplierVars: CreateTenantSupplierVariables = {
+    id: ..., 
     organizationId: ..., 
     supplierCode: ..., 
     name: ..., 
@@ -8376,7 +9157,7 @@ export default function CreateTenantSupplierComponent() {
   };
   mutation.mutate(createTenantSupplierVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., supplierCode: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., supplierCode: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8397,6 +9178,7 @@ export default function CreateTenantSupplierComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.supplier_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8655,6 +9437,7 @@ The `CreateTenantCustomer` Mutation requires an argument of type `CreateTenantCu
 
 ```javascript
 export interface CreateTenantCustomerVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   customerCode: string;
   type: CustomerType;
@@ -8689,6 +9472,33 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    customer?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      customerCode: string;
+      type: CustomerType;
+      name: string;
+      phone: string;
+      email: string;
+      taxId?: string | null;
+      address?: string | null;
+      city: string;
+      state: string;
+      postalCode?: string | null;
+      country?: string | null;
+      creditLimit?: number | null;
+      preferredContact?: string | null;
+      dateOfBirth?: DateString | null;
+      gender?: string | null;
+      status: CustomerStatus;
+      notes?: string | null;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+    } & Customer_Key;
+  };
 }
 ```
 
@@ -8725,6 +9535,7 @@ export default function CreateTenantCustomerComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantCustomer` Mutation requires an argument of type `CreateTenantCustomerVariables`:
   const createTenantCustomerVars: CreateTenantCustomerVariables = {
+    id: ..., 
     organizationId: ..., 
     customerCode: ..., 
     type: ..., 
@@ -8748,7 +9559,7 @@ export default function CreateTenantCustomerComponent() {
   };
   mutation.mutate(createTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., customerCode: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., customerCode: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8769,6 +9580,7 @@ export default function CreateTenantCustomerComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.customer_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9029,6 +9841,7 @@ The `CreateTenantProduct` Mutation requires an argument of type `CreateTenantPro
 
 ```javascript
 export interface CreateTenantProductVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   productCode: string;
   name: string;
@@ -9070,6 +9883,40 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface CreateTenantProductData {
   product_insert: Product_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    product?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      productCode: string;
+      name: string;
+      brand: string;
+      categoryId: string;
+      categoryName: string;
+      subcategory?: string | null;
+      type: ProductType;
+      sku: string;
+      barcode?: string | null;
+      hsnCode?: string | null;
+      unitOfMeasure?: string | null;
+      sellingPrice: number;
+      mrp?: number | null;
+      cost?: number | null;
+      minSellingPrice?: number | null;
+      discountAllowed: boolean;
+      taxCategory?: string | null;
+      status: ProductStatus;
+      reorderLevel?: number | null;
+      reorderQuantity?: number | null;
+      primarySupplier?: string | null;
+      supplierProductCode?: string | null;
+      description?: string | null;
+      imageUrl?: string | null;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+    } & Product_Key;
+  };
 }
 ```
 
@@ -9106,6 +9953,7 @@ export default function CreateTenantProductComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantProduct` Mutation requires an argument of type `CreateTenantProductVariables`:
   const createTenantProductVars: CreateTenantProductVariables = {
+    id: ..., 
     organizationId: ..., 
     productCode: ..., 
     name: ..., 
@@ -9136,7 +9984,7 @@ export default function CreateTenantProductComponent() {
   };
   mutation.mutate(createTenantProductVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., productCode: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., productCode: ..., name: ..., brand: ..., categoryId: ..., categoryName: ..., subcategory: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., supplierProductCode: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9157,6 +10005,7 @@ export default function CreateTenantProductComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.product_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9983,6 +10832,7 @@ The `CreateTenantOutletTrusted` Mutation requires an argument of type `CreateTen
 
 ```javascript
 export interface CreateTenantOutletTrustedVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   name: string;
   contactPerson: string;
@@ -10006,6 +10856,21 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+      contactPerson: string;
+      email?: string | null;
+      phone: string;
+      address: string;
+      status: OutletStatus;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+    } & Outlet_Key;
+  };
 }
 ```
 
@@ -10042,6 +10907,7 @@ export default function CreateTenantOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantOutletTrusted` Mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
   const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
+    id: ..., 
     organizationId: ..., 
     name: ..., 
     contactPerson: ..., 
@@ -10054,7 +10920,7 @@ export default function CreateTenantOutletTrustedComponent() {
   };
   mutation.mutate(createTenantOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10075,6 +10941,7 @@ export default function CreateTenantOutletTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10315,6 +11182,7 @@ The `CreateTenantEmployeeProfileTrusted` Mutation requires an argument of type `
 
 ```javascript
 export interface CreateTenantEmployeeProfileTrustedVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   employeeCode: string;
   fullName: string;
@@ -10341,6 +11209,38 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    employee?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      user?: {
+        id: UUIDString;
+        username: string;
+        email: string;
+      } & AppUser_Key;
+      employeeCode: string;
+      fullName: string;
+      email?: string | null;
+      phone: string;
+      designation: string;
+      department?: string | null;
+      dateOfJoining: DateString;
+      assignmentScope: string;
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      employeeOutlets_on_employee: ({
+        outlet: {
+          id: UUIDString;
+          outletCode: number;
+          name: string;
+        } & Outlet_Key;
+      })[];
+    } & Employee_Key;
+  };
 }
 ```
 
@@ -10377,6 +11277,7 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantEmployeeProfileTrusted` Mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
   const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
+    id: ..., 
     organizationId: ..., 
     employeeCode: ..., 
     fullName: ..., 
@@ -10392,7 +11293,7 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   };
   mutation.mutate(createTenantEmployeeProfileTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., employeeCode: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., employeeCode: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10413,6 +11314,7 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10433,6 +11335,7 @@ The `ProvisionTenantEmployeeTrusted` Mutation requires an argument of type `Prov
 
 ```javascript
 export interface ProvisionTenantEmployeeTrustedVariables {
+  id: UUIDString;
   userId: UUIDString;
   firebaseUid: string;
   username: string;
@@ -10466,6 +11369,38 @@ export interface ProvisionTenantEmployeeTrustedData {
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    employee?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      user?: {
+        id: UUIDString;
+        username: string;
+        email: string;
+      } & AppUser_Key;
+      employeeCode: string;
+      fullName: string;
+      email?: string | null;
+      phone: string;
+      designation: string;
+      department?: string | null;
+      dateOfJoining: DateString;
+      assignmentScope: string;
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      employeeOutlets_on_employee: ({
+        outlet: {
+          id: UUIDString;
+          outletCode: number;
+          name: string;
+        } & Outlet_Key;
+      })[];
+    } & Employee_Key;
+  };
 }
 ```
 
@@ -10502,6 +11437,7 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useProvisionTenantEmployeeTrusted` Mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
   const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
+    id: ..., 
     userId: ..., 
     firebaseUid: ..., 
     username: ..., 
@@ -10521,7 +11457,7 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
   };
   mutation.mutate(provisionTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., employeeCode: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., employeeCode: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10545,6 +11481,7 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
     console.log(mutation.data.userRole_upsert);
     console.log(mutation.data.employee_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10899,6 +11836,7 @@ The `CreateTenantServicePersonTrusted` Mutation requires an argument of type `Cr
 
 ```javascript
 export interface CreateTenantServicePersonTrustedVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   servicePersonCode: string;
   fullName: string;
@@ -10925,6 +11863,32 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    servicePerson?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      servicePersonCode: string;
+      fullName: string;
+      email?: string | null;
+      phone: string;
+      specialization: string;
+      skills?: string | null;
+      yearsOfExperience?: number | null;
+      assignmentScope: string;
+      status: EmploymentStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      servicePersonOutlets_on_servicePerson: ({
+        outlet: {
+          id: UUIDString;
+          outletCode: number;
+          name: string;
+        } & Outlet_Key;
+      })[];
+    } & ServicePerson_Key;
+  };
 }
 ```
 
@@ -10961,6 +11925,7 @@ export default function CreateTenantServicePersonTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantServicePersonTrusted` Mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
   const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
+    id: ..., 
     organizationId: ..., 
     servicePersonCode: ..., 
     fullName: ..., 
@@ -10976,7 +11941,7 @@ export default function CreateTenantServicePersonTrustedComponent() {
   };
   mutation.mutate(createTenantServicePersonTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., servicePersonCode: ..., fullName: ..., email: ..., phone: ..., specialization: ..., skills: ..., yearsOfExperience: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., servicePersonCode: ..., fullName: ..., email: ..., phone: ..., specialization: ..., skills: ..., yearsOfExperience: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10997,6 +11962,7 @@ export default function CreateTenantServicePersonTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePerson_insert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.query);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }

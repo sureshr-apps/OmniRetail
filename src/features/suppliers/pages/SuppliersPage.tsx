@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Supplier,
-  SupplierQueryResult,
   SupplierStatus,
   CreateSupplierInput,
   UpdateSupplierInput,
 } from '../types';
-import { supplierService } from '../services/supplierService';
+import { supplierService, deriveSupplierView } from '../services/supplierService';
 import { exportSuppliersToCsv } from '../utils/calculations';
+import { upsertById } from '@/shared/utils/listState';
 import { SuppliersHeader } from '../components/SuppliersHeader';
 import { SuppliersKpiCards } from '../components/SuppliersKpiCards';
 import { SuppliersFilterToolbar } from '../components/SuppliersFilterToolbar';
@@ -22,8 +22,9 @@ export function SuppliersPage() {
   const navigate = useNavigate();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Data & KPI state
-  const [data, setData] = useState<SupplierQueryResult | null>(null);
+  // Data: the full org-scoped set. Mutations upsert into this directly;
+  // the visible page, filters, and KPI summary are all derived from it below.
+  const [allSuppliers, setAllSuppliers] = useState<Supplier[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,10 +37,27 @@ export function SuppliersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Drawers & Modals
-  const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
+  // Drawers & Modals — selection is an id; the record itself is always derived
+  // from allSuppliers, so it reflects mutations with no extra sync code.
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
   const [toast, setToast] = useState<SupplierToastMessage | null>(null);
+
+  const data = useMemo(
+    () => deriveSupplierView(allSuppliers, {
+      search: searchQuery,
+      status: statusFilter,
+      city: cityFilter,
+      category: categoryFilter,
+      page: currentPage,
+      pageSize,
+    }),
+    [allSuppliers, searchQuery, statusFilter, cityFilter, categoryFilter, currentPage, pageSize],
+  );
+  const viewingSupplier = useMemo(
+    () => allSuppliers.find((s) => s.id === selectedSupplierId) ?? null,
+    [allSuppliers, selectedSupplierId],
+  );
 
   // Load auxiliary lists (cities, categories)
   useEffect(() => {
@@ -58,19 +76,12 @@ export function SuppliersPage() {
     loadAux();
   }, []);
 
-  // Fetch directory
+  // Load Data — only for the initial mount or an error retry. Mutations no
+  // longer trigger this; they update allSuppliers locally instead.
   const loadDirectory = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await supplierService.getSuppliers({
-        search: searchQuery,
-        status: statusFilter,
-        city: cityFilter,
-        category: categoryFilter,
-        page: currentPage,
-        pageSize,
-      });
-      setData(result);
+      setAllSuppliers(await supplierService.getAllSuppliers());
     } catch (err) {
       console.error('Failed to fetch suppliers:', err);
       setToast({
@@ -82,7 +93,7 @@ export function SuppliersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, statusFilter, cityFilter, categoryFilter, currentPage, pageSize]);
+  }, []);
 
   useEffect(() => {
     loadDirectory();
@@ -111,13 +122,13 @@ export function SuppliersPage() {
       // Escape -> Close drawer
       if (e.key === 'Escape') {
         if (isAddDrawerOpen) setIsAddDrawerOpen(false);
-        else if (viewingSupplier) setViewingSupplier(null);
+        else if (selectedSupplierId) setSelectedSupplierId(null);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAddDrawerOpen, viewingSupplier]);
+  }, [isAddDrawerOpen, selectedSupplierId]);
 
   // Handlers
   const handleResetFilters = () => {
@@ -128,16 +139,17 @@ export function SuppliersPage() {
     setCurrentPage(1);
   };
 
-  const handleExportDirectory = async () => {
+  // CSV Export — derived locally from the already-loaded full set, matching the
+  // current filters, with no extra network call.
+  const handleExportDirectory = () => {
     try {
-      // Export all matching current filters without page limit
-      const allMatching = await supplierService.getSuppliers({
+      const allMatching = deriveSupplierView(allSuppliers, {
         search: searchQuery,
         status: statusFilter,
         city: cityFilter,
         category: categoryFilter,
         page: 1,
-        pageSize: 1000,
+        pageSize: Math.max(allSuppliers.length, 1),
       });
       exportSuppliersToCsv(allMatching.items);
       setToast({
@@ -165,45 +177,40 @@ export function SuppliersPage() {
       title: 'Supplier Added',
       description: `${created.name} (${created.supplierCode}) is now registered.`,
     });
-    // Refresh directory
-    await loadDirectory();
+    setAllSuppliers((prev) => upsertById(prev, created));
     // Open created supplier in detail drawer
-    setViewingSupplier(created);
+    setSelectedSupplierId(created.id);
   };
 
   const handleUpdateSupplier = async (id: string, updates: UpdateSupplierInput) => {
     const updated = await supplierService.updateSupplier(id, updates);
-    setViewingSupplier(updated);
     setToast({
       id: `upd-${Date.now()}`,
       type: 'success',
       title: 'Record Updated',
       description: `Changes to ${updated.name} have been saved.`,
     });
-    await loadDirectory();
+    setAllSuppliers((prev) => upsertById(prev, updated));
   };
 
   const handleToggleStatus = async (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
       const updated = await supplierService.toggleSupplierStatus(id);
-      if (viewingSupplier && viewingSupplier.id === id) {
-        setViewingSupplier(updated);
-      }
       setToast({
         id: `st-${Date.now()}`,
         type: 'info',
         title: `Supplier ${updated.status}`,
         description: `${updated.name} is now marked as ${updated.status}.`,
       });
-      await loadDirectory();
+      setAllSuppliers((prev) => upsertById(prev, updated));
     } catch (err) {
       console.error('Toggle status failed:', err);
     }
   };
 
   const handleNewPurchaseOrder = (supplier: Supplier) => {
-    setViewingSupplier(null);
+    setSelectedSupplierId(null);
     navigate('/purchases');
     // In real app or toast:
     setTimeout(() => {
@@ -265,7 +272,7 @@ export function SuppliersPage() {
       {/* Suppliers Table */}
       <SuppliersTable
         suppliers={data?.items || []}
-        onSelectSupplier={(s) => setViewingSupplier(s)}
+        onSelectSupplier={(s) => setSelectedSupplierId(s.id)}
         onToggleStatus={handleToggleStatus}
         isLoading={isLoading}
       />
@@ -296,7 +303,7 @@ export function SuppliersPage() {
       <SupplierDetailDrawer
         supplier={viewingSupplier}
         isOpen={Boolean(viewingSupplier)}
-        onClose={() => setViewingSupplier(null)}
+        onClose={() => setSelectedSupplierId(null)}
         onUpdate={handleUpdateSupplier}
         onToggleStatus={handleToggleStatus}
         onNewPurchaseOrder={handleNewPurchaseOrder}

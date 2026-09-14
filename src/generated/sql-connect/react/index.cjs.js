@@ -1,4 +1,4 @@
-const { getCurrentUserAuthorizationRef, getUserAuthorizationByFirebaseUidRef, resolveUsernameLoginRef, recordSuccessfulLoginRef, updateAppUserProfileRef, recordPasswordChangeRef, getAppUserForBootstrapRef, bootstrapMasterAdminRef, getCurrentAppUserRef, getAppUserByFirebaseUidRef, listLicensePlansRef, listOrganizationLicensePlanAssignmentsRef, getLicensePlanRef, getLicensePlanTrustedRef, createLicensePlanRef, updateLicensePlanRef, changeLicensePlanStatusRef, deleteLicensePlanRef, getLicensePlanReferencesTrustedRef, deleteLicensePlanTrustedRef, listOrganizationsRef, getOrganizationRef, getOrganizationTrustedRef, listOrganizationAdministratorsRef, getOrganizationAdministratorRef, provisionOrganizationAdministratorRef, ensureAppUserRoleTrustedRef, updateOrganizationAdministratorRef, changeOrganizationAdministratorStatusRef, resolveOrganizationAdministratorIdentityRef, recordAdministratorSecurityEventRef, getLifecycleIdempotencyRef, getOrganizationLicenseRef, getOrganizationLicenseTrustedRef, getOrganizationLicenseHistoryRef, getOrganizationLicensePublicRef, getOrganizationLicenseHistoryPublicRef, listOrganizationsTrustedRef, listOrganizationUsersForDeletionTrustedRef, deleteOrganizationTrustedRef, deleteAppUserTrustedRef, assignOrganizationLicenseTrustedRef, changeOrganizationLicensePlanTrustedRef, modifyOrganizationCommercialTermsTrustedRef, renewOrganizationLicenseTrustedRef, claimLifecycleIdempotencyRef, completeLifecycleIdempotencyRef, recordProvisioningReconciliationRef, createOrganizationRef, updateOrganizationRef, changeOrganizationStatusRef, listTenantOutletsRef, listTenantEmployeesRef, listTenantServicePersonsRef, listTenantProductsRef, listTenantInventoryRef, listTenantCustomersRef, listTenantSuppliersRef, listTenantPurchasesRef, listTenantExpensesRef, createTenantExpenseRef, updateTenantExpenseRef, changeTenantExpenseApprovalRef, voidTenantExpenseRef, listTenantSalesRef, createTenantSaleRef, addTenantSaleLineRef, getTenantInventoryStockTrustedRef, voidTenantSaleRef, createTenantPurchaseRef, createTenantPurchaseLineRef, changeTenantPurchaseStatusRef, receiveTenantPurchaseLineRef, createTenantSupplierRef, updateTenantSupplierRef, changeTenantSupplierStatusRef, createTenantCustomerRef, updateTenantCustomerRef, changeTenantCustomerStatusRef, createTenantProductRef, updateTenantProductRef, changeTenantProductStatusRef, adjustTenantInventoryRef, createTenantInventoryStockRef, getTenantMembershipTrustedRef, resolveTenantEmployeeIdentityTrustedRef, createTenantOutletRef, updateTenantOutletRef, changeTenantOutletStatusRef, createTenantOutletTrustedRef, updateTenantOutletTrustedRef, changeTenantOutletStatusTrustedRef, createTenantEmployeeProfileTrustedRef, provisionTenantEmployeeTrustedRef, updateTenantEmployeeTrustedRef, changeTenantEmployeeStatusTrustedRef, changeTenantEmployeeLoginAccessTrustedRef, createTenantServicePersonTrustedRef, updateTenantServicePersonTrustedRef, changeTenantServicePersonStatusTrustedRef, assignTenantEmployeeOutletTrustedRef, assignTenantServicePersonOutletTrustedRef, connectorConfig } = require('../index.cjs.js');
+const { getCurrentUserAuthorizationRef, getUserAuthorizationByFirebaseUidRef, resolveUsernameLoginRef, recordSuccessfulLoginRef, updateAppUserProfileRef, recordPasswordChangeRef, getAppUserForBootstrapRef, bootstrapMasterAdminRef, getCurrentAppUserRef, getAppUserByFirebaseUidRef, listLicensePlansRef, listOrganizationLicensePlanAssignmentsRef, getLicensePlanRef, getLicensePlanTrustedRef, createLicensePlanRef, updateLicensePlanRef, changeLicensePlanStatusRef, deleteLicensePlanRef, getLicensePlanReferencesTrustedRef, deleteLicensePlanTrustedRef, listOrganizationsRef, getOrganizationRef, getOrganizationTrustedRef, listOrganizationAdministratorsRef, getOrganizationAdministratorRef, provisionOrganizationAdministratorRef, ensureAppUserRoleTrustedRef, updateOrganizationAdministratorRef, changeOrganizationAdministratorStatusRef, getOrganizationAdministratorTrustedRef, resolveOrganizationAdministratorIdentityRef, recordAdministratorSecurityEventRef, getLifecycleIdempotencyRef, getOrganizationLicenseRef, getOrganizationLicenseTrustedRef, getOrganizationLicenseHistoryRef, getOrganizationLicensePublicRef, getOrganizationLicenseHistoryPublicRef, listOrganizationsTrustedRef, listOrganizationUsersForDeletionTrustedRef, deleteOrganizationTrustedRef, deleteAppUserTrustedRef, assignOrganizationLicenseTrustedRef, changeOrganizationLicensePlanTrustedRef, modifyOrganizationCommercialTermsTrustedRef, renewOrganizationLicenseTrustedRef, claimLifecycleIdempotencyRef, completeLifecycleIdempotencyRef, recordProvisioningReconciliationRef, createOrganizationRef, updateOrganizationRef, changeOrganizationStatusRef, listTenantOutletsRef, listTenantEmployeesRef, listTenantServicePersonsRef, listTenantProductsRef, listTenantInventoryRef, listTenantCustomersRef, listTenantSuppliersRef, listTenantPurchasesRef, listTenantExpensesRef, createTenantExpenseRef, updateTenantExpenseRef, changeTenantExpenseApprovalRef, voidTenantExpenseRef, listTenantSalesRef, createTenantSaleRef, addTenantSaleLineRef, getTenantInventoryStockTrustedRef, voidTenantSaleRef, createTenantPurchaseRef, createTenantPurchaseLineRef, changeTenantPurchaseStatusRef, receiveTenantPurchaseLineRef, createTenantSupplierRef, updateTenantSupplierRef, changeTenantSupplierStatusRef, getTenantSupplierTrustedRef, createTenantCustomerRef, updateTenantCustomerRef, changeTenantCustomerStatusRef, getTenantCustomerTrustedRef, createTenantProductRef, updateTenantProductRef, changeTenantProductStatusRef, getTenantProductTrustedRef, adjustTenantInventoryRef, createTenantInventoryStockRef, getTenantMembershipTrustedRef, resolveTenantEmployeeIdentityTrustedRef, createTenantOutletRef, updateTenantOutletRef, changeTenantOutletStatusRef, createTenantOutletTrustedRef, updateTenantOutletTrustedRef, changeTenantOutletStatusTrustedRef, getTenantOutletTrustedRef, createTenantEmployeeProfileTrustedRef, provisionTenantEmployeeTrustedRef, updateTenantEmployeeTrustedRef, changeTenantEmployeeStatusTrustedRef, changeTenantEmployeeLoginAccessTrustedRef, getTenantEmployeeTrustedRef, createTenantServicePersonTrustedRef, updateTenantServicePersonTrustedRef, changeTenantServicePersonStatusTrustedRef, getTenantServicePersonTrustedRef, assignTenantEmployeeOutletTrustedRef, assignTenantServicePersonOutletTrustedRef, connectorConfig } = require('../index.cjs.js');
 const { validateArgs, CallerSdkTypeEnum } = require('firebase/data-connect');
 const { useDataConnectQuery, useDataConnectMutation, validateReactArgs } = require('@tanstack-query-firebase/react/data-connect');
 
@@ -202,6 +202,12 @@ exports.useChangeOrganizationAdministratorStatus = function useChangeOrganizatio
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetOrganizationAdministratorTrusted = function useGetOrganizationAdministratorTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getOrganizationAdministratorTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 
 exports.useResolveOrganizationAdministratorIdentity = function useResolveOrganizationAdministratorIdentity(dcOrVars, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
@@ -538,6 +544,12 @@ exports.useChangeTenantSupplierStatus = function useChangeTenantSupplierStatus(d
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetTenantSupplierTrusted = function useGetTenantSupplierTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getTenantSupplierTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 exports.useCreateTenantCustomer = function useCreateTenantCustomer(dcOrOptions, options) {
   const { dc: dcInstance, vars: inputOpts } = validateArgs(connectorConfig, dcOrOptions, options);
   function refFactory(vars) {
@@ -562,6 +574,12 @@ exports.useChangeTenantCustomerStatus = function useChangeTenantCustomerStatus(d
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetTenantCustomerTrusted = function useGetTenantCustomerTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getTenantCustomerTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 exports.useCreateTenantProduct = function useCreateTenantProduct(dcOrOptions, options) {
   const { dc: dcInstance, vars: inputOpts } = validateArgs(connectorConfig, dcOrOptions, options);
   function refFactory(vars) {
@@ -586,6 +604,12 @@ exports.useChangeTenantProductStatus = function useChangeTenantProductStatus(dcO
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetTenantProductTrusted = function useGetTenantProductTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getTenantProductTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 exports.useAdjustTenantInventory = function useAdjustTenantInventory(dcOrOptions, options) {
   const { dc: dcInstance, vars: inputOpts } = validateArgs(connectorConfig, dcOrOptions, options);
   function refFactory(vars) {
@@ -662,6 +686,12 @@ exports.useChangeTenantOutletStatusTrusted = function useChangeTenantOutletStatu
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetTenantOutletTrusted = function useGetTenantOutletTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getTenantOutletTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 exports.useCreateTenantEmployeeProfileTrusted = function useCreateTenantEmployeeProfileTrusted(dcOrOptions, options) {
   const { dc: dcInstance, vars: inputOpts } = validateArgs(connectorConfig, dcOrOptions, options);
   function refFactory(vars) {
@@ -702,6 +732,12 @@ exports.useChangeTenantEmployeeLoginAccessTrusted = function useChangeTenantEmpl
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetTenantEmployeeTrusted = function useGetTenantEmployeeTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getTenantEmployeeTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 exports.useCreateTenantServicePersonTrusted = function useCreateTenantServicePersonTrusted(dcOrOptions, options) {
   const { dc: dcInstance, vars: inputOpts } = validateArgs(connectorConfig, dcOrOptions, options);
   function refFactory(vars) {
@@ -726,6 +762,12 @@ exports.useChangeTenantServicePersonStatusTrusted = function useChangeTenantServ
   return useDataConnectMutation(refFactory, inputOpts, CallerSdkTypeEnum.GeneratedReact);
 }
 
+
+exports.useGetTenantServicePersonTrusted = function useGetTenantServicePersonTrusted(dcOrVars, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateReactArgs(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  const ref = getTenantServicePersonTrustedRef(dcInstance, inputVars);
+  return useDataConnectQuery(ref, inputOpts, CallerSdkTypeEnum.GeneratedReact);
+}
 exports.useAssignTenantEmployeeOutletTrusted = function useAssignTenantEmployeeOutletTrusted(dcOrOptions, options) {
   const { dc: dcInstance, vars: inputOpts } = validateArgs(connectorConfig, dcOrOptions, options);
   function refFactory(vars) {

@@ -4,9 +4,10 @@ import {
   UpdateAdminInput,
   AdminStatus,
 } from '../types';
-import { listOrganizationAdministrators, updateOrganizationAdministrator } from '@omniretail/sql-connect';
+import { getOrganizationAdministrator, listOrganizationAdministrators, updateOrganizationAdministrator } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
+import { assertCallableEntity } from '@/shared/utils/callableResponse';
 
 export interface IOrganizationAdminService {
   getAdministrators(organizationId: string): Promise<OrganizationAdministrator[]>;
@@ -100,10 +101,24 @@ class OrganizationAdminService implements IOrganizationAdminService {
         auditId: globalThis.crypto.randomUUID(),
         requestId: globalThis.crypto.randomUUID(),
       });
-      const refreshed = await this.getAdministrators(organizationId);
-      const result = refreshed.find((admin) => admin.id === administratorId);
-      if (!result) throw new Error('Administrator not found.');
-      return { ...result, name: input.name.trim(), phone: input.phone.trim(), email: result.email };
+      // Data Connect doesn't support a second `query` block in this
+      // @transaction mutation (see the outlet service note on this), so a
+      // single targeted single-row read-back follows the mutation instead of
+      // a full-list reload.
+      const result = await getOrganizationAdministrator(getFirebaseClientServices().dataConnect, { organizationId, userId: administratorId });
+      const membership = result.data.organizationMemberships[0];
+      if (!membership) throw new Error('Administrator not found.');
+      return {
+        id: membership.user.id,
+        organizationId,
+        name: membership.user.displayName,
+        username: membership.user.username,
+        email: membership.user.email,
+        phone: membership.user.phone ?? '',
+        status: membership.user.status === 'ACTIVE' ? 'active' : 'inactive',
+        createdAt: membership.user.createdAt.slice(0, 10),
+        lastLoginAt: membership.user.lastLoginAt ?? null,
+      };
     } catch {
       throw new Error('Unable to update the organization administrator.');
     }
@@ -115,17 +130,13 @@ class OrganizationAdminService implements IOrganizationAdminService {
     status: AdminStatus
   ): Promise<OrganizationAdministrator> {
     try {
-      const callable = httpsCallable<
-        { organizationId: string; userId: string; status: AdminStatus },
-        { success: boolean }
-      >(getFirebaseClientServices().functions, 'changeOrganizationAdministratorStatus');
-      await callable({ organizationId, userId: administratorId, status });
-      const refreshed = await this.getAdministrators(organizationId);
-      const updated = refreshed.find((admin) => admin.id === administratorId);
-      if (!updated) throw new Error('Administrator not found.');
-      // The mutation is authoritative; an immediate read may briefly return
-      // the previous status while the Data Connect read replica catches up.
-      return { ...updated, status };
+      const callable = httpsCallable(getFirebaseClientServices().functions, 'changeOrganizationAdministratorStatus');
+      const response = await callable({ organizationId, userId: administratorId, status });
+      return assertCallableEntity<OrganizationAdministrator>(
+        response.data,
+        ['id', 'organizationId', 'name', 'username', 'email', 'phone', 'status', 'createdAt'],
+        'changeAdministratorStatus',
+      );
     } catch {
       throw new Error('Unable to change the organization administrator status.');
     }

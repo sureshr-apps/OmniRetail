@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Outlet,
   OutletStatus,
   CreateOutletInput,
   UpdateOutletInput,
 } from '../types';
-import { outletService } from '../services/outletService';
+import { outletService, deriveOutletView } from '../services/outletService';
 import { exportOutletsToCsv } from '../utils/exportCsv';
+import { upsertById } from '@/shared/utils/listState';
 
 import { OutletHeader } from '../components/OutletHeader';
 import { OutletSuccessBanner } from '../components/OutletSuccessBanner';
@@ -24,12 +25,9 @@ export function OutletMasterPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Data
-  const [outlets, setOutlets] = useState<Outlet[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [activeCount, setActiveCount] = useState(0);
-  const [inactiveCount, setInactiveCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  // Data: the full org-scoped set. Mutations upsert/remove into this directly;
+  // the visible page, sort, and aggregate counts are all derived from it below.
+  const [allOutlets, setAllOutlets] = useState<Outlet[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,8 +38,9 @@ export function OutletMasterPage() {
     message: 'Outlet Successfully Configured!',
   });
 
-  // Slide-Over Detail Drawer
-  const [selectedOutlet, setSelectedOutlet] = useState<Outlet | null>(null);
+  // Slide-Over Detail Drawer — selection is an id; the record itself is always
+  // derived from allOutlets, so it reflects mutations with no extra sync code.
+  const [selectedOutletId, setSelectedOutletId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Add / Edit Modal
@@ -53,24 +52,22 @@ export function OutletMasterPage() {
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [isProcessingStatus, setIsProcessingStatus] = useState(false);
 
-  // Load Data
+  const view = useMemo(
+    () => deriveOutletView(allOutlets, { search: searchQuery, status: statusFilter, page: currentPage, pageSize }),
+    [allOutlets, searchQuery, statusFilter, currentPage, pageSize],
+  );
+  const selectedOutlet = useMemo(
+    () => allOutlets.find((o) => o.id === selectedOutletId) ?? null,
+    [allOutlets, selectedOutletId],
+  );
+
+  // Load Data — only for the initial mount, an explicit refresh, or error retry.
+  // Mutations no longer trigger this; they update allOutlets locally instead.
   const loadData = useCallback(async (isSilent = false) => {
     try {
       if (!isSilent) setIsLoading(true);
       setError(null);
-
-      const res = await outletService.getOutlets({
-          search: searchQuery,
-          status: statusFilter,
-          page: currentPage,
-          pageSize,
-        });
-
-      setOutlets(res.outlets);
-      setTotalCount(res.total);
-      setActiveCount(res.activeCount);
-      setInactiveCount(res.inactiveCount);
-      setTotalPages(res.totalPages);
+      setAllOutlets(await outletService.getAllOutlets());
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to retrieve outlet directory.';
       setError(msg);
@@ -78,11 +75,20 @@ export function OutletMasterPage() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [searchQuery, statusFilter, currentPage, pageSize]);
+  }, []);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // If a mutation removes the last item(s) from the current page (e.g.
+  // deactivating the only "Active" row on the last page while that filter is
+  // selected), fall back to the previous page instead of showing an empty page.
+  useEffect(() => {
+    if (view.total > 0 && view.outlets.length === 0 && currentPage > 1) {
+      setCurrentPage(view.totalPages);
+    }
+  }, [view, currentPage]);
 
   // Refresh handler
   const handleRefresh = async () => {
@@ -107,14 +113,14 @@ export function OutletMasterPage() {
     setCurrentPage(1);
   };
 
-  // CSV Export
-  const handleExportCsv = async () => {
-    // Export all matching current search and filter
-    const res = await outletService.getOutlets({
+  // CSV Export — derived locally from the already-loaded full set, matching the
+  // current search/status filter, with no extra network call.
+  const handleExportCsv = () => {
+    const res = deriveOutletView(allOutlets, {
       search: searchQuery,
       status: statusFilter,
       page: 1,
-      pageSize: 1000,
+      pageSize: Math.max(allOutlets.length, 1),
     });
     exportOutletsToCsv(res.outlets);
   };
@@ -138,7 +144,7 @@ export function OutletMasterPage() {
       outletName: created.name,
     });
     setShowSuccessBanner(true);
-    await loadData(true);
+    setAllOutlets((prev) => upsertById(prev, created));
   };
 
   const handleUpdateOutlet = async (id: string, input: UpdateOutletInput) => {
@@ -149,15 +155,12 @@ export function OutletMasterPage() {
       outletName: updated.name,
     });
     setShowSuccessBanner(true);
-    if (selectedOutlet && selectedOutlet.id === updated.id) {
-      setSelectedOutlet(updated);
-    }
-    await loadData(true);
+    setAllOutlets((prev) => upsertById(prev, updated));
   };
 
   // View Details (Drawer)
   const handleViewDetails = (outlet: Outlet) => {
-    setSelectedOutlet(outlet);
+    setSelectedOutletId(outlet.id);
     setIsDrawerOpen(true);
   };
 
@@ -187,13 +190,10 @@ export function OutletMasterPage() {
       });
       setShowSuccessBanner(true);
 
-      if (selectedOutlet && selectedOutlet.id === updated.id) {
-        setSelectedOutlet(updated);
-      }
+      setAllOutlets((prev) => upsertById(prev, updated));
 
       setIsStatusDialogOpen(false);
       setOutletForStatusChange(null);
-      await loadData(true);
     } catch (err) {
       console.error('Failed to change outlet status:', err);
     } finally {
@@ -207,7 +207,7 @@ export function OutletMasterPage() {
     <div className="h-full flex flex-col min-w-0 bg-[#f8fafc] overflow-y-auto">
       {/* 1. Page Header matching Stitch design */}
       <OutletHeader
-        totalCount={activeCount + inactiveCount}
+        totalCount={view.activeCount + view.inactiveCount}
         onExportCsv={handleExportCsv}
         onAddOutlet={handleOpenAddModal}
       />
@@ -230,9 +230,9 @@ export function OutletMasterPage() {
           onSearchChange={handleSearchChange}
           statusFilter={statusFilter}
           onStatusFilterChange={handleStatusFilterChange}
-          totalCount={activeCount + inactiveCount}
-          activeCount={activeCount}
-          inactiveCount={inactiveCount}
+          totalCount={view.activeCount + view.inactiveCount}
+          activeCount={view.activeCount}
+          inactiveCount={view.inactiveCount}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing}
         />
@@ -240,7 +240,7 @@ export function OutletMasterPage() {
         {/* Data Table Card */}
         <div className="bg-white rounded-lg border border-slate-200 shadow-2xs overflow-hidden flex flex-col flex-1">
           <OutletTable
-            outlets={outlets}
+            outlets={view.outlets}
             isLoading={isLoading}
             error={error}
             onViewDetails={handleViewDetails}
@@ -253,12 +253,12 @@ export function OutletMasterPage() {
           />
 
           {/* Table Pagination Footer */}
-          {!isLoading && !error && outlets.length > 0 && (
+          {!isLoading && !error && view.outlets.length > 0 && (
             <OutletPagination
               currentPage={currentPage}
               pageSize={pageSize}
-              totalItems={totalCount}
-              totalPages={totalPages}
+              totalItems={view.total}
+              totalPages={view.totalPages}
               onPageChange={(page) => setCurrentPage(page)}
               onPageSizeChange={(size) => {
                 setPageSize(size);
@@ -275,7 +275,7 @@ export function OutletMasterPage() {
         isOpen={isDrawerOpen}
         onClose={() => {
           setIsDrawerOpen(false);
-          setSelectedOutlet(null);
+          setSelectedOutletId(null);
         }}
         onEdit={(outlet) => {
           setIsDrawerOpen(false);

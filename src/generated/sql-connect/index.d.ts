@@ -514,6 +514,7 @@ export interface CreateOrganizationData {
 }
 
 export interface CreateOrganizationVariables {
+  id: UUIDString;
   organizationCode: string;
   businessName: string;
   legalEntityName?: string | null;
@@ -534,9 +535,37 @@ export interface CreateOrganizationVariables {
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    customer?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      customerCode: string;
+      type: CustomerType;
+      name: string;
+      phone: string;
+      email: string;
+      taxId?: string | null;
+      address?: string | null;
+      city: string;
+      state: string;
+      postalCode?: string | null;
+      country?: string | null;
+      creditLimit?: number | null;
+      preferredContact?: string | null;
+      dateOfBirth?: DateString | null;
+      gender?: string | null;
+      status: CustomerStatus;
+      notes?: string | null;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+    } & Customer_Key;
+  };
 }
 
 export interface CreateTenantCustomerVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   customerCode: string;
   type: CustomerType;
@@ -562,9 +591,42 @@ export interface CreateTenantCustomerVariables {
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    employee?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      user?: {
+        id: UUIDString;
+        username: string;
+        email: string;
+      } & AppUser_Key;
+      employeeCode: string;
+      fullName: string;
+      email?: string | null;
+      phone: string;
+      designation: string;
+      department?: string | null;
+      dateOfJoining: DateString;
+      assignmentScope: string;
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      employeeOutlets_on_employee: ({
+        outlet: {
+          id: UUIDString;
+          outletCode: number;
+          name: string;
+        } & Outlet_Key;
+      })[];
+    } & Employee_Key;
+  };
 }
 
 export interface CreateTenantEmployeeProfileTrustedVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   employeeCode: string;
   fullName: string;
@@ -630,9 +692,25 @@ export interface CreateTenantOutletData {
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+      contactPerson: string;
+      email?: string | null;
+      phone: string;
+      address: string;
+      status: OutletStatus;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+    } & Outlet_Key;
+  };
 }
 
 export interface CreateTenantOutletTrustedVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   name: string;
   contactPerson: string;
@@ -658,9 +736,44 @@ export interface CreateTenantOutletVariables {
 export interface CreateTenantProductData {
   product_insert: Product_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    product?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      productCode: string;
+      name: string;
+      brand: string;
+      categoryId: string;
+      categoryName: string;
+      subcategory?: string | null;
+      type: ProductType;
+      sku: string;
+      barcode?: string | null;
+      hsnCode?: string | null;
+      unitOfMeasure?: string | null;
+      sellingPrice: number;
+      mrp?: number | null;
+      cost?: number | null;
+      minSellingPrice?: number | null;
+      discountAllowed: boolean;
+      taxCategory?: string | null;
+      status: ProductStatus;
+      reorderLevel?: number | null;
+      reorderQuantity?: number | null;
+      primarySupplier?: string | null;
+      supplierProductCode?: string | null;
+      description?: string | null;
+      imageUrl?: string | null;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+    } & Product_Key;
+  };
 }
 
 export interface CreateTenantProductVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   productCode: string;
   name: string;
@@ -767,9 +880,36 @@ export interface CreateTenantSaleVariables {
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    servicePerson?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      servicePersonCode: string;
+      fullName: string;
+      email?: string | null;
+      phone: string;
+      specialization: string;
+      skills?: string | null;
+      yearsOfExperience?: number | null;
+      assignmentScope: string;
+      status: EmploymentStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      servicePersonOutlets_on_servicePerson: ({
+        outlet: {
+          id: UUIDString;
+          outletCode: number;
+          name: string;
+        } & Outlet_Key;
+      })[];
+    } & ServicePerson_Key;
+  };
 }
 
 export interface CreateTenantServicePersonTrustedVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   servicePersonCode: string;
   fullName: string;
@@ -787,9 +927,36 @@ export interface CreateTenantServicePersonTrustedVariables {
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    supplier?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      supplierCode: string;
+      name: string;
+      contactPerson: string;
+      phone: string;
+      email: string;
+      taxId: string;
+      address?: string | null;
+      city: string;
+      state?: string | null;
+      postalCode?: string | null;
+      country?: string | null;
+      category: string;
+      paymentTerms: string;
+      creditLimit: number;
+      status: SupplierStatus;
+      notes?: string | null;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+    } & Supplier_Key;
+  };
 }
 
 export interface CreateTenantSupplierVariables {
+  id: UUIDString;
   organizationId: UUIDString;
   supplierCode: string;
   name: string;
@@ -1054,6 +1221,29 @@ export interface GetOrganizationAdministratorData {
   })[];
 }
 
+export interface GetOrganizationAdministratorTrustedData {
+  organizationMemberships: ({
+    createdAt: TimestampString;
+    status: MembershipStatus;
+    user: {
+      id: UUIDString;
+      username: string;
+      email: string;
+      displayName: string;
+      phone?: string | null;
+      status: AppUserStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      lastLoginAt?: TimestampString | null;
+    } & AppUser_Key;
+  })[];
+}
+
+export interface GetOrganizationAdministratorTrustedVariables {
+  organizationId: UUIDString;
+  userId: UUIDString;
+}
+
 export interface GetOrganizationAdministratorVariables {
   organizationId: UUIDString;
   userId: UUIDString;
@@ -1267,6 +1457,77 @@ export interface GetOrganizationVariables {
   id: UUIDString;
 }
 
+export interface GetTenantCustomerTrustedData {
+  customers: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    customerCode: string;
+    type: CustomerType;
+    name: string;
+    phone: string;
+    email: string;
+    taxId?: string | null;
+    address?: string | null;
+    city: string;
+    state: string;
+    postalCode?: string | null;
+    country?: string | null;
+    creditLimit?: number | null;
+    preferredContact?: string | null;
+    dateOfBirth?: DateString | null;
+    gender?: string | null;
+    status: CustomerStatus;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Customer_Key)[];
+}
+
+export interface GetTenantCustomerTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+
+export interface GetTenantEmployeeTrustedData {
+  employees: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    user?: {
+      id: UUIDString;
+      username: string;
+      email: string;
+    } & AppUser_Key;
+    employeeCode: string;
+    fullName: string;
+    email?: string | null;
+    phone: string;
+    designation: string;
+    department?: string | null;
+    dateOfJoining: DateString;
+    assignmentScope: string;
+    employmentStatus: EmploymentStatus;
+    loginAccess: LoginAccessStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    employeeOutlets_on_employee: ({
+      outlet: {
+        id: UUIDString;
+        outletCode: number;
+        name: string;
+      } & Outlet_Key;
+    })[];
+  } & Employee_Key)[];
+}
+
+export interface GetTenantEmployeeTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+
 export interface GetTenantInventoryStockTrustedData {
   inventoryStocks: ({
     onHandQty: number;
@@ -1303,6 +1564,131 @@ export interface GetTenantMembershipTrustedData {
 export interface GetTenantMembershipTrustedVariables {
   organizationId: UUIDString;
   firebaseUid: string;
+}
+
+export interface GetTenantOutletTrustedData {
+  outlets: ({
+    id: UUIDString;
+    outletCode: number;
+    name: string;
+    contactPerson: string;
+    email?: string | null;
+    phone: string;
+    address: string;
+    status: OutletStatus;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+  } & Outlet_Key)[];
+}
+
+export interface GetTenantOutletTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+
+export interface GetTenantProductTrustedData {
+  products: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    productCode: string;
+    name: string;
+    brand: string;
+    categoryId: string;
+    categoryName: string;
+    subcategory?: string | null;
+    type: ProductType;
+    sku: string;
+    barcode?: string | null;
+    hsnCode?: string | null;
+    unitOfMeasure?: string | null;
+    sellingPrice: number;
+    mrp?: number | null;
+    cost?: number | null;
+    minSellingPrice?: number | null;
+    discountAllowed: boolean;
+    taxCategory?: string | null;
+    status: ProductStatus;
+    reorderLevel?: number | null;
+    reorderQuantity?: number | null;
+    primarySupplier?: string | null;
+    supplierProductCode?: string | null;
+    description?: string | null;
+    imageUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Product_Key)[];
+}
+
+export interface GetTenantProductTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+
+export interface GetTenantServicePersonTrustedData {
+  servicePeople: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    servicePersonCode: string;
+    fullName: string;
+    email?: string | null;
+    phone: string;
+    specialization: string;
+    skills?: string | null;
+    yearsOfExperience?: number | null;
+    assignmentScope: string;
+    status: EmploymentStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    servicePersonOutlets_on_servicePerson: ({
+      outlet: {
+        id: UUIDString;
+        outletCode: number;
+        name: string;
+      } & Outlet_Key;
+    })[];
+  } & ServicePerson_Key)[];
+}
+
+export interface GetTenantServicePersonTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+}
+
+export interface GetTenantSupplierTrustedData {
+  suppliers: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    supplierCode: string;
+    name: string;
+    contactPerson: string;
+    phone: string;
+    email: string;
+    taxId: string;
+    address?: string | null;
+    city: string;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    category: string;
+    paymentTerms: string;
+    creditLimit: number;
+    status: SupplierStatus;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Supplier_Key)[];
+}
+
+export interface GetTenantSupplierTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
 }
 
 export interface GetUserAuthorizationByFirebaseUidData {
@@ -2053,9 +2439,42 @@ export interface ProvisionTenantEmployeeTrustedData {
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
   auditEvent_insert: AuditEvent_Key;
+  query?: {
+    employee?: {
+      id: UUIDString;
+      organization: {
+        id: UUIDString;
+      } & Organization_Key;
+      user?: {
+        id: UUIDString;
+        username: string;
+        email: string;
+      } & AppUser_Key;
+      employeeCode: string;
+      fullName: string;
+      email?: string | null;
+      phone: string;
+      designation: string;
+      department?: string | null;
+      dateOfJoining: DateString;
+      assignmentScope: string;
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      employeeOutlets_on_employee: ({
+        outlet: {
+          id: UUIDString;
+          outletCode: number;
+          name: string;
+        } & Outlet_Key;
+      })[];
+    } & Employee_Key;
+  };
 }
 
 export interface ProvisionTenantEmployeeTrustedVariables {
+  id: UUIDString;
   userId: UUIDString;
   firebaseUid: string;
   username: string;
@@ -2906,6 +3325,18 @@ export const changeOrganizationAdministratorStatusRef: ChangeOrganizationAdminis
 export function changeOrganizationAdministratorStatus(vars: ChangeOrganizationAdministratorStatusVariables): MutationPromise<ChangeOrganizationAdministratorStatusData, ChangeOrganizationAdministratorStatusVariables>;
 export function changeOrganizationAdministratorStatus(dc: DataConnect, vars: ChangeOrganizationAdministratorStatusVariables): MutationPromise<ChangeOrganizationAdministratorStatusData, ChangeOrganizationAdministratorStatusVariables>;
 
+interface GetOrganizationAdministratorTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetOrganizationAdministratorTrustedVariables): QueryRef<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetOrganizationAdministratorTrustedVariables): QueryRef<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
+  operationName: string;
+}
+export const getOrganizationAdministratorTrustedRef: GetOrganizationAdministratorTrustedRef;
+
+export function getOrganizationAdministratorTrusted(vars: GetOrganizationAdministratorTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
+export function getOrganizationAdministratorTrusted(dc: DataConnect, vars: GetOrganizationAdministratorTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
+
 interface ResolveOrganizationAdministratorIdentityRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: ResolveOrganizationAdministratorIdentityVariables): QueryRef<ResolveOrganizationAdministratorIdentityData, ResolveOrganizationAdministratorIdentityVariables>;
@@ -3470,6 +3901,18 @@ export const changeTenantSupplierStatusRef: ChangeTenantSupplierStatusRef;
 export function changeTenantSupplierStatus(vars: ChangeTenantSupplierStatusVariables): MutationPromise<ChangeTenantSupplierStatusData, ChangeTenantSupplierStatusVariables>;
 export function changeTenantSupplierStatus(dc: DataConnect, vars: ChangeTenantSupplierStatusVariables): MutationPromise<ChangeTenantSupplierStatusData, ChangeTenantSupplierStatusVariables>;
 
+interface GetTenantSupplierTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetTenantSupplierTrustedVariables): QueryRef<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetTenantSupplierTrustedVariables): QueryRef<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
+  operationName: string;
+}
+export const getTenantSupplierTrustedRef: GetTenantSupplierTrustedRef;
+
+export function getTenantSupplierTrusted(vars: GetTenantSupplierTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
+export function getTenantSupplierTrusted(dc: DataConnect, vars: GetTenantSupplierTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
+
 interface CreateTenantCustomerRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateTenantCustomerVariables): MutationRef<CreateTenantCustomerData, CreateTenantCustomerVariables>;
@@ -3506,6 +3949,18 @@ export const changeTenantCustomerStatusRef: ChangeTenantCustomerStatusRef;
 export function changeTenantCustomerStatus(vars: ChangeTenantCustomerStatusVariables): MutationPromise<ChangeTenantCustomerStatusData, ChangeTenantCustomerStatusVariables>;
 export function changeTenantCustomerStatus(dc: DataConnect, vars: ChangeTenantCustomerStatusVariables): MutationPromise<ChangeTenantCustomerStatusData, ChangeTenantCustomerStatusVariables>;
 
+interface GetTenantCustomerTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetTenantCustomerTrustedVariables): QueryRef<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetTenantCustomerTrustedVariables): QueryRef<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
+  operationName: string;
+}
+export const getTenantCustomerTrustedRef: GetTenantCustomerTrustedRef;
+
+export function getTenantCustomerTrusted(vars: GetTenantCustomerTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
+export function getTenantCustomerTrusted(dc: DataConnect, vars: GetTenantCustomerTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
+
 interface CreateTenantProductRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateTenantProductVariables): MutationRef<CreateTenantProductData, CreateTenantProductVariables>;
@@ -3541,6 +3996,18 @@ export const changeTenantProductStatusRef: ChangeTenantProductStatusRef;
 
 export function changeTenantProductStatus(vars: ChangeTenantProductStatusVariables): MutationPromise<ChangeTenantProductStatusData, ChangeTenantProductStatusVariables>;
 export function changeTenantProductStatus(dc: DataConnect, vars: ChangeTenantProductStatusVariables): MutationPromise<ChangeTenantProductStatusData, ChangeTenantProductStatusVariables>;
+
+interface GetTenantProductTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetTenantProductTrustedVariables): QueryRef<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetTenantProductTrustedVariables): QueryRef<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
+  operationName: string;
+}
+export const getTenantProductTrustedRef: GetTenantProductTrustedRef;
+
+export function getTenantProductTrusted(vars: GetTenantProductTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
+export function getTenantProductTrusted(dc: DataConnect, vars: GetTenantProductTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
 
 interface AdjustTenantInventoryRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -3662,6 +4129,18 @@ export const changeTenantOutletStatusTrustedRef: ChangeTenantOutletStatusTrusted
 export function changeTenantOutletStatusTrusted(vars: ChangeTenantOutletStatusTrustedVariables): MutationPromise<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
 export function changeTenantOutletStatusTrusted(dc: DataConnect, vars: ChangeTenantOutletStatusTrustedVariables): MutationPromise<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
 
+interface GetTenantOutletTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetTenantOutletTrustedVariables): QueryRef<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetTenantOutletTrustedVariables): QueryRef<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
+  operationName: string;
+}
+export const getTenantOutletTrustedRef: GetTenantOutletTrustedRef;
+
+export function getTenantOutletTrusted(vars: GetTenantOutletTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
+export function getTenantOutletTrusted(dc: DataConnect, vars: GetTenantOutletTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
+
 interface CreateTenantEmployeeProfileTrustedRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateTenantEmployeeProfileTrustedVariables): MutationRef<CreateTenantEmployeeProfileTrustedData, CreateTenantEmployeeProfileTrustedVariables>;
@@ -3722,6 +4201,18 @@ export const changeTenantEmployeeLoginAccessTrustedRef: ChangeTenantEmployeeLogi
 export function changeTenantEmployeeLoginAccessTrusted(vars: ChangeTenantEmployeeLoginAccessTrustedVariables): MutationPromise<ChangeTenantEmployeeLoginAccessTrustedData, ChangeTenantEmployeeLoginAccessTrustedVariables>;
 export function changeTenantEmployeeLoginAccessTrusted(dc: DataConnect, vars: ChangeTenantEmployeeLoginAccessTrustedVariables): MutationPromise<ChangeTenantEmployeeLoginAccessTrustedData, ChangeTenantEmployeeLoginAccessTrustedVariables>;
 
+interface GetTenantEmployeeTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetTenantEmployeeTrustedVariables): QueryRef<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetTenantEmployeeTrustedVariables): QueryRef<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
+  operationName: string;
+}
+export const getTenantEmployeeTrustedRef: GetTenantEmployeeTrustedRef;
+
+export function getTenantEmployeeTrusted(vars: GetTenantEmployeeTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
+export function getTenantEmployeeTrusted(dc: DataConnect, vars: GetTenantEmployeeTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
+
 interface CreateTenantServicePersonTrustedRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: CreateTenantServicePersonTrustedVariables): MutationRef<CreateTenantServicePersonTrustedData, CreateTenantServicePersonTrustedVariables>;
@@ -3757,6 +4248,18 @@ export const changeTenantServicePersonStatusTrustedRef: ChangeTenantServicePerso
 
 export function changeTenantServicePersonStatusTrusted(vars: ChangeTenantServicePersonStatusTrustedVariables): MutationPromise<ChangeTenantServicePersonStatusTrustedData, ChangeTenantServicePersonStatusTrustedVariables>;
 export function changeTenantServicePersonStatusTrusted(dc: DataConnect, vars: ChangeTenantServicePersonStatusTrustedVariables): MutationPromise<ChangeTenantServicePersonStatusTrustedData, ChangeTenantServicePersonStatusTrustedVariables>;
+
+interface GetTenantServicePersonTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetTenantServicePersonTrustedVariables): QueryRef<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetTenantServicePersonTrustedVariables): QueryRef<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
+  operationName: string;
+}
+export const getTenantServicePersonTrustedRef: GetTenantServicePersonTrustedRef;
+
+export function getTenantServicePersonTrusted(vars: GetTenantServicePersonTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
+export function getTenantServicePersonTrusted(dc: DataConnect, vars: GetTenantServicePersonTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
 
 interface AssignTenantEmployeeOutletTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

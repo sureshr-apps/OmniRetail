@@ -586,6 +586,21 @@ exports.changeOrganizationAdministratorStatus = function changeOrganizationAdmin
 }
 ;
 
+const getOrganizationAdministratorTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetOrganizationAdministratorTrusted', inputVars);
+}
+getOrganizationAdministratorTrustedRef.operationName = 'GetOrganizationAdministratorTrusted';
+exports.getOrganizationAdministratorTrustedRef = getOrganizationAdministratorTrustedRef;
+
+exports.getOrganizationAdministratorTrusted = function getOrganizationAdministratorTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getOrganizationAdministratorTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const resolveOrganizationAdministratorIdentityRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1264,6 +1279,21 @@ exports.changeTenantSupplierStatus = function changeTenantSupplierStatus(dcOrVar
 }
 ;
 
+const getTenantSupplierTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetTenantSupplierTrusted', inputVars);
+}
+getTenantSupplierTrustedRef.operationName = 'GetTenantSupplierTrusted';
+exports.getTenantSupplierTrustedRef = getTenantSupplierTrustedRef;
+
+exports.getTenantSupplierTrusted = function getTenantSupplierTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getTenantSupplierTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const createTenantCustomerRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1306,6 +1336,21 @@ exports.changeTenantCustomerStatus = function changeTenantCustomerStatus(dcOrVar
 }
 ;
 
+const getTenantCustomerTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetTenantCustomerTrusted', inputVars);
+}
+getTenantCustomerTrustedRef.operationName = 'GetTenantCustomerTrusted';
+exports.getTenantCustomerTrustedRef = getTenantCustomerTrustedRef;
+
+exports.getTenantCustomerTrusted = function getTenantCustomerTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getTenantCustomerTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const createTenantProductRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1345,6 +1390,21 @@ exports.changeTenantProductStatusRef = changeTenantProductStatusRef;
 exports.changeTenantProductStatus = function changeTenantProductStatus(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(changeTenantProductStatusRef(dcInstance, inputVars));
+}
+;
+
+const getTenantProductTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetTenantProductTrusted', inputVars);
+}
+getTenantProductTrustedRef.operationName = 'GetTenantProductTrusted';
+exports.getTenantProductTrustedRef = getTenantProductTrustedRef;
+
+exports.getTenantProductTrusted = function getTenantProductTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getTenantProductTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;
 
@@ -1490,6 +1550,21 @@ exports.changeTenantOutletStatusTrusted = function changeTenantOutletStatusTrust
 }
 ;
 
+const getTenantOutletTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetTenantOutletTrusted', inputVars);
+}
+getTenantOutletTrustedRef.operationName = 'GetTenantOutletTrusted';
+exports.getTenantOutletTrustedRef = getTenantOutletTrustedRef;
+
+exports.getTenantOutletTrusted = function getTenantOutletTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getTenantOutletTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const createTenantEmployeeProfileTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1560,6 +1635,21 @@ exports.changeTenantEmployeeLoginAccessTrusted = function changeTenantEmployeeLo
 }
 ;
 
+const getTenantEmployeeTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetTenantEmployeeTrusted', inputVars);
+}
+getTenantEmployeeTrustedRef.operationName = 'GetTenantEmployeeTrusted';
+exports.getTenantEmployeeTrustedRef = getTenantEmployeeTrustedRef;
+
+exports.getTenantEmployeeTrusted = function getTenantEmployeeTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getTenantEmployeeTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const createTenantServicePersonTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1599,6 +1689,21 @@ exports.changeTenantServicePersonStatusTrustedRef = changeTenantServicePersonSta
 exports.changeTenantServicePersonStatusTrusted = function changeTenantServicePersonStatusTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(changeTenantServicePersonStatusTrustedRef(dcInstance, inputVars));
+}
+;
+
+const getTenantServicePersonTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetTenantServicePersonTrusted', inputVars);
+}
+getTenantServicePersonTrustedRef.operationName = 'GetTenantServicePersonTrusted';
+exports.getTenantServicePersonTrustedRef = getTenantServicePersonTrustedRef;
+
+exports.getTenantServicePersonTrusted = function getTenantServicePersonTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(getTenantServicePersonTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;
 

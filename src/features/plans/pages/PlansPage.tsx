@@ -18,16 +18,19 @@ import {
   SlidersHorizontal,
   Trash2,
 } from 'lucide-react';
-import { licensePlanService } from '../services/LicensePlanService';
+import { licensePlanService, derivePlansView } from '../services/LicensePlanService';
 import { LicensePlan, PlanStatus } from '../types';
 import { AddPlanModal } from '../components/AddPlanModal';
 import { EditPlanModal } from '../components/EditPlanModal';
 import { DeactivatePlanModal } from '../components/DeactivatePlanModal';
 import { Badge } from '@/shared/components/Badge';
 import { Button } from '@/shared/components/Button';
+import { upsertById, removeById } from '@/shared/utils/listState';
 
 export function PlansPage() {
-  const [plans, setPlans] = useState<LicensePlan[]>([]);
+  // Full unfiltered set; mutations upsert/remove into this directly, and the
+  // visible, filtered, sorted list below is derived from it with no refetch.
+  const [allPlans, setAllPlans] = useState<LicensePlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | PlanStatus>('all');
@@ -42,22 +45,23 @@ export function PlansPage() {
 
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Fetch plans through service
+  const plans = useMemo(
+    () => derivePlansView(allPlans, { search, status: statusFilter, level: levelFilter }),
+    [allPlans, search, statusFilter, levelFilter],
+  );
+
+  // Fetch plans through service — only for the initial load or an explicit
+  // reset; mutations no longer trigger this, they update allPlans locally.
   const fetchPlans = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await licensePlanService.getPlans({
-        search,
-        status: statusFilter,
-        level: levelFilter,
-      });
-      setPlans(data);
+      setAllPlans(await licensePlanService.getAllPlans());
     } catch (err) {
       console.error('Failed to load plans:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [search, statusFilter, levelFilter]);
+  }, []);
 
   useEffect(() => {
     fetchPlans();
@@ -91,7 +95,7 @@ export function PlansPage() {
   const handleActivatePlan = async (plan: LicensePlan) => {
     try {
       const updated = await licensePlanService.changePlanStatus(plan.id, 'active');
-      setPlans((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      setAllPlans((prev) => upsertById(prev, updated));
       showToast(`Plan "${updated.name}" is now active and available for new organizations.`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to activate plan.';
@@ -103,8 +107,7 @@ export function PlansPage() {
     if (!window.confirm(`Delete the ${plan.name} plan? This is only possible when it has no license or history references.`)) return;
     try {
       await licensePlanService.deletePlan(plan.id);
-      setPlans((prev) => prev.filter((p) => p.id !== plan.id));
-      await fetchPlans();
+      setAllPlans((prev) => removeById(prev, plan.id));
       showToast(`Plan "${plan.name}" was deleted.`);
     } catch (err: unknown) {
       showToast(err instanceof Error ? err.message : 'Unable to delete the plan.');
@@ -115,8 +118,7 @@ export function PlansPage() {
   const handleLoadDefaults = async () => {
     try {
       setIsLoading(true);
-      const defaults = await licensePlanService.resetToDefaults();
-      setPlans(defaults);
+      setAllPlans(await licensePlanService.resetToDefaults());
       showToast('Plan catalog reset to default plans.');
     } finally {
       setIsLoading(false);
@@ -804,7 +806,7 @@ export function PlansPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={(newPlan) => {
-          setPlans((prev) => [...prev, newPlan]);
+          setAllPlans((prev) => upsertById(prev, newPlan));
           showToast(`Plan "${newPlan.name}" created and added to catalog.`);
         }}
       />
@@ -814,14 +816,8 @@ export function PlansPage() {
         isOpen={!!editingPlan}
         onClose={() => setEditingPlan(null)}
         plan={editingPlan}
-        onSuccess={async (updatedPlan) => {
-          setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
-            ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
-            : [...prev, updatedPlan]);
-          await fetchPlans();
-          setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
-            ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
-            : [...prev, updatedPlan]);
+        onSuccess={(updatedPlan) => {
+          setAllPlans((prev) => upsertById(prev, updatedPlan));
           showToast(`Plan "${updatedPlan.name}" updated successfully.`);
         }}
       />
@@ -831,12 +827,8 @@ export function PlansPage() {
         isOpen={!!deactivatingPlan}
         onClose={() => setDeactivatingPlan(null)}
         plan={deactivatingPlan}
-        onSuccess={async (updatedPlan) => {
-          setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
-            ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
-            : [...prev, updatedPlan]);
-          await fetchPlans();
-          setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
+        onSuccess={(updatedPlan) => {
+          setAllPlans((prev) => upsertById(prev, updatedPlan));
           showToast(`Plan "${updatedPlan.name}" deactivated.`);
         }}
       />

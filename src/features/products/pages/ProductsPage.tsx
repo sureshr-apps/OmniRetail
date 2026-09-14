@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Product,
-  ProductQueryResult,
   StatusFilterOption,
   ProductType,
   CreateProductInput,
   UpdateProductInput,
 } from '../types';
-import { productService } from '../services/productService';
+import { productService, deriveProductView } from '../services/productService';
+import { upsertById } from '@/shared/utils/listState';
 import { ProductsHeader } from '../components/ProductsHeader';
 import { ProductsKpiCards } from '../components/ProductsKpiCards';
 import { ProductsFilterToolbar } from '../components/ProductsFilterToolbar';
@@ -24,8 +24,9 @@ export function ProductsPage() {
   const navigate = useNavigate();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Data & KPI state
-  const [data, setData] = useState<ProductQueryResult | null>(null);
+  // Data: the full org-scoped set. Mutations upsert into this directly; the
+  // visible page, filters, and KPIs are all derived from it below.
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Filter & pagination state
@@ -42,26 +43,40 @@ export function ProductsPage() {
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // Modals & drawers
-  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  // Modals & drawers — viewingProductId/editingProductId are derived to the
+  // record itself below, so they stay in sync with allProducts automatically.
+  const [viewingProductId, setViewingProductId] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
-  // Load products catalogue
+  const data = useMemo(
+    () => deriveProductView(allProducts, {
+      search: searchQuery,
+      status: statusFilter,
+      category: categoryFilter,
+      brand: brandFilter,
+      type: typeFilter,
+      page: currentPage,
+      pageSize,
+    }),
+    [allProducts, searchQuery, statusFilter, categoryFilter, brandFilter, typeFilter, currentPage, pageSize],
+  );
+  const viewingProduct = useMemo(
+    () => allProducts.find((p) => p.id === viewingProductId) ?? null,
+    [allProducts, viewingProductId],
+  );
+  const editingProduct = useMemo(
+    () => allProducts.find((p) => p.id === editingProductId) ?? null,
+    [allProducts, editingProductId],
+  );
+
+  // Load products catalogue — only for the initial mount or an explicit refresh.
+  // Mutations no longer trigger this; they update allProducts locally instead.
   const loadCatalogue = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await productService.getProducts({
-        search: searchQuery,
-        status: statusFilter,
-        category: categoryFilter,
-        brand: brandFilter,
-        type: typeFilter,
-        page: currentPage,
-        pageSize,
-      });
-      setData(result);
+      setAllProducts(await productService.getAllProducts());
     } catch (err) {
       console.error('Failed to fetch catalogue products:', err);
       setToast({
@@ -73,7 +88,7 @@ export function ProductsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, statusFilter, categoryFilter, brandFilter, typeFilter, currentPage, pageSize]);
+  }, []);
 
   useEffect(() => {
     loadCatalogue();
@@ -108,14 +123,14 @@ export function ProductsPage() {
       // Escape -> Close drawer or modal
       if (e.key === 'Escape') {
         if (isAddModalOpen) setIsAddModalOpen(false);
-        else if (editingProduct) setEditingProduct(null);
-        else if (viewingProduct) setViewingProduct(null);
+        else if (editingProductId) setEditingProductId(null);
+        else if (viewingProductId) setViewingProductId(null);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAddModalOpen, editingProduct, viewingProduct]);
+  }, [isAddModalOpen, editingProductId, viewingProductId]);
 
   // Selection handlers
   const handleToggleSelectRow = (id: string) => {
@@ -126,7 +141,6 @@ export function ProductsPage() {
   };
 
   const handleToggleSelectAll = () => {
-    if (!data?.items) return;
     const allSelected = data.items.every((it) => selectedIds.has(it.id));
     if (allSelected) {
       setSelectedIds(new Set());
@@ -149,7 +163,7 @@ export function ProductsPage() {
 
   // Export CSV
   const handleExportCsv = () => {
-    if (!data || data.items.length === 0) {
+    if (data.items.length === 0) {
       setToast({
         id: `toast-${Date.now()}`,
         type: 'warning',
@@ -215,7 +229,7 @@ export function ProductsPage() {
     try {
       const created = await productService.createProduct(input);
       setIsAddModalOpen(false);
-      await loadCatalogue();
+      setAllProducts((prev) => upsertById(prev, created));
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -237,11 +251,8 @@ export function ProductsPage() {
   const handleUpdateProduct = async (input: UpdateProductInput) => {
     try {
       const updated = await productService.updateProduct(input.id, input);
-      setEditingProduct(null);
-      if (viewingProduct?.id === input.id) {
-        setViewingProduct(updated);
-      }
-      await loadCatalogue();
+      setEditingProductId(null);
+      setAllProducts((prev) => upsertById(prev, updated));
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -264,10 +275,7 @@ export function ProductsPage() {
     const nextStatus = product.status === 'active' ? 'inactive' : 'active';
     try {
       const updated = await productService.changeProductStatus(product.id, nextStatus);
-      if (viewingProduct?.id === product.id) {
-        setViewingProduct(updated);
-      }
-      await loadCatalogue();
+      setAllProducts((prev) => upsertById(prev, updated));
       setToast({
         id: `toast-${Date.now()}`,
         type: 'info',
@@ -305,8 +313,8 @@ export function ProductsPage() {
         description: product.description,
         variantsConfigured: product.variantsConfigured,
       });
-      await loadCatalogue();
-      setViewingProduct(created);
+      setAllProducts((prev) => upsertById(prev, created));
+      setViewingProductId(created.id);
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -332,13 +340,13 @@ export function ProductsPage() {
       <div className="py-space-base space-y-space-base pb-16">
         {/* 1. Page Header */}
         <ProductsHeader
-          totalCount={data?.totalCount || 10}
+          totalCount={data.totalCount || 10}
           onExportCsv={handleExportCsv}
           onOpenAddModal={() => setIsAddModalOpen(true)}
         />
 
         {/* 2. KPI Summary Cards */}
-        {data?.kpis && <ProductsKpiCards kpis={data.kpis} />}
+        <ProductsKpiCards kpis={data.kpis} />
 
         {/* 3. Filter Toolbar */}
         <ProductsFilterToolbar
@@ -377,40 +385,38 @@ export function ProductsPage() {
         {/* 4. Products Table & Pagination Container */}
         <div className="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden border border-outline-variant/20 flex flex-col">
           <ProductsTable
-            items={data?.items || []}
+            items={data.items}
             selectedIds={selectedIds}
             onToggleSelectRow={handleToggleSelectRow}
             onToggleSelectAll={handleToggleSelectAll}
-            onViewProduct={(p) => setViewingProduct(p)}
-            onEditProduct={(p) => setEditingProduct(p)}
+            onViewProduct={(p) => setViewingProductId(p.id)}
+            onEditProduct={(p) => setEditingProductId(p.id)}
             onToggleStatus={handleToggleStatus}
             isLoading={isLoading}
           />
 
-          {data && (
-            <ProductsPagination
-              currentPage={data.page}
-              totalPages={data.totalPages}
-              totalCount={data.totalCount}
-              filteredCount={data.filteredCount}
-              pageSize={data.pageSize}
-              onPageChange={(p) => setCurrentPage(p)}
-              onPageSizeChange={(sz) => {
-                setPageSize(sz);
-                setCurrentPage(1);
-              }}
-            />
-          )}
+          <ProductsPagination
+            currentPage={data.page}
+            totalPages={data.totalPages}
+            totalCount={data.totalCount}
+            filteredCount={data.filteredCount}
+            pageSize={data.pageSize}
+            onPageChange={(p) => setCurrentPage(p)}
+            onPageSizeChange={(sz) => {
+              setPageSize(sz);
+              setCurrentPage(1);
+            }}
+          />
         </div>
       </div>
 
       {/* Slide-over Product Detail Drawer */}
       <ProductDetailDrawer
         product={viewingProduct}
-        onClose={() => setViewingProduct(null)}
+        onClose={() => setViewingProductId(null)}
         onEdit={(p) => {
-          setViewingProduct(null);
-          setEditingProduct(p);
+          setViewingProductId(null);
+          setEditingProductId(p.id);
         }}
         onToggleStatus={handleToggleStatus}
         onNavigateToInventory={() => {
@@ -432,7 +438,7 @@ export function ProductsPage() {
       <EditProductModal
         product={editingProduct}
         isOpen={!!editingProduct}
-        onClose={() => setEditingProduct(null)}
+        onClose={() => setEditingProductId(null)}
         onUpdated={handleUpdateProduct}
       />
 

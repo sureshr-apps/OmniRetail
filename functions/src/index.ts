@@ -35,14 +35,17 @@ import {
   createTenantOutletTrusted,
   updateTenantOutletTrusted,
   changeTenantOutletStatusTrusted,
+  getTenantOutletTrusted,
   provisionTenantEmployeeTrusted,
   updateTenantEmployeeTrusted,
   changeTenantEmployeeStatusTrusted,
   changeTenantEmployeeLoginAccessTrusted,
   createTenantEmployeeProfileTrusted,
+  getTenantEmployeeTrusted,
   createTenantServicePersonTrusted,
   updateTenantServicePersonTrusted,
   changeTenantServicePersonStatusTrusted,
+  getTenantServicePersonTrusted,
   assignTenantEmployeeOutletTrusted,
   assignTenantServicePersonOutletTrusted,
   adjustTenantInventory,
@@ -50,11 +53,15 @@ import {
   createTenantProduct,
   updateTenantProduct,
   changeTenantProductStatus as changeTenantProductStatusSql,
+  getTenantProductTrusted,
   createTenantCustomer,
   updateTenantCustomer,
   changeTenantCustomerStatus as changeTenantCustomerStatusSql,
+  getTenantCustomerTrusted,
   createTenantSupplier,
   updateTenantSupplier,
+  getTenantSupplierTrusted,
+  getOrganizationAdministratorTrusted,
   createTenantPurchase, createTenantPurchaseLine,
   changeTenantPurchaseStatus as changeTenantPurchaseStatusSql,
   receiveTenantPurchaseLine,
@@ -393,7 +400,20 @@ export const changeOrganizationAdministratorStatus = onCall(callableOptions, asy
       catch { await recordProvisioningReconciliation({ idempotencyKey: requestId, firebaseUid: targetUid, errorClass: 'status_compensation_failed' }); }
       throw new Error('status persistence failed');
     }
-    return { success: true };
+    const membership = (await getOrganizationAdministratorTrusted({ organizationId, userId })).data.organizationMemberships[0];
+    if (!membership) throw new Error('administrator not found after status change');
+    return {
+      success: true,
+      id: membership.user.id,
+      organizationId,
+      name: membership.user.displayName,
+      username: membership.user.username,
+      email: membership.user.email,
+      phone: membership.user.phone ?? '',
+      status: membership.user.status === 'ACTIVE' ? 'active' : 'inactive',
+      createdAt: membership.user.createdAt,
+      lastLoginAt: membership.user.lastLoginAt ?? null,
+    };
   } catch { throw new HttpsError('permission-denied', 'Unable to change administrator status.'); }
 });
 
@@ -554,6 +574,22 @@ export const getMasterAdminOverview = onCall(callableOptions, async (request) =>
   } catch { throw new HttpsError('permission-denied', 'Unable to load the overview.'); }
 });
 
+function mapTrustedOutletRow(row: {
+  id: string; outletCode: number; name: string; contactPerson: string;
+  email?: string | null; phone: string; address: string; status: string;
+}) {
+  return {
+    id: row.id,
+    outletCode: row.outletCode,
+    name: row.name,
+    contactPerson: row.contactPerson,
+    email: row.email ?? null,
+    phone: row.phone,
+    address: row.address,
+    status: row.status,
+  };
+}
+
 export const createTenantOutlet = onCall(callableOptions, async (request) => {
   try {
     const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth);
@@ -571,8 +607,11 @@ export const createTenantOutlet = onCall(callableOptions, async (request) => {
     if (!membership || membership.role.code !== 'organization.admin') throw new Error('scope');
     const idempotencyKey = typeof d.idempotencyKey === 'string' ? d.idempotencyKey.trim() : '';
     if (!/^[A-Za-z0-9._:-]{8,128}$/.test(idempotencyKey)) throw new Error('idempotency');
-    const created = await createTenantOutletTrusted({ organizationId, name, contactPerson, email, phone, address, auditId: randomUUID(), requestId: idempotencyKey, actorFirebaseUid });
-    return { success: true, outletId: created.data.outlet_insert.id, organizationId };
+    const id = randomUUID();
+    const created = await createTenantOutletTrusted({ id, organizationId, name, contactPerson, email, phone, address, auditId: randomUUID(), requestId: idempotencyKey, actorFirebaseUid });
+    const row = created.data.query?.outlet;
+    if (!row) throw new Error('outlet not found after creation');
+    return { success: true, organizationId, ...mapTrustedOutletRow(row) };
   } catch (error) {
     logCallableFailure('createTenantOutlet', error);
     throw outletCreationFailure(error);
@@ -601,7 +640,9 @@ export const updateTenantOutlet = onCall(callableOptions, async (request) => {
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('request');
     await updateTenantOutletTrusted({ organizationId, id, name, contactPerson, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, address, auditId: randomUUID(), requestId, actorFirebaseUid });
-    return { success: true, id, organizationId };
+    const row = (await getTenantOutletTrusted({ organizationId, id })).data.outlets[0];
+    if (!row) throw new Error('outlet not found after update');
+    return { success: true, organizationId, ...mapTrustedOutletRow(row) };
   } catch (error) { logCallableFailure('updateTenantOutlet', error); throw new HttpsError('permission-denied', 'Unable to update the outlet.'); }
 });
 
@@ -612,9 +653,29 @@ export const changeTenantOutletStatus = onCall(callableOptions, async (request) 
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
     await changeTenantOutletStatusTrusted({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid });
-    return { success: true, id, organizationId, status };
+    const row = (await getTenantOutletTrusted({ organizationId, id })).data.outlets[0];
+    if (!row) throw new Error('outlet not found after status change');
+    return { success: true, organizationId, ...mapTrustedOutletRow(row) };
   } catch (error) { logCallableFailure('changeTenantOutletStatus', error); throw new HttpsError('permission-denied', 'Unable to change the outlet status.'); }
 });
+
+function mapTrustedEmployeeRow(row: {
+  id: string; employeeCode: string; fullName: string; email?: string | null; phone: string;
+  designation: string; department?: string | null; dateOfJoining: string; assignmentScope: string;
+  employmentStatus: string; loginAccess: string; createdAt: string; updatedAt: string;
+  user?: { id: string; username: string; email: string } | null;
+  employeeOutlets_on_employee: { outlet: { id: string; outletCode: number; name: string } }[];
+}) {
+  return {
+    id: row.id, employeeCode: row.employeeCode, fullName: row.fullName, email: row.email ?? null,
+    phone: row.phone, designation: row.designation, department: row.department ?? null,
+    dateOfJoining: row.dateOfJoining, assignmentScope: row.assignmentScope,
+    employmentStatus: row.employmentStatus, loginAccess: row.loginAccess,
+    createdAt: row.createdAt, updatedAt: row.updatedAt,
+    user: row.user ? { id: row.user.id, username: row.user.username, email: row.user.email } : null,
+    employeeOutlets_on_employee: row.employeeOutlets_on_employee.map((item) => ({ outlet: item.outlet })),
+  };
+}
 
 export const provisionTenantEmployee = onCall(callableOptions, async (request) => {
   let createdUid: string | undefined;
@@ -627,9 +688,12 @@ export const provisionTenantEmployee = onCall(callableOptions, async (request) =
     if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username');
     try { await getAuth().getUserByEmail(email); throw new Error('email'); } catch (error: any) { if (error?.message === 'email') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
     const created = await getAuth().createUser({ email, password: randomBytes(32).toString('base64url'), displayName: fullName, phoneNumber: phone, emailVerified: false, disabled: false }); createdUid = created.uid;
-    await provisionTenantEmployeeTrusted({ userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, employeeCode, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
+    const employeeId = randomUUID();
+    const provisioned = await provisionTenantEmployeeTrusted({ id: employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, employeeCode, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
     await sendManagedPasswordEmail(email, 'PASSWORD_RESET');
-    return { success: true, employeeCode, organizationId, loginAccess: 'ENABLED' };
+    const row = provisioned.data.query?.employee;
+    if (!row) throw new Error('employee not found after provisioning');
+    return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
   } catch (error) { if (createdUid) await getAuth().deleteUser(createdUid).catch(() => undefined); logCallableFailure('provisionTenantEmployee', error); throw new HttpsError('permission-denied', 'Unable to provision the employee login.'); }
 });
 
@@ -637,7 +701,10 @@ export const createTenantEmployeeProfile = onCall(callableOptions, async (reques
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const employeeCode = typeof d.employeeCode === 'string' ? d.employeeCode.trim() : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !employeeCode || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
-    await createTenantEmployeeProfileTrusted({ organizationId, employeeCode, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, employeeCode, organizationId, loginAccess: 'DISABLED' };
+    const created = await createTenantEmployeeProfileTrusted({ id: randomUUID(), organizationId, employeeCode, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    const row = created.data.query?.employee;
+    if (!row) throw new Error('employee not found after creation');
+    return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
   } catch (error) { logCallableFailure('createTenantEmployeeProfile', error); throw new HttpsError('permission-denied', 'Unable to create the employee profile.'); }
 });
 
@@ -648,7 +715,9 @@ export const updateTenantEmployee = onCall(callableOptions, async (request) => {
     if (!organizationId || !id || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     await updateTenantEmployeeTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
-    return { success: true, id, organizationId };
+    const row = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
+    if (!row) throw new Error('employee not found after update');
+    return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
   } catch (error) { logCallableFailure('updateTenantEmployee', error); throw new HttpsError('permission-denied', 'Unable to update the employee.'); }
 });
 
@@ -656,7 +725,10 @@ export const changeTenantEmployeeStatus = onCall(callableOptions, async (request
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
-    await changeTenantEmployeeStatusTrusted({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, id, organizationId, status };
+    await changeTenantEmployeeStatusTrusted({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    const row = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
+    if (!row) throw new Error('employee not found after status change');
+    return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
   } catch (error) { logCallableFailure('changeTenantEmployeeStatus', error); throw new HttpsError('permission-denied', 'Unable to change the employee status.'); }
 });
 
@@ -685,7 +757,9 @@ export const changeTenantEmployeeLoginAccess = onCall(callableOptions, async (re
     await getAuth().updateUser(targetUid, { disabled: !enabled });
     if (!enabled) await getAuth().revokeRefreshTokens(targetUid);
     await changeTenantEmployeeLoginAccessTrusted({ organizationId, id, userId: employee.user.id, loginAccess: enabled ? LoginAccessStatus.ENABLED : LoginAccessStatus.DISABLED, auditId: randomUUID(), requestId, actorFirebaseUid: actor });
-    return { success: true, id, organizationId, loginAccess: enabled ? 'ENABLED' : 'DISABLED' };
+    const row = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
+    if (!row) throw new Error('employee not found after login access change');
+    return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
   } catch (error) {
     if (targetUid) await getAuth().updateUser(targetUid, { disabled: previousDisabled }).catch(() => undefined);
     logCallableFailure('changeTenantEmployeeLoginAccess', error);
@@ -697,16 +771,19 @@ export const createTenantServicePerson = onCall(callableOptions, async (request)
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const code = typeof d.servicePersonCode === 'string' ? d.servicePersonCode.trim() : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const specialization = typeof d.specialization === 'string' ? d.specialization.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !code || !fullName || !phone || !specialization || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
-    await createTenantServicePersonTrusted({ organizationId, servicePersonCode: code, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, specialization, skills: typeof d.skills === 'string' ? d.skills.trim() || null : null, yearsOfExperience: Number.isInteger(d.yearsOfExperience) ? d.yearsOfExperience : null, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, servicePersonCode: code, organizationId };
+    const created = await createTenantServicePersonTrusted({ id: randomUUID(), organizationId, servicePersonCode: code, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, specialization, skills: typeof d.skills === 'string' ? d.skills.trim() || null : null, yearsOfExperience: Number.isInteger(d.yearsOfExperience) ? d.yearsOfExperience : null, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    const row = created.data.query?.servicePerson;
+    if (!row) throw new Error('service person not found after creation');
+    return { success: true, organizationId, ...row };
   } catch (error) { logCallableFailure('createTenantServicePerson', error); throw new HttpsError('permission-denied', 'Unable to create the service person.'); }
 });
 
 export const updateTenantServicePerson = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const specialization = typeof d.specialization === 'string' ? d.specialization.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !fullName || !phone || !specialization || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId); await updateTenantServicePersonTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, specialization, skills: typeof d.skills === 'string' ? d.skills.trim() || null : null, yearsOfExperience: Number.isInteger(d.yearsOfExperience) ? d.yearsOfExperience : null, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, id, organizationId }; } catch (error) { logCallableFailure('updateTenantServicePerson', error); throw new HttpsError('permission-denied', 'Unable to update the service person.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const specialization = typeof d.specialization === 'string' ? d.specialization.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !fullName || !phone || !specialization || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId); await updateTenantServicePersonTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, specialization, skills: typeof d.skills === 'string' ? d.skills.trim() || null : null, yearsOfExperience: Number.isInteger(d.yearsOfExperience) ? d.yearsOfExperience : null, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantServicePersonTrusted({ organizationId, id })).data.servicePeople[0]; if (!row) throw new Error('service person not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantServicePerson', error); throw new HttpsError('permission-denied', 'Unable to update the service person.'); }
 });
 
 export const changeTenantServicePersonStatus = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId); await changeTenantServicePersonStatusTrusted({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, id, organizationId, status }; } catch (error) { logCallableFailure('changeTenantServicePersonStatus', error); throw new HttpsError('permission-denied', 'Unable to change the service person status.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId); await changeTenantServicePersonStatusTrusted({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantServicePersonTrusted({ organizationId, id })).data.servicePeople[0]; if (!row) throw new Error('service person not found after status change'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('changeTenantServicePersonStatus', error); throw new HttpsError('permission-denied', 'Unable to change the service person status.'); }
 });
 
 export const assignTenantEmployeeOutlet = onCall(callableOptions, async (request) => {
@@ -753,39 +830,39 @@ function productFields(d: any) {
 }
 
 export const createTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const productCode = typeof d.productCode === 'string' ? d.productCode.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !productCode || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await createTenantProduct({ organizationId, productCode, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, productCode }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const productCode = typeof d.productCode === 'string' ? d.productCode.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !productCode || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const created = await createTenantProduct({ id: randomUUID(), organizationId, productCode, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = created.data.query?.product; if (!row) throw new Error('product not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
 });
 
 export const updateTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !id || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await updateTenantProduct({ organizationId, id, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, id }; } catch (error) { logCallableFailure('updateTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to update the product.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !id || !fields.name || !fields.brand || !fields.categoryId || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await updateTenantProduct({ organizationId, id, ...fields, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to update the product.'); }
 });
 
 export const changeTenantProductStatus = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await changeTenantProductStatusSql({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, id, status }; } catch (error) { logCallableFailure('changeTenantProductStatus', error); throw new HttpsError('permission-denied', 'Unable to change the product status.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); await changeTenantProductStatusSql({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after status change'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('changeTenantProductStatus', error); throw new HttpsError('permission-denied', 'Unable to change the product status.'); }
 });
 
 export const createTenantCustomerRecord = onCall(callableOptions, async (request) => {
-    try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'customers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const customerCode = typeof d.customerCode === 'string' ? d.customerCode.trim() : ''; const name = typeof d.name === 'string' ? d.name.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const state = typeof d.state === 'string' ? d.state.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const type: CustomerType = d.type === 'BUSINESS' ? CustomerType.BUSINESS : CustomerType.INDIVIDUAL; if (!organizationId || !customerCode || !name || !phone || !email || !city || !state || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'customers.read'); await createTenantCustomer({ organizationId, customerCode, type, name, phone, email, taxId: typeof d.taxId === 'string' ? d.taxId.trim() || null : null, address: typeof d.address === 'string' ? d.address.trim() || null : null, city, state, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, country: typeof d.country === 'string' ? d.country.trim() || null : null, creditLimit: Number.isFinite(Number(d.creditLimit)) ? Number(d.creditLimit) : null, preferredContact: typeof d.preferredContact === 'string' ? d.preferredContact : null, dateOfBirth: typeof d.dateOfBirth === 'string' ? d.dateOfBirth : null, gender: typeof d.gender === 'string' ? d.gender.trim() || null : null, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, customerCode }; } catch (error) { logCallableFailure('createTenantCustomerRecord', error); throw new HttpsError('permission-denied', 'Unable to create the customer.'); }
+    try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'customers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const customerCode = typeof d.customerCode === 'string' ? d.customerCode.trim() : ''; const name = typeof d.name === 'string' ? d.name.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const state = typeof d.state === 'string' ? d.state.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const type: CustomerType = d.type === 'BUSINESS' ? CustomerType.BUSINESS : CustomerType.INDIVIDUAL; if (!organizationId || !customerCode || !name || !phone || !email || !city || !state || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'customers.read'); const created = await createTenantCustomer({ id: randomUUID(), organizationId, customerCode, type, name, phone, email, taxId: typeof d.taxId === 'string' ? d.taxId.trim() || null : null, address: typeof d.address === 'string' ? d.address.trim() || null : null, city, state, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, country: typeof d.country === 'string' ? d.country.trim() || null : null, creditLimit: Number.isFinite(Number(d.creditLimit)) ? Number(d.creditLimit) : null, preferredContact: typeof d.preferredContact === 'string' ? d.preferredContact : null, dateOfBirth: typeof d.dateOfBirth === 'string' ? d.dateOfBirth : null, gender: typeof d.gender === 'string' ? d.gender.trim() || null : null, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = created.data.query?.customer; if (!row) throw new Error('customer not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantCustomerRecord', error); throw new HttpsError('permission-denied', 'Unable to create the customer.'); }
 });
 
 export const updateTenantCustomerRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'customers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const name = typeof d.name === 'string' ? d.name.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const state = typeof d.state === 'string' ? d.state.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const type: CustomerType = d.type === 'BUSINESS' ? CustomerType.BUSINESS : CustomerType.INDIVIDUAL; if (!organizationId || !id || !name || !phone || !email || !city || !state || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'customers.read'); await updateTenantCustomer({ organizationId, id, type, name, phone, email, taxId: typeof d.taxId === 'string' ? d.taxId.trim() || null : null, address: typeof d.address === 'string' ? d.address.trim() || null : null, city, state, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, country: typeof d.country === 'string' ? d.country.trim() || null : null, creditLimit: Number.isFinite(Number(d.creditLimit)) ? Number(d.creditLimit) : null, preferredContact: typeof d.preferredContact === 'string' ? d.preferredContact : null, dateOfBirth: typeof d.dateOfBirth === 'string' ? d.dateOfBirth : null, gender: typeof d.gender === 'string' ? d.gender.trim() || null : null, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, id }; } catch (error) { logCallableFailure('updateTenantCustomerRecord', error); throw new HttpsError('permission-denied', 'Unable to update the customer.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'customers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const name = typeof d.name === 'string' ? d.name.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const state = typeof d.state === 'string' ? d.state.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const type: CustomerType = d.type === 'BUSINESS' ? CustomerType.BUSINESS : CustomerType.INDIVIDUAL; if (!organizationId || !id || !name || !phone || !email || !city || !state || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'customers.read'); await updateTenantCustomer({ organizationId, id, type, name, phone, email, taxId: typeof d.taxId === 'string' ? d.taxId.trim() || null : null, address: typeof d.address === 'string' ? d.address.trim() || null : null, city, state, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, country: typeof d.country === 'string' ? d.country.trim() || null : null, creditLimit: Number.isFinite(Number(d.creditLimit)) ? Number(d.creditLimit) : null, preferredContact: typeof d.preferredContact === 'string' ? d.preferredContact : null, dateOfBirth: typeof d.dateOfBirth === 'string' ? d.dateOfBirth : null, gender: typeof d.gender === 'string' ? d.gender.trim() || null : null, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantCustomerTrusted({ organizationId, id })).data.customers[0]; if (!row) throw new Error('customer not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantCustomerRecord', error); throw new HttpsError('permission-denied', 'Unable to update the customer.'); }
 });
 
 export const changeTenantCustomerStatus = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'customers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'customers.read'); await changeTenantCustomerStatusSql({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, id, status }; } catch (error) { logCallableFailure('changeTenantCustomerStatus', error); throw new HttpsError('permission-denied', 'Unable to change the customer status.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'customers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'customers.read'); await changeTenantCustomerStatusSql({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantCustomerTrusted({ organizationId, id })).data.customers[0]; if (!row) throw new Error('customer not found after status change'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('changeTenantCustomerStatus', error); throw new HttpsError('permission-denied', 'Unable to change the customer status.'); }
 });
 
 export const createTenantSupplierRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'suppliers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const supplierCode = typeof d.supplierCode === 'string' ? d.supplierCode.trim() : ''; const name = typeof d.name === 'string' ? d.name.trim() : ''; const contactPerson = typeof d.contactPerson === 'string' ? d.contactPerson.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const taxId = typeof d.taxId === 'string' ? d.taxId.trim() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const category = typeof d.category === 'string' ? d.category.trim() : ''; const paymentTerms = typeof d.paymentTerms === 'string' ? d.paymentTerms.trim() : ''; const creditLimit = Number(d.creditLimit); const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !supplierCode || !name || !contactPerson || !phone || !email || !taxId || !city || !category || !paymentTerms || !Number.isFinite(creditLimit) || creditLimit < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'suppliers.read'); await createTenantSupplier({ organizationId, supplierCode, name, contactPerson, phone, email, taxId, address: typeof d.address === 'string' ? d.address.trim() || null : null, city, state: typeof d.state === 'string' ? d.state.trim() || null : null, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, country: typeof d.country === 'string' ? d.country.trim() || null : null, category, paymentTerms, creditLimit, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, supplierCode }; } catch (error) { logCallableFailure('createTenantSupplierRecord', error); throw new HttpsError('permission-denied', 'Unable to create the supplier.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'suppliers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const supplierCode = typeof d.supplierCode === 'string' ? d.supplierCode.trim() : ''; const name = typeof d.name === 'string' ? d.name.trim() : ''; const contactPerson = typeof d.contactPerson === 'string' ? d.contactPerson.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() : ''; const taxId = typeof d.taxId === 'string' ? d.taxId.trim() : ''; const city = typeof d.city === 'string' ? d.city.trim() : ''; const category = typeof d.category === 'string' ? d.category.trim() : ''; const paymentTerms = typeof d.paymentTerms === 'string' ? d.paymentTerms.trim() : ''; const creditLimit = Number(d.creditLimit); const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !supplierCode || !name || !contactPerson || !phone || !email || !taxId || !city || !category || !paymentTerms || !Number.isFinite(creditLimit) || creditLimit < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'suppliers.read'); const created = await createTenantSupplier({ id: randomUUID(), organizationId, supplierCode, name, contactPerson, phone, email, taxId, address: typeof d.address === 'string' ? d.address.trim() || null : null, city, state: typeof d.state === 'string' ? d.state.trim() || null : null, postalCode: typeof d.postalCode === 'string' ? d.postalCode.trim() || null : null, country: typeof d.country === 'string' ? d.country.trim() || null : null, category, paymentTerms, creditLimit, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = created.data.query?.supplier; if (!row) throw new Error('supplier not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantSupplierRecord', error); throw new HttpsError('permission-denied', 'Unable to create the supplier.'); }
 });
 
 export const changeTenantSupplierStatus = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'suppliers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'suppliers.read'); await changeTenantSupplierStatusSql({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, id, status }; } catch (error) { logCallableFailure('changeTenantSupplierStatus', error); throw new HttpsError('permission-denied', 'Unable to change supplier status.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'suppliers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'suppliers.read'); await changeTenantSupplierStatusSql({ organizationId, id, status, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantSupplierTrusted({ organizationId, id })).data.suppliers[0]; if (!row) throw new Error('supplier not found after status change'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('changeTenantSupplierStatus', error); throw new HttpsError('permission-denied', 'Unable to change supplier status.'); }
 });
 
 export const updateTenantSupplierRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'suppliers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const required = (key: string) => typeof d[key] === 'string' ? d[key].trim() : ''; const creditLimit = Number(d.creditLimit); const requestId = required('requestId'); if (!organizationId || !id || !required('name') || !required('contactPerson') || !required('phone') || !required('email') || !required('taxId') || !required('city') || !required('category') || !required('paymentTerms') || !Number.isFinite(creditLimit) || creditLimit < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'suppliers.read'); await updateTenantSupplier({ organizationId, id, name: required('name'), contactPerson: required('contactPerson'), phone: required('phone'), email: required('email').toLowerCase(), taxId: required('taxId'), address: required('address') || null, city: required('city'), state: required('state') || null, postalCode: required('postalCode') || null, country: required('country') || null, category: required('category'), paymentTerms: required('paymentTerms'), creditLimit, notes: required('notes') || null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, organizationId, id }; } catch (error) { logCallableFailure('updateTenantSupplierRecord', error); throw new HttpsError('permission-denied', 'Unable to update the supplier.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'suppliers.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const required = (key: string) => typeof d[key] === 'string' ? d[key].trim() : ''; const creditLimit = Number(d.creditLimit); const requestId = required('requestId'); if (!organizationId || !id || !required('name') || !required('contactPerson') || !required('phone') || !required('email') || !required('taxId') || !required('city') || !required('category') || !required('paymentTerms') || !Number.isFinite(creditLimit) || creditLimit < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'suppliers.read'); await updateTenantSupplier({ organizationId, id, name: required('name'), contactPerson: required('contactPerson'), phone: required('phone'), email: required('email').toLowerCase(), taxId: required('taxId'), address: required('address') || null, city: required('city'), state: required('state') || null, postalCode: required('postalCode') || null, country: required('country') || null, category: required('category'), paymentTerms: required('paymentTerms'), creditLimit, notes: required('notes') || null, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); const row = (await getTenantSupplierTrusted({ organizationId, id })).data.suppliers[0]; if (!row) throw new Error('supplier not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantSupplierRecord', error); throw new HttpsError('permission-denied', 'Unable to update the supplier.'); }
 });
 
 export const createTenantPurchaseRecord = onCall(callableOptions, async (request) => {

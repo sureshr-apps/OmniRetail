@@ -64,10 +64,11 @@ describe('tenant production service boundaries', () => {
     expect(service).not.toContain('updatedAt: row.updatedAt');
   });
 
-  it('refreshes outlet data from the server after an outlet mutation', () => {
+  it('returns the callable-provided canonical outlet directly after a mutation, with no follow-up list query', () => {
     const source = read('outlets/services/outletService.ts');
-    expect(source).toContain('QueryFetchPolicy.SERVER_ONLY');
-    expect(source).toContain('o.id === returnedOutletId');
+    expect(source).not.toContain('QueryFetchPolicy.SERVER_ONLY');
+    expect(source).not.toContain('o.id === returnedOutletId');
+    expect(source).toContain('assertCallableEntity<OutletMutationResponse>');
     expect(source).toContain('formatOutletCode(o.outletCode)');
   });
 });

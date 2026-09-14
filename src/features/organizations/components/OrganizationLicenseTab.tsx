@@ -82,13 +82,14 @@ export function OrganizationLicenseTab({
     loadLicenseData();
   }, [loadLicenseData]);
 
-  const handleActionSuccess = async (message: string, assignedLicense?: OrganizationLicense) => {
+  const handleActionSuccess = async (message: string, updatedLicense: OrganizationLicense) => {
     setFeedback(message);
-    if (assignedLicense) {
-      const assignedPlan = await licensePlanService.getPlan(assignedLicense.planId);
-      setLicenseData({ license: assignedLicense, plan: assignedPlan, status: calculateLicenseStatus(assignedLicense) });
-    }
-    await loadLicenseData();
+    // The mutation response is the canonical license; only the plan (which may
+    // have changed) needs a targeted lookup. History is a separate,
+    // server-appended audit log, so it's the one piece worth reloading.
+    const updatedPlan = await licensePlanService.getPlan(updatedLicense.planId);
+    setLicenseData({ license: updatedLicense, plan: updatedPlan, status: calculateLicenseStatus(updatedLicense) });
+    setHistory(await organizationLicenseService.getLicenseHistory(organization.id));
     onLicenseUpdated?.();
     setTimeout(() => {
       setFeedback(null);
@@ -401,7 +402,7 @@ export function OrganizationLicenseTab({
           organizationName={organization.name}
           currentLicense={license}
           currentPlan={plan}
-          onSuccess={() => handleActionSuccess('Plan upgraded successfully.')}
+          onSuccess={(updated) => handleActionSuccess('Plan upgraded successfully.', updated)}
         />
       )}
 
@@ -413,7 +414,7 @@ export function OrganizationLicenseTab({
           organizationId={organization.id}
           organizationName={organization.name}
           currentLicense={license}
-          onSuccess={() => handleActionSuccess('Commercial terms updated successfully.')}
+          onSuccess={(updated) => handleActionSuccess('Commercial terms updated successfully.', updated)}
         />
       )}
 
@@ -426,7 +427,7 @@ export function OrganizationLicenseTab({
           organizationName={organization.name}
           currentLicense={license}
           currentPlan={plan}
-          onSuccess={() => handleActionSuccess('License renewed successfully.')}
+          onSuccess={(updated) => handleActionSuccess('License renewed successfully.', updated)}
         />
       )}
     </div>

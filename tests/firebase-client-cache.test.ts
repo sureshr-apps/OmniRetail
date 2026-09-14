@@ -61,7 +61,7 @@ describe('Firebase Data Connect cache configuration', () => {
     vi.clearAllMocks();
   });
 
-  it('uses the generated cache provider with zero max age so post-mutation reads reach the server', () => {
+  it('uses the generated cache provider with a bounded max age, since mutation responses now update local state directly instead of relying on cache-busting reads', () => {
     const services = getFirebaseClientServices();
 
     expect(services.dataConnect).toBe(mocks.dataConnect);
@@ -71,7 +71,7 @@ describe('Firebase Data Connect cache configuration', () => {
       {
         cacheSettings: {
           cacheProvider: mocks.cacheProvider,
-          maxAgeSeconds: 0,
+          maxAgeSeconds: 30,
         },
       },
     );

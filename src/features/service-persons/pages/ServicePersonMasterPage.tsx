@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ServicePerson,
   ServicePersonStatus,
@@ -6,8 +6,9 @@ import {
   CreateServicePersonInput,
   UpdateServicePersonInput,
 } from '../types';
-import { servicePersonService } from '../services/servicePersonService';
+import { servicePersonService, deriveServicePersonView } from '../services/servicePersonService';
 import { outletService } from '../../outlets/services/outletService';
+import { upsertById } from '@/shared/utils/listState';
 import { ServicePersonHeader } from '../components/ServicePersonHeader';
 import { ServicePersonFilterBar } from '../components/ServicePersonFilterBar';
 import { ServicePersonTable } from '../components/ServicePersonTable';
@@ -25,11 +26,9 @@ export function ServicePersonMasterPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Data & Results
-  const [servicePersons, setServicePersons] = useState<ServicePerson[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [activeCount, setActiveCount] = useState(18);
+  // Data: the full org-scoped set. Mutations upsert into this directly; the
+  // visible page, filters, and aggregate counts are all derived from it below.
+  const [allServicePersons, setAllServicePersons] = useState<ServicePerson[]>([]);
   const [specializations, setSpecializations] = useState<string[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<{ id: string; name: string }[]>([]);
   const [nextCode, setNextCode] = useState('SRV-107');
@@ -38,8 +37,9 @@ export function ServicePersonMasterPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Drawer & Modal States
-  const [selectedPersonForDrawer, setSelectedPersonForDrawer] = useState<ServicePerson | null>(null);
+  // Drawer & Modal States — selection is an id; the record itself is always
+  // derived from allServicePersons, so it reflects mutations with no extra sync code.
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,6 +48,22 @@ export function ServicePersonMasterPage() {
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [personForStatusChange, setPersonForStatusChange] = useState<ServicePerson | null>(null);
   const [isProcessingStatus, setIsProcessingStatus] = useState(false);
+
+  const view = useMemo(
+    () => deriveServicePersonView(allServicePersons, {
+      search: searchQuery,
+      status: statusFilter,
+      assignmentScope: assignmentFilter,
+      specialization: specializationFilter,
+      page,
+      pageSize,
+    }),
+    [allServicePersons, searchQuery, statusFilter, assignmentFilter, specializationFilter, page, pageSize],
+  );
+  const selectedPerson = useMemo(
+    () => allServicePersons.find((p) => p.id === selectedPersonId) ?? null,
+    [allServicePersons, selectedPersonId],
+  );
 
   // Load Outlets & Specializations metadata once on mount
   useEffect(() => {
@@ -66,52 +82,34 @@ export function ServicePersonMasterPage() {
     loadMetadata();
   }, []);
 
-  // Fetch Service Persons with Query
-  const fetchServicePersons = useCallback(async () => {
+  // Load Data — only for the initial mount, an explicit refresh, or error retry.
+  // Mutations no longer trigger this; they update allServicePersons locally instead.
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await servicePersonService.getServicePersons({
-        search: searchQuery,
-        status: statusFilter,
-        assignmentScope: assignmentFilter,
-        specialization: specializationFilter,
-        page,
-        pageSize,
-      });
-
-      setServicePersons(result.servicePersons);
-      setTotalItems(result.total);
-      setTotalPages(result.totalPages);
-      setActiveCount(result.activeCount);
+      setAllServicePersons(await servicePersonService.getAllServicePersons());
       setNextCode(servicePersonService.getNextServicePersonCode());
-
-      // If drawer is open and the person was updated, update drawer model
-      if (selectedPersonForDrawer) {
-        const refreshed = result.servicePersons.find((p) => p.id === selectedPersonForDrawer.id);
-        if (refreshed) {
-          setSelectedPersonForDrawer(refreshed);
-        }
-      }
     } catch (err) {
       console.error(err);
       setError('A network timeout occurred while communicating with the OmniRetail enterprise server cluster.');
     } finally {
       setIsLoading(false);
     }
-  }, [
-    searchQuery,
-    statusFilter,
-    assignmentFilter,
-    specializationFilter,
-    page,
-    pageSize,
-    selectedPersonForDrawer,
-  ]);
+  }, []);
 
   useEffect(() => {
-    fetchServicePersons();
-  }, [fetchServicePersons]);
+    loadData();
+  }, [loadData]);
+
+  // If a mutation removes the last item(s) from the current page (e.g.
+  // deactivating the only "Active" row on the last page while that filter is
+  // selected), fall back to the previous page instead of showing an empty page.
+  useEffect(() => {
+    if (view.total > 0 && view.servicePersons.length === 0 && page > 1) {
+      setPage(view.totalPages);
+    }
+  }, [view, page]);
 
   // Handlers for Filters
   const handleSearchChange = (query: string) => {
@@ -167,23 +165,22 @@ export function ServicePersonMasterPage() {
         personToEdit.id,
         input as UpdateServicePersonInput
       );
-      if (selectedPersonForDrawer?.id === updated.id) {
-        setSelectedPersonForDrawer(updated);
-      }
+      setAllServicePersons((prev) => upsertById(prev, updated));
     } else {
-      await servicePersonService.createServicePerson(input as CreateServicePersonInput);
+      const created = await servicePersonService.createServicePerson(input as CreateServicePersonInput);
+      setAllServicePersons((prev) => upsertById(prev, created));
     }
-    await fetchServicePersons();
   };
 
   // Handlers for Details Drawer
   const handleViewPerson = (person: ServicePerson) => {
-    setSelectedPersonForDrawer(person);
+    setSelectedPersonId(person.id);
     setIsDrawerOpen(true);
   };
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
+    setSelectedPersonId(null);
   };
 
   // Handlers for Status Toggle
@@ -202,11 +199,8 @@ export function ServicePersonMasterPage() {
         newStatus
       );
 
-      if (selectedPersonForDrawer?.id === updated.id) {
-        setSelectedPersonForDrawer(updated);
-      }
+      setAllServicePersons((prev) => upsertById(prev, updated));
 
-      await fetchServicePersons();
       setIsStatusDialogOpen(false);
       setPersonForStatusChange(null);
     } catch (err) {
@@ -220,7 +214,7 @@ export function ServicePersonMasterPage() {
     <div className="w-full">
       {/* Top Header Bar */}
       <ServicePersonHeader
-        activeCount={activeCount}
+        activeCount={view.activeCount}
         onAddClick={handleOpenAddModal}
       />
 
@@ -270,7 +264,7 @@ export function ServicePersonMasterPage() {
               {error}
             </p>
             <button
-              onClick={fetchServicePersons}
+              onClick={() => loadData()}
               className="h-9 px-space-lg bg-primary text-on-primary rounded-xl font-body-medium text-body-medium flex items-center gap-space-xs shadow-sm hover:bg-primary-container transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">refresh</span>
@@ -280,7 +274,7 @@ export function ServicePersonMasterPage() {
         )}
 
         {/* Empty State */}
-        {!isLoading && !error && servicePersons.length === 0 && (
+        {!isLoading && !error && view.servicePersons.length === 0 && (
           <div className="bg-surface-container-lowest rounded-xl shadow-sm p-16 text-center flex flex-col items-center justify-center border border-outline-variant/20">
             <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-space-base text-primary">
               <span className="material-symbols-outlined text-[32px]">group_off</span>
@@ -314,17 +308,17 @@ export function ServicePersonMasterPage() {
         )}
 
         {/* Directory State (Table & Pagination) */}
-        {!isLoading && !error && servicePersons.length > 0 && (
+        {!isLoading && !error && view.servicePersons.length > 0 && (
           <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/20">
             <ServicePersonTable
-              servicePersons={servicePersons}
+              servicePersons={view.servicePersons}
               onView={handleViewPerson}
             />
 
             <ServicePersonPagination
               currentPage={page}
-              totalPages={totalPages}
-              totalItems={totalItems}
+              totalPages={view.totalPages}
+              totalItems={view.total}
               pageSize={pageSize}
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(sz) => {
@@ -338,13 +332,15 @@ export function ServicePersonMasterPage() {
 
       {/* Slide-over Profile Details Drawer */}
       <ServicePersonDetailDrawer
-        person={selectedPersonForDrawer}
+        person={selectedPerson}
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
         onEdit={(person) => {
+          setIsDrawerOpen(false);
           handleOpenEditModal(person);
         }}
         onToggleStatus={(person) => {
+          setIsDrawerOpen(false);
           handleInitiateToggleStatus(person);
         }}
       />

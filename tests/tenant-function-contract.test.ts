@@ -39,15 +39,17 @@ describe('tenant callable contract', () => {
     expect(source).toContain('idempotencyKey');
     expect(source).not.toContain('async function nextTenantOutletCode()');
     expect(source).not.toContain('listTenantOutletCodesTrusted');
-    expect(source).toContain('outletId: created.data.outlet_insert.id');
+    expect(source).toContain('created.data.query?.outlet');
     expect(source).toContain('function outletCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('invalid-argument', 'Some outlet details are invalid.')");
   });
 
-  it('exposes update and status callables with organization-admin scope checks', () => {
+  it('exposes update and status callables with organization-admin scope checks and return the canonical outlet', () => {
     expect(source).toContain('export const updateTenantOutlet = onCall');
     expect(source).toContain('export const changeTenantOutletStatus = onCall');
     expect(source).toContain('requireOrganizationAdmin(actorFirebaseUid, organizationId)');
+    expect(source).toContain('getTenantOutletTrusted({ organizationId, id })');
+    expect(source).toContain('function mapTrustedOutletRow(row:');
   });
 
   it('provisions employee login through Firebase Auth and trusted SQL', () => {
@@ -80,7 +82,7 @@ describe('tenant callable contract', () => {
   it('exposes tenant product and inventory write boundaries', () => {
     expect(source).toContain('export const createTenantProductRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
-    expect(source).toContain('createTenantProduct({ organizationId, productCode');
+    expect(source).toContain('createTenantProduct({ id: randomUUID(), organizationId, productCode');
     expect(source).toContain('function productCreationFailure(error: unknown): HttpsError');
     expect(source).toContain("new HttpsError('already-exists'");
     expect(source).toContain("new HttpsError('invalid-argument'");
@@ -94,7 +96,7 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped customer creation boundary', () => {
     expect(source).toContain('export const createTenantCustomerRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'customers.read')");
-    expect(source).toContain('createTenantCustomer({ organizationId, customerCode');
+    expect(source).toContain('createTenantCustomer({ id: randomUUID(), organizationId, customerCode');
     expect(source).toContain('export const updateTenantCustomerRecord = onCall');
     expect(source).toContain('export const changeTenantCustomerStatus = onCall');
   });
@@ -102,7 +104,7 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped supplier creation boundary', () => {
     expect(source).toContain('export const createTenantSupplierRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'suppliers.read')");
-    expect(source).toContain('createTenantSupplier({ organizationId, supplierCode');
+    expect(source).toContain('createTenantSupplier({ id: randomUUID(), organizationId, supplierCode');
     expect(source).toContain('export const changeTenantSupplierStatus = onCall');
     expect(source).toContain('export const updateTenantSupplierRecord = onCall');
     expect(source).toContain('updateTenantSupplier({ organizationId, id');

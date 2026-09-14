@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Customer,
-  CustomerQuery,
-  CustomerQueryResult,
   CustomerStatus,
   CustomerType,
   CreateCustomerInput,
   UpdateCustomerInput,
 } from '../types';
-import { customerService } from '../services/customerService';
+import { customerService, deriveCustomerView } from '../services/customerService';
 import { exportCustomersToCsv } from '../utils/calculations';
+import { upsertById } from '@/shared/utils/listState';
 import { CustomersHeader } from '../components/CustomersHeader';
 import { CustomersFilterBar } from '../components/CustomersFilterBar';
 import { CustomersTable } from '../components/CustomersTable';
@@ -28,13 +27,15 @@ export function CustomersPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5); // Default to 5 matching Stitch screenshot
 
-  // Data state
-  const [data, setData] = useState<CustomerQueryResult | null>(null);
+  // Data: the full org-scoped set. Mutations upsert into this directly;
+  // the visible page, filters, and aggregate counts are all derived from it below.
+  const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Dialog & Drawer state
-  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
+  // Dialog & Drawer state — selection is an id; the record itself is always
+  // derived from allCustomers, so it reflects mutations with no extra sync code.
+  const [viewingCustomerId, setViewingCustomerId] = useState<string | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [statusDialogCustomer, setStatusDialogCustomer] = useState<Customer | null>(null);
@@ -49,35 +50,45 @@ export function CustomersPage() {
     }, 3500);
   };
 
-  // Load available cities
-  useEffect(() => {
-    customerService.getCities().then((cList) => setCities(cList));
-  }, []);
-
-  // Fetch customers with current query
-  const loadCustomers = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const query: CustomerQuery = {
+  const data = useMemo(
+    () =>
+      deriveCustomerView(allCustomers, {
         search: search.trim() || undefined,
-        status: status,
-        type: type,
+        status,
+        type,
         city: city !== 'ALL' ? city : undefined,
         page,
         pageSize,
-      };
-      const result = await customerService.getCustomers(query);
-      setData(result);
+      }),
+    [allCustomers, search, status, type, city, page, pageSize],
+  );
+
+  const viewingCustomer = useMemo(
+    () => allCustomers.find((c) => c.id === viewingCustomerId) ?? null,
+    [allCustomers, viewingCustomerId],
+  );
+
+  // Load Data — only for the initial mount or an explicit refresh. Mutations no
+  // longer trigger this; they update allCustomers locally instead.
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      setAllCustomers(await customerService.getAllCustomers());
     } catch (err) {
       console.error('Failed to load customers:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [search, status, type, city, page, pageSize]);
+  }, []);
 
   useEffect(() => {
-    loadCustomers();
-  }, [loadCustomers]);
+    loadData();
+  }, [loadData]);
+
+  // Load available cities
+  useEffect(() => {
+    customerService.getCities().then((cList) => setCities(cList));
+  }, []);
 
   // Reset page to 1 when filters change
   const handleSearchChange = (val: string) => {
@@ -110,19 +121,19 @@ export function CustomersPage() {
 
   const isFiltered = search !== '' || status !== 'ALL' || type !== 'ALL' || city !== 'ALL';
 
-  // Export current filtered set
-  const handleExport = async () => {
+  // Export current filtered set — derived locally from the already-loaded full
+  // set, matching the current search/status/type/city filter, with no extra
+  // network call.
+  const handleExport = () => {
     try {
-      // Get all matching filtered customers without pagination limits for the export
-      const query: CustomerQuery = {
+      const result = deriveCustomerView(allCustomers, {
         search: search.trim() || undefined,
         status,
         type,
         city: city !== 'ALL' ? city : undefined,
         page: 1,
-        pageSize: 1000,
-      };
-      const result = await customerService.getCustomers(query);
+        pageSize: Math.max(allCustomers.length, 1),
+      });
       exportCustomersToCsv(result.items);
       showToast(`Exported ${result.items.length} customer records to CSV.`);
     } catch (err) {
@@ -131,29 +142,27 @@ export function CustomersPage() {
     }
   };
 
-  const refreshCustomerData = async () => {
-    const [nextCities] = await Promise.all([
-      customerService.getCities(),
-      loadCustomers(),
-    ]);
-    setCities(nextCities);
+  // Refreshes metadata (available cities) derived from the directory. This is
+  // distinct from the customer rows themselves, which mutations now patch
+  // locally via upsertById instead of triggering a full list reload.
+  const refreshCustomerMetadata = async () => {
+    setCities(await customerService.getCities());
   };
 
   // Add customer
   const handleCreateCustomer = async (input: CreateCustomerInput) => {
     const created = await customerService.createCustomer(input);
     showToast(`Customer ${created.customerCode} (${created.name}) created successfully.`);
-    await refreshCustomerData();
+    setAllCustomers((prev) => upsertById(prev, created));
+    await refreshCustomerMetadata();
   };
 
   // Edit customer
   const handleUpdateCustomer = async (id: string, input: UpdateCustomerInput) => {
     const updated = await customerService.updateCustomer(id, input);
     showToast(`Customer ${updated.customerCode} (${updated.name}) updated successfully.`);
-    if (viewingCustomer && viewingCustomer.id === id) {
-      setViewingCustomer(updated);
-    }
-    await refreshCustomerData();
+    setAllCustomers((prev) => upsertById(prev, updated));
+    await refreshCustomerMetadata();
   };
 
   // Toggle status with confirmation
@@ -165,10 +174,8 @@ export function CustomersPage() {
     showToast(
       `Customer ${updated.customerCode} marked as ${newStatus}.`
     );
-    if (viewingCustomer && viewingCustomer.id === updated.id) {
-      setViewingCustomer(updated);
-    }
-    await refreshCustomerData();
+    setAllCustomers((prev) => upsertById(prev, updated));
+    await refreshCustomerMetadata();
   };
 
   return (
@@ -185,7 +192,7 @@ export function CustomersPage() {
       <CustomersHeader
         onExport={handleExport}
         onAddCustomer={() => setIsAddOpen(true)}
-        totalCustomers={data?.totalCount || 0}
+        totalCustomers={data.totalCount || 0}
       />
 
       {/* Search & Filters Bar */}
@@ -206,8 +213,8 @@ export function CustomersPage() {
       {/* Table & Pagination Container */}
       <div className="relative w-full">
         <CustomersTable
-          customers={data?.items || []}
-          onSelectCustomer={(c) => setViewingCustomer(c)}
+          customers={data.items}
+          onSelectCustomer={(c) => setViewingCustomerId(c.id)}
           onEditCustomer={(c) => setEditingCustomer(c)}
           onToggleStatus={(c) => setStatusDialogCustomer(c)}
           isLoading={isLoading}
@@ -215,7 +222,7 @@ export function CustomersPage() {
         />
 
         {/* Pagination Footer */}
-        {data && data.filteredCount > 0 && (
+        {data.filteredCount > 0 && (
           <CustomersPagination
             page={data.page}
             pageSize={data.pageSize}
@@ -250,7 +257,7 @@ export function CustomersPage() {
       <CustomerDetailDrawer
         customer={viewingCustomer}
         isOpen={!!viewingCustomer}
-        onClose={() => setViewingCustomer(null)}
+        onClose={() => setViewingCustomerId(null)}
         onEdit={(c) => setEditingCustomer(c)}
         onToggleStatus={(c) => setStatusDialogCustomer(c)}
       />

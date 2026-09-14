@@ -64,16 +64,18 @@ export function getFirebaseClientServices(): FirebaseClientServices {
 
   const auth = getAuth(app);
   const functions = getFunctions(app, 'asia-south1');
-  // Without a cache provider, Data Connect's imperative query API falls back to
-  // a process-local subscription cache that has no staleness check. That makes
-  // a list query issued after a Cloud Function mutation reuse its old result
-  // until the page recreates the Firebase client. Keep the generated in-memory
-  // cache, but make imperative reads immediately stale so mutation refreshes
-  // always reach the server.
+  // Mutations now return the full canonical entity and the UI applies it to
+  // local state directly (see src/shared/utils/listState.ts), so correctness no
+  // longer depends on an imperative read racing the cache. A short, explicit
+  // max age just bounds cross-tab/cross-user staleness for this back-office
+  // master data (outlets, employees, products, customers, suppliers,
+  // organizations, plans, administrators) instead of leaving the SDK's default
+  // (effectively unbounded) cache in place. Purchases/Sales/Inventory are more
+  // concurrency-sensitive and are unaffected by this value today.
   const dataConnect = getDataConnect(app, connectorConfig, {
     cacheSettings: {
       ...dataConnectSettings.cacheSettings,
-      maxAgeSeconds: 0,
+      maxAgeSeconds: 30,
     },
   });
 

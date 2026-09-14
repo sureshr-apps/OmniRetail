@@ -12,8 +12,10 @@ import { INITIAL_PRODUCTS } from './mockData';
 import { getCurrentUserAuthorization, listTenantProducts } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
+import { assertCallableEntity } from '@/shared/utils/callableResponse';
 
 export interface IProductService {
+  getAllProducts(): Promise<Product[]>;
   getProducts(query?: ProductQuery): Promise<ProductQueryResult>;
   getProduct(id: string): Promise<Product | null>;
   createProduct(input: CreateProductInput): Promise<Product>;
@@ -28,6 +30,10 @@ export interface IProductService {
 
 class MockProductService implements IProductService {
   private products: Product[] = [...INITIAL_PRODUCTS];
+
+  public async getAllProducts(): Promise<Product[]> {
+    return [...this.products];
+  }
 
   private calculateKpis(): ProductsKpiSummary {
     const total = this.products.length;
@@ -337,7 +343,42 @@ class MockProductService implements IProductService {
 
 type TenantProductRow = Awaited<ReturnType<typeof listTenantProducts>>['data']['products'][number];
 
-function mapTenantProduct(row: TenantProductRow): Product {
+interface ProductMutationResponse {
+  id: string;
+  productCode: string;
+  name: string;
+  brand: string;
+  categoryId: string;
+  categoryName: string;
+  subcategory?: string | null;
+  type: string;
+  sku: string;
+  barcode?: string | null;
+  hsnCode?: string | null;
+  unitOfMeasure?: string | null;
+  sellingPrice: number;
+  mrp?: number | null;
+  cost?: number | null;
+  minSellingPrice?: number | null;
+  discountAllowed: boolean;
+  taxCategory?: string | null;
+  status: string;
+  reorderLevel?: number | null;
+  reorderQuantity?: number | null;
+  primarySupplier?: string | null;
+  supplierProductCode?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const PRODUCT_MUTATION_RESPONSE_KEYS: (keyof ProductMutationResponse)[] = [
+  'id', 'productCode', 'name', 'brand', 'categoryId', 'categoryName', 'type', 'sku',
+  'sellingPrice', 'discountAllowed', 'status', 'createdAt', 'updatedAt',
+];
+
+function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Product {
   return {
     id: row.id,
     productCode: row.productCode,
@@ -369,6 +410,43 @@ function mapTenantProduct(row: TenantProductRow): Product {
   };
 }
 
+/**
+ * Pure filter/sort/paginate derivation, shared by the server-fetch path here and
+ * by pages that recompute a view locally after a mutation without refetching.
+ */
+export function deriveProductView(all: Product[], query: ProductQuery = {}): ProductQueryResult {
+  const search = query.search?.trim().toLowerCase() ?? '';
+  const filtered = all.filter((product) => {
+    if (query.status === 'ACTIVE' && product.status !== 'active') return false;
+    if (query.status === 'INACTIVE' && product.status !== 'inactive') return false;
+    if (query.type && query.type !== 'ALL' && product.type !== query.type) return false;
+    if (query.category && query.category !== 'All Categories' && !product.categoryName.toLowerCase().includes(query.category.toLowerCase())) return false;
+    if (query.brand && query.brand !== 'All Brands' && product.brand.toLowerCase() !== query.brand.toLowerCase()) return false;
+    return !search || `${product.productCode} ${product.name} ${product.sku} ${product.barcode ?? ''} ${product.brand} ${product.categoryName}`.toLowerCase().includes(search);
+  });
+  const page = Math.max(1, query.page ?? 1);
+  const pageSize = Math.max(1, query.pageSize ?? 10);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const validPage = Math.min(page, totalPages);
+  const inStockCount = all.filter((p) => p.type === 'service' || (p.stockSummary?.onHandTotal ?? 0) > (p.stockSummary?.reorderLevel ?? 0)).length;
+  return {
+    items: filtered.slice((validPage - 1) * pageSize, validPage * pageSize),
+    totalCount: all.length,
+    filteredCount: filtered.length,
+    page: validPage,
+    pageSize,
+    totalPages,
+    kpis: {
+      totalCatalogued: all.length,
+      addedThisFiscalCycle: all.length,
+      inStockCount,
+      inStockPercentage: all.length ? Number(((inStockCount / all.length) * 100).toFixed(1)) : 0,
+      lowStockCount: all.filter((p) => p.stockSummary?.status === 'LOW_STOCK').length,
+      outOfStockCount: all.filter((p) => p.stockSummary?.status === 'OUT_OF_STOCK').length,
+    },
+  };
+}
+
 class ProductionProductService implements IProductService {
   private async organizationId(): Promise<string> {
     const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
@@ -377,14 +455,15 @@ class ProductionProductService implements IProductService {
     return membership.organization.id;
   }
 
-  private async all(): Promise<Product[]> {
+  /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */
+  public async getAllProducts(): Promise<Product[]> {
     const organizationId = await this.organizationId();
     const result = await listTenantProducts(getFirebaseClientServices().dataConnect, { organizationId });
     return result.data.products.map(mapTenantProduct);
   }
 
   public async getNextProductCode(): Promise<string> {
-    const products = await this.all();
+    const products = await this.getAllProducts();
     const maxNumber = products.reduce((max, product) => {
       const match = product.productCode.match(/PRD-(\d+)/i);
       return match ? Math.max(max, Number(match[1])) : max;
@@ -392,57 +471,67 @@ class ProductionProductService implements IProductService {
     return `PRD-${maxNumber + 1}`;
   }
   public async getCategories(): Promise<string[]> {
-    return Array.from(new Set((await this.all()).map((product) => product.categoryName))).sort();
+    return Array.from(new Set((await this.getAllProducts()).map((product) => product.categoryName))).sort();
   }
   public async getBrands(): Promise<string[]> {
-    return Array.from(new Set((await this.all()).map((product) => product.brand))).sort();
+    return Array.from(new Set((await this.getAllProducts()).map((product) => product.brand))).sort();
   }
   public async checkSkuUnique(sku: string, excludeId?: string): Promise<boolean> {
     const normalized = sku.trim().toLowerCase();
-    return !(await this.all()).some((product) => product.id !== excludeId && product.sku.toLowerCase() === normalized);
+    return !(await this.getAllProducts()).some((product) => product.id !== excludeId && product.sku.toLowerCase() === normalized);
   }
   public async checkBarcodeUnique(barcode?: string, excludeId?: string): Promise<boolean> {
     const normalized = barcode?.trim().toLowerCase();
     if (!normalized) return true;
-    return !(await this.all()).some((product) => product.id !== excludeId && product.barcode?.toLowerCase() === normalized);
+    return !(await this.getAllProducts()).some((product) => product.id !== excludeId && product.barcode?.toLowerCase() === normalized);
   }
 
   public async getProducts(query: ProductQuery = {}): Promise<ProductQueryResult> {
-    const products = await this.all();
-    const search = query.search?.trim().toLowerCase() ?? '';
-    let filtered = products.filter((product) => {
-      if (query.status === 'ACTIVE' && product.status !== 'active') return false;
-      if (query.status === 'INACTIVE' && product.status !== 'inactive') return false;
-      if (query.type && query.type !== 'ALL' && product.type !== query.type) return false;
-      if (query.category && query.category !== 'All Categories' && !product.categoryName.toLowerCase().includes(query.category.toLowerCase())) return false;
-      if (query.brand && query.brand !== 'All Brands' && product.brand.toLowerCase() !== query.brand.toLowerCase()) return false;
-      return !search || `${product.productCode} ${product.name} ${product.sku} ${product.barcode ?? ''} ${product.brand} ${product.categoryName}`.toLowerCase().includes(search);
-    });
-    const page = Math.max(1, query.page ?? 1);
-    const pageSize = Math.max(1, query.pageSize ?? 10);
-    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-    const validPage = Math.min(page, totalPages);
-    const inStockCount = products.filter((p) => p.type === 'service' || (p.stockSummary?.onHandTotal ?? 0) > (p.stockSummary?.reorderLevel ?? 0)).length;
-    return { items: filtered.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: products.length, filteredCount: filtered.length, page: validPage, pageSize, totalPages, kpis: { totalCatalogued: products.length, addedThisFiscalCycle: products.length, inStockCount, inStockPercentage: products.length ? Number((inStockCount / products.length * 100).toFixed(1)) : 0, lowStockCount: products.filter((p) => p.stockSummary?.status === 'LOW_STOCK').length, outOfStockCount: products.filter((p) => p.stockSummary?.status === 'OUT_OF_STOCK').length } };
+    return deriveProductView(await this.getAllProducts(), query);
   }
 
   public async getProduct(id: string): Promise<Product | null> {
-    return (await this.all()).find((product) => product.id === id || product.productCode === id) ?? null;
+    return (await this.getAllProducts()).find((product) => product.id === id || product.productCode === id) ?? null;
   }
 
   private async context(): Promise<string> { return this.organizationId(); }
   public async createProduct(input: CreateProductInput): Promise<Product> {
     const organizationId = await this.context();
-    await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductRecord')({ organizationId, productCode: await this.getNextProductCode(), ...input, type: input.type.toUpperCase(), requestId: globalThis.crypto.randomUUID() });
-    const products = await this.all(); const created = products.find((product) => product.name === input.name.trim() && product.sku === input.sku.trim()); if (!created) throw new Error('Product was created but could not be loaded.'); return created;
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductRecord')({
+      organizationId,
+      productCode: await this.getNextProductCode(),
+      ...input,
+      type: input.type.toUpperCase(),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const row = assertCallableEntity<ProductMutationResponse>(response.data, PRODUCT_MUTATION_RESPONSE_KEYS, 'createProduct');
+    return mapTenantProduct(row);
   }
   public async updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
-    const current = await this.getProduct(id); if (!current) throw new Error('Product not found.'); const organizationId = await this.context();
-    await httpsCallable(getFirebaseClientServices().functions, 'updateTenantProductRecord')({ organizationId, id, ...current, ...input, requestId: globalThis.crypto.randomUUID(), type: (input.type ?? current.type).toUpperCase() });
-    const updated = await this.getProduct(id); if (!updated) throw new Error('Product was updated but could not be loaded.'); return updated;
+    const current = await this.getProduct(id);
+    if (!current) throw new Error('Product not found.');
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'updateTenantProductRecord')({
+      organizationId,
+      id,
+      ...current,
+      ...input,
+      requestId: globalThis.crypto.randomUUID(),
+      type: (input.type ?? current.type).toUpperCase(),
+    });
+    const row = assertCallableEntity<ProductMutationResponse>(response.data, PRODUCT_MUTATION_RESPONSE_KEYS, 'updateProduct');
+    return mapTenantProduct(row);
   }
   public async changeProductStatus(id: string, status: ProductStatus): Promise<Product> {
-    const organizationId = await this.context(); await httpsCallable(getFirebaseClientServices().functions, 'changeTenantProductStatus')({ organizationId, id, status: status.toUpperCase(), requestId: globalThis.crypto.randomUUID() }); const updated = await this.getProduct(id); if (!updated) throw new Error('Product status was changed but could not be loaded.'); return updated;
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'changeTenantProductStatus')({
+      organizationId,
+      id,
+      status: status.toUpperCase(),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const row = assertCallableEntity<ProductMutationResponse>(response.data, PRODUCT_MUTATION_RESPONSE_KEYS, 'changeProductStatus');
+    return mapTenantProduct(row);
   }
 }
 

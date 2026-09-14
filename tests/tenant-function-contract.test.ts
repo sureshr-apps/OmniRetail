@@ -31,6 +31,7 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('--only "${{ steps.changes.outputs.targets }}" --non-interactive --force');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
+    expect(deploymentSource).toContain("scripts/drop-service-person-skills\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');

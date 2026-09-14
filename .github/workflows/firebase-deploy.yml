@@ -47,6 +47,9 @@ jobs:
           if echo "$CHANGED" | grep -q '^dataconnect/'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
+          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/firebase-deploy\.yml|scripts/drop-service-person-skills\.mjs)$'; then
+            TARGETS="${TARGETS:+$TARGETS,}dataconnect"
+          fi
           if [ -z "$TARGETS" ]; then
             echo "No deploy-relevant paths changed; deploying everything as a safe default."
             TARGETS="hosting,functions,dataconnect"

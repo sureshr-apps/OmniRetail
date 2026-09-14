@@ -32,6 +32,7 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
+    expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
     expect(deploymentSource).toContain('--non-interactive --force');
   });

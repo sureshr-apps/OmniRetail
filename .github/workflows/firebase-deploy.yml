@@ -76,7 +76,9 @@ jobs:
 
       - name: Migrate Data Connect SQL schema
         if: contains(steps.changes.outputs.targets, 'dataconnect')
-        run: npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
+        run: |
+          npx --no-install firebase-tools experiments:disable fdcapimigration
+          npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
 
       - name: Build frontend
         env:

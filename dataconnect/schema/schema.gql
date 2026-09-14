@@ -205,8 +205,7 @@ type ServicePerson @table {
   fullName: String!
   email: String
   phone: String!
-  specialization: String!
-  skills: String
+  specialization: String
   yearsOfExperience: Int
   assignmentScope: String!
   status: EmploymentStatus! @default(value: ACTIVE)

@@ -102,6 +102,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain('createTenantServicePersonTrusted');
     expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');
     expect(source).toContain('export const assignTenantServicePersonOutlet = onCall');
+    expect(source).not.toContain('skills: typeof d.skills');
+    expect(source).not.toContain("!specialization ||");
   });
 
   it('exposes tenant product and inventory write boundaries', () => {

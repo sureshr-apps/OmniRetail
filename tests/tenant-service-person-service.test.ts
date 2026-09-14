@@ -29,7 +29,6 @@ const servicePersonRow = (overrides: Record<string, unknown> = {}) => ({
   email: 'm.vance@omnitrade.internal',
   phone: '+919876543210',
   specialization: 'HVAC & Appliance Repair',
-  skills: 'EPA Universal Certified, Commercial Chiller Diagnostics',
   yearsOfExperience: 6,
   assignmentScope: 'ORGANIZATION',
   status: 'ACTIVE',

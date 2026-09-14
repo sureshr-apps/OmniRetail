@@ -7,12 +7,8 @@ import {
 } from '../types';
 import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 import {
-  formatIndianDate,
-  formatIndianDateInput,
   formatIndianPhone,
   isValidIndianPhone,
-  parseIndianDate,
-  todayInIndia,
 } from '../utils/formFormats';
 
 interface ServicePersonModalProps {
@@ -39,14 +35,12 @@ export function ServicePersonModal({
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [dateOfJoining, setDateOfJoining] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
 
-  const [specialization, setSpecialization] = useState('HVAC & Appliance Repair');
+  const [specialization, setSpecialization] = useState('');
   const [yearsOfExperience, setYearsOfExperience] = useState(4);
-  const [skillsString, setSkillsString] = useState('HVAC EPA Certified, POS Terminal Diagnostic, Circuit Repair');
   const [notes, setNotes] = useState('');
 
   const [assignmentScope, setAssignmentScope] = useState<ServicePersonScope>('Entire Organization');
@@ -64,13 +58,11 @@ export function ServicePersonModal({
       setLastName(personToEdit.lastName);
       setPhone(formatIndianPhone(personToEdit.phone));
       setEmail(personToEdit.email);
-      setDateOfJoining(formatIndianDate(personToEdit.dateOfJoining || ''));
       setAddress(personToEdit.address || '');
       setCity(personToEdit.city || '');
       setPostalCode(personToEdit.postalCode || '');
-      setSpecialization(personToEdit.specialization);
+      setSpecialization(personToEdit.specialization || '');
       setYearsOfExperience(personToEdit.yearsOfExperience ?? 4);
-      setSkillsString(personToEdit.skills ? personToEdit.skills.join(', ') : '');
       setNotes(personToEdit.notes || '');
       setAssignmentScope(personToEdit.assignmentScope);
       setSelectedOutletName(personToEdit.outletName && personToEdit.outletName !== 'Organization-wide' ? personToEdit.outletName : (availableOutlets[0]?.name || ''));
@@ -79,13 +71,11 @@ export function ServicePersonModal({
       setLastName('');
       setPhone('');
       setEmail('');
-      setDateOfJoining(todayInIndia());
       setAddress('');
       setCity('');
       setPostalCode('');
-      setSpecialization(specializations[0] || 'HVAC & Appliance Repair');
+      setSpecialization('');
       setYearsOfExperience(4);
-      setSkillsString('HVAC EPA Certified, POS Terminal Diagnostic, Circuit Repair');
       setNotes('');
       setAssignmentScope('Entire Organization');
       setSelectedOutletName(availableOutlets[0]?.name || '');
@@ -102,12 +92,6 @@ export function ServicePersonModal({
     if (!lastName.trim()) newErrors.lastName = 'Last name is required.';
     if (!phone.trim()) newErrors.phone = 'Phone number is required.';
     else if (!isValidIndianPhone(phone)) newErrors.phone = 'Enter a valid Indian phone number.';
-    if (!specialization.trim()) newErrors.specialization = 'Specialization is required.';
-
-    if (dateOfJoining && !parseIndianDate(dateOfJoining)) {
-      newErrors.dateOfJoining = 'Use DD/MM/YYYY.';
-    }
-
     if (email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())) {
       newErrors.email = 'Please provide a valid email address.';
     }
@@ -126,11 +110,6 @@ export function ServicePersonModal({
 
     setIsSubmitting(true);
     try {
-      const skills = skillsString
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-
       const outletMatch = availableOutlets.find((o) => o.name === selectedOutletName);
 
       const payload = {
@@ -138,13 +117,11 @@ export function ServicePersonModal({
         lastName: lastName.trim(),
         phone: phone.trim(),
         email: email.trim() || undefined,
-        dateOfJoining: parseIndianDate(dateOfJoining),
         address: address.trim() || undefined,
         city: city.trim() || undefined,
         postalCode: postalCode.trim() || undefined,
-        specialization,
+        specialization: specialization.trim() || undefined,
         yearsOfExperience: Number(yearsOfExperience),
-        skills: skills.length > 0 ? skills : undefined,
         notes: notes.trim() || undefined,
         assignmentScope,
         outletId: assignmentScope === 'Specific Outlet' ? (outletMatch?.id || 'out-1') : undefined,
@@ -286,23 +263,6 @@ export function ServicePersonModal({
                     <span className="text-error text-caption mt-0.5 block">{errors.email}</span>
                   )}
                 </div>
-                <div>
-                  <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                    Date of Joining
-                  </label>
-                  <input
-                    type="text"
-                    value={dateOfJoining}
-                    onChange={(e) => setDateOfJoining(formatIndianDateInput(e.target.value))}
-                    inputMode="numeric"
-                    maxLength={10}
-                    placeholder="DD/MM/YYYY"
-                    className={`w-full h-9 px-space-base rounded-xl bg-surface-container-low border ${
-                      errors.dateOfJoining ? 'border-error' : 'border-outline-variant/50'
-                    } font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary`}
-                  />
-                  {errors.dateOfJoining && <span className="text-error text-caption mt-0.5 block">{errors.dateOfJoining}</span>}
-                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-space-base">
@@ -355,7 +315,7 @@ export function ServicePersonModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
                 <div>
                   <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                    Specialization *
+                    Specialization
                   </label>
                   <input
                     type="text"
@@ -382,19 +342,6 @@ export function ServicePersonModal({
                     className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                  Skills &amp; Certifications (Comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={skillsString}
-                  onChange={(e) => setSkillsString(e.target.value)}
-                  placeholder="HVAC EPA Certified, Circuit Repair"
-                  className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                />
               </div>
 
               <div>

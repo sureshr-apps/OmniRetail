@@ -86,14 +86,15 @@ export function ServicePersonDetailDrawer({
             )}
             <div>
               <h4 className="font-headline-md text-headline-md text-on-surface">{person.displayName}</h4>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-caption bg-secondary-container text-on-secondary-container font-medium mt-1">
-                {person.specialization}
-              </span>
+              {person.specialization && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-caption bg-secondary-container text-on-secondary-container font-medium mt-1">
+                  {person.specialization}
+                </span>
+              )}
               <div className="font-caption text-caption text-on-surface-variant mt-1">
                 {person.assignmentScope === 'Entire Organization'
                   ? 'Organization-wide'
-                  : person.outletName || 'Specific Outlet'}{' '}
-                • Joined {person.dateOfJoining || 'Recent'}
+                  : person.outletName || 'Specific Outlet'}
               </div>
             </div>
           </div>
@@ -124,34 +125,6 @@ export function ServicePersonDetailDrawer({
               </div>
             </div>
           )}
-
-          {/* Skills & Certifications */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h5 className="font-headline-sm text-headline-sm text-on-surface">Skills &amp; Certifications</h5>
-              {person.yearsOfExperience !== undefined && (
-                <span className="font-caption text-caption text-on-surface-variant">
-                  {person.yearsOfExperience} Years Exp
-                </span>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {person.skills && person.skills.length > 0 ? (
-                person.skills.map((skill, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-1 rounded bg-surface-container text-caption text-on-surface font-medium"
-                  >
-                    {skill}
-                  </span>
-                ))
-              ) : (
-                <span className="px-2 py-1 rounded bg-surface-container text-caption text-on-surface font-medium">
-                  {person.specialization}
-                </span>
-              )}
-            </div>
-          </div>
 
           {/* Service Notes */}
           {person.notes && (

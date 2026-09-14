@@ -31,4 +31,23 @@ describe('requested shell cleanup', () => {
 
     expect(handler).not.toContain("requireCapability(record, 'profile.change_password')");
   });
+
+  it('does not present unsupported Service Person date fields', () => {
+    const modal = read('features/service-persons/components/ServicePersonModal.tsx');
+    const drawer = read('features/service-persons/components/ServicePersonDetailDrawer.tsx');
+
+    expect(modal).not.toContain('Date of Joining');
+    expect(modal).not.toContain('dateOfJoining');
+    expect(drawer).not.toContain('dateOfJoining');
+  });
+
+  it('does not present the removed Service Person skills field', () => {
+    const modal = read('features/service-persons/components/ServicePersonModal.tsx');
+    const drawer = read('features/service-persons/components/ServicePersonDetailDrawer.tsx');
+
+    expect(modal).not.toContain('Skills &amp; Certifications');
+    expect(modal).not.toContain('skillsString');
+    expect(drawer).not.toContain('Skills &amp; Certifications');
+    expect(drawer).not.toContain('person.skills');
+  });
 });

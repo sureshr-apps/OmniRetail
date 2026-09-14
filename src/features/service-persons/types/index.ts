@@ -38,12 +38,10 @@ export interface ServicePerson {
   outletName?: string;
   status: ServicePersonStatus;
   avatarUrl?: string;
-  dateOfJoining?: string;
   address?: string;
   city?: string;
   postalCode?: string;
   yearsOfExperience?: number;
-  skills?: string[];
   notes?: string;
   openJobsCount?: number;
   openJobs?: OpenServiceJob[];
@@ -76,17 +74,15 @@ export interface CreateServicePersonInput {
   lastName: string;
   email?: string;
   phone: string;
-  specialization: string;
+  specialization?: string;
   assignmentScope: ServicePersonScope;
   outletId?: string;
   outletName?: string;
   status?: ServicePersonStatus;
-  dateOfJoining?: string;
   address?: string;
   city?: string;
   postalCode?: string;
   yearsOfExperience?: number;
-  skills?: string[];
   notes?: string;
 }
 
@@ -100,11 +96,9 @@ export interface UpdateServicePersonInput {
   outletId?: string;
   outletName?: string;
   status?: ServicePersonStatus;
-  dateOfJoining?: string;
   address?: string;
   city?: string;
   postalCode?: string;
   yearsOfExperience?: number;
-  skills?: string[];
   notes?: string;
 }

@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  formatIndianDate,
-  formatIndianDateInput,
   formatIndianPhone,
   isValidIndianPhone,
-  parseIndianDate,
 } from '@/features/service-persons/utils/formFormats';
 
 describe('service person form formats', () => {
@@ -15,10 +12,7 @@ describe('service person form formats', () => {
     expect(isValidIndianPhone('+91 12345 67890')).toBe(false);
   });
 
-  it('formats and validates dates as DD/MM/YYYY while submitting ISO dates', () => {
-    expect(formatIndianDate('2026-09-14')).toBe('14/09/2026');
-    expect(formatIndianDateInput('14092026')).toBe('14/09/2026');
-    expect(parseIndianDate('14/09/2026')).toBe('2026-09-14');
-    expect(parseIndianDate('31/02/2026')).toBeUndefined();
+  it('keeps Service Person phone formatting independent of unavailable database fields', () => {
+    expect(formatIndianPhone('9876543210')).toBe('+91 98765 43210');
   });
 });

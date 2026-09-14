@@ -32,8 +32,7 @@ interface ServicePersonMutationResponse {
   fullName: string;
   email: string | null;
   phone: string;
-  specialization: string;
-  skills: string | null;
+  specialization: string | null;
   yearsOfExperience: number | null;
   assignmentScope: string;
   status: string;
@@ -57,13 +56,12 @@ function mapTenantServicePerson(row: TenantServicePersonRow | ServicePersonMutat
     displayName: row.fullName,
     email: row.email ?? '',
     phone: row.phone,
-    specialization: row.specialization,
+    specialization: row.specialization ?? '',
     assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlet',
     outletId: row.servicePersonOutlets_on_servicePerson[0]?.outlet.id,
     outletName: row.servicePersonOutlets_on_servicePerson[0]?.outlet.name ?? 'Organization-wide',
     status: row.status === 'ACTIVE' ? 'Active' : 'Inactive',
     yearsOfExperience: row.yearsOfExperience ?? undefined,
-    skills: row.skills ? row.skills.split(',').map((value) => value.trim()).filter(Boolean) : [],
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     openJobs: [],
@@ -131,7 +129,6 @@ class ProductionServicePersonService implements IServicePersonService {
       email: input.email,
       phone: input.phone,
       specialization: input.specialization,
-      skills: input.skills?.join(', '),
       yearsOfExperience: input.yearsOfExperience,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
       requestId: globalThis.crypto.randomUUID(),
@@ -149,7 +146,6 @@ class ProductionServicePersonService implements IServicePersonService {
       email: input.email,
       phone: input.phone,
       specialization: input.specialization,
-      skills: input.skills?.join(', '),
       yearsOfExperience: input.yearsOfExperience,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
       requestId: globalThis.crypto.randomUUID(),
@@ -180,7 +176,7 @@ class ProductionServicePersonService implements IServicePersonService {
   }
 
   async getSpecializations(): Promise<string[]> {
-    return Array.from(new Set((await this.getAllServicePersons()).map((row) => row.specialization))).sort();
+    return Array.from(new Set((await this.getAllServicePersons()).map((row) => row.specialization).filter(Boolean))).sort();
   }
 
   async getActiveCount(): Promise<number> {

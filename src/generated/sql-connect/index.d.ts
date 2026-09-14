@@ -777,8 +777,7 @@ export interface CreateTenantServicePersonTrustedVariables {
   fullName: string;
   email?: string | null;
   phone: string;
-  specialization: string;
-  skills?: string | null;
+  specialization?: string | null;
   yearsOfExperience?: number | null;
   assignmentScope: string;
   auditId: UUIDString;
@@ -1551,8 +1550,7 @@ export interface GetTenantServicePersonTrustedData {
     fullName: string;
     email?: string | null;
     phone: string;
-    specialization: string;
-    skills?: string | null;
+    specialization?: string | null;
     yearsOfExperience?: number | null;
     assignmentScope: string;
     status: EmploymentStatus;
@@ -2205,8 +2203,7 @@ export interface ListTenantServicePersonsData {
     fullName: string;
     email?: string | null;
     phone: string;
-    specialization: string;
-    skills?: string | null;
+    specialization?: string | null;
     yearsOfExperience?: number | null;
     assignmentScope: string;
     status: EmploymentStatus;
@@ -2788,8 +2785,7 @@ export interface UpdateTenantServicePersonTrustedVariables {
   fullName: string;
   email?: string | null;
   phone: string;
-  specialization: string;
-  skills?: string | null;
+  specialization?: string | null;
   yearsOfExperience?: number | null;
   assignmentScope: string;
   auditId: UUIDString;

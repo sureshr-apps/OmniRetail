@@ -92,6 +92,14 @@ describe('tenant Data Connect foundation schema', () => {
     expect(connector).toContain('saleLines(where: { product: { id: { eq: $id } } }');
   });
 
+  it('keeps Service Person storage aligned with the supported form fields', () => {
+    const schema = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
+    const servicePerson = schema.match(/type ServicePerson @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(servicePerson).toContain('specialization: String');
+    expect(servicePerson).not.toContain('specialization: String!');
+    expect(servicePerson).not.toContain('skills');
+  });
+
   it('allows organization admins to read the product catalogue', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const productsQuery = connector.match(/query ListTenantProducts[\s\S]*?\n}\n/);

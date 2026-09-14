@@ -17,7 +17,7 @@ describe('tenant callable contract', () => {
   it('uses function source as the public-invoker authority without serial IAM rebinding', () => {
     expect(deploymentSource).not.toContain('gcloud functions list --v2');
     expect(deploymentSource).not.toContain('gcloud run services add-iam-policy-binding');
-    expect(deploymentSource).toContain('npx --yes firebase-tools@15.30.0 deploy');
+    expect(deploymentSource).toContain('npx --no-install firebase-tools deploy');
   });
 
   it('caches dependencies and cancels obsolete deployment runs', () => {
@@ -26,8 +26,9 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('cancel-in-progress: true');
   });
 
-  it('deploys the intentional Data Connect outlet contract migration with force', () => {
-    expect(deploymentSource).toContain('--only hosting,functions,dataconnect --non-interactive --force');
+  it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
+    expect(deploymentSource).toContain('--only "${{ steps.changes.outputs.targets }}" --non-interactive --force');
+    expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
     expect(deploymentSource).not.toContain('dataconnect:sql:migrate');
   });
 

@@ -30,7 +30,10 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('--only "${{ steps.changes.outputs.targets }}" --non-interactive --force');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).not.toContain('dataconnect:sql:migrate');
+    expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
+    expect(deploymentSource).toContain('dataconnect:sql:migrate');
+    expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
+    expect(deploymentSource).toContain('--non-interactive --force');
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

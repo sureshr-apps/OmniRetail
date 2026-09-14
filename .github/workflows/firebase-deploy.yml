@@ -74,6 +74,10 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
+      - name: Migrate Data Connect SQL schema
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
+
       - name: Build frontend
         env:
           VITE_FIREBASE_API_KEY: "AIzaSyAyQboFxYrp5xTLGREny35543ICAqreNYM"

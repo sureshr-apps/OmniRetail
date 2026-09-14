@@ -14,6 +14,11 @@ try {
     `ALTER TABLE ${schema}.${quoteIdentifier('product')}
       DROP COLUMN IF EXISTS ${quoteIdentifier('supplier_product_code')}`,
   );
+  await client.query(
+    `ALTER TABLE ${schema}.${quoteIdentifier('customer')}
+      DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
+      DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`,
+  );
   await client.query('COMMIT');
   console.log('Removed retired Service Person and Product columns.');
 } catch (error) {

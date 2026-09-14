@@ -50,6 +50,7 @@ describe('tenant callable contract', () => {
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'created_at\')');
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'updated_at\')');
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'supplier_product_code\')');
+    expect(schemaMigrationSource).toContain("quoteIdentifier('customer')");
     expect(schemaMigrationSource).toContain("quoteIdentifier('product')");
     expect(schemaMigrationSource).toContain('SET LOCAL ROLE');
     expect(schemaMigrationSource).toContain('await client.query(\'BEGIN\')');

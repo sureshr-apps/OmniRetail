@@ -10,7 +10,7 @@ export interface ChangeOrgStatusModalProps {
   onClose: () => void;
   organization: Organization;
   targetStatus: OrganizationStatus; // 'suspended' or 'active'
-  onSuccess: (updatedOrg: Organization) => void;
+  onSuccess: (updatedOrg: Organization) => void | Promise<void>;
 }
 
 export function ChangeOrgStatusModal({
@@ -36,7 +36,7 @@ export function ChangeOrgStatusModal({
         organization.id,
         targetStatus
       );
-      onSuccess(updated);
+      await onSuccess(updated);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update organization status. Please try again.');

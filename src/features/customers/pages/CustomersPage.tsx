@@ -131,13 +131,19 @@ export function CustomersPage() {
     }
   };
 
+  const refreshCustomerData = async () => {
+    const [nextCities] = await Promise.all([
+      customerService.getCities(),
+      loadCustomers(),
+    ]);
+    setCities(nextCities);
+  };
+
   // Add customer
   const handleCreateCustomer = async (input: CreateCustomerInput) => {
     const created = await customerService.createCustomer(input);
     showToast(`Customer ${created.customerCode} (${created.name}) created successfully.`);
-    // Refresh cities in case new city was entered
-    customerService.getCities().then(setCities);
-    loadCustomers();
+    await refreshCustomerData();
   };
 
   // Edit customer
@@ -147,8 +153,7 @@ export function CustomersPage() {
     if (viewingCustomer && viewingCustomer.id === id) {
       setViewingCustomer(updated);
     }
-    customerService.getCities().then(setCities);
-    loadCustomers();
+    await refreshCustomerData();
   };
 
   // Toggle status with confirmation
@@ -163,7 +168,7 @@ export function CustomersPage() {
     if (viewingCustomer && viewingCustomer.id === updated.id) {
       setViewingCustomer(updated);
     }
-    loadCustomers();
+    await refreshCustomerData();
   };
 
   return (

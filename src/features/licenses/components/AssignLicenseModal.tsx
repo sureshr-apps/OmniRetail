@@ -15,7 +15,7 @@ export interface AssignLicenseModalProps {
   onClose: () => void;
   organizationId: string;
   organizationName: string;
-  onSuccess: (license: OrganizationLicense) => void;
+  onSuccess: (license: OrganizationLicense) => void | Promise<void>;
 }
 
 export function AssignLicenseModal({
@@ -113,7 +113,7 @@ export function AssignLicenseModal({
         currency,
       };
       const createdLicense = await organizationLicenseService.assignLicense(organizationId, input);
-      onSuccess(createdLicense);
+      await onSuccess(createdLicense);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to assign license.');

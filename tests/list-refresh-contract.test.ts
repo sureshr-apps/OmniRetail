@@ -1,0 +1,106 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+
+const root = new URL('../src/features/', import.meta.url);
+const read = (path: string) => readFileSync(new URL(path, root), 'utf8');
+
+function section(source: string, start: string, end: string): string {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  expect(startIndex, `Missing section start: ${start}`).toBeGreaterThanOrEqual(0);
+  expect(endIndex, `Missing section end: ${end}`).toBeGreaterThan(startIndex);
+  return source.slice(startIndex, endIndex);
+}
+
+describe('post-mutation list refresh contracts', () => {
+  it.each([
+    ['outlet create', 'outlets/pages/OutletMasterPage.tsx', 'const handleCreateOutlet', 'const handleUpdateOutlet', 'await loadData(true)'],
+    ['outlet update', 'outlets/pages/OutletMasterPage.tsx', 'const handleUpdateOutlet', 'const handleViewDetails', 'await loadData(true)'],
+    ['outlet status', 'outlets/pages/OutletMasterPage.tsx', 'const handleConfirmStatusChange', 'const hasActiveFilters', 'await loadData(true)'],
+    ['employee create', 'employees/pages/EmployeeMasterPage.tsx', 'const handleCreateEmployee', 'const handleUpdateEmployee', 'await fetchEmployees()'],
+    ['employee update', 'employees/pages/EmployeeMasterPage.tsx', 'const handleUpdateEmployee', 'const handlePromptToggleStatus', 'await fetchEmployees()'],
+    ['employee status', 'employees/pages/EmployeeMasterPage.tsx', 'const handleConfirmStatusChange', 'const handlePromptToggleLoginAccess', 'await fetchEmployees()'],
+    ['employee login access', 'employees/pages/EmployeeMasterPage.tsx', 'const handleConfirmLoginAccessChange', 'const handleExportCsv', 'await fetchEmployees()'],
+    ['service person save', 'service-persons/pages/ServicePersonMasterPage.tsx', 'const handleModalSubmit', 'const handleViewPerson', 'await fetchServicePersons()'],
+    ['service person status', 'service-persons/pages/ServicePersonMasterPage.tsx', 'const handleConfirmToggleStatus', 'return (', 'await fetchServicePersons()'],
+    ['supplier create', 'suppliers/pages/SuppliersPage.tsx', 'const handleAddSupplier', 'const handleUpdateSupplier', 'await loadDirectory()'],
+    ['supplier update', 'suppliers/pages/SuppliersPage.tsx', 'const handleUpdateSupplier', 'const handleToggleStatus', 'await loadDirectory()'],
+    ['supplier status', 'suppliers/pages/SuppliersPage.tsx', 'const handleToggleStatus', 'const handleNewPurchaseOrder', 'await loadDirectory()'],
+    ['product create', 'products/pages/ProductsPage.tsx', 'const handleCreateProduct', 'const handleUpdateProduct', 'await loadCatalogue()'],
+    ['product update', 'products/pages/ProductsPage.tsx', 'const handleUpdateProduct', 'const handleToggleStatus', 'await loadCatalogue()'],
+    ['product status', 'products/pages/ProductsPage.tsx', 'const handleToggleStatus', 'const handleDuplicateProduct', 'await loadCatalogue()'],
+    ['product duplicate', 'products/pages/ProductsPage.tsx', 'const handleDuplicateProduct', 'const handleNavigateToInventory', 'await loadCatalogue()'],
+    ['purchase create', 'purchases/pages/PurchasesPage.tsx', 'const handleCreatePurchase', 'const handleCancelPurchase', 'await loadLedger()'],
+    ['purchase cancel', 'purchases/pages/PurchasesPage.tsx', 'const handleCancelPurchase', 'const handleReceiveStock', 'await loadLedger()'],
+    ['purchase receipt', 'purchases/pages/PurchasesPage.tsx', 'const handleReceiveStock', 'return (', 'await loadLedger()'],
+    ['expense create', 'expenses/pages/ExpensesPage.tsx', 'const handleCreateExpense', 'const handleUpdateExpense', 'await loadExpenses()'],
+    ['expense update', 'expenses/pages/ExpensesPage.tsx', 'const handleUpdateExpense', 'const handleOpenEditExpense', 'await loadExpenses()'],
+    ['expense void', 'expenses/pages/ExpensesPage.tsx', 'const handleConfirmVoid', 'const handleApproveExpense', 'await loadExpenses()'],
+    ['expense approval', 'expenses/pages/ExpensesPage.tsx', 'const handleApproveExpense', 'const handleRejectExpense', 'await loadExpenses()'],
+    ['expense rejection', 'expenses/pages/ExpensesPage.tsx', 'const handleRejectExpense', 'const handleFilterPending', 'await loadExpenses()'],
+  ])('%s reconciles its visible list before completing', (_name, path, start, end, refresh) => {
+    expect(section(read(path), start, end)).toContain(refresh);
+  });
+
+  it.each([
+    ['customer create', 'const handleCreateCustomer', 'const handleUpdateCustomer'],
+    ['customer update', 'const handleUpdateCustomer', 'const handleToggleStatusConfirm'],
+    ['customer status', 'const handleToggleStatusConfirm', 'return ('],
+  ])('%s waits for both the directory and metadata refresh', (_name, start, end) => {
+    const handler = section(read('customers/pages/CustomersPage.tsx'), start, end);
+    expect(handler).toContain('await refreshCustomerData()');
+  });
+
+  it.each([
+    ['stock adjustment', 'const handleConfirmAdjustment', 'const handleAdjustSelected'],
+    ['inventory product creation', 'const handleCreateProduct', 'return ('],
+  ])('%s waits for the inventory and KPI refresh', (_name, start, end) => {
+    const handler = section(read('inventory/pages/InventoryPage.tsx'), start, end);
+    expect(handler).toContain('await loadData()');
+  });
+
+  it.each([
+    ['overview organization creation', 'const handleAddOrgSuccess', 'const handleRenewSuccess'],
+    ['overview license renewal', 'const handleRenewSuccess', 'const getPlanIcon'],
+  ])('%s waits for overview data to reload', (_name, start, end) => {
+    const handler = section(read('overview/pages/OverviewPage.tsx'), start, end);
+    expect(handler).toMatch(/const \w+ = async/);
+    expect(handler).toContain('await loadData()');
+  });
+
+  it('reloads page one after organization creation instead of querying the previous page', () => {
+    const source = read('organizations/pages/OrganizationsPage.tsx');
+    const handler = section(source, 'const handleOrgCreated', 'const isFiltered');
+    expect(source).toContain('async (requestedPage = page)');
+    expect(source).toContain('page: requestedPage');
+    expect(handler).toContain('await fetchOrganizations(1)');
+  });
+
+  it.each([
+    'organizations/components/OrganizationAdministratorsTab.tsx',
+    'organizations/components/OrganizationLicenseTab.tsx',
+    'plans/pages/PlansPage.tsx',
+  ])('does not use delayed duplicate queries as a cache workaround in %s', (path) => {
+    expect(read(path)).not.toContain('new Promise((resolve) => setTimeout(resolve, 350))');
+  });
+
+  it.each([
+    'organizations/components/AddOrganizationModal.tsx',
+    'organizations/components/EditOrganizationModal.tsx',
+    'organizations/components/ChangeOrgStatusModal.tsx',
+    'organizations/components/AddAdminModal.tsx',
+    'organizations/components/EditAdminModal.tsx',
+    'organizations/components/ChangeAdminStatusModal.tsx',
+    'licenses/components/AssignLicenseModal.tsx',
+    'licenses/components/ChangePlanModal.tsx',
+    'licenses/components/ModifyCommercialTermsModal.tsx',
+    'licenses/components/RenewLicenseModal.tsx',
+    'plans/components/AddPlanModal.tsx',
+    'plans/components/EditPlanModal.tsx',
+    'plans/components/DeactivatePlanModal.tsx',
+  ])('waits for parent list reconciliation before closing %s', (path) => {
+    const source = read(path);
+    expect(source).toMatch(/onSuccess: \([^)]*\) => void \| Promise<void>/);
+    expect(source).toMatch(/await onSuccess\(/);
+  });
+});

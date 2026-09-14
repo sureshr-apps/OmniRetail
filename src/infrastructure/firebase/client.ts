@@ -14,7 +14,7 @@ import {
   connectDataConnectEmulator,
   getDataConnect,
 } from 'firebase/data-connect';
-import { connectorConfig } from '@omniretail/sql-connect';
+import { connectorConfig, dataConnectSettings } from '@omniretail/sql-connect';
 
 export interface FirebaseClientServices {
   app: FirebaseApp;
@@ -64,7 +64,18 @@ export function getFirebaseClientServices(): FirebaseClientServices {
 
   const auth = getAuth(app);
   const functions = getFunctions(app, 'asia-south1');
-  const dataConnect = getDataConnect(app, connectorConfig);
+  // Without a cache provider, Data Connect's imperative query API falls back to
+  // a process-local subscription cache that has no staleness check. That makes
+  // a list query issued after a Cloud Function mutation reuse its old result
+  // until the page recreates the Firebase client. Keep the generated in-memory
+  // cache, but make imperative reads immediately stale so mutation refreshes
+  // always reach the server.
+  const dataConnect = getDataConnect(app, connectorConfig, {
+    cacheSettings: {
+      ...dataConnectSettings.cacheSettings,
+      maxAgeSeconds: 0,
+    },
+  });
 
   if (import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true' && !emulatorsConnected) {
     connectAuthEmulator(auth, 'http://127.0.0.1:9099', {

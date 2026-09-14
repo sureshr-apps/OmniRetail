@@ -12,7 +12,7 @@ export interface ChangeAdminStatusModalProps {
   organizationName: string;
   admin: OrganizationAdministrator;
   targetStatus: AdminStatus; // 'active' or 'inactive'
-  onSuccess: (updatedAdmin: OrganizationAdministrator) => void;
+  onSuccess: (updatedAdmin: OrganizationAdministrator) => void | Promise<void>;
 }
 
 export function ChangeAdminStatusModal({
@@ -41,7 +41,7 @@ export function ChangeAdminStatusModal({
         admin.id,
         targetStatus
       );
-      onSuccess(updated);
+      await onSuccess(updated);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update administrator status. Please try again.');

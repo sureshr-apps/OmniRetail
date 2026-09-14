@@ -11,7 +11,7 @@ import { organizationService } from '../services/OrganizationService';
 export interface AddOrganizationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (createdOrg: Organization) => void;
+  onSuccess: (createdOrg: Organization) => void | Promise<void>;
 }
 
 interface FormState {
@@ -138,7 +138,7 @@ export function AddOrganizationModal({ isOpen, onClose, onSuccess }: AddOrganiza
 
       const createdOrg = await organizationService.createOrganization(input);
       resetForm();
-      onSuccess(createdOrg);
+      await onSuccess(createdOrg);
       onClose();
     } catch (err: any) {
       setSubmitError(err.message || 'Failed to create organization. Please try again.');

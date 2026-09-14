@@ -12,7 +12,7 @@ export interface EditOrganizationModalProps {
   isOpen: boolean;
   onClose: () => void;
   organization: Organization;
-  onSuccess: (updatedOrg: Organization) => void;
+  onSuccess: (updatedOrg: Organization) => void | Promise<void>;
 }
 
 interface FormState {
@@ -149,7 +149,7 @@ export function EditOrganizationModal({
       };
 
       const updated = await organizationService.updateOrganization(organization.id, input);
-      onSuccess(updated);
+      await onSuccess(updated);
       onClose();
     } catch (err: any) {
       setSubmitError(err.message || 'Failed to update organization details.');

@@ -17,7 +17,7 @@ export interface ChangePlanModalProps {
   organizationName: string;
   currentLicense: OrganizationLicense;
   currentPlan: LicensePlan | null;
-  onSuccess: (updatedLicense: OrganizationLicense) => void;
+  onSuccess: (updatedLicense: OrganizationLicense) => void | Promise<void>;
 }
 
 export function ChangePlanModal({
@@ -105,7 +105,7 @@ export function ChangePlanModal({
         currency,
       };
       const updatedLicense = await organizationLicenseService.changePlan(organizationId, input);
-      onSuccess(updatedLicense);
+      await onSuccess(updatedLicense);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to change plan.');

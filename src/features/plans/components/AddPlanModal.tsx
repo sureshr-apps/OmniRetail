@@ -9,7 +9,7 @@ import { Button } from '@/shared/components/Button';
 interface AddPlanModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (newPlan: LicensePlan) => void;
+  onSuccess: (newPlan: LicensePlan) => void | Promise<void>;
 }
 
 export function AddPlanModal({ isOpen, onClose, onSuccess }: AddPlanModalProps) {
@@ -70,7 +70,7 @@ export function AddPlanModal({ isOpen, onClose, onSuccess }: AddPlanModalProps) 
         maxUsers: Number(maxUsers),
       });
 
-      onSuccess(newPlan);
+      await onSuccess(newPlan);
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create plan.';

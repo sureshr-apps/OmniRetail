@@ -186,7 +186,7 @@ export function InventoryPage() {
         `${input.sku} ${modeWord} ${input.quantity} units. Stock is now ${res.newQty} units.`
       );
       // Reload inventory & KPIs
-      loadData();
+      await loadData();
     } catch (err: any) {
       showToast('Adjustment Failed', err?.message || 'Unable to update stock.');
     }
@@ -270,7 +270,7 @@ export function InventoryPage() {
       const created = await inventoryService.addProduct(productData);
       setIsAddProductOpen(false);
       showToast('Product Cataloged', `${created.sku} • ${created.name} added to inventory.`);
-      loadData();
+      await loadData();
     } catch (err: any) {
       showToast('Creation Failed', err?.message || 'Could not add product.');
     }

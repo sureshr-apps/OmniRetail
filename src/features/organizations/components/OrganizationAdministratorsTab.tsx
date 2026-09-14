@@ -91,8 +91,6 @@ export function OrganizationAdministratorsTab({
       type: 'success',
     });
     await loadAdmins();
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    await loadAdmins();
     setAdmins((current) => current.some((admin) => admin.id === newAdmin.id)
       ? current.map((admin) => admin.id === newAdmin.id ? newAdmin : admin)
       : [...current, newAdmin]);
@@ -103,8 +101,6 @@ export function OrganizationAdministratorsTab({
       message: `Administrator profile for "${updatedAdmin.name}" updated successfully.`,
       type: 'success',
     });
-    await loadAdmins();
-    await new Promise((resolve) => setTimeout(resolve, 350));
     await loadAdmins();
     setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
   };
@@ -117,8 +113,6 @@ export function OrganizationAdministratorsTab({
       }.`,
       type: 'info',
     });
-    await loadAdmins();
-    await new Promise((resolve) => setTimeout(resolve, 350));
     await loadAdmins();
     setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
   };

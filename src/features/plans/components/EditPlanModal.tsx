@@ -11,7 +11,7 @@ interface EditPlanModalProps {
   isOpen: boolean;
   onClose: () => void;
   plan: LicensePlan | null;
-  onSuccess: (updatedPlan: LicensePlan) => void;
+  onSuccess: (updatedPlan: LicensePlan) => void | Promise<void>;
 }
 
 export function EditPlanModal({ isOpen, onClose, plan, onSuccess }: EditPlanModalProps) {
@@ -84,7 +84,7 @@ export function EditPlanModal({ isOpen, onClose, plan, onSuccess }: EditPlanModa
         maxUsers: Number(maxUsers),
       });
 
-      onSuccess(updated);
+      await onSuccess(updated);
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to update plan.';

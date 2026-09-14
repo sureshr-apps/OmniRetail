@@ -17,7 +17,7 @@ export interface RenewLicenseModalProps {
   organizationName: string;
   currentLicense: OrganizationLicense;
   currentPlan: LicensePlan | null;
-  onSuccess: (updatedLicense: OrganizationLicense) => void;
+  onSuccess: (updatedLicense: OrganizationLicense) => void | Promise<void>;
 }
 
 export function RenewLicenseModal({
@@ -146,7 +146,7 @@ export function RenewLicenseModal({
         currency,
       };
       const renewed = await organizationLicenseService.renewLicense(organizationId, input);
-      onSuccess(renewed);
+      await onSuccess(renewed);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to renew license.');

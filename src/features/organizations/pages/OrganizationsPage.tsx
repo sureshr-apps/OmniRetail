@@ -62,7 +62,7 @@ export function OrganizationsPage() {
   }, [search]);
 
   // Fetch organizations through service
-  const fetchOrganizations = useCallback(async () => {
+  const fetchOrganizations = useCallback(async (requestedPage = page) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -70,7 +70,7 @@ export function OrganizationsPage() {
         search: debouncedSearch,
         organizationStatus: orgStatus,
         licenseStatus: licenseStatus,
-        page,
+        page: requestedPage,
         pageSize: PAGE_SIZE,
       };
       const result = await organizationService.getOrganizations(query);
@@ -110,9 +110,7 @@ export function OrganizationsPage() {
   const handleOrgCreated = async (newOrg: Organization) => {
     setSuccessBanner({ name: newOrg.name, id: newOrg.id });
     setPage(1);
-    await fetchOrganizations();
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    await fetchOrganizations();
+    await fetchOrganizations(1);
   };
 
   const isFiltered = debouncedSearch !== '' || orgStatus !== 'all' || licenseStatus !== 'all';

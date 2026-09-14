@@ -13,7 +13,7 @@ export interface ModifyCommercialTermsModalProps {
   organizationId: string;
   organizationName: string;
   currentLicense: OrganizationLicense;
-  onSuccess: (updatedLicense: OrganizationLicense) => void;
+  onSuccess: (updatedLicense: OrganizationLicense) => void | Promise<void>;
 }
 
 export function ModifyCommercialTermsModal({
@@ -70,7 +70,7 @@ export function ModifyCommercialTermsModal({
         organizationId,
         input
       );
-      onSuccess(updatedLicense);
+      await onSuccess(updatedLicense);
       onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to update commercial terms.');

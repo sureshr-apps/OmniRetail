@@ -104,7 +104,6 @@ export function PlansPage() {
     try {
       await licensePlanService.deletePlan(plan.id);
       setPlans((prev) => prev.filter((p) => p.id !== plan.id));
-      await new Promise((resolve) => setTimeout(resolve, 350));
       await fetchPlans();
       showToast(`Plan "${plan.name}" was deleted.`);
     } catch (err: unknown) {
@@ -819,7 +818,6 @@ export function PlansPage() {
           setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
             ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
             : [...prev, updatedPlan]);
-          await new Promise((resolve) => setTimeout(resolve, 350));
           await fetchPlans();
           setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
             ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
@@ -837,7 +835,6 @@ export function PlansPage() {
           setPlans((prev) => prev.some((p) => p.id === updatedPlan.id)
             ? prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
             : [...prev, updatedPlan]);
-          await new Promise((resolve) => setTimeout(resolve, 350));
           await fetchPlans();
           setPlans((prev) => prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p)));
           showToast(`Plan "${updatedPlan.name}" deactivated.`);

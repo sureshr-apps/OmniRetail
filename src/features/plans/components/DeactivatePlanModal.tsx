@@ -8,7 +8,7 @@ interface DeactivatePlanModalProps {
   isOpen: boolean;
   onClose: () => void;
   plan: LicensePlan | null;
-  onSuccess: (updatedPlan: LicensePlan) => void;
+  onSuccess: (updatedPlan: LicensePlan) => void | Promise<void>;
 }
 
 export function DeactivatePlanModal({
@@ -27,7 +27,7 @@ export function DeactivatePlanModal({
       setIsSubmitting(true);
       setError(null);
       const updated = await licensePlanService.changePlanStatus(plan.id, 'inactive');
-      onSuccess(updated);
+      await onSuccess(updated);
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to deactivate plan.';

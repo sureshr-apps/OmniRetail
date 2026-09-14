@@ -67,23 +67,23 @@ export function OverviewPage() {
     return () => clearTimeout(timer);
   }, [notification]);
 
-  const handleAddOrgSuccess = (createdOrg: Organization) => {
+  const handleAddOrgSuccess = async (createdOrg: Organization) => {
     setIsAddModalOpen(false);
     setNotification({
       message: `Organization "${createdOrg.name}" (${createdOrg.id}) successfully created.`,
       type: 'success',
     });
-    loadData();
+    await loadData();
   };
 
-  const handleRenewSuccess = () => {
+  const handleRenewSuccess = async () => {
     const renewedOrgName = selectedExpiringForRenew?.organization.name;
     setSelectedExpiringForRenew(null);
     setNotification({
       message: `License for ${renewedOrgName || 'organization'} was successfully renewed.`,
       type: 'success',
     });
-    loadData();
+    await loadData();
   };
 
   const getPlanIcon = (planName: string) => {

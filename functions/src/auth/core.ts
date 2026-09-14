@@ -78,8 +78,7 @@ export function toAuthorizedUser(record: AuthorizationRecord): AuthorizedUser {
     phone: record.phone ?? null,
     roles,
     capabilities,
-    organizationIds: Array.from(new Set((record.organizationMemberships_on_user ?? [])
-      .filter((membership) => membership.status === 'ACTIVE')
+    organizationIds: Array.from(new Set(activeMemberships
       .map((membership) => membership.organization.id))).sort(),
   };
 }

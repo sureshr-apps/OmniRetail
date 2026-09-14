@@ -61,7 +61,9 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const updateTenantEmployee = onCall');
     expect(source).toContain('export const changeTenantEmployeeStatus = onCall');
     expect(source).toContain('export const changeTenantEmployeeLoginAccess = onCall');
-    expect(source).toContain('revokeRefreshTokens(uid)');
+    expect(source).toContain('resolveTenantEmployeeIdentityTrusted');
+    expect(source).toContain('revokeRefreshTokens(targetUid)');
+    expect(source).not.toContain("uid = typeof d.firebaseUid");
     expect(source).toContain('changeTenantEmployeeLoginAccessTrusted');
     expect(source).toContain('export const createTenantEmployeeProfile = onCall');
   });

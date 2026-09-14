@@ -26,6 +26,16 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum LoginAccessStatus[\s\S]*ENABLED[\s\S]*DISABLED/);
   });
 
+  it('keeps employee Firebase identities behind the trusted connector boundary', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const employeeList = connector.match(/query ListTenantEmployees[\s\S]*?(?=\nquery ListTenantServicePersons)/)?.[0] ?? '';
+    const identityLookup = connector.match(/query ResolveTenantEmployeeIdentityTrusted[\s\S]*?(?=\nmutation CreateTenantOutlet)/)?.[0] ?? '';
+
+    expect(employeeList).not.toContain('user { id username email firebaseUid }');
+    expect(identityLookup).toContain('@auth(level: NO_ACCESS)');
+    expect(identityLookup).toContain('user { id firebaseUid }');
+  });
+
   it('defines explicit outlet assignment joins for employees and service persons', () => {
     expect(schema).toContain('type EmployeeOutlet @table(key: ["employee", "outlet"])');
     expect(schema).toContain('type ServicePersonOutlet @table(key: ["servicePerson", "outlet"])');

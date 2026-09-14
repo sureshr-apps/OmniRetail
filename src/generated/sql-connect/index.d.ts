@@ -1545,7 +1545,6 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
       username: string;
       email: string;
-      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: string;
     fullName: string;
@@ -2030,6 +2029,7 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
+  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 
 export interface ProvisionOrganizationAdministratorVariables {
@@ -2043,6 +2043,8 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
+  idempotencyKey: string;
+  resultReference: string;
 }
 
 export interface ProvisionTenantEmployeeTrustedData {
@@ -2198,6 +2200,22 @@ export interface ResolveOrganizationAdministratorIdentityData {
 export interface ResolveOrganizationAdministratorIdentityVariables {
   organizationId: UUIDString;
   appUserId: UUIDString;
+}
+
+export interface ResolveTenantEmployeeIdentityTrustedData {
+  employees: ({
+    id: UUIDString;
+    loginAccess: LoginAccessStatus;
+    user?: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+  } & Employee_Key)[];
+}
+
+export interface ResolveTenantEmployeeIdentityTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
 }
 
 export interface ResolveUsernameLoginData {
@@ -3559,6 +3577,18 @@ export const getTenantMembershipTrustedRef: GetTenantMembershipTrustedRef;
 
 export function getTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
 export function getTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
+
+interface ResolveTenantEmployeeIdentityTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ResolveTenantEmployeeIdentityTrustedVariables): QueryRef<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables): QueryRef<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+  operationName: string;
+}
+export const resolveTenantEmployeeIdentityTrustedRef: ResolveTenantEmployeeIdentityTrustedRef;
+
+export function resolveTenantEmployeeIdentityTrusted(vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+export function resolveTenantEmployeeIdentityTrusted(dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
 
 interface CreateTenantOutletRef {
   /* Allow users to create refs without passing in DataConnect */

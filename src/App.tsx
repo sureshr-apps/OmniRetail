@@ -3,33 +3,35 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/app/context/AuthContext';
 import { ProtectedRoute } from '@/app/routes/ProtectedRoute';
 import { PublicRoute } from '@/app/routes/PublicRoute';
 import { CapabilityRoute } from '@/app/routes/CapabilityRoute';
 import { TenantAccessRoute } from '@/app/routes/TenantAccessRoute';
 import { AppLayout } from '@/shared/layout/AppLayout';
-import { LoginPage } from '@/features/auth/pages/LoginPage';
-import { BillingPage } from '@/features/billing/pages/BillingPage';
-import { SalesPage } from '@/features/sales/pages/SalesPage';
-import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
-import { ProductsPage } from '@/features/products/pages/ProductsPage';
-import { PurchasesPage } from '@/features/purchases/pages/PurchasesPage';
-import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
-import { CustomersPage } from '@/features/customers/pages/CustomersPage';
-import { ExpensesPage } from '@/features/expenses/pages/ExpensesPage';
-import { OutletMasterPage } from '@/features/outlets';
-import { EmployeeMasterPage } from '@/features/employees';
-import { ServicePersonMasterPage } from '@/features/service-persons';
-import { OverviewPage } from '@/features/overview/pages/OverviewPage';
-import { OrganizationsPage } from '@/features/organizations/pages/OrganizationsPage';
-import { OrganizationDetailsPage } from '@/features/organizations/pages/OrganizationDetailsPage';
-import { PlansPage } from '@/features/plans/pages/PlansPage';
-import { ProfilePage } from '@/features/profile/pages/ProfilePage';
 import { TenantAppLayout } from '@/shared/layout/TenantAppLayout';
 import { getDefaultRoute } from '@/app/auth/tenantAccess';
 import { useAuth } from '@/app/context/AuthContext';
+
+const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage').then(({ LoginPage }) => ({ default: LoginPage })));
+const BillingPage = lazy(() => import('@/features/billing/pages/BillingPage').then(({ BillingPage }) => ({ default: BillingPage })));
+const SalesPage = lazy(() => import('@/features/sales/pages/SalesPage').then(({ SalesPage }) => ({ default: SalesPage })));
+const InventoryPage = lazy(() => import('@/features/inventory/pages/InventoryPage').then(({ InventoryPage }) => ({ default: InventoryPage })));
+const ProductsPage = lazy(() => import('@/features/products/pages/ProductsPage').then(({ ProductsPage }) => ({ default: ProductsPage })));
+const PurchasesPage = lazy(() => import('@/features/purchases/pages/PurchasesPage').then(({ PurchasesPage }) => ({ default: PurchasesPage })));
+const SuppliersPage = lazy(() => import('@/features/suppliers/pages/SuppliersPage').then(({ SuppliersPage }) => ({ default: SuppliersPage })));
+const CustomersPage = lazy(() => import('@/features/customers/pages/CustomersPage').then(({ CustomersPage }) => ({ default: CustomersPage })));
+const ExpensesPage = lazy(() => import('@/features/expenses/pages/ExpensesPage').then(({ ExpensesPage }) => ({ default: ExpensesPage })));
+const OutletMasterPage = lazy(() => import('@/features/outlets/pages/OutletMasterPage').then(({ OutletMasterPage }) => ({ default: OutletMasterPage })));
+const EmployeeMasterPage = lazy(() => import('@/features/employees/pages/EmployeeMasterPage').then(({ EmployeeMasterPage }) => ({ default: EmployeeMasterPage })));
+const ServicePersonMasterPage = lazy(() => import('@/features/service-persons/pages/ServicePersonMasterPage').then(({ ServicePersonMasterPage }) => ({ default: ServicePersonMasterPage })));
+const OverviewPage = lazy(() => import('@/features/overview/pages/OverviewPage').then(({ OverviewPage }) => ({ default: OverviewPage })));
+const OrganizationsPage = lazy(() => import('@/features/organizations/pages/OrganizationsPage').then(({ OrganizationsPage }) => ({ default: OrganizationsPage })));
+const OrganizationDetailsPage = lazy(() => import('@/features/organizations/pages/OrganizationDetailsPage').then(({ OrganizationDetailsPage }) => ({ default: OrganizationDetailsPage })));
+const PlansPage = lazy(() => import('@/features/plans/pages/PlansPage').then(({ PlansPage }) => ({ default: PlansPage })));
+const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage').then(({ ProfilePage }) => ({ default: ProfilePage })));
 
 function TenantRouteLayout() {
   return <TenantAppLayout />;
@@ -48,11 +50,16 @@ function HomeRoute() {
   return <Navigate to={getDefaultRoute(user)} replace />;
 }
 
+function RouteFallback() {
+  return <div className="min-h-screen bg-background" aria-label="Loading page" />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<LoginPage />} />
           </Route>
@@ -101,7 +108,8 @@ export default function App() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </AuthProvider>
   );

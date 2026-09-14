@@ -1520,7 +1520,6 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
       username: string;
       email: string;
-      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: string;
     fullName: string;
@@ -2005,6 +2004,7 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
+  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 
 export interface ProvisionOrganizationAdministratorVariables {
@@ -2018,6 +2018,8 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
+  idempotencyKey: string;
+  resultReference: string;
 }
 
 export interface ProvisionTenantEmployeeTrustedData {
@@ -2173,6 +2175,22 @@ export interface ResolveOrganizationAdministratorIdentityData {
 export interface ResolveOrganizationAdministratorIdentityVariables {
   organizationId: UUIDString;
   appUserId: UUIDString;
+}
+
+export interface ResolveTenantEmployeeIdentityTrustedData {
+  employees: ({
+    id: UUIDString;
+    loginAccess: LoginAccessStatus;
+    user?: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+  } & Employee_Key)[];
+}
+
+export interface ResolveTenantEmployeeIdentityTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
 }
 
 export interface ResolveUsernameLoginData {
@@ -2939,6 +2957,11 @@ export function createTenantInventoryStock(vars: CreateTenantInventoryStockVaria
 export function getTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantMembershipTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'GetTenantMembershipTrusted' Query. Allow users to pass in custom DataConnect instances. */
 export function getTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetTenantMembershipTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ResolveTenantEmployeeIdentityTrusted' Query. Allow users to execute without passing in DataConnect. */
+export function resolveTenantEmployeeIdentityTrusted(dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ResolveTenantEmployeeIdentityTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'ResolveTenantEmployeeIdentityTrusted' Query. Allow users to pass in custom DataConnect instances. */
+export function resolveTenantEmployeeIdentityTrusted(vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ResolveTenantEmployeeIdentityTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'CreateTenantOutlet' Mutation. Allow users to execute without passing in DataConnect. */
 export function createTenantOutlet(dc: DataConnect, vars: CreateTenantOutletVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantOutletData>>;

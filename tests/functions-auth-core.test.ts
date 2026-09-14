@@ -111,3 +111,11 @@ it('bounds repeated login attempts per hashed IP and username bucket', () => {
   expect(limiter.consume('127.0.0.1', 'admin', 2)).toBe(false);
   expect(limiter.consume('127.0.0.1', 'admin', 1001)).toBe(true);
 });
+
+it('caps login-rate-limit memory when many distinct identities are attempted', () => {
+  const limiter = new LoginRateLimiter(1, 1000, 2);
+  expect(limiter.consume('127.0.0.1', 'first', 0)).toBe(true);
+  expect(limiter.consume('127.0.0.1', 'second', 0)).toBe(true);
+  expect(limiter.consume('127.0.0.1', 'third', 0)).toBe(true);
+  expect(limiter.consume('127.0.0.1', 'first', 1)).toBe(true);
+});

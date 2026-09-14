@@ -12,7 +12,7 @@ The repository is the source of truth for exact implementation details. This doc
 
 OmniRetail is a multi-tenant retail management platform intended for retail businesses.
 
-The broader product will eventually support areas such as:
+The product supports initial implementations of areas such as:
 
 - Billing / POS
 - Products
@@ -26,7 +26,7 @@ The broader product will eventually support areas such as:
 - Reports
 - Other retail operations
 
-These tenant-facing modules are **not yet implemented**.
+These tenant-facing modules now have production-backed foundations and UI workflows. Their operational depth and integration coverage vary by module.
 
 The currently completed area is **Platform / Master Administration**.
 
@@ -1038,7 +1038,7 @@ Production readiness should include App Check configuration/enforcement where ap
 
 ## 35. Tests and regression coverage
 
-The repository currently has 39 passing Vitest tests covering authentication, optional email verification, username login, active-AppUser/bootstrap behavior, safe errors, provisioning idempotency/compensation/reconciliation, role assignment, protected routes, and mutation refresh regressions for plans, organizations, licenses, and administrators.
+The repository currently has 124 passing Vitest tests covering authentication, optional email verification, username login, active-AppUser/bootstrap behavior, safe errors, provisioning idempotency/compensation/reconciliation, role assignment, protected routes, tenant service boundaries, connector authorization, license status derivation, and mutation refresh regressions.
 
 Run `npm test -- --run` before handing off changes.
 
@@ -1061,8 +1061,6 @@ A stabilization/hardening pass is recommended before production release.
 
 The following gaps have been confirmed and remain open:
 
-- `OrganizationLicenseService.getLicenseSync()` remains in the interface and returns `null`, but has no callers. It is dead compatibility API.
-- `OrganizationAdminService` active methods are production-backed, but the file still contains mock administrator fixtures, a misleading `MockOrganizationAdminService` name, commented-out mock fallback code, and an unused `mockDelay` dependency.
 - `deleteOrganizationLicensePlan` and `deleteOrganization` Cloud Functions exist even though hard deletion is not the normal organization workflow. Their security and product-rule alignment require review before further use.
 - `organization.admin` is seeded and assigned, but currently has no `RolePermission` grants. The exact Organization Administrator capability model remains unresolved and must be decided explicitly.
 - App Check is supported but not enabled by default (`AUTH_ENFORCE_APP_CHECK=false`); browser enforcement also depends on a configured site key.
@@ -1074,23 +1072,13 @@ The following gaps have been confirmed and remain open:
 
 ## 37. Known compatibility cleanup
 
-`OrganizationLicenseService.getLicenseSync()` currently returns `null` because synchronous in-memory license state is no longer authoritative.
-
-Inspect usages.
-
-If unused, remove the compatibility API cleanly rather than preserving a meaningless synchronous method.
-
-Do not reintroduce synchronous mock state.
+The dead `OrganizationLicenseService.getLicenseSync()` compatibility API and the unused mock administrator fallback have been removed. Do not reintroduce synchronous mock license state.
 
 ---
 
 ## 38. Bundle warning
 
-The Vite production build has previously reported a bundle-size warning.
-
-This has not blocked functionality.
-
-Treat code splitting/bundle optimization as a separate engineering task rather than mixing it into unrelated feature implementation.
+Route-level lazy loading and stable React, Firebase, and icon vendor chunks now keep every production chunk below Vite's warning threshold. Preserve those split points as new modules are added.
 
 ---
 

@@ -1196,6 +1196,19 @@ export function getTenantMembershipTrusted(dcOrVars, varsOrOptions, options) {
   return executeQuery(getTenantMembershipTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
+export const resolveTenantEmployeeIdentityTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ResolveTenantEmployeeIdentityTrusted', inputVars);
+}
+resolveTenantEmployeeIdentityTrustedRef.operationName = 'ResolveTenantEmployeeIdentityTrusted';
+
+export function resolveTenantEmployeeIdentityTrusted(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(resolveTenantEmployeeIdentityTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+
 export const createTenantOutletRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1387,3 +1400,4 @@ export function assignTenantServicePersonOutletTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(assignTenantServicePersonOutletTrustedRef(dcInstance, inputVars));
 }
+

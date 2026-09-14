@@ -5,7 +5,15 @@ import { OrganizationLicense, OrganizationLicenseHistory, AssignLicenseInput, Ch
 import { calculateLicenseStatus } from '../utils/licenseStatus';
 import { licensePlanService } from '@/features/plans/services/LicensePlanService';
 
-export interface IOrganizationLicenseService { getCurrentLicense(organizationId: string): Promise<OrganizationLicense | null>; getLicenseWithPlan(organizationId: string): Promise<EnrichedOrganizationLicense>; getLicenseHistory(organizationId: string): Promise<OrganizationLicenseHistory[]>; assignLicense(organizationId: string, input: AssignLicenseInput): Promise<OrganizationLicense>; changePlan(organizationId: string, input: ChangePlanInput): Promise<OrganizationLicense>; modifyCommercialTerms(organizationId: string, input: ModifyCommercialTermsInput): Promise<OrganizationLicense>; renewLicense(organizationId: string, input: RenewLicenseInput): Promise<OrganizationLicense>; getAllLicenses(): Promise<OrganizationLicense[]>; getLicenseSync(organizationId: string): OrganizationLicense | null; }
+export interface IOrganizationLicenseService {
+  getCurrentLicense(organizationId: string): Promise<OrganizationLicense | null>;
+  getLicenseWithPlan(organizationId: string): Promise<EnrichedOrganizationLicense>;
+  getLicenseHistory(organizationId: string): Promise<OrganizationLicenseHistory[]>;
+  assignLicense(organizationId: string, input: AssignLicenseInput): Promise<OrganizationLicense>;
+  changePlan(organizationId: string, input: ChangePlanInput): Promise<OrganizationLicense>;
+  modifyCommercialTerms(organizationId: string, input: ModifyCommercialTermsInput): Promise<OrganizationLicense>;
+  renewLicense(organizationId: string, input: RenewLicenseInput): Promise<OrganizationLicense>;
+}
 const services = () => getFirebaseClientServices(); const uuid = () => globalThis.crypto.randomUUID();
 class ProductionOrganizationLicenseService implements IOrganizationLicenseService {
   async getCurrentLicense(organizationId: string) { const r = await getOrganizationLicense(services().dataConnect, { organizationId }); const x = r.data.organizationLicenses[0]; return x ? { id: x.id, organizationId: x.organization.id, planId: x.plan.id, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, createdAt: x.createdAt, updatedAt: x.updatedAt } : null; }
@@ -20,7 +28,5 @@ class ProductionOrganizationLicenseService implements IOrganizationLicenseServic
   async changePlan(organizationId: string, input: ChangePlanInput) { await httpsCallable(services().functions, 'changeOrganizationLicensePlan')({ organizationId, targetPlanId: input.newPlanId, negotiatedPrice: input.newNegotiatedPrice, currency: input.currency, idempotencyKey: uuid() }); const x = await this.getCurrentLicense(organizationId); if (!x) throw new Error('Unable to load the updated license.'); return x; }
   async modifyCommercialTerms(organizationId: string, input: ModifyCommercialTermsInput) { await httpsCallable(services().functions, 'modifyOrganizationCommercialTerms')({ organizationId, ...input, idempotencyKey: uuid() }); const x = await this.getCurrentLicense(organizationId); if (!x) throw new Error('Unable to load the updated license.'); return x; }
   async renewLicense(organizationId: string, input: RenewLicenseInput) { await httpsCallable(services().functions, 'renewOrganizationLicense')({ organizationId, ...input, idempotencyKey: uuid() }); const x = await this.getCurrentLicense(organizationId); if (!x) throw new Error('Unable to load the renewed license.'); return x; }
-  async getAllLicenses() { const result = await httpsCallable(services().functions, 'listOrganizationsDirectory')({}); const rows = (result.data as { organizations: Array<any> }).organizations; return rows.filter(r => r.licenseId).map(r => ({ id: r.licenseId, organizationId: r.id, planId: r.planId, startDate: r.licenseStartDate, expiryDate: r.licenseExpiryDate, negotiatedPrice: 0, currency: '', createdAt: r.createdAt, updatedAt: r.createdAt })); }
-  getLicenseSync(_organizationId: string) { return null; }
 }
 export const organizationLicenseService: IOrganizationLicenseService = new ProductionOrganizationLicenseService();

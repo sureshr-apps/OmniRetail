@@ -47,6 +47,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListTenantSales*](#listtenantsales)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
+  - [*ResolveTenantEmployeeIdentityTrusted*](#resolvetenantemployeeidentitytrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
@@ -3377,7 +3378,6 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
       username: string;
       email: string;
-      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: string;
     fullName: string;
@@ -4960,6 +4960,125 @@ executeQuery(ref).then((response) => {
 });
 ```
 
+## ResolveTenantEmployeeIdentityTrusted
+You can execute the `ResolveTenantEmployeeIdentityTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+resolveTenantEmployeeIdentityTrusted(vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+
+interface ResolveTenantEmployeeIdentityTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ResolveTenantEmployeeIdentityTrustedVariables): QueryRef<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+}
+export const resolveTenantEmployeeIdentityTrustedRef: ResolveTenantEmployeeIdentityTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+resolveTenantEmployeeIdentityTrusted(dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+
+interface ResolveTenantEmployeeIdentityTrustedRef {
+  ...
+  (dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables): QueryRef<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+}
+export const resolveTenantEmployeeIdentityTrustedRef: ResolveTenantEmployeeIdentityTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the resolveTenantEmployeeIdentityTrustedRef:
+```typescript
+const name = resolveTenantEmployeeIdentityTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ResolveTenantEmployeeIdentityTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `ResolveTenantEmployeeIdentityTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ResolveTenantEmployeeIdentityTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ResolveTenantEmployeeIdentityTrustedData {
+  employees: ({
+    id: UUIDString;
+    loginAccess: LoginAccessStatus;
+    user?: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+  } & Employee_Key)[];
+}
+```
+### Using `ResolveTenantEmployeeIdentityTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, resolveTenantEmployeeIdentityTrusted, ResolveTenantEmployeeIdentityTrustedVariables } from '@omniretail/sql-connect';
+
+// The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
+const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
+  organizationId: ..., 
+  employeeId: ..., 
+};
+
+// Call the `resolveTenantEmployeeIdentityTrusted()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await resolveTenantEmployeeIdentityTrusted(resolveTenantEmployeeIdentityTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await resolveTenantEmployeeIdentityTrusted({ organizationId: ..., employeeId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await resolveTenantEmployeeIdentityTrusted(dataConnect, resolveTenantEmployeeIdentityTrustedVars);
+
+console.log(data.employees);
+
+// Or, you can use the `Promise` API.
+resolveTenantEmployeeIdentityTrusted(resolveTenantEmployeeIdentityTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.employees);
+});
+```
+
+### Using `ResolveTenantEmployeeIdentityTrusted`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, resolveTenantEmployeeIdentityTrustedRef, ResolveTenantEmployeeIdentityTrustedVariables } from '@omniretail/sql-connect';
+
+// The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
+const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
+  organizationId: ..., 
+  employeeId: ..., 
+};
+
+// Call the `resolveTenantEmployeeIdentityTrustedRef()` function to get a reference to the query.
+const ref = resolveTenantEmployeeIdentityTrustedRef(resolveTenantEmployeeIdentityTrustedVars);
+// Variables can be defined inline as well.
+const ref = resolveTenantEmployeeIdentityTrustedRef({ organizationId: ..., employeeId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = resolveTenantEmployeeIdentityTrustedRef(dataConnect, resolveTenantEmployeeIdentityTrustedVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.employees);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.employees);
+});
+```
+
 # Mutations
 
 There are two ways to execute a Data Connect Mutation using the generated Web SDK:
@@ -6162,6 +6281,8 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
+  idempotencyKey: string;
+  resultReference: string;
 }
 ```
 ### Return Type
@@ -6174,6 +6295,7 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
+  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 ```
 ### Using `ProvisionOrganizationAdministrator`'s action shortcut function
@@ -6194,13 +6316,15 @@ const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministrator
   roleId: ..., 
   auditId: ..., 
   requestId: ..., 
+  idempotencyKey: ..., 
+  resultReference: ..., 
 };
 
 // Call the `provisionOrganizationAdministrator()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await provisionOrganizationAdministrator(provisionOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const { data } = await provisionOrganizationAdministrator({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
+const { data } = await provisionOrganizationAdministrator({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., idempotencyKey: ..., resultReference: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6210,6 +6334,7 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.auditEvent_insert);
+console.log(data.lifecycleIdempotency_update);
 
 // Or, you can use the `Promise` API.
 provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then((response) => {
@@ -6218,6 +6343,7 @@ provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then(
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.auditEvent_insert);
+  console.log(data.lifecycleIdempotency_update);
 });
 ```
 
@@ -6239,12 +6365,14 @@ const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministrator
   roleId: ..., 
   auditId: ..., 
   requestId: ..., 
+  idempotencyKey: ..., 
+  resultReference: ..., 
 };
 
 // Call the `provisionOrganizationAdministratorRef()` function to get a reference to the mutation.
 const ref = provisionOrganizationAdministratorRef(provisionOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const ref = provisionOrganizationAdministratorRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
+const ref = provisionOrganizationAdministratorRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., idempotencyKey: ..., resultReference: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6258,6 +6386,7 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.auditEvent_insert);
+console.log(data.lifecycleIdempotency_update);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -6266,6 +6395,7 @@ executeMutation(ref).then((response) => {
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.auditEvent_insert);
+  console.log(data.lifecycleIdempotency_update);
 });
 ```
 

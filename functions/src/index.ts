@@ -31,6 +31,7 @@ import {
   deleteOrganizationTrusted,
   deleteAppUserTrusted,
   getTenantMembershipTrusted,
+  resolveTenantEmployeeIdentityTrusted,
   createTenantOutletTrusted,
   updateTenantOutletTrusted,
   changeTenantOutletStatusTrusted,
@@ -73,7 +74,8 @@ import {
   type AuthorizationRecord,
 } from './auth/core.js';
 import { LoginRateLimiter } from './auth/rateLimit.js';
-import { orchestrateProvision } from './auth/provisioning.js';
+import { orchestrateProvision, type ProvisioningStatus } from './auth/provisioning.js';
+import { deriveLicenseStatus } from './licenses/licenseStatus.js';
 
 if (!getApps().length) initializeApp();
 
@@ -289,8 +291,6 @@ export const recordPasswordChange = onCall(callableOptions, async (request) => {
 });
 
 export const provisionOrganizationAdministrator = onCall(callableOptions, async (request) => {
-  let createdUid: string | undefined;
-  let idempotencyKey = '';
   try {
     const firebaseUid = requireVerifiedFirebaseIdentity(request.auth);
     const caller = await loadAuthorization(firebaseUid);
@@ -300,20 +300,57 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
     const username = normalizeUsername(request.data?.username);
     const email = typeof request.data?.email === 'string' ? request.data.email.trim().toLowerCase() : '';
     const phone = typeof request.data?.phone === 'string' ? request.data.phone.trim() : '';
-    idempotencyKey = typeof request.data?.idempotencyKey === 'string' ? request.data.idempotencyKey.trim() : '';
+    const idempotencyKey = typeof request.data?.idempotencyKey === 'string' ? request.data.idempotencyKey.trim() : '';
     if (!organizationId || !displayName || !username || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !phone) throw new Error('invalid input');
     if (!/^[A-Za-z0-9._:-]{8,128}$/.test(idempotencyKey)) throw new Error('invalid idempotency key');
-    if (!(await getOrganizationTrusted({ id: organizationId })).data.organization) throw new Error('organization not found');
-    if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username already in use');
-    try { await getAuth().getUserByEmail(email); throw new Error('email already in use'); } catch (error: any) { if (error?.message === 'email already in use') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
     const orchestrated = await orchestrateProvision({ organizationId, username, email, displayName, phone, idempotencyKey }, {
       idempotency: {
-        async get(key) { const r = (await getLifecycleIdempotency({ idempotencyKey: key })).data.lifecycleIdempotency; return r ? { ...r, result: r.resultReference ? JSON.parse(r.resultReference) : undefined } : null; },
+        async get(key) { const r = (await getLifecycleIdempotency({ idempotencyKey: key })).data.lifecycleIdempotency; return r ? { ...r, status: r.status as ProvisioningStatus, result: r.resultReference ? JSON.parse(r.resultReference) : undefined } : null; },
         async claim(r) { await claimLifecycleIdempotency({ idempotencyKey: r.key, operationType: 'provisionOrganizationAdministrator', requestFingerprint: r.requestFingerprint }); },
         async complete(key, status, result) { await completeLifecycleIdempotency({ idempotencyKey: key, status: status as ProvisioningAttemptStatus, resultReference: result ? JSON.stringify(result) : undefined }); },
       },
-      auth: { async create() { const temporaryPassword = randomBytes(32).toString('base64url'); const created = await getAuth().createUser({ email, displayName, phoneNumber: phone, password: temporaryPassword, emailVerified: false, disabled: false }); createdUid = created.uid; return { uid: created.uid }; }, async compensate(uid) { try { await getAuth().deleteUser(uid); } catch (error: any) { if (error?.code === 'auth/user-not-found') return; await getAuth().updateUser(uid, { disabled: true }); } } },
-      sql: { async provision(data) { const appUserId = randomUUID(); await provisionOrganizationAdministratorSql({ userId: appUserId, firebaseUid: data.firebaseUid, username, email, displayName, phone, organizationId, roleId: '00000000-0000-4000-8000-000000000002', auditId: randomUUID(), requestId: randomUUID() }); return { appUserId, organizationMembershipId: `${organizationId}:${appUserId}` }; } },
+      async preflight() {
+        if (!(await getOrganizationTrusted({ id: organizationId })).data.organization) throw new Error('organization not found');
+        if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username already in use');
+        try {
+          await getAuth().getUserByEmail(email);
+          throw new Error('email already in use');
+        } catch (error: any) {
+          if (error?.message === 'email already in use') throw error;
+          if (error?.code !== 'auth/user-not-found') throw error;
+        }
+      },
+      auth: { async create() { const temporaryPassword = randomBytes(32).toString('base64url'); const created = await getAuth().createUser({ email, displayName, phoneNumber: phone, password: temporaryPassword, emailVerified: false, disabled: false }); return { uid: created.uid }; }, async compensate(uid) { try { await getAuth().deleteUser(uid); } catch (error: any) { if (error?.code === 'auth/user-not-found') return; await getAuth().updateUser(uid, { disabled: true }); } } },
+      sql: {
+        async provisionAndComplete(data) {
+          const appUserId = randomUUID();
+          const result = {
+            appUserId,
+            organizationMembershipId: `${organizationId}:${appUserId}`,
+            organizationId,
+            username,
+            displayName,
+            email,
+            phone,
+            status: 'active' as const,
+          };
+          await provisionOrganizationAdministratorSql({
+            userId: appUserId,
+            firebaseUid: data.firebaseUid,
+            username,
+            email,
+            displayName,
+            phone,
+            organizationId,
+            roleId: '00000000-0000-4000-8000-000000000002',
+            auditId: randomUUID(),
+            requestId: randomUUID(),
+            idempotencyKey,
+            resultReference: JSON.stringify(result),
+          });
+          return result;
+        },
+      },
       reconcile: { async record(data) { await recordProvisioningReconciliation(data); } },
     });
     let onboardingStatus: 'sent' | 'delivery_failed' = 'sent';
@@ -322,34 +359,8 @@ export const provisionOrganizationAdministrator = onCall(callableOptions, async 
       await recordAdministratorSecurityEvent({ auditId: randomUUID(), actorFirebaseUid: firebaseUid, action: 'organization_administrator.onboarding_email_sent', targetId: orchestrated.appUserId, organizationId, requestId: randomUUID() });
     } catch { onboardingStatus = 'delivery_failed'; }
     return { ...orchestrated, onboardingStatus };
-    const requestFingerprint = createHash('sha256').update(`${organizationId}|${username}|${email}`).digest('hex');
-    const prior: any = (await getLifecycleIdempotency({ idempotencyKey })).data.lifecycleIdempotency;
-    if (prior) {
-      if (prior.requestFingerprint !== requestFingerprint) throw new Error('idempotency key conflict');
-      if (prior.status === 'SUCCEEDED' && prior.resultReference) return JSON.parse(prior.resultReference);
-      if (prior.status === 'IN_PROGRESS') throw new Error('provisioning already in progress');
-    } else await claimLifecycleIdempotency({ idempotencyKey, operationType: 'provisionOrganizationAdministrator', requestFingerprint });
-    const org = await getOrganizationTrusted({ id: organizationId });
-    if (!org.data.organization) throw new Error('organization not found');
-    const existingUsername = await resolveUsernameLogin({ username });
-    if (existingUsername.data.appUsers.length) throw new Error('username already in use');
-    const auth = getAuth();
-    let authUser;
-    try { authUser = await auth.getUserByEmail(email); } catch (error: any) { if (error?.code !== 'auth/user-not-found') throw error; }
-    if (authUser) throw new Error('email already in use');
-    const temporaryPassword = randomBytes(32).toString('base64url');
-    authUser = await auth.createUser({ email, displayName, phoneNumber: phone, password: temporaryPassword, emailVerified: false, disabled: false });
-    createdUid = authUser.uid;
-    const userId = randomUUID();
-    await provisionOrganizationAdministratorSql({ userId, firebaseUid: authUser.uid, username, email, displayName, phone, organizationId, roleId: '00000000-0000-4000-8000-000000000002', auditId: randomUUID(), requestId: randomUUID() });
-    const result = { id: userId, organizationId, name: displayName, username, email, phone, status: 'active', createdAt: new Date().toISOString().slice(0, 10), lastLoginAt: null };
-    await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.SUCCEEDED, resultReference: JSON.stringify(result) });
-    return result;
   } catch (error) {
     logCallableFailure('provisionOrganizationAdministrator', error);
-    const orphanUid = createdUid;
-    if (orphanUid) await getAuth().deleteUser(orphanUid).catch(async (compensationError: any) => { if (compensationError?.code === 'auth/user-not-found') return; try { await getAuth().updateUser(orphanUid, { disabled: true }); } catch { if (idempotencyKey) await recordProvisioningReconciliation({ idempotencyKey, firebaseUid: orphanUid, errorClass: 'auth_compensation_failed' }); } });
-    if (idempotencyKey) await completeLifecycleIdempotency({ idempotencyKey, status: ProvisioningAttemptStatus.FAILED_RETRYABLE }).catch(() => undefined);
     if (error instanceof Error && /already in use|email already/.test(error.message)) throw new HttpsError('already-exists', error.message);
     throw new HttpsError('permission-denied', 'Unable to provision the organization administrator.');
   }
@@ -503,7 +514,25 @@ export const listOrganizationsDirectory = onCall(callableOptions, async (request
   try {
     const uid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(uid); requireCapability(caller, 'organizations.read');
     const organizations = (await listOrganizationsTrusted()).data.organizations;
-    const rows = await Promise.all(organizations.map(async (o: any) => { const l = (await getOrganizationLicenseTrusted({ organizationId: o.id })).data.organizationLicenses[0]; let licenseStatus = 'not_assigned'; if (l) { const now = Date.now(); const start = new Date(l.startDate).getTime(); const expiry = new Date(l.expiryDate).getTime(); const days = (expiry - now) / 86400000; licenseStatus = now < start ? 'not_yet_active' : now > expiry ? 'expired' : days <= 30 ? 'expiring_soon' : 'active'; } return { id: o.id, organizationCode: o.organizationCode, businessName: o.businessName, primaryContactName: o.primaryContactName, email: o.email, phone: o.phone, status: o.status, createdAt: o.createdAt, licenseId: l?.id ?? null, planId: l?.plan?.id ?? null, planName: l?.plan?.name ?? null, licenseStartDate: l?.startDate ?? null, licenseExpiryDate: l?.expiryDate ?? null, licenseStatus }; }));
+    const rows = await Promise.all(organizations.map(async (o: any) => {
+      const license = (await getOrganizationLicenseTrusted({ organizationId: o.id })).data.organizationLicenses[0];
+      return {
+        id: o.id,
+        organizationCode: o.organizationCode,
+        businessName: o.businessName,
+        primaryContactName: o.primaryContactName,
+        email: o.email,
+        phone: o.phone,
+        status: o.status,
+        createdAt: o.createdAt,
+        licenseId: license?.id ?? null,
+        planId: license?.plan?.id ?? null,
+        planName: license?.plan?.name ?? null,
+        licenseStartDate: license?.startDate ?? null,
+        licenseExpiryDate: license?.expiryDate ?? null,
+        licenseStatus: deriveLicenseStatus(license?.startDate, license?.expiryDate),
+      };
+    }));
     return { organizations: rows };
   } catch { throw new HttpsError('permission-denied', 'Unable to load organizations.'); }
 });
@@ -511,7 +540,15 @@ export const listOrganizationsDirectory = onCall(callableOptions, async (request
 export const getMasterAdminOverview = onCall(callableOptions, async (request) => {
   try {
     const uid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(uid); requireCapability(caller, 'overview.read');
-    const orgs = (await listOrganizationsTrusted()).data.organizations as any[]; const rows = await Promise.all(orgs.map(async o => { const l = (await getOrganizationLicenseTrusted({ organizationId: o.id })).data.organizationLicenses[0]; let status = 'not_assigned'; if (l) { const now = Date.now(); const start = new Date(l.startDate).getTime(); const expiry = new Date(l.expiryDate).getTime(); const days = (expiry-now)/86400000; status = now < start ? 'not_yet_active' : now > expiry ? 'expired' : days <= 30 ? 'expiring_soon' : 'active'; } return { ...o, license: l ?? null, licenseStatus: status }; }));
+    const orgs = (await listOrganizationsTrusted()).data.organizations as any[];
+    const rows = await Promise.all(orgs.map(async o => {
+      const license = (await getOrganizationLicenseTrusted({ organizationId: o.id })).data.organizationLicenses[0];
+      return {
+        ...o,
+        license: license ?? null,
+        licenseStatus: deriveLicenseStatus(license?.startDate, license?.expiryDate),
+      };
+    }));
     const expiring = rows.filter(r => r.licenseStatus === 'expiring_soon'); const mapOrg = (r: any) => ({ id: r.id, organizationCode: r.organizationCode, name: r.businessName, legalEntityName: r.legalEntityName ?? '', taxId: r.taxId ?? '', primaryAdmin: undefined, licensePlan: r.license?.plan?.name ?? 'Unassigned', licenseStatus: r.licenseStatus, licenseExpiryDate: r.license?.expiryDate ?? '—', status: String(r.status).toLowerCase(), createdDate: String(r.createdAt).slice(0,10), contactInfo: { primaryContactName: r.primaryContactName, email: r.email, phone: r.phone }, timezone: r.timezone, currency: r.currency });
     return { metrics: { totalOrganizations: rows.length, activeOrganizations: rows.filter(r=>r.status==='ACTIVE').length, suspendedOrganizations: rows.filter(r=>r.status==='SUSPENDED').length, licensesExpiringSoon: expiring.length }, recentlyAddedOrganizations: rows.sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()).slice(0,4).map(mapOrg), expiringLicenses: expiring.map(r=>({ license: { id:r.license.id, organizationId:r.id, planId:r.license.plan.id, startDate:r.license.startDate, expiryDate:r.license.expiryDate, negotiatedPrice:r.license.negotiatedPrice, currency:r.license.currency, createdAt:r.license.createdAt, updatedAt:r.license.updatedAt }, organization: mapOrg(r), plan: r.license.plan, daysRemaining: Math.ceil((new Date(r.license.expiryDate).getTime()-Date.now())/86400000), formattedExpiryDate: r.license.expiryDate })), totalOrganizationsCount: rows.length };
   } catch { throw new HttpsError('permission-denied', 'Unable to load the overview.'); }
@@ -624,13 +661,36 @@ export const changeTenantEmployeeStatus = onCall(callableOptions, async (request
 });
 
 export const changeTenantEmployeeLoginAccess = onCall(callableOptions, async (request) => {
-  let uid = ''; let previousDisabled = false;
+  let targetUid = '';
+  let previousDisabled = false;
   try {
-    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; uid = typeof d.firebaseUid === 'string' ? d.firebaseUid : ''; const userId = typeof d.userId === 'string' ? d.userId : ''; const enabled = d.loginAccess === 'ENABLED'; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !id || !uid || !userId || !requestId || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
-    const authUser = await getAuth().getUser(uid); previousDisabled = authUser.disabled; await getAuth().updateUser(uid, { disabled: !enabled }); if (!enabled) await getAuth().revokeRefreshTokens(uid);
-    await changeTenantEmployeeLoginAccessTrusted({ organizationId, id, userId, loginAccess: enabled ? LoginAccessStatus.ENABLED : LoginAccessStatus.DISABLED, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); return { success: true, id, organizationId, loginAccess: enabled ? 'ENABLED' : 'DISABLED' };
-  } catch (error) { if (uid) await getAuth().updateUser(uid, { disabled: previousDisabled }).catch(() => undefined); logCallableFailure('changeTenantEmployeeLoginAccess', error); throw new HttpsError('permission-denied', 'Unable to change employee login access.'); }
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'employees.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const loginAccess = d.loginAccess === 'ENABLED' || d.loginAccess === 'DISABLED' ? d.loginAccess : '';
+    const enabled = loginAccess === 'ENABLED';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !loginAccess || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actor, organizationId);
+
+    const employee = (await resolveTenantEmployeeIdentityTrusted({ organizationId, employeeId: id })).data.employees[0];
+    if (!employee?.user?.firebaseUid) throw new Error('employee identity not found');
+    targetUid = employee.user.firebaseUid;
+
+    const authUser = await getAuth().getUser(targetUid);
+    previousDisabled = authUser.disabled;
+    await getAuth().updateUser(targetUid, { disabled: !enabled });
+    if (!enabled) await getAuth().revokeRefreshTokens(targetUid);
+    await changeTenantEmployeeLoginAccessTrusted({ organizationId, id, userId: employee.user.id, loginAccess: enabled ? LoginAccessStatus.ENABLED : LoginAccessStatus.DISABLED, auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    return { success: true, id, organizationId, loginAccess: enabled ? 'ENABLED' : 'DISABLED' };
+  } catch (error) {
+    if (targetUid) await getAuth().updateUser(targetUid, { disabled: previousDisabled }).catch(() => undefined);
+    logCallableFailure('changeTenantEmployeeLoginAccess', error);
+    throw new HttpsError('permission-denied', 'Unable to change employee login access.');
+  }
 });
 
 export const createTenantServicePerson = onCall(callableOptions, async (request) => {

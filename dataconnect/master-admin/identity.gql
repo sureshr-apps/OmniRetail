@@ -200,6 +200,7 @@ query GetAppUserByFirebaseUid($firebaseUid: String!) @auth(level: NO_ACCESS) {
 # operations unavailable to inactive AppUsers while capability checks remain in
 # the trusted plan adapter/functions.
 query ListLicensePlans @auth(level: USER) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   licensePlans(orderBy: [{ level: ASC }]) {
     id
     planCode
@@ -225,6 +226,7 @@ query ListOrganizationLicensePlanAssignments @auth(level: USER) {
 }
 
 query GetLicensePlan($id: UUID!) @auth(level: USER) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
   licensePlan(key: { id: $id }) {
     id
     planCode
@@ -255,6 +257,9 @@ mutation CreateLicensePlan(
   $auditId: UUID!
   $requestId: String!
 ) @auth(level: USER) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.create'))", message: "Plan creation is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  }
   licensePlan_insert(data: {
     planCode: $planCode
     name: $name
@@ -283,6 +288,9 @@ mutation UpdateLicensePlan(
   $auditId: UUID!
   $requestId: String!
 ) @auth(level: USER) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.update'))", message: "Plan updates are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  }
   licensePlan_update(id: $id, data: {
     name: $name
     description: $description
@@ -308,6 +316,9 @@ mutation ChangeLicensePlanStatus(
   $auditId: UUID!
   $requestId: String!
 ) @auth(level: USER) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.change_status'))", message: "Plan status changes are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  }
   licensePlan_update(id: $id, data: {
     status: $status
     updatedAt_expr: "request.time"
@@ -323,6 +334,11 @@ mutation ChangeLicensePlanStatus(
 }
 
 mutation DeleteLicensePlan($id: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: USER) @transaction {
+  query @redact {
+    appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.change_status'))", message: "Plan deletion is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+    organizationLicenses(where: { plan: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "This plan is assigned to an organization and cannot be deleted.") { id }
+    licenseHistories(where: { plan: { id: { eq: $id } } }, limit: 1) @check(expr: "this.size() == 0", message: "This plan has history and cannot be deleted.") { id }
+  }
   licensePlan_delete(id: $id)
   auditEvent_insert(data: { id: $auditId actorFirebaseUid_expr: "auth.uid" action: "plans.deleted" targetType: "LicensePlan" targetId: $id requestId: $requestId })
 }
@@ -398,11 +414,12 @@ query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth
   }
 }
 
-mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String!, $organizationId: UUID!, $roleId: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: NO_ACCESS) @transaction {
+mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String!, $organizationId: UUID!, $roleId: UUID!, $auditId: UUID!, $requestId: String!, $idempotencyKey: String!, $resultReference: String!) @auth(level: NO_ACCESS) @transaction {
   appUser_insert(data: { id: $userId firebaseUid: $firebaseUid username: $username email: $email displayName: $displayName phone: $phone status: ACTIVE })
   organizationMembership_insert(data: { organizationId: $organizationId userId: $userId roleId: $roleId status: ACTIVE })
   userRole_upsert(data: { userId: $userId, roleId: $roleId })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $firebaseUid action: "organization_administrator.created" targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
+  lifecycleIdempotency_update(key: { idempotencyKey: $idempotencyKey }, data: { status: SUCCEEDED resultReference: $resultReference completedAt_expr: "request.time" updatedAt_expr: "request.time" })
 }
 
 mutation EnsureAppUserRoleTrusted($userId: UUID!, $roleId: UUID!) @auth(level: NO_ACCESS) {
@@ -565,7 +582,7 @@ query ListTenantOutlets($organizationId: UUID!) @auth(level: USER) {
 query ListTenantEmployees($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'employees.read'))", message: "Employee access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
   employees(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
-    id organization { id } user { id username email firebaseUid } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
+    id organization { id } user { id username email } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
     employeeOutlets_on_employee { outlet { id outletCode name } }
   }
 }
@@ -772,6 +789,14 @@ mutation CreateTenantInventoryStock($organizationId: UUID!, $outletId: UUID!, $p
 query GetTenantMembershipTrusted($organizationId: UUID!, $firebaseUid: String!) @auth(level: NO_ACCESS) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq: $firebaseUid } }, status: { eq: ACTIVE } }, limit: 1) {
     organization { id } user { id firebaseUid } role { code scope rolePermissions_on_role { permission { code } } }
+  }
+}
+
+query ResolveTenantEmployeeIdentityTrusted($organizationId: UUID!, $employeeId: UUID!) @auth(level: NO_ACCESS) {
+  employees(where: { id: { eq: $employeeId }, organization: { id: { eq: $organizationId } } }, limit: 1) {
+    id
+    loginAccess
+    user { id firebaseUid }
   }
 }
 

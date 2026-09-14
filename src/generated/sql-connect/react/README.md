@@ -54,6 +54,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ListTenantSales*](#listtenantsales)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantMembershipTrusted*](#gettenantmembershiptrusted)
+  - [*ResolveTenantEmployeeIdentityTrusted*](#resolvetenantemployeeidentitytrusted)
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
@@ -2733,7 +2734,6 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
       username: string;
       email: string;
-      firebaseUid: string;
     } & AppUser_Key;
     employeeCode: string;
     fullName: string;
@@ -4004,6 +4004,97 @@ export default function GetTenantMembershipTrustedComponent() {
 }
 ```
 
+## ResolveTenantEmployeeIdentityTrusted
+You can execute the `ResolveTenantEmployeeIdentityTrusted` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useResolveTenantEmployeeIdentityTrusted(dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: useDataConnectQueryOptions<ResolveTenantEmployeeIdentityTrustedData>): UseDataConnectQueryResult<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useResolveTenantEmployeeIdentityTrusted(vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: useDataConnectQueryOptions<ResolveTenantEmployeeIdentityTrustedData>): UseDataConnectQueryResult<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
+```
+
+### Variables
+The `ResolveTenantEmployeeIdentityTrusted` Query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ResolveTenantEmployeeIdentityTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
+}
+```
+### Return Type
+Recall that calling the `ResolveTenantEmployeeIdentityTrusted` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ResolveTenantEmployeeIdentityTrusted` Query is of type `ResolveTenantEmployeeIdentityTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ResolveTenantEmployeeIdentityTrustedData {
+  employees: ({
+    id: UUIDString;
+    loginAccess: LoginAccessStatus;
+    user?: {
+      id: UUIDString;
+      firebaseUid: string;
+    } & AppUser_Key;
+  } & Employee_Key)[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ResolveTenantEmployeeIdentityTrusted`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ResolveTenantEmployeeIdentityTrustedVariables } from '@omniretail/sql-connect';
+import { useResolveTenantEmployeeIdentityTrusted } from '@omniretail/sql-connect/react'
+
+export default function ResolveTenantEmployeeIdentityTrustedComponent() {
+  // The `useResolveTenantEmployeeIdentityTrusted` Query hook requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
+  const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
+    organizationId: ..., 
+    employeeId: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useResolveTenantEmployeeIdentityTrusted(resolveTenantEmployeeIdentityTrustedVars);
+  // Variables can be defined inline as well.
+  const query = useResolveTenantEmployeeIdentityTrusted({ organizationId: ..., employeeId: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useResolveTenantEmployeeIdentityTrusted(dataConnect, resolveTenantEmployeeIdentityTrustedVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useResolveTenantEmployeeIdentityTrusted(resolveTenantEmployeeIdentityTrustedVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useResolveTenantEmployeeIdentityTrusted(dataConnect, resolveTenantEmployeeIdentityTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.employees);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
 # Mutations
 
 The React generated SDK provides Mutations hook functions that call and return [`useDataConnectMutation`](https://react-query-firebase.invertase.dev/react/data-connect/mutations) hooks from TanStack Query Firebase.
@@ -4996,6 +5087,8 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
+  idempotencyKey: string;
+  resultReference: string;
 }
 ```
 ### Return Type
@@ -5012,6 +5105,7 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
+  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 ```
 
@@ -5058,10 +5152,12 @@ export default function ProvisionOrganizationAdministratorComponent() {
     roleId: ..., 
     auditId: ..., 
     requestId: ..., 
+    idempotencyKey: ..., 
+    resultReference: ..., 
   };
   mutation.mutate(provisionOrganizationAdministratorVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., idempotencyKey: ..., resultReference: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5084,6 +5180,7 @@ export default function ProvisionOrganizationAdministratorComponent() {
     console.log(mutation.data.organizationMembership_insert);
     console.log(mutation.data.userRole_upsert);
     console.log(mutation.data.auditEvent_insert);
+    console.log(mutation.data.lifecycleIdempotency_update);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }

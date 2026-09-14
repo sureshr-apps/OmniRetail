@@ -85,11 +85,7 @@ jobs:
 
       - name: Remove retired Service Person skills column
         if: contains(steps.changes.outputs.targets, 'dataconnect')
-        run: |
-          CLOUD_SQL_IAM_USER="$(gcloud config get-value account 2>/dev/null | sed 's/\.gserviceaccount\.com$//')"
-          test -n "$CLOUD_SQL_IAM_USER"
-          export CLOUD_SQL_IAM_USER
-          node scripts/drop-service-person-skills.mjs
+        run: node scripts/drop-service-person-skills.mjs
 
       - name: Build frontend
         env:

@@ -38,7 +38,8 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
     expect(deploymentSource).toContain('Remove retired Service Person skills column');
     expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
-    expect(deploymentSource).toContain('gcloud config get-value account');
+    expect(schemaMigrationSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
+    expect(schemaMigrationSource).toContain('client_email');
     expect(deploymentSource).toContain('--non-interactive --force');
     expect(schemaMigrationSource).toContain('DROP COLUMN IF EXISTS');
     expect(schemaMigrationSource).toContain('SET LOCAL ROLE');

@@ -1,4 +1,5 @@
 import { Connector, AuthTypes, IpAddressTypes } from '@google-cloud/cloud-sql-connector';
+import { readFileSync } from 'node:fs';
 import pg from 'pg';
 
 const { Pool } = pg;
@@ -15,8 +16,18 @@ function quoteIdentifier(value) {
   return `"${value.replaceAll('"', '""')}"`;
 }
 
+function authenticatedIamUser() {
+  const credentialsPath = requiredEnv('GOOGLE_APPLICATION_CREDENTIALS');
+  const credentials = JSON.parse(readFileSync(credentialsPath, 'utf8'));
+  const email = credentials.client_email;
+  if (typeof email !== 'string' || !email) {
+    throw new Error('The configured Google credentials do not contain client_email.');
+  }
+  return email.replace(/\.gserviceaccount\.com$/, '');
+}
+
 const projectId = requiredEnv('FIREBASE_PROJECT_ID');
-const iamUser = requiredEnv('CLOUD_SQL_IAM_USER');
+const iamUser = process.env.CLOUD_SQL_IAM_USER ?? authenticatedIamUser();
 const region = process.env.CLOUD_SQL_REGION ?? 'asia-south1';
 const instanceId = process.env.CLOUD_SQL_INSTANCE ?? 'omniretail-sql';
 const databaseId = process.env.CLOUD_SQL_DATABASE ?? 'omniretail';

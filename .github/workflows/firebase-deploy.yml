@@ -30,11 +30,11 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: |
-            package.json
+            package-lock.json
             functions/package-lock.json
 
       - name: Install frontend dependencies
-        run: npm install --prefer-offline --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install Functions dependencies
         run: npm ci --prefix functions --prefer-offline --no-audit --no-fund

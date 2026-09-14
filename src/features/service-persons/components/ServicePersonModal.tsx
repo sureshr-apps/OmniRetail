@@ -6,6 +6,14 @@ import {
   UpdateServicePersonInput,
 } from '../types';
 import { formatServicePersonCode } from '../utils/formatServicePersonCode';
+import {
+  formatIndianDate,
+  formatIndianDateInput,
+  formatIndianPhone,
+  isValidIndianPhone,
+  parseIndianDate,
+  todayInIndia,
+} from '../utils/formFormats';
 
 interface ServicePersonModalProps {
   isOpen: boolean;
@@ -33,8 +41,8 @@ export function ServicePersonModal({
   const [email, setEmail] = useState('');
   const [dateOfJoining, setDateOfJoining] = useState('');
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('Austin');
-  const [postalCode, setPostalCode] = useState('78701');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
 
   const [specialization, setSpecialization] = useState('HVAC & Appliance Repair');
   const [yearsOfExperience, setYearsOfExperience] = useState(4);
@@ -54,12 +62,12 @@ export function ServicePersonModal({
     if (personToEdit) {
       setFirstName(personToEdit.firstName);
       setLastName(personToEdit.lastName);
-      setPhone(personToEdit.phone);
+      setPhone(formatIndianPhone(personToEdit.phone));
       setEmail(personToEdit.email);
-      setDateOfJoining(personToEdit.dateOfJoining || '');
+      setDateOfJoining(formatIndianDate(personToEdit.dateOfJoining || ''));
       setAddress(personToEdit.address || '');
-      setCity(personToEdit.city || 'Austin');
-      setPostalCode(personToEdit.postalCode || '78701');
+      setCity(personToEdit.city || '');
+      setPostalCode(personToEdit.postalCode || '');
       setSpecialization(personToEdit.specialization);
       setYearsOfExperience(personToEdit.yearsOfExperience ?? 4);
       setSkillsString(personToEdit.skills ? personToEdit.skills.join(', ') : '');
@@ -71,10 +79,10 @@ export function ServicePersonModal({
       setLastName('');
       setPhone('');
       setEmail('');
-      setDateOfJoining(new Date().toISOString().split('T')[0]);
+      setDateOfJoining(todayInIndia());
       setAddress('');
-      setCity('Austin');
-      setPostalCode('78701');
+      setCity('');
+      setPostalCode('');
       setSpecialization(specializations[0] || 'HVAC & Appliance Repair');
       setYearsOfExperience(4);
       setSkillsString('HVAC EPA Certified, POS Terminal Diagnostic, Circuit Repair');
@@ -93,7 +101,12 @@ export function ServicePersonModal({
     if (!firstName.trim()) newErrors.firstName = 'First name is required.';
     if (!lastName.trim()) newErrors.lastName = 'Last name is required.';
     if (!phone.trim()) newErrors.phone = 'Phone number is required.';
+    else if (!isValidIndianPhone(phone)) newErrors.phone = 'Enter a valid Indian phone number.';
     if (!specialization.trim()) newErrors.specialization = 'Specialization is required.';
+
+    if (dateOfJoining && !parseIndianDate(dateOfJoining)) {
+      newErrors.dateOfJoining = 'Use DD/MM/YYYY.';
+    }
 
     if (email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())) {
       newErrors.email = 'Please provide a valid email address.';
@@ -125,7 +138,7 @@ export function ServicePersonModal({
         lastName: lastName.trim(),
         phone: phone.trim(),
         email: email.trim() || undefined,
-        dateOfJoining: dateOfJoining || undefined,
+        dateOfJoining: parseIndianDate(dateOfJoining),
         address: address.trim() || undefined,
         city: city.trim() || undefined,
         postalCode: postalCode.trim() || undefined,
@@ -243,10 +256,11 @@ export function ServicePersonModal({
                     Phone *
                   </label>
                   <input
-                    type="text"
+                    type="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 (555) 000-0000"
+                    onChange={(e) => setPhone(formatIndianPhone(e.target.value))}
+                    inputMode="tel"
+                    placeholder="+91 98765 43210"
                     className={`w-full h-9 px-space-base rounded-xl bg-surface-container-low border ${
                       errors.phone ? 'border-error' : 'border-outline-variant/50'
                     } font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary`}
@@ -277,11 +291,17 @@ export function ServicePersonModal({
                     Date of Joining
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     value={dateOfJoining}
-                    onChange={(e) => setDateOfJoining(e.target.value)}
-                    className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
+                    onChange={(e) => setDateOfJoining(formatIndianDateInput(e.target.value))}
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="DD/MM/YYYY"
+                    className={`w-full h-9 px-space-base rounded-xl bg-surface-container-low border ${
+                      errors.dateOfJoining ? 'border-error' : 'border-outline-variant/50'
+                    } font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary`}
                   />
+                  {errors.dateOfJoining && <span className="text-error text-caption mt-0.5 block">{errors.dateOfJoining}</span>}
                 </div>
               </div>
 
@@ -306,7 +326,7 @@ export function ServicePersonModal({
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="Austin"
+                    placeholder="Enter city"
                     className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                   />
                 </div>
@@ -318,7 +338,7 @@ export function ServicePersonModal({
                     type="text"
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="78701"
+                    placeholder="Enter postal code"
                     className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                   />
                 </div>
@@ -337,16 +357,17 @@ export function ServicePersonModal({
                   <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
                     Specialization *
                   </label>
-                  <select
+                  <input
+                    type="text"
                     value={specialization}
                     onChange={(e) => setSpecialization(e.target.value)}
+                    list="service-person-specializations"
+                    placeholder="Enter or select a specialization"
                     className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-caption text-caption text-on-surface focus:outline-none focus:border-primary"
-                  >
-                    <option value="HVAC & Appliance Repair">HVAC &amp; Appliance Repair</option>
-                    <option value="Electronics & POS Hardware">Electronics &amp; POS Hardware</option>
-                    <option value="Plumbing & Fixtures">Plumbing &amp; Fixtures</option>
-                    <option value="IT & Network Setup">IT &amp; Network Setup</option>
-                  </select>
+                  />
+                  <datalist id="service-person-specializations">
+                    {specializations.map((option) => <option key={option} value={option} />)}
+                  </datalist>
                 </div>
                 <div>
                   <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
@@ -460,22 +481,6 @@ export function ServicePersonModal({
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Section 4: Operational Boundary Notice */}
-            <div className="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-start gap-space-sm text-on-surface-variant">
-              <span className="material-symbols-outlined text-[20px] text-primary shrink-0 mt-0.5">
-                info
-              </span>
-              <div>
-                <div className="font-body-medium text-body-medium text-on-surface font-medium">
-                  Service Directory &amp; Dispatch Boundary
-                </div>
-                <div className="font-caption text-caption text-on-surface-variant mt-0.5">
-                  Service personnel profiles are registered for store maintenance, dispatch routing, and
-                  service assignment. System POS terminal logins are managed independently under Employee Master.
-                </div>
-              </div>
             </div>
 
             {/* Success Alert Banner */}

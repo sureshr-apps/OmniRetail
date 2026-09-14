@@ -24,10 +24,6 @@ export function TenantSidebar() {
         </div>
       </div>
       <div className="flex-1 py-4 px-3 overflow-y-auto">
-        <div className="px-3 mb-2 flex items-center justify-between">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Retail Operations</span>
-          <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-wider">Live</span>
-        </div>
         <nav className="flex flex-col gap-0.5 mt-2">
           {navigation.map((item) => {
             const Icon = ICONS[item.href] ?? ClipboardList;

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, HelpCircle, ChevronDown, User as UserIcon, KeyRound, LogOut } from 'lucide-react';
+import { ChevronDown, User as UserIcon, KeyRound, LogOut } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
 
 export function Header() {
@@ -31,18 +31,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
-          <HelpCircle className="w-[18px] h-[18px]" />
-          Docs & Support
-        </button>
-        
-        <button className="relative text-text-secondary hover:text-text-primary transition-colors">
-          <Bell className="w-[18px] h-[18px]" />
-          <span className="absolute 1 top-0 right-0 w-1.5 h-1.5 bg-critical rounded-full border border-white"></span>
-        </button>
-
-        <div className="h-6 w-px bg-border-structural mx-2"></div>
-
         <div className="relative" ref={profileRef}>
           <button 
             className="flex items-center gap-2 hover:bg-surface-subdued px-2 py-1 rounded transition-colors"

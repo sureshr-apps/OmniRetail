@@ -272,10 +272,6 @@ export function BillingPage() {
           onUpdateSalePrice={updateItemPrice}
           onUpdateDiscount={updateItemDiscount}
           onUpdateDiscPct={updateItemDiscPct}
-          onQuickAddFirstItem={() => {
-            const firstProduct = filteredProducts[0];
-            if (firstProduct) addToCart(firstProduct, 1);
-          }}
         />
       </div>
 

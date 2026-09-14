@@ -100,9 +100,7 @@ export default function App() {
               <Route element={<CapabilityRoute capability="plans.read" />}>
                 <Route path="/plans" element={<PlansPage />} />
               </Route>
-              <Route element={<CapabilityRoute capability="profile.read" />}>
-                <Route path="/profile" element={<ProfilePage />} />
-              </Route>
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
           </Route>
 

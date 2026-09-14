@@ -108,8 +108,7 @@ export function ProfilePage() {
         {hasCapability('profile.update') && <Button type="submit" isLoading={profileSaving} className="gap-2"><Save className="w-4 h-4" />Save profile</Button>}
       </form>
 
-      {hasCapability('profile.change_password') && (
-        <form id="change-password" onSubmit={savePassword} className="bg-surface-elevated p-6 rounded-lg border border-border-subdued shadow-sm space-y-5 scroll-mt-6">
+      <form id="change-password" onSubmit={savePassword} className="bg-surface-elevated p-6 rounded-lg border border-border-subdued shadow-sm space-y-5 scroll-mt-6">
           <div className="flex items-center gap-2">
             <KeyRound className="w-5 h-5 text-primary" />
             <h2 className="text-base font-semibold text-text-primary">Change password</h2>
@@ -121,8 +120,7 @@ export function ProfilePage() {
             <div><Label htmlFor="confirm-password">Confirm new password</Label><Input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required /></div>
           </div>
           <Button type="submit" isLoading={passwordSaving}>Change password</Button>
-        </form>
-      )}
+      </form>
     </div>
   );
 }

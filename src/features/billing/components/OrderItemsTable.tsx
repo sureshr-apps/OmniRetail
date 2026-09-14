@@ -10,7 +10,6 @@ interface OrderItemsTableProps {
   onUpdateSalePrice?: (id: string, price: number) => void;
   onUpdateDiscount?: (id: string, discount: number) => void;
   onUpdateDiscPct?: (id: string, pct: number) => void;
-  onQuickAddFirstItem?: () => void;
 }
 
 interface EditableCellProps {
@@ -84,7 +83,6 @@ export function OrderItemsTable({
   onUpdateSalePrice,
   onUpdateDiscount,
   onUpdateDiscPct,
-  onQuickAddFirstItem,
 }: OrderItemsTableProps) {
   return (
     <div className="bg-surface-container-lowest rounded shadow-sm overflow-hidden flex flex-col border border-outline-variant/30 w-full flex-1 min-h-0">
@@ -119,15 +117,6 @@ export function OrderItemsTable({
           <p className="font-caption text-caption text-on-surface-variant max-w-sm mb-4">
             Scan a barcode, press <kbd className="font-mono px-1 py-0.5 bg-surface-container rounded border border-outline-variant/30 text-on-surface font-bold">/</kbd> to search products, or enter an ad-hoc custom item.
           </p>
-          {onQuickAddFirstItem && (
-            <button
-              type="button"
-              onClick={onQuickAddFirstItem}
-              className="px-3 py-1.5 rounded bg-primary text-on-primary font-body-medium text-body-medium hover:bg-primary-container transition-colors shadow-xs cursor-pointer"
-            >
-              Load Sample Cart
-            </button>
-          )}
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto divide-y divide-outline-variant/15">

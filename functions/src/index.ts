@@ -295,7 +295,6 @@ export const recordPasswordChange = onCall(callableOptions, async (request) => {
   try {
     const firebaseUid = requireVerifiedFirebaseIdentity(request.auth);
     const record = await loadAuthorization(firebaseUid);
-    requireCapability(record, 'profile.change_password');
     await recordPasswordChangeAudit({ userId: record.id, auditId: randomUUID(), requestId: randomUUID() });
     return { recorded: true };
   } catch {

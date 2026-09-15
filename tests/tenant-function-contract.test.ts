@@ -126,6 +126,7 @@ describe('tenant callable contract', () => {
       expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${column}')`);
     }
     expect(tenantColumnRemovalSource).toContain('DROP COLUMN IF EXISTS');
+    expect(tenantColumnRemovalSource).toContain("ALTER COLUMN ${quoteIdentifier('tax_id')} DROP NOT NULL");
     expect(tenantColumnRemovalSource).toContain("await client.query('BEGIN')");
     expect(tenantColumnRemovalSource).toContain("await client.query('COMMIT')");
     expect(tenantColumnRemovalSource).toContain("await client.query('ROLLBACK')");

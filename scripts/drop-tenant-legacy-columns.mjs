@@ -12,6 +12,8 @@ try {
     DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
     DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`);
   await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('supplier')}
+    ALTER COLUMN ${quoteIdentifier('tax_id')} DROP NOT NULL`);
+  await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('supplier')}
     DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
     DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')},
     DROP COLUMN IF EXISTS ${quoteIdentifier('city')},

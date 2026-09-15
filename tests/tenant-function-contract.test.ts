@@ -12,6 +12,7 @@ const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-l
 const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop-customer-address-columns.mjs', import.meta.url), 'utf8');
 const taxonomyIndexRemovalSource = readFileSync(new URL('../scripts/drop-product-taxonomy-helper-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
+const cloudSqlSource = readFileSync(new URL('../functions/src/cloudSql.ts', import.meta.url), 'utf8');
 const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
 const functionsPackageSource = readFileSync(new URL('../functions/package.json', import.meta.url), 'utf8');
 const productBatchSource = readFileSync(new URL('../functions/src/productBatch.ts', import.meta.url), 'utf8');
@@ -38,6 +39,18 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('cache: npm');
     expect(deploymentSource).toContain('functions/package-lock.json');
     expect(deploymentSource).toContain('cancel-in-progress: true');
+  });
+
+  it('configures the Functions runtime as a Cloud SQL IAM service account', () => {
+    expect(cloudSqlSource).toContain('CLOUD_SQL_IAM_USER');
+    expect(cloudSqlSource).not.toContain('@appspot');
+    expect(cloudSqlSource).toContain('authType: AuthTypes.IAM');
+    expect(deploymentSource).toContain('Configure Functions Cloud SQL IAM access');
+    expect(deploymentSource).toContain('roles/cloudsql.instanceUser');
+    expect(deploymentSource).toContain('roles/cloudsql.client');
+    expect(deploymentSource).toContain('--type=cloud_iam_service_account');
+    expect(deploymentSource).toContain('CLOUD_SQL_IAM_USER');
+    expect(deploymentSource).toContain('${PROJECT_NUMBER}-compute@developer.gserviceaccount.com');
   });
 
   it('keeps the functions package independent from the workspace root', () => {

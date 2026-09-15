@@ -16,16 +16,35 @@ function projectId(): string {
   return value;
 }
 
+/**
+ * Cloud SQL for PostgreSQL stores service-account IAM users without the
+ * `.gserviceaccount.com` suffix. Keep this conversion in one place so the
+ * connector username and the Cloud SQL IAM user cannot drift apart.
+ */
+export function cloudSqlIamUserFromServiceAccount(serviceAccountEmail: string): string {
+  const normalized = serviceAccountEmail.trim().toLowerCase();
+  if (!normalized) throw new Error('Cloud SQL service account is not configured.');
+  return normalized.replace(/\.gserviceaccount\.com$/, '');
+}
+
+function cloudSqlIamUser(): string {
+  const value = process.env.CLOUD_SQL_IAM_USER?.trim().toLowerCase();
+  if (!value) {
+    throw new Error('Cloud SQL IAM database user is not configured.');
+  }
+  return cloudSqlIamUserFromServiceAccount(value);
+}
+
 export async function getCloudSqlPool(): Promise<CloudSqlResources> {
   if (!poolPromise) {
     poolPromise = (async () => {
+      const iamUser = cloudSqlIamUser();
       const connector = new Connector();
       const options = await connector.getOptions({
         instanceConnectionName: `${projectId()}:asia-south1:omniretail-sql`,
         ipType: IpAddressTypes.PUBLIC,
         authType: AuthTypes.IAM,
       });
-      const iamUser = process.env.CLOUD_SQL_IAM_USER || `${projectId()}@appspot`;
       const pool = new Pool({
         ...options,
         user: iamUser,

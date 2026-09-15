@@ -47,7 +47,9 @@ jobs:
           if echo "$CHANGED" | grep -q '^dataconnect/'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
-          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/firebase-deploy\.yml|scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\.mjs)$'; then
+          if echo "$CHANGED" | grep -Eq '^\.github/workflows/firebase-deploy\.yml$'; then
+            TARGETS="hosting,functions,dataconnect"
+          elif echo "$CHANGED" | grep -Eq '^scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\.mjs$'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
           if [ -z "$TARGETS" ]; then
@@ -76,6 +78,33 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Configure Functions Cloud SQL IAM access
+        if: contains(steps.changes.outputs.targets, 'functions')
+        id: cloudsql
+        run: |
+          PROJECT_NUMBER="$(gcloud projects describe "$FIREBASE_PROJECT_ID" --format='value(projectNumber)')"
+          RUNTIME_SERVICE_ACCOUNT="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+          RUNTIME_IAM_USER="${RUNTIME_SERVICE_ACCOUNT%.gserviceaccount.com}"
+          echo "Configuring Cloud SQL IAM access for ${RUNTIME_SERVICE_ACCOUNT}"
+          gcloud projects add-iam-policy-binding "$FIREBASE_PROJECT_ID" \
+            --member="serviceAccount:${RUNTIME_SERVICE_ACCOUNT}" \
+            --role="roles/cloudsql.instanceUser" \
+            --quiet
+          gcloud projects add-iam-policy-binding "$FIREBASE_PROJECT_ID" \
+            --member="serviceAccount:${RUNTIME_SERVICE_ACCOUNT}" \
+            --role="roles/cloudsql.client" \
+            --quiet
+          if gcloud sql users list --instance "omniretail-sql" --project "$FIREBASE_PROJECT_ID" --format='value(name)' | grep -Fxq "$RUNTIME_IAM_USER"; then
+            echo "Cloud SQL IAM user already exists: ${RUNTIME_IAM_USER}"
+          else
+            gcloud sql users create "$RUNTIME_IAM_USER" \
+              --instance="omniretail-sql" \
+              --project="$FIREBASE_PROJECT_ID" \
+              --type=cloud_iam_service_account \
+              --quiet
+          fi
+          echo "iam_user=${RUNTIME_IAM_USER}" >> "$GITHUB_OUTPUT"
 
       - name: Prepare Product category migration
         if: contains(steps.changes.outputs.targets, 'dataconnect')
@@ -140,7 +169,11 @@ jobs:
       - name: Configure Functions deployment parameters
         env:
           OMNIRETAIL_WEB_API_KEY: ${{ secrets.OMNIRETAIL_WEB_API_KEY }}
-        run: printf 'OMNIRETAIL_WEB_API_KEY="%s"\n' "$OMNIRETAIL_WEB_API_KEY" > functions/.env.omniretail-60c71
+        run: |
+          printf 'OMNIRETAIL_WEB_API_KEY="%s"\n' "$OMNIRETAIL_WEB_API_KEY" > functions/.env.omniretail-60c71
+          if [ -n "${{ steps.cloudsql.outputs.iam_user }}" ]; then
+            printf 'CLOUD_SQL_IAM_USER="%s"\n' "${{ steps.cloudsql.outputs.iam_user }}" >> functions/.env.omniretail-60c71
+          fi
 
       - name: Deploy Hosting and Functions
         run: |

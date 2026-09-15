@@ -97,7 +97,7 @@ export function AddExpenseModal({
       return false;
     }
     if (currentBase <= 0) {
-      setValidationError('Base amount must be greater than $0.00.');
+      setValidationError('Base amount must be greater than ₹0.00.');
       return false;
     }
     if (!vendorName.trim()) {
@@ -264,7 +264,7 @@ export function AddExpenseModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-base">
               <div>
                 <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                  Base Amount ($) *
+                  Base Amount (₹) *
                 </label>
                 <input
                   type="number"
@@ -280,7 +280,7 @@ export function AddExpenseModal({
 
               <div>
                 <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                  Tax Provision ($)
+                  Tax Provision (₹)
                 </label>
                 <input
                   type="number"

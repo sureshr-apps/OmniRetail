@@ -66,7 +66,7 @@ export interface Purchase {
   receiptStatus: ReceiptStatus;
   status: PurchaseStatus;
   paymentMethodNote?: string; // e.g. "Tax Incl.", "Fully Settled", "Due in 10 days", "Paid via ACH", "Draft Est.", "Voided"
-  paidNote?: string; // e.g. "$1,500 Paid"
+  paidNote?: string; // e.g. "₹1,500 Paid"
   dueDate?: string; // e.g. "2024-11-05"
   paymentTerms?: string; // e.g. "Net 15 Days", "Net 30 Days", "Immediate / Cash"
   receivingNotes?: string; // e.g. "Bay B, Store Stockroom"

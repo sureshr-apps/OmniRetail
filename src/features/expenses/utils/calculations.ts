@@ -1,12 +1,12 @@
 import { Expense, ExpenseKPIs, ExpensePeriod } from '../types';
 
 /**
- * Formats a number as a standard USD currency string ($1,234.56).
+ * Formats a number as a standard Indian rupee currency string (₹1,234.56).
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);

@@ -59,7 +59,7 @@ export function HeldOrdersModal({
                     Customer: <strong className="text-on-surface">{held.customer.name}</strong> ({held.customer.tier})
                   </div>
                   <div className="font-body-mono-num text-micro-label text-on-surface-variant mt-0.5">
-                    {held.itemCount} items ({held.unitCount} units) · Total ${held.totalPayable.toFixed(2)}
+                    {held.itemCount} items ({held.unitCount} units) · Total ₹{held.totalPayable.toFixed(2)}
                   </div>
                 </div>
 

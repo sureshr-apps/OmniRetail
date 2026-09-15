@@ -60,10 +60,6 @@ const TIMEZONE_OPTIONS = [
 
 const CURRENCY_OPTIONS = [
   { value: 'INR (₹)', label: 'INR (₹) - Indian Rupee' },
-  { value: 'USD ($)', label: 'USD ($) - US Dollar' },
-  { value: 'EUR (€)', label: 'EUR (€) - Euro' },
-  { value: 'GBP (£)', label: 'GBP (£) - British Pound' },
-  { value: 'AED (د.إ)', label: 'AED (د.إ) - UAE Dirham' },
 ];
 
 export function AddOrganizationModal({ isOpen, onClose, onSuccess }: AddOrganizationModalProps) {

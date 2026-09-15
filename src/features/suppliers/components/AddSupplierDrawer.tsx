@@ -287,7 +287,7 @@ export function AddSupplierDrawer({
 
               <div>
                 <label className="block text-xs font-medium text-on-surface mb-1">
-                  Credit Limit ($)
+                  Credit Limit (₹)
                 </label>
                 <input
                   type="number"

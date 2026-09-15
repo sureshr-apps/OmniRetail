@@ -5,6 +5,7 @@ import { OrganizationLicense, OrganizationLicenseHistory, AssignLicenseInput, Ch
 import { calculateLicenseStatus } from '../utils/licenseStatus';
 import { licensePlanService } from '@/features/plans/services/LicensePlanService';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
+import { DEFAULT_CURRENCY } from '@/shared/utils/currency';
 
 interface LicenseMutationResponse {
   licenseId: string;
@@ -21,7 +22,7 @@ const LICENSE_MUTATION_RESPONSE_KEYS: (keyof LicenseMutationResponse)[] = [
 ];
 
 function mapLicenseMutationResponse(x: LicenseMutationResponse): OrganizationLicense {
-  return { id: x.licenseId, organizationId: x.organizationId, planId: x.planId, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  return { id: x.licenseId, organizationId: x.organizationId, planId: x.planId, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: DEFAULT_CURRENCY, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
 }
 
 export interface IOrganizationLicenseService {
@@ -35,27 +36,27 @@ export interface IOrganizationLicenseService {
 }
 const services = () => getFirebaseClientServices();
 class ProductionOrganizationLicenseService implements IOrganizationLicenseService {
-  async getCurrentLicense(organizationId: string) { const r = await getOrganizationLicense(services().dataConnect, { organizationId }); const x = r.data.organizationLicenses[0]; return x ? { id: x.id, organizationId: x.organization.id, planId: x.plan.id, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, createdAt: x.createdAt, updatedAt: x.updatedAt } : null; }
+  async getCurrentLicense(organizationId: string) { const r = await getOrganizationLicense(services().dataConnect, { organizationId }); const x = r.data.organizationLicenses[0]; return x ? { id: x.id, organizationId: x.organization.id, planId: x.plan.id, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: DEFAULT_CURRENCY, createdAt: x.createdAt, updatedAt: x.updatedAt } : null; }
   async getLicenseWithPlan(organizationId: string) { const license = await this.getCurrentLicense(organizationId); if (!license) return { license: null, plan: null, status: 'not_assigned' as const }; const plan = await licensePlanService.getPlan(license.planId); return { license, plan, status: calculateLicenseStatus(license) }; }
-  async getLicenseHistory(organizationId: string) { const r = await getOrganizationLicenseHistory(services().dataConnect, { organizationId }); return r.data.licenseHistories.map(x => ({ id: x.id, organizationId: x.organization.id, eventType: x.eventType.toLowerCase() as OrganizationLicenseHistory['eventType'], eventAt: x.eventAt, planSnapshot: { planId: x.planCode, planName: x.planName, planLevel: x.planLevel, maxStores: x.maxStores, maxUsers: x.maxUsers }, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: x.currency, changes: (x.changes as OrganizationLicenseHistory['changes']) ?? undefined })); }
+  async getLicenseHistory(organizationId: string) { const r = await getOrganizationLicenseHistory(services().dataConnect, { organizationId }); return r.data.licenseHistories.map(x => ({ id: x.id, organizationId: x.organization.id, eventType: x.eventType.toLowerCase() as OrganizationLicenseHistory['eventType'], eventAt: x.eventAt, planSnapshot: { planId: x.planCode, planName: x.planName, planLevel: x.planLevel, maxStores: x.maxStores, maxUsers: x.maxUsers }, startDate: x.startDate, expiryDate: x.expiryDate, negotiatedPrice: x.negotiatedPrice, currency: DEFAULT_CURRENCY, changes: (x.changes as OrganizationLicenseHistory['changes']) ?? undefined })); }
   async assignLicense(organizationId: string, input: AssignLicenseInput) {
     const call = httpsCallable(services().functions, 'assignOrganizationLicense');
-    const result = await call({ organizationId, ...input });
+    const result = await call({ organizationId, ...input, currency: DEFAULT_CURRENCY });
     const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'assignLicense');
     return mapLicenseMutationResponse(x);
   }
   async changePlan(organizationId: string, input: ChangePlanInput) {
-    const result = await httpsCallable(services().functions, 'changeOrganizationLicensePlan')({ organizationId, targetPlanId: input.newPlanId, negotiatedPrice: input.newNegotiatedPrice, currency: input.currency });
+    const result = await httpsCallable(services().functions, 'changeOrganizationLicensePlan')({ organizationId, targetPlanId: input.newPlanId, negotiatedPrice: input.newNegotiatedPrice, currency: DEFAULT_CURRENCY });
     const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'changePlan');
     return mapLicenseMutationResponse(x);
   }
   async modifyCommercialTerms(organizationId: string, input: ModifyCommercialTermsInput) {
-    const result = await httpsCallable(services().functions, 'modifyOrganizationCommercialTerms')({ organizationId, ...input });
+    const result = await httpsCallable(services().functions, 'modifyOrganizationCommercialTerms')({ organizationId, ...input, currency: DEFAULT_CURRENCY });
     const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'modifyCommercialTerms');
     return mapLicenseMutationResponse(x);
   }
   async renewLicense(organizationId: string, input: RenewLicenseInput) {
-    const result = await httpsCallable(services().functions, 'renewOrganizationLicense')({ organizationId, ...input });
+    const result = await httpsCallable(services().functions, 'renewOrganizationLicense')({ organizationId, ...input, currency: DEFAULT_CURRENCY });
     const x = assertCallableEntity<LicenseMutationResponse>(result.data, LICENSE_MUTATION_RESPONSE_KEYS, 'renewLicense');
     return mapLicenseMutationResponse(x);
   }

@@ -717,7 +717,7 @@ const INITIAL_EXPENSES: Expense[] = [
     createdAt: '2024-10-01T09:15:00Z',
     updatedAt: '2024-10-01T09:15:00Z',
   },
-  // Previous months in 2024 to flesh out the $54,230 YTD and utilities spend
+  // Previous months in 2024 to flesh out the ₹54,230 YTD and utilities spend
   {
     id: 'exp-067',
     expenseNumber: 'EX-2024-067',

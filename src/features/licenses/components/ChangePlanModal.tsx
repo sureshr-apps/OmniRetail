@@ -32,7 +32,7 @@ export function ChangePlanModal({
   const [higherPlans, setHigherPlans] = useState<LicensePlan[]>([]);
   const [selectedNewPlanId, setSelectedNewPlanId] = useState<string>('');
   const [newNegotiatedPrice, setNewNegotiatedPrice] = useState<string>('');
-  const [currency, setCurrency] = useState<string>(currentLicense.currency || 'INR (₹)');
+  const [currency, setCurrency] = useState<string>('INR (₹)');
 
   const [isLoadingPlans, setIsLoadingPlans] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,7 +44,7 @@ export function ChangePlanModal({
     setError(null);
     setIsSubmitting(false);
     setNewNegotiatedPrice('');
-    setCurrency(currentLicense.currency || 'INR (₹)');
+    setCurrency('INR (₹)');
 
     const currentLevel = currentPlan ? currentPlan.level : 0;
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SalesKpiSummary } from '../types';
+import { formatCurrency as formatInrCurrency } from '@/shared/utils/currency';
 
 interface SalesKpiCardsProps {
   kpis: SalesKpiSummary;
@@ -7,11 +8,8 @@ interface SalesKpiCardsProps {
 
 export function SalesKpiCards({ kpis }: SalesKpiCardsProps) {
   const formatCurrency = (val: number) => {
-    const formatted = Math.abs(val).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    return val < 0 ? `-$${formatted}` : `$${formatted}`;
+    const formatted = formatInrCurrency(Math.abs(val));
+    return val < 0 ? `-${formatted}` : formatted;
   };
 
   return (

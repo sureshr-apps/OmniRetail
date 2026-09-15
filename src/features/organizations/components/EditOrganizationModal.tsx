@@ -47,10 +47,6 @@ const TIMEZONE_OPTIONS = [
 
 const CURRENCY_OPTIONS = [
   { value: 'INR (₹)', label: 'INR (₹) - Indian Rupee' },
-  { value: 'USD ($)', label: 'USD ($) - US Dollar' },
-  { value: 'EUR (€)', label: 'EUR (€) - Euro' },
-  { value: 'GBP (£)', label: 'GBP (£) - British Pound' },
-  { value: 'AED (د.إ)', label: 'AED (د.إ) - UAE Dirham' },
 ];
 
 export function EditOrganizationModal({
@@ -70,7 +66,7 @@ export function EditOrganizationModal({
     city: organization.contactInfo.city || '',
     state: organization.contactInfo.state || '',
     timezone: organization.timezone || 'Asia/Kolkata (IST)',
-    currency: organization.currency || 'INR (₹)',
+    currency: 'INR (₹)',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -79,7 +75,7 @@ export function EditOrganizationModal({
 
   useEffect(() => {
     if (isOpen) {
-      setForm({
+    setForm({
         name: organization.name,
         legalEntityName: organization.legalEntityName,
         taxId: organization.taxId,
@@ -90,7 +86,7 @@ export function EditOrganizationModal({
         city: organization.contactInfo.city || '',
         state: organization.contactInfo.state || '',
         timezone: organization.timezone || 'Asia/Kolkata (IST)',
-        currency: organization.currency || 'INR (₹)',
+      currency: 'INR (₹)',
       });
       setErrors({});
       setSubmitError(null);

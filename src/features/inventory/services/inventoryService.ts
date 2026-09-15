@@ -477,7 +477,7 @@ class MockInventoryService {
       }
     }
 
-    // Scale valuation to realistic enterprise scale ($184,250.00 base)
+    // Scale valuation to realistic enterprise scale (₹184,250.00 base)
     const baseScaleFactor = 184250 / 21850;
     const totalValuation = Math.round(computedValuation * baseScaleFactor * 100) / 100;
 

@@ -3,7 +3,7 @@ import { X, AlertCircle, Coins, ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/components/Button';
 import { Input } from '@/shared/components/Input';
 import { Select } from '@/shared/components/Select';
-import { SUPPORTED_CURRENCIES, formatCurrency } from '@/shared/utils/currency';
+import { DEFAULT_CURRENCY, SUPPORTED_CURRENCIES, formatCurrency } from '@/shared/utils/currency';
 import { ModifyCommercialTermsInput, OrganizationLicense } from '../types';
 import { organizationLicenseService } from '../services/OrganizationLicenseService';
 
@@ -34,13 +34,13 @@ export function ModifyCommercialTermsModal({
     setError(null);
     setIsSubmitting(false);
     setNegotiatedPrice(String(currentLicense.negotiatedPrice));
-    setCurrency(currentLicense.currency || 'INR (₹)');
+    setCurrency('INR (₹)');
   }, [isOpen, currentLicense]);
 
   if (!isOpen) return null;
 
   const currentPriceNum = currentLicense.negotiatedPrice;
-  const currentCurrencyVal = currentLicense.currency;
+  const currentCurrencyVal = DEFAULT_CURRENCY;
   const newPriceNum = Number(negotiatedPrice);
   const hasChanges =
     (!isNaN(newPriceNum) && newPriceNum !== currentPriceNum) ||

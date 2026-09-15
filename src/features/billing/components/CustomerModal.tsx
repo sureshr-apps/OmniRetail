@@ -114,7 +114,7 @@ export function CustomerModal({
                     {customer.points} pts
                   </span>
                   <span className="font-caption text-caption text-secondary">
-                    {customer.memberDiscount > 0 ? `-$${customer.memberDiscount.toFixed(2)} benefit` : 'No discount'}
+                    {customer.memberDiscount > 0 ? `-₹${customer.memberDiscount.toFixed(2)} benefit` : 'No discount'}
                   </span>
                 </div>
               </button>

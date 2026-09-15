@@ -67,11 +67,11 @@ export function CustomItemModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="font-caption text-caption text-on-surface font-semibold mb-1.5 block">
-                Price ($)
+                Price (₹)
               </label>
               <div className="relative flex items-center">
                 <span className="font-body-mono-num text-body-medium text-on-surface-variant absolute left-3">
-                  $
+                  ₹
                 </span>
                 <input
                   type="number"

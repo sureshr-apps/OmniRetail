@@ -439,7 +439,7 @@ export function CreatePurchaseModal({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-micro-label font-semibold text-on-surface-variant mb-1">
-                      Freight / Shipping ($)
+                      Freight / Shipping (₹)
                     </label>
                     <input
                       type="number"
@@ -451,7 +451,7 @@ export function CreatePurchaseModal({
                   </div>
                   <div>
                     <label className="block text-micro-label font-semibold text-on-surface-variant mb-1">
-                      Handling Fees ($)
+                      Handling Fees (₹)
                     </label>
                     <input
                       type="number"
@@ -540,9 +540,9 @@ export function CreatePurchaseModal({
                       disabled={paymentOption === 'UNPAID'}
                       value={
                         paymentOption === 'PAID'
-                          ? `$${grandTotal.toFixed(2)}`
+                          ? `₹${grandTotal.toFixed(2)}`
                           : paymentOption === 'UNPAID'
-                          ? '$0.00'
+                          ? '₹0.00'
                           : customPaidAmount
                       }
                       onChange={(e) => setCustomPaidAmount(e.target.value.replace(/[^0-9.]/g, ''))}

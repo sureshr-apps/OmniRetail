@@ -88,7 +88,7 @@ class MockPurchaseService implements IPurchaseService {
       pendingReceiptsCount: displayPending,
       urgentStockoutRiskCount: urgentRisks,
       outstandingBalanceAmount: displayOutstanding,
-      outstandingBalanceDueText: '$14,200 due within 15 days',
+      outstandingBalanceDueText: '₹14,200 due within 15 days',
       purchasesThisMonthAmount: displayThisMonth,
       transactionsRecordedCount: displayTransactions,
     };
@@ -273,7 +273,7 @@ class MockPurchaseService implements IPurchaseService {
           : 'Draft Est.',
       paidNote:
         input.initialPaymentRecorded > 0
-          ? `$${input.initialPaymentRecorded.toLocaleString()} Paid`
+          ? `₹${input.initialPaymentRecorded.toLocaleString('en-IN')} Paid`
           : undefined,
       paymentTerms: input.paymentTerms,
       batchNumber: input.batchNumber || `BATCH-${now.getFullYear()}-NEW`,
@@ -286,7 +286,7 @@ class MockPurchaseService implements IPurchaseService {
           id: `aud-${Date.now()}`,
           title: `Purchase direct ${pNumber} recorded`,
           timeAgo: 'Just now',
-          details: `Created by Sarah Jenkins. Initial payment $${input.initialPaymentRecorded.toFixed(2)} recorded.`,
+          details: `Created by Sarah Jenkins. Initial payment ₹${input.initialPaymentRecorded.toFixed(2)} recorded.`,
           timestamp: now.toISOString(),
           dotType: 'primary',
         },

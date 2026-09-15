@@ -115,7 +115,7 @@ export function OrganizationOverviewTab({
               <span className="text-text-muted font-medium">Reporting Currency</span>
               <div className="sm:col-span-2 flex items-center gap-1.5">
                 <Coins className="w-3.5 h-3.5 text-text-muted" />
-                <span className="font-medium text-text-primary">{organization.currency}</span>
+                <span className="font-medium text-text-primary">INR (₹)</span>
               </div>
             </div>
 

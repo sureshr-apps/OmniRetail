@@ -71,7 +71,7 @@ export function RenewLicenseModal({
     setNewStartDate(calculatedStart);
     setNewExpiryDate(calculatedExpiry);
     setNegotiatedPrice(String(currentLicense.negotiatedPrice));
-    setCurrency(currentLicense.currency || 'INR (₹)');
+    setCurrency('INR (₹)');
 
     const currentLevel = currentPlan ? currentPlan.level : 0;
 

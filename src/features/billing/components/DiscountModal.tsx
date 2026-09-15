@@ -47,7 +47,7 @@ export function DiscountModal({
 
         <div className="p-space-lg flex flex-col gap-space-base">
           <div className="text-caption text-on-surface-variant">
-            Subtotal eligible: <span className="font-body-mono-num font-bold text-on-surface">${subtotal.toFixed(2)}</span>
+            Subtotal eligible: <span className="font-body-mono-num font-bold text-on-surface">₹{subtotal.toFixed(2)}</span>
           </div>
 
           <div>
@@ -74,25 +74,25 @@ export function DiscountModal({
                 onClick={() => handleApply(5.00)}
                 className="py-2 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-body-mono-num text-caption font-bold border border-outline-variant/30 transition-colors cursor-pointer"
               >
-                $5.00 Off
+                ₹5.00 Off
               </button>
               <button
                 type="button"
                 onClick={() => handleApply(10.00)}
                 className="py-2 rounded bg-surface-container-low hover:bg-surface-container text-on-surface font-body-mono-num text-caption font-bold border border-outline-variant/30 transition-colors cursor-pointer"
               >
-                $10.00 Off
+                ₹10.00 Off
               </button>
             </div>
           </div>
 
           <div>
             <label className="font-caption text-caption text-on-surface font-semibold mb-1.5 block">
-              Custom Amount ($)
+              Custom Amount (₹)
             </label>
             <div className="relative flex items-center">
               <span className="font-body-mono-num text-body-medium text-on-surface-variant absolute left-3">
-                $
+                ₹
               </span>
               <input
                 type="number"

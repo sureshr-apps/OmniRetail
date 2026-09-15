@@ -164,7 +164,7 @@ export function ProductsTable({
                   <td className="px-space-base text-right font-body-mono-num text-body-mono-num">
                     <div className="flex flex-col items-end">
                       <span className="font-semibold text-on-surface">
-                        ${item.sellingPrice.toFixed(2)}
+                        ₹{item.sellingPrice.toFixed(2)}
                       </span>
                       {item.type === 'service' ? (
                         <span className="font-caption text-caption text-on-surface-variant">
@@ -172,11 +172,11 @@ export function ProductsTable({
                         </span>
                       ) : item.type === 'consumable' && item.cost ? (
                         <span className="font-caption text-caption text-on-surface-variant">
-                          Cost: ${item.cost.toFixed(2)}
+                          Cost: ₹{item.cost.toFixed(2)}
                         </span>
                       ) : item.mrp && item.mrp > item.sellingPrice ? (
                         <span className="font-caption text-caption text-on-surface-variant line-through">
-                          ${item.mrp.toFixed(2)}
+                          ₹{item.mrp.toFixed(2)}
                         </span>
                       ) : (
                         <span className="font-caption text-caption text-on-surface-variant">

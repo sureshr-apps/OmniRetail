@@ -8,34 +8,29 @@ export interface CurrencyOption {
   symbol: string;
 }
 
+export const DEFAULT_CURRENCY = 'INR (₹)';
+
 export const SUPPORTED_CURRENCIES: CurrencyOption[] = [
-  { code: 'INR', label: 'INR (₹)', symbol: '₹' },
-  { code: 'USD', label: 'USD ($)', symbol: '$' },
-  { code: 'EUR', label: 'EUR (€)', symbol: '€' },
-  { code: 'GBP', label: 'GBP (£)', symbol: '£' },
-  { code: 'AED', label: 'AED (د.إ)', symbol: 'د.إ' },
-  { code: 'SGD', label: 'SGD ($)', symbol: 'S$' },
+  { code: 'INR', label: DEFAULT_CURRENCY, symbol: '₹' },
 ];
 
 /**
  * Format an amount with its currency code/symbol.
  * e.g., formatCurrency(72000, 'INR (₹)') => '₹72,000'
  */
-export function formatCurrency(amount: number | null | undefined, currency: string = 'INR'): string {
+export function formatCurrency(amount: number | null | undefined, _currency: string = DEFAULT_CURRENCY): string {
   if (amount === null || amount === undefined || isNaN(amount)) {
     return '—';
   }
 
-  // Extract clean 3-letter currency code (e.g. 'INR' from 'INR (₹)' or 'USD ($)')
-  const cleanCode = currency.split(/[\s(]/)[0].trim().toUpperCase() || 'INR';
-
   try {
-    return new Intl.NumberFormat(cleanCode === 'INR' ? 'en-IN' : 'en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: cleanCode,
-      maximumFractionDigits: 0,
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
   } catch {
-    return `${currency} ${amount.toLocaleString()}`;
+    return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 }

@@ -149,19 +149,19 @@ export function ProductDetailDrawer({
               <div>
                 <span className="text-on-surface-variant block">Purchase Cost</span>
                 <span className="font-body-mono-num font-semibold text-on-surface text-body-default">
-                  {product.cost !== undefined ? `$${product.cost.toFixed(2)}` : 'N/A'}
+                  {product.cost !== undefined ? `₹${product.cost.toFixed(2)}` : 'N/A'}
                 </span>
               </div>
               <div>
                 <span className="text-on-surface-variant block">Selling Price</span>
                 <span className="font-body-mono-num font-bold text-primary text-body-default">
-                  ${product.sellingPrice.toFixed(2)}
+                  ₹{product.sellingPrice.toFixed(2)}
                 </span>
               </div>
               <div>
                 <span className="text-on-surface-variant block">MRP (Sticker)</span>
                 <span className="font-body-mono-num font-semibold text-on-surface text-body-default">
-                  {product.mrp !== undefined ? `$${product.mrp.toFixed(2)}` : 'N/A'}
+                  {product.mrp !== undefined ? `₹${product.mrp.toFixed(2)}` : 'N/A'}
                 </span>
               </div>
               <div className="col-span-3 pt-space-xs flex items-center justify-between text-caption border-t border-outline-variant/20 mt-1">
@@ -183,7 +183,7 @@ export function ProductDetailDrawer({
                 <span>
                   Min Selling Price:{' '}
                   <span className="font-body-mono-num text-on-surface font-semibold">
-                    ${product.minSellingPrice?.toFixed(2) || product.sellingPrice.toFixed(2)}
+                    ₹{product.minSellingPrice?.toFixed(2) || product.sellingPrice.toFixed(2)}
                   </span>{' '}
                   • Discount Allowed:{' '}
                   <span className="text-primary font-semibold">

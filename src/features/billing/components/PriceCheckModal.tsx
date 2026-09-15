@@ -65,17 +65,17 @@ export function PriceCheckModal({
                 <div className="flex items-center gap-4 text-caption text-on-surface-variant mt-1 font-body-mono-num">
                   <span>SKU: {selectedItem.product.sku}</span>
                   <span>Stock: {selectedItem.product.stock} units</span>
-                  <span>Original MRP: ${selectedItem.product.mrp.toFixed(2)}</span>
+                  <span>Original MRP: ₹{selectedItem.product.mrp.toFixed(2)}</span>
                 </div>
               </div>
 
               <div>
                 <label className="font-caption text-caption text-on-surface font-semibold mb-1.5 block">
-                  Effective Unit Rate ($)
+                  Effective Unit Rate (₹)
                 </label>
                 <div className="relative flex items-center">
                   <span className="font-body-mono-num text-body-medium text-on-surface-variant absolute left-3">
-                    $
+                    ₹
                   </span>
                   <input
                     type="number"

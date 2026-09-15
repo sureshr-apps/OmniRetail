@@ -132,7 +132,7 @@ export function ExpensesPage() {
         message: isDraft
           ? 'saved as Draft. Accessible in Draft status filter.'
           : created.approvalStatus === 'Approved'
-          ? 'automatically approved under auto-reimbursement threshold ($50).'
+          ? 'automatically approved under auto-reimbursement threshold (₹50).'
           : 'successfully submitted for Tier-2 Manager Review and Audit Clearance.',
         dispatchCode: `DISPATCHED #${created.outletName.slice(-2)}`,
       });

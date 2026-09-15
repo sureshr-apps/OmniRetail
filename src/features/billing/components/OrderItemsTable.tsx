@@ -169,7 +169,7 @@ export function OrderItemsTable({
                   {/* Retail */}
                   <div className="w-16 text-right">
                     <span className="font-body-mono-num text-caption text-on-surface-variant font-medium">
-                      ${retail.toFixed(2)}
+                      ₹{retail.toFixed(2)}
                     </span>
                   </div>
 
@@ -177,7 +177,7 @@ export function OrderItemsTable({
                   <div className="w-20 flex justify-center">
                     <EditableCell
                       initialValue={salePrice.toFixed(2)}
-                      prefix="$"
+                      prefix="₹"
                       className="w-20 px-2 py-1 font-semibold text-primary"
                       onSave={(val) => onUpdateSalePrice?.(item.id, val)}
                     />
@@ -187,7 +187,7 @@ export function OrderItemsTable({
                   <div className="w-16 flex justify-center">
                     <EditableCell
                       initialValue={discount.toFixed(2)}
-                      prefix="$"
+                      prefix="₹"
                       className="w-16 px-1.5 py-1 font-medium text-on-surface"
                       onSave={(val) => onUpdateDiscount?.(item.id, val)}
                     />
@@ -206,7 +206,7 @@ export function OrderItemsTable({
                   {/* Total / Rate */}
                   <div className="w-24 text-right pr-1 flex flex-col items-end">
                     <span className="font-body-mono-num text-body-medium text-primary font-bold">
-                      ${lineTotal.toFixed(2)}
+                      ₹{lineTotal.toFixed(2)}
                     </span>
                   </div>
 

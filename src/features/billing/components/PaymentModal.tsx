@@ -105,7 +105,7 @@ export function PaymentModal({
                     Amount Due for {orderNumber}
                   </span>
                   <span className="font-body-mono-num text-headline-lg font-bold text-primary">
-                    ${totals.totalPayable.toFixed(2)}
+                    ₹{totals.totalPayable.toFixed(2)}
                   </span>
                 </div>
                 <div className="text-right font-caption text-caption text-on-surface-variant">
@@ -120,11 +120,11 @@ export function PaymentModal({
                 <div className="flex flex-col gap-3">
                   <div>
                     <label className="font-caption text-caption text-on-surface font-semibold mb-1.5 block">
-                      Cash Received from Customer ($)
+                      Cash Received from Customer (₹)
                     </label>
                     <div className="relative flex items-center">
                       <span className="font-body-mono-num text-headline-md text-on-surface-variant absolute left-3">
-                        $
+                        ₹
                       </span>
                       <input
                         type="number"
@@ -143,7 +143,7 @@ export function PaymentModal({
                       Change Due:
                     </span>
                     <span className="font-body-mono-num text-headline-md font-bold text-primary">
-                      ${changeDue.toFixed(2)}
+                      ₹{changeDue.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -184,19 +184,19 @@ export function PaymentModal({
               {method === 'split' && (
                 <div className="flex flex-col gap-3">
                   <p className="font-caption text-caption text-on-surface-variant">
-                    Splitting bill evenly across 2 tenders ($
+                    Splitting bill evenly across 2 tenders (₹
                     {(totals.totalPayable / 2).toFixed(2)} each):
                   </p>
                   <div className="p-3 rounded bg-surface-container-low border border-outline-variant/30 flex items-center justify-between">
                     <span className="font-body-medium font-semibold">Tender 1 (Card)</span>
                     <span className="font-body-mono-num font-bold text-primary">
-                      ${(totals.totalPayable / 2).toFixed(2)}
+                      ₹{(totals.totalPayable / 2).toFixed(2)}
                     </span>
                   </div>
                   <div className="p-3 rounded bg-surface-container-low border border-outline-variant/30 flex items-center justify-between">
                     <span className="font-body-medium font-semibold">Tender 2 (Cash)</span>
                     <span className="font-body-mono-num font-bold text-primary">
-                      ${(totals.totalPayable / 2).toFixed(2)}
+                      ₹{(totals.totalPayable / 2).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export function PaymentModal({
                   <div className="p-3 rounded bg-surface-container-low border border-outline-variant/30 flex items-center justify-between">
                     <span className="font-body-medium font-semibold">Customer Available Points</span>
                     <span className="font-body-mono-num font-bold text-secondary">
-                      {customer.points} pts (${(customer.points * 0.10).toFixed(2)} value)
+                      {customer.points} pts (₹{(customer.points * 0.10).toFixed(2)} value)
                     </span>
                   </div>
                   <p className="font-caption text-caption text-on-surface-variant">
@@ -248,26 +248,26 @@ export function PaymentModal({
               <div className="w-full mt-2 p-space-base rounded bg-surface-container-low border border-outline-variant/30 flex flex-col gap-1.5 text-left font-body-mono-num text-caption">
                 <div className="flex justify-between text-on-surface-variant">
                   <span>Subtotal:</span>
-                  <span>${totals.subtotal.toFixed(2)}</span>
+                  <span>₹{totals.subtotal.toFixed(2)}</span>
                 </div>
                 {totals.memberDiscount > 0 && (
                   <div className="flex justify-between text-secondary">
                     <span>Discount:</span>
-                    <span>-${totals.memberDiscount.toFixed(2)}</span>
+                    <span>-₹{totals.memberDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-on-surface-variant">
                   <span>Sales Tax (8.25%):</span>
-                  <span>${totals.tax.toFixed(2)}</span>
+                  <span>₹{totals.tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-on-surface pt-1 border-t border-outline-variant/20">
                   <span>Total Paid:</span>
-                  <span className="text-primary font-bold">${totals.totalPayable.toFixed(2)}</span>
+                  <span className="text-primary font-bold">₹{totals.totalPayable.toFixed(2)}</span>
                 </div>
                 {method === 'cash' && changeDue > 0 && (
                   <div className="flex justify-between text-secondary font-bold">
                     <span>Change Returned:</span>
-                    <span>${changeDue.toFixed(2)}</span>
+                    <span>₹{changeDue.toFixed(2)}</span>
                   </div>
                 )}
               </div>

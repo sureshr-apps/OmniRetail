@@ -158,11 +158,11 @@ export function ProductSearchArea({
                     </div>
                     <div className="text-right">
                       <span className="font-body-mono-num text-body-medium text-primary font-bold">
-                        ${prod.rate.toFixed(2)}
+                        ₹{prod.rate.toFixed(2)}
                       </span>
                       {prod.discount > 0 && (
                         <div className="font-body-mono-num text-micro-label text-outline line-through">
-                          MRP ${prod.mrp.toFixed(2)}
+                          MRP ₹{prod.mrp.toFixed(2)}
                         </div>
                       )}
                     </div>

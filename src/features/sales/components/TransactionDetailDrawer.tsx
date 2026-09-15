@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { SalesTransaction } from '../types';
+import { formatCurrency as formatInrCurrency } from '@/shared/utils/currency';
 
 interface TransactionDetailDrawerProps {
   transaction: SalesTransaction | null;
@@ -31,11 +32,8 @@ export function TransactionDetailDrawer({
   const isVoided = transaction.status === 'VOIDED';
 
   const formatCurrency = (val: number) => {
-    const formatted = Math.abs(val).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-    return val < 0 ? `-$${formatted}` : `$${formatted}`;
+    const formatted = formatInrCurrency(Math.abs(val));
+    return val < 0 ? `-${formatted}` : formatted;
   };
 
   const getInitials = (name: string) => {
@@ -202,12 +200,12 @@ export function TransactionDetailDrawer({
                       <span className="font-mono text-micro-label">SKU: {item.sku}</span>
                       <span>•</span>
                       <span>
-                        Qty: {item.quantity} @ ${item.unitPrice.toFixed(2)}
+                        Qty: {item.quantity} @ ₹{item.unitPrice.toFixed(2)}
                       </span>
                     </div>
                   </div>
                   <span className="font-body-mono-num font-bold text-body-default text-on-surface">
-                    ${item.subtotal.toFixed(2)}
+                    ₹{item.subtotal.toFixed(2)}
                   </span>
                 </div>
               ))}
@@ -230,7 +228,7 @@ export function TransactionDetailDrawer({
                   <span>{transaction.discountLabel} (Applied)</span>
                 </div>
                 <span className="font-body-mono-num font-semibold">
-                  -${transaction.discount.toFixed(2)}
+                  -₹{transaction.discount.toFixed(2)}
                 </span>
               </div>
             )}

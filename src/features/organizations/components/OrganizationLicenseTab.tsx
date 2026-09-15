@@ -365,7 +365,7 @@ export function OrganizationLicenseTab({
             </div>
 
             <div className="text-[11px] text-text-secondary bg-surface-subdued/40 p-2.5 rounded border border-border-subdued flex items-center justify-between">
-              <span>Currency: <strong className="font-semibold text-text-primary">{license.currency}</strong></span>
+              <span>Currency: <strong className="font-semibold text-text-primary">INR (₹)</strong></span>
               <span>Status: <strong className="font-semibold text-text-primary">{getLicenseStatusLabel(license.derivedStatus)}</strong></span>
             </div>
           </div>

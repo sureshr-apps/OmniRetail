@@ -1,5 +1,6 @@
 import React from 'react';
 import { SalesTransaction, ColumnVisibility } from '../types';
+import { formatCurrency as formatInrCurrency } from '@/shared/utils/currency';
 
 interface SalesLedgerTableProps {
   transactions: SalesTransaction[];
@@ -15,14 +16,11 @@ export function SalesLedgerTable({
   isLoading,
 }: SalesLedgerTableProps) {
   const formatCurrency = (val: number, isVoided: boolean) => {
-    const formatted = Math.abs(val).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    const formatted = formatInrCurrency(Math.abs(val));
     if (isVoided) {
-      return `$${formatted}`;
+      return formatted;
     }
-    return val < 0 ? `-$${formatted}` : `$${formatted}`;
+    return val < 0 ? `-${formatted}` : formatted;
   };
 
   const renderStatusBadge = (status: SalesTransaction['status']) => {

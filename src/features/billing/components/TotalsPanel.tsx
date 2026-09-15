@@ -43,7 +43,7 @@ export function TotalsPanel({
             Subtotal ({totals.itemCount} items, {totals.unitCount} units)
           </span>
           <span className="font-body-mono-num font-medium text-on-surface">
-            ${totals.subtotal.toFixed(2)}
+            ₹{totals.subtotal.toFixed(2)}
           </span>
         </div>
 
@@ -65,7 +65,7 @@ export function TotalsPanel({
             <span className="font-body-mono-num font-semibold text-secondary">-</span>
             <div className="relative flex items-center">
               <span className="absolute left-1.5 font-body-mono-num text-caption text-secondary font-semibold pointer-events-none">
-                $
+                ₹
               </span>
               <input
                 type="text"
@@ -90,7 +90,7 @@ export function TotalsPanel({
         <div className="flex items-center justify-between font-body-default text-body-default text-on-surface-variant">
           <span>Sales Tax (GST)</span>
           <span className="font-body-mono-num font-medium text-on-surface">
-            ${totals.tax.toFixed(2)}
+            ₹{totals.tax.toFixed(2)}
           </span>
         </div>
       </div>
@@ -107,7 +107,7 @@ export function TotalsPanel({
         </div>
         <div className="text-right">
           <span className="font-body-mono-num text-primary font-bold tracking-tight text-headline-lg">
-            ${totals.totalPayable.toFixed(2)}
+            ₹{totals.totalPayable.toFixed(2)}
           </span>
         </div>
       </div>

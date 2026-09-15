@@ -95,6 +95,8 @@ import { LoginRateLimiter } from './auth/rateLimit.js';
 import { orchestrateProvision } from './auth/provisioning.js';
 import { deriveLicenseStatus } from './licenses/licenseStatus.js';
 
+const APPLICATION_CURRENCY = 'INR (₹)';
+
 if (!getApps().length) initializeApp();
 
 const firebaseWebApiKey = defineString('OMNIRETAIL_WEB_API_KEY');
@@ -417,8 +419,8 @@ export const assignOrganizationLicense = onCall(callableOptions, async (request)
   try {
     const callerUid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(callerUid); requireCapability(caller, 'licenses.assign');
     const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const planId = typeof d.planId === 'string' ? d.planId : '';
-    const startDate = typeof d.startDate === 'string' ? d.startDate : ''; const expiryDate = typeof d.expiryDate === 'string' ? d.expiryDate : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
-    if (!organizationId || !planId || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(expiryDate) || new Date(expiryDate) <= new Date(startDate) || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
+    const startDate = typeof d.startDate === 'string' ? d.startDate : ''; const expiryDate = typeof d.expiryDate === 'string' ? d.expiryDate : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = APPLICATION_CURRENCY;
+    if (!organizationId || !planId || !/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(expiryDate) || new Date(expiryDate) <= new Date(startDate) || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0) throw new Error('invalid input');
     if (!(await getOrganizationTrusted({ id: organizationId })).data.organization) throw new Error('organization');
     if ((await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses.length) throw new Error('already assigned');
     const plan = (await getLicensePlanTrusted({ id: planId })).data.licensePlan; if (!plan || plan.status !== 'ACTIVE') throw new Error('plan');
@@ -435,8 +437,8 @@ export const assignOrganizationLicense = onCall(callableOptions, async (request)
 export const changeOrganizationLicensePlan = onCall(callableOptions, async (request) => {
   try {
     const callerUid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(callerUid); requireCapability(caller, 'licenses.change_plan');
-    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const targetPlanId = typeof d.targetPlanId === 'string' ? d.targetPlanId : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
-    if (!organizationId || !targetPlanId || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const targetPlanId = typeof d.targetPlanId === 'string' ? d.targetPlanId : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = APPLICATION_CURRENCY;
+    if (!organizationId || !targetPlanId || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0) throw new Error('invalid input');
     const current = (await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses[0]; if (!current) throw new Error('license');
     const currentPlan = (await getLicensePlanTrusted({ id: current.plan.id })).data.licensePlan; const target = (await getLicensePlanTrusted({ id: targetPlanId })).data.licensePlan;
     if (!currentPlan || !target || target.status !== 'ACTIVE' || target.level <= currentPlan.level) throw new Error('plan');
@@ -449,11 +451,11 @@ export const changeOrganizationLicensePlan = onCall(callableOptions, async (requ
 export const modifyOrganizationCommercialTerms = onCall(callableOptions, async (request) => {
   try {
     const callerUid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(callerUid); requireCapability(caller, 'licenses.modify_commercial_terms');
-    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
-    if (!organizationId || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = APPLICATION_CURRENCY;
+    if (!organizationId || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0) throw new Error('invalid input');
     const current = (await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses[0]; if (!current) throw new Error('license');
     const noOp = current.negotiatedPrice === negotiatedPrice && current.currency === currency;
-    if (noOp) return { licenseId: current.id, organizationId, planId: current.plan.id, startDate: current.startDate, expiryDate: current.expiryDate, negotiatedPrice: current.negotiatedPrice, currency: current.currency, noOp: true };
+    if (noOp) return { licenseId: current.id, organizationId, planId: current.plan.id, startDate: current.startDate, expiryDate: current.expiryDate, negotiatedPrice: current.negotiatedPrice, currency: APPLICATION_CURRENCY, noOp: true };
     const plan = (await getLicensePlanTrusted({ id: current.plan.id })).data.licensePlan; if (!plan) throw new Error('plan');
     const result = { licenseId: current.id, organizationId, planId: current.plan.id, startDate: current.startDate, expiryDate: current.expiryDate, negotiatedPrice, currency };
     await modifyOrganizationCommercialTermsTrusted({ id: current.id, organizationId, planId: plan.id, startDate: current.startDate, expiryDate: current.expiryDate, negotiatedPrice, currency, historyId: randomUUID(), planCode: plan.planCode, planName: plan.name, planLevel: plan.level, maxStores: plan.maxStores, maxUsers: plan.maxUsers, changes: { negotiatedPrice: { from: current.negotiatedPrice, to: negotiatedPrice }, currency: { from: current.currency, to: currency } } });
@@ -464,8 +466,8 @@ export const modifyOrganizationCommercialTerms = onCall(callableOptions, async (
 export const renewOrganizationLicense = onCall(callableOptions, async (request) => {
   try {
     const callerUid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(callerUid); requireCapability(caller, 'licenses.renew');
-    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const planId = typeof d.planId === 'string' ? d.planId : ''; const newStartDate = typeof d.newStartDate === 'string' ? d.newStartDate : ''; const newExpiryDate = typeof d.newExpiryDate === 'string' ? d.newExpiryDate : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = typeof d.currency === 'string' ? d.currency.trim() : '';
-    if (!organizationId || !planId || !/^\d{4}-\d{2}-\d{2}$/.test(newStartDate) || !/^\d{4}-\d{2}-\d{2}$/.test(newExpiryDate) || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0 || !currency) throw new Error('invalid input');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const planId = typeof d.planId === 'string' ? d.planId : ''; const newStartDate = typeof d.newStartDate === 'string' ? d.newStartDate : ''; const newExpiryDate = typeof d.newExpiryDate === 'string' ? d.newExpiryDate : ''; const negotiatedPrice = Number(d.negotiatedPrice); const currency = APPLICATION_CURRENCY;
+    if (!organizationId || !planId || !/^\d{4}-\d{2}-\d{2}$/.test(newStartDate) || !/^\d{4}-\d{2}-\d{2}$/.test(newExpiryDate) || !Number.isFinite(negotiatedPrice) || negotiatedPrice < 0) throw new Error('invalid input');
     const current = (await getOrganizationLicenseTrusted({ organizationId })).data.organizationLicenses[0]; if (!current || new Date(newStartDate) <= new Date(current.expiryDate) || new Date(newExpiryDate) <= new Date(newStartDate)) throw new Error('invalid term');
     const currentPlan = (await getLicensePlanTrusted({ id: current.plan.id })).data.licensePlan; const plan = (await getLicensePlanTrusted({ id: planId })).data.licensePlan; if (!currentPlan || !plan || plan.status !== 'ACTIVE' || plan.level < currentPlan.level) throw new Error('plan');
     const result = { licenseId: current.id, organizationId, planId: plan.id, startDate: newStartDate, expiryDate: newExpiryDate, negotiatedPrice, currency };
@@ -557,8 +559,8 @@ export const getMasterAdminOverview = onCall(callableOptions, async (request) =>
         licenseStatus: deriveLicenseStatus(license?.startDate, license?.expiryDate),
       };
     }));
-    const expiring = rows.filter(r => r.licenseStatus === 'expiring_soon'); const mapOrg = (r: any) => ({ id: r.id, organizationCode: r.organizationCode, name: r.businessName, legalEntityName: r.legalEntityName ?? '', taxId: r.taxId ?? '', primaryAdmin: undefined, licensePlan: r.license?.plan?.name ?? 'Unassigned', licenseStatus: r.licenseStatus, licenseExpiryDate: r.license?.expiryDate ?? '—', status: String(r.status).toLowerCase(), createdDate: String(r.createdAt).slice(0,10), contactInfo: { primaryContactName: r.primaryContactName, email: r.email, phone: r.phone }, timezone: r.timezone, currency: r.currency });
-    return { metrics: { totalOrganizations: rows.length, activeOrganizations: rows.filter(r=>r.status==='ACTIVE').length, suspendedOrganizations: rows.filter(r=>r.status==='SUSPENDED').length, licensesExpiringSoon: expiring.length }, recentlyAddedOrganizations: rows.sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()).slice(0,4).map(mapOrg), expiringLicenses: expiring.map(r=>({ license: { id:r.license.id, organizationId:r.id, planId:r.license.plan.id, startDate:r.license.startDate, expiryDate:r.license.expiryDate, negotiatedPrice:r.license.negotiatedPrice, currency:r.license.currency, createdAt:r.license.createdAt, updatedAt:r.license.updatedAt }, organization: mapOrg(r), plan: r.license.plan, daysRemaining: Math.ceil((new Date(r.license.expiryDate).getTime()-Date.now())/86400000), formattedExpiryDate: r.license.expiryDate })), totalOrganizationsCount: rows.length };
+    const expiring = rows.filter(r => r.licenseStatus === 'expiring_soon'); const mapOrg = (r: any) => ({ id: r.id, organizationCode: r.organizationCode, name: r.businessName, legalEntityName: r.legalEntityName ?? '', taxId: r.taxId ?? '', primaryAdmin: undefined, licensePlan: r.license?.plan?.name ?? 'Unassigned', licenseStatus: r.licenseStatus, licenseExpiryDate: r.license?.expiryDate ?? '—', status: String(r.status).toLowerCase(), createdDate: String(r.createdAt).slice(0,10), contactInfo: { primaryContactName: r.primaryContactName, email: r.email, phone: r.phone }, timezone: r.timezone, currency: APPLICATION_CURRENCY });
+    return { metrics: { totalOrganizations: rows.length, activeOrganizations: rows.filter(r=>r.status==='ACTIVE').length, suspendedOrganizations: rows.filter(r=>r.status==='SUSPENDED').length, licensesExpiringSoon: expiring.length }, recentlyAddedOrganizations: rows.sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()).slice(0,4).map(mapOrg), expiringLicenses: expiring.map(r=>({ license: { id:r.license.id, organizationId:r.id, planId:r.license.plan.id, startDate:r.license.startDate, expiryDate:r.license.expiryDate, negotiatedPrice:r.license.negotiatedPrice, currency:APPLICATION_CURRENCY, createdAt:r.license.createdAt, updatedAt:r.license.updatedAt }, organization: mapOrg(r), plan: r.license.plan, daysRemaining: Math.ceil((new Date(r.license.expiryDate).getTime()-Date.now())/86400000), formattedExpiryDate: r.license.expiryDate })), totalOrganizationsCount: rows.length };
   } catch { throw new HttpsError('permission-denied', 'Unable to load the overview.'); }
 });
 

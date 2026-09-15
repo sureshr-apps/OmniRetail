@@ -152,7 +152,7 @@ export function AddNewProductModal({ onClose, onSave, availableLocations }: AddN
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="font-caption text-caption font-semibold text-on-surface block mb-1">
-                  Cost Price ($)
+                  Cost Price (₹)
                 </label>
                 <input
                   type="number"
@@ -166,7 +166,7 @@ export function AddNewProductModal({ onClose, onSave, availableLocations }: AddN
 
               <div>
                 <label className="font-caption text-caption font-semibold text-on-surface block mb-1">
-                  Retail Price ($)
+                  Retail Price (₹)
                 </label>
                 <input
                   type="number"
@@ -180,7 +180,7 @@ export function AddNewProductModal({ onClose, onSave, availableLocations }: AddN
 
               <div>
                 <label className="font-caption text-caption font-semibold text-on-surface block mb-1">
-                  MRP ($)
+                  MRP (₹)
                 </label>
                 <input
                   type="number"

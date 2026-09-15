@@ -1,5 +1,6 @@
 import React from 'react';
 import { InventoryKpiSummary } from '../types';
+import { formatCurrency as formatInrCurrency } from '@/shared/utils/currency';
 
 interface InventoryKpiCardsProps {
   kpis: InventoryKpiSummary;
@@ -7,10 +8,7 @@ interface InventoryKpiCardsProps {
 
 export function InventoryKpiCards({ kpis }: InventoryKpiCardsProps) {
   const formatCurrency = (val: number) => {
-    return `$${val.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+    return formatInrCurrency(val);
   };
 
   return (

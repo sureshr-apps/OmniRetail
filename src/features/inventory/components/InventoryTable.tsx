@@ -234,21 +234,21 @@ export function InventoryTable({
                   {/* MRP */}
                   <td className="px-space-base py-2 text-right font-caption text-caption">
                     <span className="font-body-mono-num text-on-surface-variant font-medium">
-                      ${item.mrp.toFixed(2)}
+                      ₹{item.mrp.toFixed(2)}
                     </span>
                   </td>
 
                   {/* Cost */}
                   <td className="px-space-base py-2 text-right font-caption text-caption">
                     <span className="font-body-mono-num text-on-surface-variant font-medium">
-                      ${item.cost.toFixed(2)}
+                      ₹{item.cost.toFixed(2)}
                     </span>
                   </td>
 
                   {/* Retail Price */}
                   <td className="px-space-base py-2 text-right font-caption text-caption">
                     <span className="font-body-mono-num text-on-surface font-semibold">
-                      ${item.retailPrice.toFixed(2)}
+                      ₹{item.retailPrice.toFixed(2)}
                     </span>
                   </td>
 

@@ -74,10 +74,10 @@ export function useBillingCart() {
     const tier3 = Math.ceil((tier2 + 5) / 10) * 10;
 
     return [
-      { label: `$${exact.toFixed(2)} Exact`, amount: exact },
-      { label: `$${tier1.toFixed(2)}`, amount: tier1 },
-      { label: `$${tier2.toFixed(2)}`, amount: tier2 },
-      { label: `$${tier3.toFixed(2)}`, amount: tier3 },
+      { label: `₹${exact.toFixed(2)} Exact`, amount: exact },
+      { label: `₹${tier1.toFixed(2)}`, amount: tier1 },
+      { label: `₹${tier2.toFixed(2)}`, amount: tier2 },
+      { label: `₹${tier3.toFixed(2)}`, amount: tier3 },
     ];
   }, [totals.totalPayable]);
 

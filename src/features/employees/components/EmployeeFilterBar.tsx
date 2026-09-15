@@ -13,7 +13,6 @@ interface EmployeeFilterBarProps {
   outletFilter: string;
   onOutletFilterChange: (outlet: string) => void;
   availableOutlets: string[];
-  onOpenMoreFilters: () => void;
   onExportCsv: () => void;
   isFiltered: boolean;
   onClearFilters: () => void;
@@ -31,7 +30,6 @@ export function EmployeeFilterBar({
   outletFilter,
   onOutletFilterChange,
   availableOutlets,
-  onOpenMoreFilters,
   onExportCsv,
   isFiltered,
   onClearFilters,
@@ -126,14 +124,6 @@ export function EmployeeFilterBar({
 
         {/* Right side utility buttons */}
         <div className="flex items-center gap-space-sm shrink-0 w-full md:w-auto justify-end">
-          <button
-            type="button"
-            onClick={onOpenMoreFilters}
-            className="h-9 px-3 rounded border border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container-low font-caption text-caption text-on-surface flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[16px]">filter_list</span>
-            <span>More Filters</span>
-          </button>
           <button
             type="button"
             onClick={onExportCsv}

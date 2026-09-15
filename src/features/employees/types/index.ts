@@ -52,7 +52,6 @@ export interface EmployeeQuery {
   scope?: 'All' | AssignmentScope;
   loginAccess?: 'All' | LoginAccessStatus;
   outlet?: string;
-  department?: string;
   page?: number;
   pageSize?: number;
 }

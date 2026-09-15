@@ -13,6 +13,16 @@ function section(source: string, start: string, end: string): string {
 }
 
 describe('post-mutation list refresh contracts', () => {
+  it('removes the deprecated Employee Master More Filters control and modal wiring', () => {
+    const page = read('employees/pages/EmployeeMasterPage.tsx');
+    const filterBar = read('employees/components/EmployeeFilterBar.tsx');
+    expect(page).not.toContain('EmployeeMoreFiltersModal');
+    expect(page).not.toContain('departmentFilter');
+    expect(page).not.toContain('getDepartments');
+    expect(filterBar).not.toContain('More Filters');
+    expect(filterBar).not.toContain('onOpenMoreFilters');
+  });
+
   it.each([
     ['purchase create', 'purchases/pages/PurchasesPage.tsx', 'const handleCreatePurchase', 'const handleCancelPurchase', 'await loadLedger()'],
     ['purchase cancel', 'purchases/pages/PurchasesPage.tsx', 'const handleCancelPurchase', 'const handleReceiveStock', 'await loadLedger()'],

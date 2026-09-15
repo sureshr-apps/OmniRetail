@@ -22,7 +22,6 @@ export interface IEmployeeService {
   changeEmployeeStatus(id: string, status: EmployeeStatus): Promise<Employee>;
   changeLoginAccess(id: string, access: LoginAccessStatus): Promise<Employee>;
   deleteEmployee(id: string): Promise<void>;
-  getDepartments(): Promise<string[]>;
   getDesignations(): Promise<string[]>;
 }
 
@@ -66,7 +65,6 @@ export function deriveEmployeeView(all: Employee[], query: EmployeeQuery): Emplo
   if (query.scope && query.scope !== 'All') rows = rows.filter((row) => row.assignmentScope === query.scope);
   if (query.loginAccess && query.loginAccess !== 'All') rows = rows.filter((row) => row.loginAccess === query.loginAccess);
   if (query.outlet) rows = rows.filter((row) => row.outletAssignment.includes(query.outlet!));
-  if (query.department) rows = rows.filter((row) => row.department === query.department);
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.max(1, query.pageSize ?? 10);
   const total = rows.length;
@@ -90,7 +88,6 @@ class ProductionEmployeeService implements IEmployeeService {
   public async getAllEmployees(): Promise<Employee[]> { const organizationId = await this.organizationId(); const result = await listTenantEmployees(getFirebaseClientServices().dataConnect, { organizationId }); return result.data.employees.map((row) => this.map(row)); }
   public async getEmployees(query: EmployeeQuery): Promise<EmployeeQueryResult> { return deriveEmployeeView(await this.getAllEmployees(), query); }
   public async getEmployee(id: string): Promise<Employee | null> { const all = await this.getAllEmployees(); return all.find((row) => row.id === id || String(row.employeeCode) === id || formatEmployeeCode(row.employeeCode) === id) ?? null; }
-  public async getDepartments(): Promise<string[]> { return Array.from(new Set((await this.getAllEmployees()).map((employee) => employee.department).filter(Boolean))).sort(); }
   public async getDesignations(): Promise<string[]> { return Array.from(new Set((await this.getAllEmployees()).map((employee) => employee.designation).filter(Boolean))).sort(); }
 
   public async createEmployee(input: CreateEmployeeInput): Promise<Employee> {

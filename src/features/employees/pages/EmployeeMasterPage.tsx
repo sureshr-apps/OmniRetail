@@ -20,7 +20,6 @@ import { EmployeePagination } from '../components/EmployeePagination';
 import { EmployeeDetailDrawer } from '../components/EmployeeDetailDrawer';
 import { EmployeeModal } from '../components/EmployeeModal';
 import { EmployeeStatusConfirmDialog } from '../components/EmployeeStatusConfirmDialog';
-import { EmployeeMoreFiltersModal } from '../components/EmployeeMoreFiltersModal';
 import type { Outlet } from '../../outlets/types';
 
 export function EmployeeMasterPage() {
@@ -30,7 +29,6 @@ export function EmployeeMasterPage() {
   const [scopeFilter, setScopeFilter] = useState<'All' | AssignmentScope>('All');
   const [loginFilter, setLoginFilter] = useState<'All' | LoginAccessStatus>('All');
   const [outletFilter, setOutletFilter] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
 
@@ -38,7 +36,6 @@ export function EmployeeMasterPage() {
   // visible page, sort, and aggregate counts are all derived from it below.
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<Outlet[]>([]);
-  const [availableDepartments, setAvailableDepartments] = useState<string[]>([]);
 
   // Loading & Error states
   const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +53,6 @@ export function EmployeeMasterPage() {
   const [employeeForStatusChange, setEmployeeForStatusChange] = useState<Employee | null>(null);
   const [isProcessingStatus, setIsProcessingStatus] = useState(false);
 
-  const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
 
   const view = useMemo(
     () =>
@@ -66,11 +62,10 @@ export function EmployeeMasterPage() {
         scope: scopeFilter,
         loginAccess: loginFilter,
         outlet: outletFilter,
-        department: departmentFilter,
         page,
         pageSize,
       }),
-    [allEmployees, searchQuery, statusFilter, scopeFilter, loginFilter, outletFilter, departmentFilter, page, pageSize],
+    [allEmployees, searchQuery, statusFilter, scopeFilter, loginFilter, outletFilter, page, pageSize],
   );
   const selectedEmployee = useMemo(
     () => allEmployees.find((e) => e.id === selectedEmployeeId) ?? null,
@@ -86,16 +81,12 @@ export function EmployeeMasterPage() {
     },
   });
 
-  // Load available outlets and departments once on mount
+  // Load available outlets once on mount
   useEffect(() => {
     async function loadMetadata() {
       try {
-        const [activeOutlets, depts] = await Promise.all([
-          outletService.getAllActiveOutlets(),
-          employeeService.getDepartments(),
-        ]);
+        const activeOutlets = await outletService.getAllActiveOutlets();
         setAvailableOutlets(activeOutlets);
-        setAvailableDepartments(depts);
       } catch (e) {
         console.error('Error loading metadata:', e);
       }
@@ -156,18 +147,12 @@ export function EmployeeMasterPage() {
     setPage(1);
   };
 
-  const handleDepartmentFilterChange = (dept: string) => {
-    setDepartmentFilter(dept);
-    setPage(1);
-  };
-
   const handleClearFilters = () => {
     setSearchQuery('');
     setStatusFilter('All');
     setScopeFilter('All');
     setLoginFilter('All');
     setOutletFilter('');
-    setDepartmentFilter('');
     setPage(1);
   };
 
@@ -176,8 +161,7 @@ export function EmployeeMasterPage() {
       statusFilter !== 'All' ||
       scopeFilter !== 'All' ||
       loginFilter !== 'All' ||
-      outletFilter ||
-      departmentFilter
+      outletFilter
   );
 
   // Pagination Handlers
@@ -263,7 +247,6 @@ export function EmployeeMasterPage() {
       scope: scopeFilter,
       loginAccess: loginFilter,
       outlet: outletFilter,
-      department: departmentFilter,
       page: 1,
       pageSize: Math.max(allEmployees.length, 1),
     });
@@ -288,7 +271,6 @@ export function EmployeeMasterPage() {
         outletFilter={outletFilter}
         onOutletFilterChange={handleOutletFilterChange}
         availableOutlets={availableOutlets.map((outlet) => outlet.name)}
-        onOpenMoreFilters={() => setIsMoreFiltersOpen(true)}
         onExportCsv={handleExportCsv}
         isFiltered={hasActiveFilters}
         onClearFilters={handleClearFilters}
@@ -368,15 +350,6 @@ export function EmployeeMasterPage() {
         onConfirm={deleteConfirmation.confirm}
       />
 
-      {/* 9. Advanced Filters Modal */}
-      <EmployeeMoreFiltersModal
-        isOpen={isMoreFiltersOpen}
-        onClose={() => setIsMoreFiltersOpen(false)}
-        departmentFilter={departmentFilter}
-        onDepartmentFilterChange={handleDepartmentFilterChange}
-        availableDepartments={availableDepartments}
-        onResetAllFilters={handleClearFilters}
-      />
     </div>
   );
 }

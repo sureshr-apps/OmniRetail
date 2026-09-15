@@ -709,6 +709,20 @@ function createTenantSubcategoryTrusted(dcOrVarsOrOptions, varsOrOptions, option
 }
 exports.createTenantSubcategoryTrusted = createTenantSubcategoryTrusted;
 
+function updateTenantCategoryTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantCategoryTrusted', inputVars, inputOpts);
+}
+exports.updateTenantCategoryTrusted = updateTenantCategoryTrusted;
+
+function updateTenantSubcategoryTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantSubcategoryTrusted', inputVars, inputOpts);
+}
+exports.updateTenantSubcategoryTrusted = updateTenantSubcategoryTrusted;
+
 function createTenantProduct(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

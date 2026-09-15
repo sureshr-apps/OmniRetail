@@ -214,6 +214,14 @@ describe('tenant callable contract', () => {
     expect(connectorSource).toContain('mutation DeleteTenantSubcategoryTrusted');
     expect(connectorSource).toContain('Category has subcategories and cannot be deleted.');
     expect(connectorSource).toContain('Subcategory has linked products and cannot be deleted.');
+    expect(source).toContain('export const createTenantCategory = onCall');
+    expect(source).toContain('export const updateTenantCategory = onCall');
+    expect(source).toContain('export const createTenantSubcategory = onCall');
+    expect(source).toContain('export const updateTenantSubcategory = onCall');
+    expect(source).toContain('updateTenantCategoryTrusted');
+    expect(source).toContain('updateTenantSubcategoryTrusted');
+    expect(connectorSource).toContain('mutation UpdateTenantCategoryTrusted');
+    expect(connectorSource).toContain('mutation UpdateTenantSubcategoryTrusted');
   });
 
   it('provisions employee login through Firebase Auth and trusted SQL', () => {

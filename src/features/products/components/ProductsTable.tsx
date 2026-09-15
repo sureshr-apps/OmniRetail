@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Product } from '../types';
 import { formatProductCode } from '../utils/formatProductCode';
 
@@ -8,8 +8,6 @@ interface ProductsTableProps {
   onToggleSelectRow: (id: string) => void;
   onToggleSelectAll: () => void;
   onViewProduct: (product: Product) => void;
-  onEditProduct: (product: Product) => void;
-  onToggleStatus: (product: Product) => void;
   isLoading: boolean;
 }
 
@@ -19,21 +17,12 @@ export function ProductsTable({
   onToggleSelectRow,
   onToggleSelectAll,
   onViewProduct,
-  onEditProduct,
-  onToggleStatus,
   isLoading,
 }: ProductsTableProps) {
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-
   const allSelected =
     items.length > 0 && items.every((item) => selectedIds.has(item.id));
   const someSelected =
     items.some((item) => selectedIds.has(item.id)) && !allSelected;
-
-  const handleMenuClick = (e: React.MouseEvent, productId: string) => {
-    e.stopPropagation();
-    setActiveMenuId(activeMenuId === productId ? null : productId);
-  };
 
   return (
     <div className="overflow-x-auto select-none">
@@ -97,7 +86,6 @@ export function ProductsTable({
           ) : (
             items.map((item) => {
               const isSelected = selectedIds.has(item.id);
-              const isMenuOpen = activeMenuId === item.id;
 
               return (
                 <tr
@@ -216,96 +204,6 @@ export function ProductsTable({
                         </span>
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => onEditProduct(item)}
-                        className="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer"
-                        title="Edit Product"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">
-                          edit
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => onViewProduct(item)}
-                        className="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer"
-                        title="View Multi-Store Stock Status"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">
-                          tune
-                        </span>
-                      </button>
-
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={(e) => handleMenuClick(e, item.id)}
-                          className="p-1 rounded hover:bg-surface-container-high hover:text-primary transition-colors cursor-pointer"
-                          title="More Options"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">
-                            more_vert
-                          </span>
-                        </button>
-
-                        {isMenuOpen && (
-                          <div className="absolute right-0 mt-1 w-44 bg-surface-container-lowest rounded shadow-lg border border-outline-variant/30 py-1 z-30 text-left">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveMenuId(null);
-                                onViewProduct(item);
-                              }}
-                              className="w-full px-3 py-1.5 text-caption font-medium hover:bg-surface-container flex items-center gap-2 text-on-surface cursor-pointer"
-                            >
-                              <span className="material-symbols-outlined text-[14px]">
-                                visibility
-                              </span>
-                              <span>View Details</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveMenuId(null);
-                                onEditProduct(item);
-                              }}
-                              className="w-full px-3 py-1.5 text-caption font-medium hover:bg-surface-container flex items-center gap-2 text-on-surface cursor-pointer"
-                            >
-                              <span className="material-symbols-outlined text-[14px]">
-                                edit
-                              </span>
-                              <span>Edit Product</span>
-                            </button>
-
-                            <div className="h-px bg-outline-variant/20 my-1" />
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveMenuId(null);
-                                onToggleStatus(item);
-                              }}
-                              className={`w-full px-3 py-1.5 text-caption font-medium hover:bg-surface-container flex items-center gap-2 cursor-pointer ${
-                                item.status === 'active'
-                                  ? 'text-error hover:text-error'
-                                  : 'text-primary hover:text-primary'
-                              }`}
-                            >
-                              <span className="material-symbols-outlined text-[14px]">
-                                power_settings_new
-                              </span>
-                              <span>
-                                {item.status === 'active'
-                                  ? 'Inactivate Product'
-                                  : 'Activate Product'}
-                              </span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </td>
                 </tr>

@@ -2480,6 +2480,16 @@ export interface UpdateOrganizationVariables {
   currency: string;
 }
 
+export interface UpdateTenantCategoryTrustedData {
+  category_update?: Category_Key | null;
+}
+
+export interface UpdateTenantCategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  value: string;
+}
+
 export interface UpdateTenantCustomerData {
   customer_update?: Customer_Key | null;
 }
@@ -2633,6 +2643,16 @@ export interface UpdateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
+}
+
+export interface UpdateTenantSubcategoryTrustedData {
+  subcategory_update?: Subcategory_Key | null;
+}
+
+export interface UpdateTenantSubcategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  value: string;
 }
 
 export interface UpdateTenantSupplierData {
@@ -3079,6 +3099,16 @@ export function createTenantCategoryTrusted(vars: CreateTenantCategoryTrustedVar
 export function createTenantSubcategoryTrusted(dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantSubcategoryTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'CreateTenantSubcategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function createTenantSubcategoryTrusted(vars: CreateTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantSubcategoryTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'UpdateTenantCategoryTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function updateTenantCategoryTrusted(dc: DataConnect, vars: UpdateTenantCategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateTenantCategoryTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'UpdateTenantCategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function updateTenantCategoryTrusted(vars: UpdateTenantCategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateTenantCategoryTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'UpdateTenantSubcategoryTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function updateTenantSubcategoryTrusted(dc: DataConnect, vars: UpdateTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateTenantSubcategoryTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'UpdateTenantSubcategoryTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function updateTenantSubcategoryTrusted(vars: UpdateTenantSubcategoryTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateTenantSubcategoryTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'CreateTenantProduct' Mutation. Allow users to execute without passing in DataConnect. */
 export function createTenantProduct(dc: DataConnect, vars: CreateTenantProductVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantProductData>>;

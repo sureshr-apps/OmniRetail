@@ -287,17 +287,24 @@ export function ProductsPage() {
   };
 
   // Create Product handler
-  const handleCreateProduct = async (input: CreateProductInput) => {
+  const handleCreateProducts = async (inputs: CreateProductInput[]) => {
+    const createdProducts: Product[] = [];
     try {
-      const created = await productService.createProduct(input);
+      for (const input of inputs) {
+        createdProducts.push(await productService.createProduct(input));
+      }
       setIsAddModalOpen(false);
-      setAllProducts((prev) => upsertById(prev, created));
-      setCategoryOptions((prev) => mergeProductCategoryOption(prev, created));
+      for (const created of createdProducts) {
+        setAllProducts((prev) => upsertById(prev, created));
+        setCategoryOptions((prev) => mergeProductCategoryOption(prev, created));
+      }
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
-        title: 'Master SKU Created',
-        description: `Successfully added ${formatProductCode(created.productCode)} (${created.name}) to catalogue.`,
+        title: inputs.length === 1 ? 'Master SKU Created' : 'Variant Products Created',
+        description: inputs.length === 1
+          ? `Successfully added ${formatProductCode(createdProducts[0].productCode)} (${createdProducts[0].name}) to catalogue.`
+          : `Successfully added ${createdProducts.length} products for the selected variants.`,
       });
     } catch (err) {
       console.error('Failed to create product:', err);
@@ -305,8 +312,11 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'warning',
         title: 'Creation Failed',
-        description: getProductCreationErrorMessage(err),
+        description: createdProducts.length > 0
+          ? `${createdProducts.length} variant product(s) were created before the failure. ${getProductCreationErrorMessage(err)}`
+          : getProductCreationErrorMessage(err),
       });
+      throw err;
     }
   };
 
@@ -377,6 +387,57 @@ export function ProductsPage() {
   const handlePromptTaxonomyDelete = (target: TaxonomyDeleteTarget) => {
     setIsTaxonomyModalOpen(false);
     taxonomyDeleteConfirmation.open(target);
+  };
+
+  const handleCreateCategory = async (value: string) => {
+    try {
+      const created = await productService.createCategory(value);
+      setCategoryOptions((prev) => [...prev, created].sort((a, b) => a.value.localeCompare(b.value)));
+      setToast({ id: `toast-${Date.now()}`, type: 'success', title: 'Category Added', description: `${created.value} is now available for products.` });
+    } catch (error) {
+      setToast({ id: `toast-${Date.now()}`, type: 'warning', title: 'Category Not Added', description: 'Could not add this category.' });
+      throw error;
+    }
+  };
+
+  const handleUpdateCategory = async (id: string, value: string) => {
+    try {
+      const updated = await productService.updateCategory(id, value);
+      setCategoryOptions((prev) => prev.map((category) => category.id === id ? { ...category, value: updated.value } : category));
+      setAllProducts((prev) => prev.map((product) => product.categoryId === id ? { ...product, categoryName: updated.value } : product));
+      setToast({ id: `toast-${Date.now()}`, type: 'success', title: 'Category Updated', description: `Category renamed to ${updated.value}.` });
+    } catch (error) {
+      setToast({ id: `toast-${Date.now()}`, type: 'warning', title: 'Category Not Updated', description: 'Could not rename this category.' });
+      throw error;
+    }
+  };
+
+  const handleCreateSubcategory = async (categoryId: string, value: string) => {
+    try {
+      const created = await productService.createSubcategory(categoryId, value);
+      setCategoryOptions((prev) => prev.map((category) => category.id === categoryId
+        ? { ...category, subcategories: [...category.subcategories, created].sort((a, b) => a.value.localeCompare(b.value)) }
+        : category));
+      setToast({ id: `toast-${Date.now()}`, type: 'success', title: 'Subcategory Added', description: `${created.value} is now available for products.` });
+    } catch (error) {
+      setToast({ id: `toast-${Date.now()}`, type: 'warning', title: 'Subcategory Not Added', description: 'Could not add this subcategory.' });
+      throw error;
+    }
+  };
+
+  const handleUpdateSubcategory = async (id: string, value: string) => {
+    try {
+      const updated = await productService.updateSubcategory(id, value);
+      setCategoryOptions((prev) => prev.map((category) => ({
+        ...category,
+        subcategories: category.subcategories.map((subcategory) => subcategory.id === id ? { ...subcategory, value: updated.value } : subcategory),
+      })));
+      setAllProducts((prev) => prev.map((product) => product.subcategoryId === id ? { ...product, subcategory: updated.value } : product));
+      setToast({ id: `toast-${Date.now()}`, type: 'success', title: 'Subcategory Updated', description: `Subcategory renamed to ${updated.value}.` });
+    } catch (error) {
+      setToast({ id: `toast-${Date.now()}`, type: 'warning', title: 'Subcategory Not Updated', description: 'Could not rename this subcategory.' });
+      throw error;
+    }
   };
 
   // Duplicate Product
@@ -483,8 +544,6 @@ export function ProductsPage() {
             onToggleSelectRow={handleToggleSelectRow}
             onToggleSelectAll={handleToggleSelectAll}
             onViewProduct={(p) => setViewingProductId(p.id)}
-            onEditProduct={(p) => setEditingProductId(p.id)}
-            onToggleStatus={handleToggleStatus}
             isLoading={isLoading}
           />
 
@@ -525,7 +584,7 @@ export function ProductsPage() {
       <AddProductModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onCreated={handleCreateProduct}
+            onCreated={handleCreateProducts}
         categories={categories}
         categoryOptions={categoryOptions}
         brands={brands}
@@ -548,7 +607,11 @@ export function ProductsPage() {
         isOpen={isTaxonomyModalOpen}
         categories={categoryOptions}
         onClose={() => setIsTaxonomyModalOpen(false)}
+        onCreateCategory={handleCreateCategory}
+        onUpdateCategory={handleUpdateCategory}
         onDeleteCategory={(category) => handlePromptTaxonomyDelete({ kind: 'category', category })}
+        onCreateSubcategory={handleCreateSubcategory}
+        onUpdateSubcategory={handleUpdateSubcategory}
         onDeleteSubcategory={(category, subcategory) => handlePromptTaxonomyDelete({ kind: 'subcategory', category, subcategory })}
       />
 

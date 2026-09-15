@@ -2504,6 +2504,16 @@ export interface UpdateOrganizationVariables {
   currency: string;
 }
 
+export interface UpdateTenantCategoryTrustedData {
+  category_update?: Category_Key | null;
+}
+
+export interface UpdateTenantCategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  value: string;
+}
+
 export interface UpdateTenantCustomerData {
   customer_update?: Customer_Key | null;
 }
@@ -2657,6 +2667,16 @@ export interface UpdateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
+}
+
+export interface UpdateTenantSubcategoryTrustedData {
+  subcategory_update?: Subcategory_Key | null;
+}
+
+export interface UpdateTenantSubcategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  value: string;
 }
 
 export interface UpdateTenantSupplierData {
@@ -3663,6 +3683,30 @@ export const createTenantSubcategoryTrustedRef: CreateTenantSubcategoryTrustedRe
 
 export function createTenantSubcategoryTrusted(vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
 export function createTenantSubcategoryTrusted(dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
+
+interface UpdateTenantCategoryTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdateTenantCategoryTrustedVariables): MutationRef<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpdateTenantCategoryTrustedVariables): MutationRef<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
+  operationName: string;
+}
+export const updateTenantCategoryTrustedRef: UpdateTenantCategoryTrustedRef;
+
+export function updateTenantCategoryTrusted(vars: UpdateTenantCategoryTrustedVariables): MutationPromise<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
+export function updateTenantCategoryTrusted(dc: DataConnect, vars: UpdateTenantCategoryTrustedVariables): MutationPromise<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
+
+interface UpdateTenantSubcategoryTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdateTenantSubcategoryTrustedVariables): MutationRef<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpdateTenantSubcategoryTrustedVariables): MutationRef<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
+  operationName: string;
+}
+export const updateTenantSubcategoryTrustedRef: UpdateTenantSubcategoryTrustedRef;
+
+export function updateTenantSubcategoryTrusted(vars: UpdateTenantSubcategoryTrustedVariables): MutationPromise<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
+export function updateTenantSubcategoryTrusted(dc: DataConnect, vars: UpdateTenantSubcategoryTrustedVariables): MutationPromise<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
 
 interface CreateTenantProductRef {
   /* Allow users to create refs without passing in DataConnect */

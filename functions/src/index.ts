@@ -57,6 +57,8 @@ import {
   listTenantCategoriesTrusted,
   createTenantCategoryTrusted,
   createTenantSubcategoryTrusted,
+  updateTenantCategoryTrusted,
+  updateTenantSubcategoryTrusted,
   deleteTenantCategoryTrusted,
   deleteTenantSubcategoryTrusted,
   updateTenantProduct,
@@ -834,6 +836,99 @@ export const deleteTenantSubcategory = onCall(callableOptions, async (request) =
   } catch (error) {
     logCallableFailure('deleteTenantSubcategory', error);
     throw tenantDeletionFailure('subcategory', 'You do not have permission to delete subcategories in this organization.', 'This subcategory has linked products and cannot be deleted.')(error);
+  }
+});
+
+function taxonomyMutationFailure(entity: string, error: unknown): HttpsError {
+  if (error instanceof HttpsError) return error;
+  const message = typeof (error as { message?: unknown } | null)?.message === 'string'
+    ? (error as { message: string }).message
+    : '';
+  if (message === 'scope') return new HttpsError('permission-denied', `You do not have permission to manage ${entity} taxonomy.`);
+  if (/invalid input/i.test(message)) return new HttpsError('invalid-argument', `A valid ${entity} name is required.`);
+  if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', `That ${entity} name already exists.`);
+  if (/not found|not in.*organization/i.test(message)) return new HttpsError('not-found', `The ${entity} was not found in this organization.`);
+  return new HttpsError('internal', `Unable to save the ${entity}.`);
+}
+
+export const createTenantCategory = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actor, organizationId);
+    const id = randomUUID();
+    await createTenantCategoryTrusted({ id, organizationId, value });
+    return { success: true, organizationId, id, value };
+  } catch (error) {
+    logCallableFailure('createTenantCategory', error);
+    throw taxonomyMutationFailure('category', error);
+  }
+});
+
+export const updateTenantCategory = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actor, organizationId);
+    await updateTenantCategoryTrusted({ organizationId, id, value });
+    return { success: true, organizationId, id, value };
+  } catch (error) {
+    logCallableFailure('updateTenantCategory', error);
+    throw taxonomyMutationFailure('category', error);
+  }
+});
+
+export const createTenantSubcategory = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const categoryId = typeof d.categoryId === 'string' ? d.categoryId : '';
+    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !categoryId || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actor, organizationId);
+    const id = randomUUID();
+    await createTenantSubcategoryTrusted({ id, organizationId, categoryId, value });
+    return { success: true, organizationId, id, categoryId, value };
+  } catch (error) {
+    logCallableFailure('createTenantSubcategory', error);
+    throw taxonomyMutationFailure('subcategory', error);
+  }
+});
+
+export const updateTenantSubcategory = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actor, organizationId);
+    await updateTenantSubcategoryTrusted({ organizationId, id, value });
+    return { success: true, organizationId, id, value };
+  } catch (error) {
+    logCallableFailure('updateTenantSubcategory', error);
+    throw taxonomyMutationFailure('subcategory', error);
   }
 });
 

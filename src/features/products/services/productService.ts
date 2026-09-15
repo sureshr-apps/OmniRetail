@@ -28,6 +28,10 @@ export interface IProductService {
   getCategories(): Promise<string[]>;
   getCategoryOptions(): Promise<ProductCategoryOption[]>;
   getBrands(): Promise<string[]>;
+  createCategory(value: string): Promise<ProductCategoryOption>;
+  updateCategory(id: string, value: string): Promise<ProductCategoryOption>;
+  createSubcategory(categoryId: string, value: string): Promise<{ id: string; value: string }>;
+  updateSubcategory(id: string, value: string): Promise<{ id: string; value: string }>;
   deleteCategory(id: string): Promise<void>;
   deleteSubcategory(id: string): Promise<void>;
 }
@@ -57,6 +61,12 @@ interface ProductMutationResponse {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
+}
+
+interface TaxonomyMutationResponse {
+  id: string;
+  value: string;
+  categoryId?: string;
 }
 
 const PRODUCT_MUTATION_RESPONSE_KEYS: (keyof ProductMutationResponse)[] = [
@@ -159,6 +169,49 @@ class ProductionProductService implements IProductService {
   }
   public async getBrands(): Promise<string[]> {
     return Array.from(new Set((await this.getAllProducts()).map((product) => product.brand))).sort();
+  }
+  public async createCategory(value: string): Promise<ProductCategoryOption> {
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantCategory')({
+      organizationId,
+      value: value.trim(),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const row = assertCallableEntity<TaxonomyMutationResponse>(response.data, ['id', 'value'], 'createCategory');
+    return { id: row.id, value: row.value, subcategories: [] };
+  }
+  public async updateCategory(id: string, value: string): Promise<ProductCategoryOption> {
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'updateTenantCategory')({
+      organizationId,
+      id,
+      value: value.trim(),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const row = assertCallableEntity<TaxonomyMutationResponse>(response.data, ['id', 'value'], 'updateCategory');
+    return { id: row.id, value: row.value, subcategories: [] };
+  }
+  public async createSubcategory(categoryId: string, value: string): Promise<{ id: string; value: string }> {
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantSubcategory')({
+      organizationId,
+      categoryId,
+      value: value.trim(),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const row = assertCallableEntity<TaxonomyMutationResponse>(response.data, ['id', 'value'], 'createSubcategory');
+    return { id: row.id, value: row.value };
+  }
+  public async updateSubcategory(id: string, value: string): Promise<{ id: string; value: string }> {
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'updateTenantSubcategory')({
+      organizationId,
+      id,
+      value: value.trim(),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const row = assertCallableEntity<TaxonomyMutationResponse>(response.data, ['id', 'value'], 'updateSubcategory');
+    return { id: row.id, value: row.value };
   }
   public async checkSkuUnique(sku: string, excludeId?: string): Promise<boolean> {
     const normalized = sku.trim().toLowerCase();

@@ -104,6 +104,8 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ChangeTenantCustomerStatus*](#changetenantcustomerstatus)
   - [*CreateTenantCategoryTrusted*](#createtenantcategorytrusted)
   - [*CreateTenantSubcategoryTrusted*](#createtenantsubcategorytrusted)
+  - [*UpdateTenantCategoryTrusted*](#updatetenantcategorytrusted)
+  - [*UpdateTenantSubcategoryTrusted*](#updatetenantsubcategorytrusted)
   - [*CreateTenantProduct*](#createtenantproduct)
   - [*UpdateTenantProduct*](#updatetenantproduct)
   - [*ChangeTenantProductStatus*](#changetenantproductstatus)
@@ -9286,6 +9288,202 @@ export default function CreateTenantSubcategoryTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.subcategory_insert);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantCategoryTrusted
+You can execute the `UpdateTenantCategoryTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantCategoryTrusted(options?: useDataConnectMutationOptions<UpdateTenantCategoryTrustedData, FirebaseError, UpdateTenantCategoryTrustedVariables>): UseDataConnectMutationResult<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantCategoryTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantCategoryTrustedData, FirebaseError, UpdateTenantCategoryTrustedVariables>): UseDataConnectMutationResult<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
+```
+
+### Variables
+The `UpdateTenantCategoryTrusted` Mutation requires an argument of type `UpdateTenantCategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantCategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  value: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantCategoryTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantCategoryTrusted` Mutation is of type `UpdateTenantCategoryTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantCategoryTrustedData {
+  category_update?: Category_Key | null;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantCategoryTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantCategoryTrusted } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantCategoryTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantCategoryTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantCategoryTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantCategoryTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantCategoryTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantCategoryTrusted` Mutation requires an argument of type `UpdateTenantCategoryTrustedVariables`:
+  const updateTenantCategoryTrustedVars: UpdateTenantCategoryTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    value: ..., 
+  };
+  mutation.mutate(updateTenantCategoryTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., value: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantCategoryTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.category_update);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## UpdateTenantSubcategoryTrusted
+You can execute the `UpdateTenantSubcategoryTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useUpdateTenantSubcategoryTrusted(options?: useDataConnectMutationOptions<UpdateTenantSubcategoryTrustedData, FirebaseError, UpdateTenantSubcategoryTrustedVariables>): UseDataConnectMutationResult<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useUpdateTenantSubcategoryTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<UpdateTenantSubcategoryTrustedData, FirebaseError, UpdateTenantSubcategoryTrustedVariables>): UseDataConnectMutationResult<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
+```
+
+### Variables
+The `UpdateTenantSubcategoryTrusted` Mutation requires an argument of type `UpdateTenantSubcategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface UpdateTenantSubcategoryTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  value: string;
+}
+```
+### Return Type
+Recall that calling the `UpdateTenantSubcategoryTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `UpdateTenantSubcategoryTrusted` Mutation is of type `UpdateTenantSubcategoryTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface UpdateTenantSubcategoryTrustedData {
+  subcategory_update?: Subcategory_Key | null;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `UpdateTenantSubcategoryTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, UpdateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
+import { useUpdateTenantSubcategoryTrusted } from '@omniretail/sql-connect/react'
+
+export default function UpdateTenantSubcategoryTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useUpdateTenantSubcategoryTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useUpdateTenantSubcategoryTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantSubcategoryTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useUpdateTenantSubcategoryTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useUpdateTenantSubcategoryTrusted` Mutation requires an argument of type `UpdateTenantSubcategoryTrustedVariables`:
+  const updateTenantSubcategoryTrustedVars: UpdateTenantSubcategoryTrustedVariables = {
+    organizationId: ..., 
+    id: ..., 
+    value: ..., 
+  };
+  mutation.mutate(updateTenantSubcategoryTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., value: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(updateTenantSubcategoryTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.subcategory_update);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }

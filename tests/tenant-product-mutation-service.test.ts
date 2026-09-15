@@ -124,6 +124,25 @@ describe('productService mutations return the canonical entity directly', () => 
     expect(mocks.listTenantProducts).not.toHaveBeenCalled();
   });
 
+  it('manages categories and subcategories through organization-scoped callables', async () => {
+    const callable = vi.fn()
+      .mockResolvedValueOnce({ data: { success: true, organizationId: 'org-1', id: 'category-2', value: 'Beverages' } })
+      .mockResolvedValueOnce({ data: { success: true, organizationId: 'org-1', id: 'category-2', value: 'Cold Beverages' } })
+      .mockResolvedValueOnce({ data: { success: true, organizationId: 'org-1', id: 'subcategory-2', categoryId: 'category-2', value: 'Juices' } })
+      .mockResolvedValueOnce({ data: { success: true, organizationId: 'org-1', id: 'subcategory-2', value: 'Fresh Juices' } });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await expect(productService.createCategory('Beverages')).resolves.toEqual({ id: 'category-2', value: 'Beverages', subcategories: [] });
+    await expect(productService.updateCategory('category-2', 'Cold Beverages')).resolves.toEqual({ id: 'category-2', value: 'Cold Beverages', subcategories: [] });
+    await expect(productService.createSubcategory('category-2', 'Juices')).resolves.toEqual({ id: 'subcategory-2', value: 'Juices' });
+    await expect(productService.updateSubcategory('subcategory-2', 'Fresh Juices')).resolves.toEqual({ id: 'subcategory-2', value: 'Fresh Juices' });
+
+    expect(mocks.httpsCallable).toHaveBeenNthCalledWith(1, mocks.functions, 'createTenantCategory');
+    expect(mocks.httpsCallable).toHaveBeenNthCalledWith(2, mocks.functions, 'updateTenantCategory');
+    expect(mocks.httpsCallable).toHaveBeenNthCalledWith(3, mocks.functions, 'createTenantSubcategory');
+    expect(mocks.httpsCallable).toHaveBeenNthCalledWith(4, mocks.functions, 'updateTenantSubcategory');
+  });
+
   it('rejects a malformed create response instead of returning a partial entity', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({ data: { success: true, organizationId: 'org-1', id: 'prod-2' } }));
     await expect(productService.createProduct(createInput())).rejects.toBeInstanceOf(MalformedCallableResponseError);

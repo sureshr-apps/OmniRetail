@@ -1316,6 +1316,34 @@ exports.createTenantSubcategoryTrusted = function createTenantSubcategoryTrusted
 }
 ;
 
+const updateTenantCategoryTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpdateTenantCategoryTrusted', inputVars);
+}
+updateTenantCategoryTrustedRef.operationName = 'UpdateTenantCategoryTrusted';
+exports.updateTenantCategoryTrustedRef = updateTenantCategoryTrustedRef;
+
+exports.updateTenantCategoryTrusted = function updateTenantCategoryTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(updateTenantCategoryTrustedRef(dcInstance, inputVars));
+}
+;
+
+const updateTenantSubcategoryTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpdateTenantSubcategoryTrusted', inputVars);
+}
+updateTenantSubcategoryTrustedRef.operationName = 'UpdateTenantSubcategoryTrusted';
+exports.updateTenantSubcategoryTrustedRef = updateTenantSubcategoryTrustedRef;
+
+exports.updateTenantSubcategoryTrusted = function updateTenantSubcategoryTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(updateTenantSubcategoryTrustedRef(dcInstance, inputVars));
+}
+;
+
 const createTenantProductRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { CreateProductInput, ProductCategoryOption, ProductType } from '../types';
 import { productService } from '../services/productService';
 import { Supplier } from '@/features/suppliers/types';
+import { expandProductVariants, parseProductVariants } from '../utils/variants';
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated: (newProduct: CreateProductInput) => void;
+  onCreated: (newProducts: CreateProductInput[]) => Promise<void>;
   categories: string[];
   categoryOptions: ProductCategoryOption[];
   brands: string[];
@@ -31,9 +32,9 @@ export function AddProductModal({
 
   const [sku, setSku] = useState('');
   const [barcode, setBarcode] = useState('');
-  const [hsnCode, setHsnCode] = useState('6205.20.00');
+  const [hsnCode, setHsnCode] = useState('');
   const [unitOfMeasure, setUnitOfMeasure] = useState('Pieces (Pcs)');
-  const [variantsConfigured, setVariantsConfigured] = useState('');
+  const [variantsInput, setVariantsInput] = useState('');
 
   const [cost, setCost] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
@@ -129,10 +130,10 @@ export function AddProductModal({
       openingStoreOutlet,
       primarySupplier: primarySupplier || undefined,
       description: description.trim() || undefined,
-      variantsConfigured: variantsConfigured.trim() || undefined,
     };
 
-    onCreated(payload);
+    await onCreated(expandProductVariants(payload, parseProductVariants(variantsInput)));
+    setVariantsInput('');
   };
 
   return (
@@ -346,7 +347,7 @@ export function AddProductModal({
                   type="text"
                   value={hsnCode}
                   onChange={(e) => setHsnCode(e.target.value)}
-                  placeholder="6205.20.00"
+                  placeholder="Enter HSN / SAC code"
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
@@ -370,15 +371,18 @@ export function AddProductModal({
 
               <div className="col-span-1 sm:col-span-2">
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Configured Variants Note
+                  Variants (optional)
                 </label>
                 <input
                   type="text"
-                  value={variantsConfigured}
-                  onChange={(e) => setVariantsConfigured(e.target.value)}
-                  placeholder="e.g. Size (S, M, L), Color (Olive, White)"
+                  value={variantsInput}
+                  onChange={(e) => setVariantsInput(e.target.value)}
+                  placeholder="e.g. S, M, L or Olive, White"
                   className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
                 />
+                <p className="mt-1 text-[10px] text-on-surface-variant">
+                  Each value creates a separate product with the variant appended to its name and SKU.
+                </p>
               </div>
             </div>
           </div>

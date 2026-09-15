@@ -668,7 +668,18 @@ mutation CreateTenantCategoryTrusted($id: UUID!, $organizationId: UUID!, $value:
 }
 
 mutation CreateTenantSubcategoryTrusted($id: UUID!, $organizationId: UUID!, $categoryId: UUID!, $value: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { categories(where: { id: { eq: $categoryId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Category is not in this organization.") { id } }
   subcategory_insert(data: { id: $id category: { id: $categoryId } value: $value })
+}
+
+mutation UpdateTenantCategoryTrusted($organizationId: UUID!, $id: UUID!, $value: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { categories(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Category is not in this organization.") { id } }
+  category_update(id: $id, data: { value: $value })
+}
+
+mutation UpdateTenantSubcategoryTrusted($organizationId: UUID!, $id: UUID!, $value: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { subcategories(where: { id: { eq: $id }, category: { organization: { id: { eq: $organizationId } } } }, limit: 1) @check(expr: "this.size() > 0", message: "Subcategory is not in this organization.") { id } }
+  subcategory_update(id: $id, data: { value: $value })
 }
 
 mutation CreateTenantProduct($id: UUID!, $organizationId: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String) @auth(level: NO_ACCESS) @transaction {

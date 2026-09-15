@@ -63,7 +63,7 @@ export function EditProductModal({
       setDescription(product.description || '');
       setSku(product.sku);
       setBarcode(product.barcode || '');
-      setHsnCode(product.hsnCode || '6205.20.00');
+      setHsnCode(product.hsnCode || '');
       setUnitOfMeasure(product.unitOfMeasure || 'Pieces (Pcs)');
       setVariantsConfigured(product.variantsConfigured || '');
       setCost(product.cost !== undefined ? String(product.cost) : '');

@@ -119,7 +119,7 @@ export function ProductDetailDrawer({
               <div>
                 <span className="text-on-surface-variant block">HSN / SAC Code</span>
                 <span className="font-body-mono-num font-semibold text-on-surface">
-                  {product.hsnCode || '6205.20.00'}
+                  {product.hsnCode || 'Not provided'}
                 </span>
               </div>
               <div>

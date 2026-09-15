@@ -46,11 +46,10 @@ describe('tenant callable contract', () => {
     expect(cloudSqlSource).not.toContain('@appspot');
     expect(cloudSqlSource).toContain('authType: AuthTypes.IAM');
     expect(deploymentSource).toContain('Configure Functions Cloud SQL IAM access');
-    expect(deploymentSource).toContain('roles/cloudsql.instanceUser');
-    expect(deploymentSource).toContain('roles/cloudsql.client');
     expect(deploymentSource).toContain('--type=cloud_iam_service_account');
     expect(deploymentSource).toContain('CLOUD_SQL_IAM_USER');
     expect(deploymentSource).toContain('${PROJECT_NUMBER}-compute@developer.gserviceaccount.com');
+    expect(deploymentSource).toContain('cannot mutate project IAM policy');
   });
 
   it('keeps the functions package independent from the workspace root', () => {

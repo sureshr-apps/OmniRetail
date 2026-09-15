@@ -87,14 +87,9 @@ jobs:
           RUNTIME_SERVICE_ACCOUNT="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
           RUNTIME_IAM_USER="${RUNTIME_SERVICE_ACCOUNT%.gserviceaccount.com}"
           echo "Configuring Cloud SQL IAM access for ${RUNTIME_SERVICE_ACCOUNT}"
-          gcloud projects add-iam-policy-binding "$FIREBASE_PROJECT_ID" \
-            --member="serviceAccount:${RUNTIME_SERVICE_ACCOUNT}" \
-            --role="roles/cloudsql.instanceUser" \
-            --quiet
-          gcloud projects add-iam-policy-binding "$FIREBASE_PROJECT_ID" \
-            --member="serviceAccount:${RUNTIME_SERVICE_ACCOUNT}" \
-            --role="roles/cloudsql.client" \
-            --quiet
+          # The compute service account's project IAM roles are provisioned
+          # outside CI. This deploy identity is intentionally limited to
+          # Cloud SQL user management and cannot mutate project IAM policy.
           if gcloud sql users list --instance "omniretail-sql" --project "$FIREBASE_PROJECT_ID" --format='value(name)' | grep -Fxq "$RUNTIME_IAM_USER"; then
             echo "Cloud SQL IAM user already exists: ${RUNTIME_IAM_USER}"
           else

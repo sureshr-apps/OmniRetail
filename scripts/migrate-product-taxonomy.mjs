@@ -25,7 +25,6 @@ try {
     )`);
   await client.query(`CREATE INDEX IF NOT EXISTS ${quoteIdentifier('category_organizationId_idx')} ON ${schema}.${quoteIdentifier('category')} (${quoteIdentifier('organization_id')})`);
   await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS ${quoteIdentifier('category_organizationId_value_uidx')} ON ${schema}.${quoteIdentifier('category')} (${quoteIdentifier('organization_id')}, ${quoteIdentifier('value')})`);
-  await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS ${quoteIdentifier('category_organizationId_lower_value_uidx')} ON ${schema}.${quoteIdentifier('category')} (${quoteIdentifier('organization_id')}, LOWER(BTRIM(${quoteIdentifier('value')})))`);
 
   await client.query(`
     CREATE TABLE IF NOT EXISTS ${schema}.${quoteIdentifier('subcategory')} (
@@ -38,7 +37,6 @@ try {
     )`);
   await client.query(`CREATE INDEX IF NOT EXISTS ${quoteIdentifier('subcategory_categoryId_idx')} ON ${schema}.${quoteIdentifier('subcategory')} (${quoteIdentifier('category_id')})`);
   await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS ${quoteIdentifier('subcategory_categoryId_value_uidx')} ON ${schema}.${quoteIdentifier('subcategory')} (${quoteIdentifier('category_id')}, ${quoteIdentifier('value')})`);
-  await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS ${quoteIdentifier('subcategory_categoryId_lower_value_uidx')} ON ${schema}.${quoteIdentifier('subcategory')} (${quoteIdentifier('category_id')}, LOWER(BTRIM(${quoteIdentifier('value')})))`);
 
   const hasLegacyCategorySources = await hasColumn('product', 'category_name') || await hasColumn('product', 'subcategory');
   if (hasLegacyCategorySources && await hasColumn('product', 'category_id') && !(await hasColumn('product', 'legacy_category_id'))) {

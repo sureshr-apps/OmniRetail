@@ -10,7 +10,7 @@ const lifecycleRemovalSource = readFileSync(new URL('../scripts/drop-lifecycle-i
 const appUserColumnRemovalSource = readFileSync(new URL('../scripts/drop-app-user-legacy-columns.mjs', import.meta.url), 'utf8');
 const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-legacy-columns.mjs', import.meta.url), 'utf8');
 const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop-customer-address-columns.mjs', import.meta.url), 'utf8');
-const taxonomyIndexRestoreSource = readFileSync(new URL('../scripts/restore-product-taxonomy-indexes.mjs', import.meta.url), 'utf8');
+const taxonomyIndexRemovalSource = readFileSync(new URL('../scripts/drop-product-taxonomy-helper-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
 
@@ -45,7 +45,7 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force');
     expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac');
@@ -60,13 +60,13 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('node scripts/drop-app-user-legacy-columns.mjs');
     expect(deploymentSource).toContain('node scripts/drop-tenant-legacy-columns.mjs');
     expect(deploymentSource).toContain('node scripts/drop-customer-address-columns.mjs');
-    expect(deploymentSource).toContain('node scripts/restore-product-taxonomy-indexes.mjs');
+    expect(deploymentSource).toContain('node scripts/drop-product-taxonomy-helper-indexes.mjs');
     expect(deploymentSource).toContain('Prepare Product category migration');
     expect(deploymentSource).toContain('Remove retired lifecycle, reconciliation, and audit storage');
     expect(deploymentSource.indexOf('Prepare Product category migration')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
     expect(deploymentSource.indexOf('Remove retired lifecycle, reconciliation, and audit storage')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
     expect(deploymentSource.indexOf('Remove retired customer address columns')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
-    expect(deploymentSource.indexOf('Deploy Data Connect schema and connectors')).toBeLessThan(deploymentSource.indexOf('Restore Product taxonomy uniqueness indexes'));
+    expect(deploymentSource.indexOf('Remove unmanaged product taxonomy helper indexes')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
     expect(cloudSqlMigrationHelperSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
     expect(cloudSqlMigrationHelperSource).toContain('client_email');
     expect(deploymentSource).toContain('--non-interactive --force');
@@ -88,15 +88,15 @@ describe('tenant callable contract', () => {
     expect(lifecycleRemovalSource).toContain('DROP TYPE IF EXISTS');
     expect(lifecycleRemovalSource).toContain('await client.query(\'BEGIN\')');
     expect(lifecycleRemovalSource).toContain('await client.query(\'COMMIT\')');
-    expect(taxonomyIndexRestoreSource).toContain('category_organizationId_lower_value_uidx');
-    expect(taxonomyIndexRestoreSource).toContain('subcategory_categoryId_lower_value_uidx');
-    expect(taxonomyIndexRestoreSource).toContain('CREATE UNIQUE INDEX IF NOT EXISTS');
+    expect(taxonomyIndexRemovalSource).toContain('category_organizationId_lower_value_uidx');
+    expect(taxonomyIndexRemovalSource).toContain('subcategory_categoryId_lower_value_uidx');
+    expect(taxonomyIndexRemovalSource).toContain('DROP INDEX IF EXISTS');
     expect(taxonomyMigrationSource).toContain('legacy_category_name');
     expect(taxonomyMigrationSource).toContain('legacy_subcategory');
     expect(taxonomyMigrationSource).toContain('legacy_category_id');
     expect(taxonomyMigrationSource).toContain('CREATE TABLE IF NOT EXISTS');
-    expect(taxonomyMigrationSource).toContain('category_organizationId_lower_value_uidx');
-    expect(taxonomyMigrationSource).toContain('subcategory_categoryId_lower_value_uidx');
+    expect(taxonomyMigrationSource).not.toContain('category_organizationId_lower_value_uidx');
+    expect(taxonomyMigrationSource).not.toContain('subcategory_categoryId_lower_value_uidx');
     expect(taxonomyMigrationSource).toContain('hasLegacyCategorySources');
     expect(taxonomyMigrationSource).toContain('cloud-sql-migration-helpers.mjs');
     expect(schemaMigrationSource).toContain('cloud-sql-migration-helpers.mjs');

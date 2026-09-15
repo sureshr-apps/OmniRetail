@@ -1665,6 +1665,20 @@ exports.deleteTenantServicePersonTrusted = function deleteTenantServicePersonTru
 }
 ;
 
+const deleteTenantServicePersonOutletTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantServicePersonOutletTrusted', inputVars);
+}
+deleteTenantServicePersonOutletTrustedRef.operationName = 'DeleteTenantServicePersonOutletTrusted';
+exports.deleteTenantServicePersonOutletTrustedRef = deleteTenantServicePersonOutletTrustedRef;
+
+exports.deleteTenantServicePersonOutletTrusted = function deleteTenantServicePersonOutletTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantServicePersonOutletTrustedRef(dcInstance, inputVars));
+}
+;
+
 const deleteTenantCustomerTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

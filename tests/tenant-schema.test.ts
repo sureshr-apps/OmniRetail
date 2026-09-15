@@ -148,8 +148,8 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('persists Service Person notes without reintroducing removed timestamps', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
-    const servicePersonOperations = connector.match(/(?:query|mutation) (?:ListTenantServicePersons|CreateTenantServicePersonTrusted|UpdateTenantServicePersonTrusted|ChangeTenantServicePersonStatusTrusted|GetTenantServicePersonTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
-    expect(servicePersonOperations.length).toBe(5);
+    const servicePersonOperations = connector.match(/(?:query|mutation) (?:ListTenantServicePersons|CreateTenantServicePersonTrusted|UpdateTenantServicePersonTrusted|ChangeTenantServicePersonStatusTrusted|GetTenantServicePersonTrusted|DeleteTenantServicePersonOutletTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    expect(servicePersonOperations.length).toBe(6);
     for (const operation of servicePersonOperations) {
       expect(operation).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
     }
@@ -157,6 +157,7 @@ describe('tenant Data Connect foundation schema', () => {
     expect(servicePersonOperations.find((operation) => operation.includes('UpdateTenantServicePersonTrusted'))).toContain('notes: $notes');
     expect(servicePersonOperations.find((operation) => operation.includes('CreateTenantServicePersonTrusted'))).toContain('address: $address');
     expect(servicePersonOperations.find((operation) => operation.includes('UpdateTenantServicePersonTrusted'))).toContain('address: $address');
+    expect(servicePersonOperations.find((operation) => operation.includes('DeleteTenantServicePersonOutletTrusted'))).toContain('servicePersonOutlet_delete');
   });
 
   it('allows organization admins to read the product catalogue', () => {

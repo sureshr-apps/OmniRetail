@@ -48,6 +48,7 @@ import {
   updateTenantServicePersonTrusted,
   changeTenantServicePersonStatusTrusted,
   deleteTenantServicePersonTrusted,
+  deleteTenantServicePersonOutletTrusted,
   getTenantServicePersonTrusted,
   assignTenantEmployeeOutletTrusted,
   assignTenantServicePersonOutletTrusted,
@@ -753,6 +754,18 @@ export const deleteTenantServicePerson = onCall(callableOptions, async (request)
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !id || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
+    const current = (await getTenantServicePersonTrusted({ organizationId, id })).data.servicePeople[0];
+    if (!current) throw new Error('service person not found');
+    for (const [index, assignment] of current.servicePersonOutlets_on_servicePerson.entries()) {
+      await deleteTenantServicePersonOutletTrusted({
+        organizationId,
+        servicePersonId: id,
+        outletId: assignment.outlet.id,
+        auditId: randomUUID(),
+        requestId: `${requestId}:outlet-unassignment:${index}`,
+        actorFirebaseUid,
+      });
+    }
     await deleteTenantServicePersonTrusted({ organizationId, id, auditId: randomUUID(), requestId, actorFirebaseUid });
     return { success: true, organizationId, id };
   } catch (error) {
@@ -978,7 +991,7 @@ export const createTenantServicePerson = onCall(callableOptions, async (request)
 });
 
 export const updateTenantServicePerson = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const address = typeof d.address === 'string' ? d.address.trim() || null : null; const specialization = typeof d.specialization === 'string' ? d.specialization.trim() || null : null; const notes = typeof d.notes === 'string' ? d.notes.trim() || null : null; const assignmentScope = d.assignmentScope === 'OUTLET' ? 'OUTLET' : 'ORGANIZATION'; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !fullName || !phone || (assignmentScope === 'OUTLET' && !outletId) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId); await updateTenantServicePersonTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, address, specialization, yearsOfExperience: Number.isInteger(d.yearsOfExperience) ? d.yearsOfExperience : null, assignmentScope, notes, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); if (assignmentScope === 'OUTLET') await assignTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id, outletId, auditId: randomUUID(), requestId: `${requestId}:outlet-assignment`, actorFirebaseUid: actor }); const row = (await getTenantServicePersonTrusted({ organizationId, id })).data.servicePeople[0]; if (!row) throw new Error('service person not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantServicePerson', error); throw new HttpsError('permission-denied', 'Unable to update the service person.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'service_persons.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const address = typeof d.address === 'string' ? d.address.trim() || null : null; const specialization = typeof d.specialization === 'string' ? d.specialization.trim() || null : null; const notes = typeof d.notes === 'string' ? d.notes.trim() || null : null; const assignmentScope = d.assignmentScope === 'OUTLET' ? 'OUTLET' : 'ORGANIZATION'; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !fullName || !phone || (assignmentScope === 'OUTLET' && !outletId) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId); const current = (await getTenantServicePersonTrusted({ organizationId, id })).data.servicePeople[0]; if (!current) throw new Error('service person not found'); const currentOutlets = current.servicePersonOutlets_on_servicePerson.map((assignment) => assignment.outlet.id); await updateTenantServicePersonTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, address, specialization, yearsOfExperience: Number.isInteger(d.yearsOfExperience) ? d.yearsOfExperience : null, assignmentScope, notes, auditId: randomUUID(), requestId, actorFirebaseUid: actor }); for (const [index, currentOutletId] of currentOutlets.entries()) { if (assignmentScope === 'OUTLET' && currentOutletId === outletId) continue; await deleteTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id, outletId: currentOutletId, auditId: randomUUID(), requestId: `${requestId}:outlet-unassignment:${index}`, actorFirebaseUid: actor }); } if (assignmentScope === 'OUTLET') await assignTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id, outletId, auditId: randomUUID(), requestId: `${requestId}:outlet-assignment`, actorFirebaseUid: actor }); const row = (await getTenantServicePersonTrusted({ organizationId, id })).data.servicePeople[0]; if (!row) throw new Error('service person not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantServicePerson', error); throw new HttpsError('permission-denied', 'Unable to update the service person.'); }
 });
 
 export const changeTenantServicePersonStatus = onCall(callableOptions, async (request) => {

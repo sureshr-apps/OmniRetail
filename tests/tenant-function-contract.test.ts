@@ -166,11 +166,18 @@ describe('tenant callable contract', () => {
     expect(source).toContain('notes, auditId: randomUUID()');
     expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');
     expect(source).toContain('export const assignTenantServicePersonOutlet = onCall');
+    expect(source).toContain('deleteTenantServicePersonOutletTrusted');
+    expect(source).toContain('outlet-unassignment');
+    expect(source).toContain('current.servicePersonOutlets_on_servicePerson.entries()');
+    const deleteServicePersonSource = source.slice(source.indexOf('export const deleteTenantServicePerson = onCall'));
+    expect(deleteServicePersonSource.indexOf('deleteTenantServicePersonOutletTrusted'))
+      .toBeLessThan(deleteServicePersonSource.indexOf('deleteTenantServicePersonTrusted'));
     expect(source).toContain("const outletId = typeof d.outletId === 'string' ? d.outletId : ''");
     expect(source).toContain("if (assignmentScope === 'OUTLET') await assignTenantServicePersonOutletTrusted");
     expect(source).toContain('requestId: `${requestId}:outlet-assignment`');
-    expect(source.indexOf('assignTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id'))
-      .toBeLessThan(source.indexOf('getTenantServicePersonTrusted({ organizationId, id })'));
+    const updateServicePersonSource = source.slice(source.indexOf('export const updateTenantServicePerson = onCall'));
+    expect(updateServicePersonSource.lastIndexOf('assignTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id'))
+      .toBeLessThan(updateServicePersonSource.lastIndexOf('getTenantServicePersonTrusted({ organizationId, id })'));
     expect(source).not.toContain('skills: typeof d.skills');
     expect(source).not.toContain("!specialization ||");
   });

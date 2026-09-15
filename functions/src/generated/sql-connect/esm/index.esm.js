@@ -759,6 +759,12 @@ export function deleteTenantServicePersonTrusted(dcOrVarsOrOptions, varsOrOption
   return dcInstance.executeMutation('DeleteTenantServicePersonTrusted', inputVars, inputOpts);
 }
 
+export function deleteTenantServicePersonOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantServicePersonOutletTrusted', inputVars, inputOpts);
+}
+
 export function deleteTenantCustomerTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

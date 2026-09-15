@@ -932,6 +932,15 @@ mutation DeleteTenantServicePersonTrusted($organizationId: UUID!, $id: UUID!, $a
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.deleted" targetType: "ServicePerson" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
+mutation DeleteTenantServicePersonOutletTrusted($organizationId: UUID!, $servicePersonId: UUID!, $outletId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    servicePeople(where: { id: { eq: $servicePersonId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { id }
+    outlets(where: { id: { eq: $outletId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { id }
+  }
+  servicePersonOutlet_delete(key: { servicePersonId: $servicePersonId outletId: $outletId })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.outlet_unassigned" targetType: "ServicePerson" targetId: $servicePersonId requestId: $requestId metadata: { organizationId: $organizationId outletId: $outletId } })
+}
+
 mutation DeleteTenantCustomerTrusted($organizationId: UUID!, $id: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact {
     customers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Customer is not in this organization.") { id }

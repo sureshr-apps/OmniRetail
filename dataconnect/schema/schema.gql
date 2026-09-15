@@ -125,15 +125,6 @@ enum LicenseEventType {
   RENEWED
 }
 
-type ProvisioningReconciliation @table {
-  idempotencyKey: String!
-  operationType: String!
-  firebaseUid: String!
-  status: String!
-  errorClass: String!
-  createdAt: Timestamp! @default(expr: "request.time")
-}
-
 type AppUser @table {
   firebaseUid: String! @unique
   username: String! @unique
@@ -499,15 +490,4 @@ type LicenseHistory @table {
   negotiatedPrice: Float! @col(dataType: "numeric(19,2)")
   currency: String!
   changes: Any
-}
-
-type AuditEvent @table {
-  actor: AppUser
-  actorFirebaseUid: String
-  action: String!
-  targetType: String!
-  targetId: UUID
-  occurredAt: Timestamp! @default(expr: "request.time")
-  requestId: String @unique
-  metadata: Any
 }

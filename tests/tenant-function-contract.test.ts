@@ -54,9 +54,9 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('node scripts/drop-lifecycle-idempotency.mjs');
     expect(deploymentSource).toContain('node scripts/restore-product-taxonomy-indexes.mjs');
     expect(deploymentSource).toContain('Prepare Product category migration');
-    expect(deploymentSource).toContain('Remove retired LifecycleIdempotency storage');
+    expect(deploymentSource).toContain('Remove retired lifecycle, reconciliation, and audit storage');
     expect(deploymentSource.indexOf('Prepare Product category migration')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect connectors before SQL migration'));
-    expect(deploymentSource.indexOf('Remove retired LifecycleIdempotency storage')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect connectors before SQL migration'));
+    expect(deploymentSource.indexOf('Remove retired lifecycle, reconciliation, and audit storage')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect connectors before SQL migration'));
     expect(deploymentSource.indexOf('Deploy Data Connect schema and connectors')).toBeLessThan(deploymentSource.indexOf('Restore Product taxonomy uniqueness indexes'));
     expect(cloudSqlMigrationHelperSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
     expect(cloudSqlMigrationHelperSource).toContain('client_email');
@@ -72,6 +72,8 @@ describe('tenant callable contract', () => {
     expect(schemaMigrationSource).toContain('await client.query(\'BEGIN\')');
     expect(schemaMigrationSource).toContain('await client.query(\'COMMIT\')');
     expect(lifecycleRemovalSource).toContain("quoteIdentifier('lifecycle_idempotency')");
+    expect(lifecycleRemovalSource).toContain("quoteIdentifier('provisioning_reconciliation')");
+    expect(lifecycleRemovalSource).toContain("quoteIdentifier('audit_event')");
     expect(lifecycleRemovalSource).toContain("quoteIdentifier('provisioning_attempt_status')");
     expect(lifecycleRemovalSource).toContain('DROP TABLE IF EXISTS');
     expect(lifecycleRemovalSource).toContain('DROP TYPE IF EXISTS');
@@ -169,13 +171,15 @@ describe('tenant callable contract', () => {
     expect(provisioningHandler).not.toContain('phoneNumber: phone');
   });
 
-  it('keeps administrator provisioning free of LifecycleIdempotency state', () => {
+  it('keeps administrator provisioning free of lifecycle and database audit state', () => {
     const start = source.indexOf('export const provisionOrganizationAdministrator = onCall');
     const end = source.indexOf('export const changeOrganizationAdministratorStatus = onCall', start);
     const provisioning = source.slice(start, end);
     expect(provisioning).not.toContain('idempotencyKey');
     expect(provisioning).not.toContain('LifecycleIdempotency');
-    expect(provisioning).toContain('recordProvisioningReconciliation');
+    expect(provisioning).not.toContain('recordProvisioningReconciliation');
+    expect(source).not.toContain('recordPasswordChangeAudit');
+    expect(source).not.toContain('recordAdministratorSecurityEvent');
   });
 
   it('keeps license mutations transaction-backed without lifecycle idempotency inputs', () => {
@@ -215,8 +219,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const createTenantEmployeeProfile = onCall');
     expect(source).toContain('async function syncEmployeeOutletAssignment');
     expect(source).toContain('deleteTenantEmployeeOutletTrusted');
-    expect(source).toContain('await syncEmployeeOutletAssignment({ organizationId, employeeId: id, assignmentScope, outletId, currentOutletIds, actorFirebaseUid: actor, requestId });');
-    expect(source).toContain('await syncEmployeeOutletAssignment({ organizationId, employeeId: id, assignmentScope, outletId, currentOutletIds: [], actorFirebaseUid: actor, requestId });');
+    expect(source).toContain('await syncEmployeeOutletAssignment({ organizationId, employeeId: id, assignmentScope, outletId, currentOutletIds });');
+    expect(source).toContain('await syncEmployeeOutletAssignment({ organizationId, employeeId: id, assignmentScope, outletId, currentOutletIds: [] });');
     expect(connectorSource).toContain('mutation DeleteTenantEmployeeOutletTrusted');
   });
 
@@ -228,18 +232,17 @@ describe('tenant callable contract', () => {
     expect(source).toContain("const address = typeof d.address === 'string' ? d.address.trim() || null : null");
     expect(source).toContain('address, specialization');
     expect(source).toContain('const notes = typeof d.notes === \'string\' ? d.notes.trim() || null : null');
-    expect(source).toContain('notes, auditId: randomUUID()');
+    expect(source).toContain('assignmentScope, notes });');
     expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');
     expect(source).toContain('export const assignTenantServicePersonOutlet = onCall');
     expect(source).toContain('deleteTenantServicePersonOutletTrusted');
-    expect(source).toContain('outlet-unassignment');
     expect(source).toContain('current.servicePersonOutlets_on_servicePerson.entries()');
     const deleteServicePersonSource = source.slice(source.indexOf('export const deleteTenantServicePerson = onCall'));
     expect(deleteServicePersonSource.indexOf('deleteTenantServicePersonOutletTrusted'))
       .toBeLessThan(deleteServicePersonSource.indexOf('deleteTenantServicePersonTrusted'));
     expect(source).toContain("const outletId = typeof d.outletId === 'string' ? d.outletId : ''");
     expect(source).toContain("if (assignmentScope === 'OUTLET') await assignTenantServicePersonOutletTrusted");
-    expect(source).toContain('requestId: `${requestId}:outlet-assignment`');
+    expect(source).not.toContain('requestId: `${requestId}:outlet-assignment`');
     const updateServicePersonSource = source.slice(source.indexOf('export const updateTenantServicePerson = onCall'));
     expect(updateServicePersonSource.lastIndexOf('assignTenantServicePersonOutletTrusted({ organizationId, servicePersonId: id'))
       .toBeLessThan(updateServicePersonSource.lastIndexOf('getTenantServicePersonTrusted({ organizationId, id })'));
@@ -261,7 +264,7 @@ describe('tenant callable contract', () => {
     expect(source).toContain('resolveProductTaxonomy');
     expect(source).toContain('createTenantCategoryTrusted');
     expect(source).toContain('createTenantSubcategoryTrusted');
-    expect(source).toContain('requestId: `${requestId}:subcategory`');
+    expect(source).not.toContain('requestId: `${requestId}:subcategory`');
     expect(source).not.toContain('createTenantCategoryTrusted({ id: randomUUID(), organizationId, value: categoryName.trim(), auditId: randomUUID(), requestId: randomUUID()');
     expect(source).toContain('export const changeTenantProductStatus = onCall');
     expect(source).toContain('export const adjustTenantInventoryStock = onCall');

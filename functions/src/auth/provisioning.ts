@@ -31,13 +31,6 @@ export interface ProvisionDeps {
   sql: {
     provision(input: NormalizedProvisionInput & { firebaseUid: string }): Promise<ProvisionResult>;
   };
-  reconcile: {
-    record(input: {
-      idempotencyKey: string;
-      firebaseUid: string;
-      errorClass: 'auth_compensation_failed';
-    }): Promise<void>;
-  };
 }
 
 export async function orchestrateProvision(input: ProvisionInput, deps: ProvisionDeps): Promise<ProvisionResult> {
@@ -53,9 +46,9 @@ export async function orchestrateProvision(input: ProvisionInput, deps: Provisio
       try {
         await deps.auth.compensate(uid);
       } catch {
-        await deps.reconcile.record({
-          idempotencyKey: `${normalized.organizationId}:${uid}`,
-          firebaseUid: uid,
+        console.error('Firebase Auth compensation failed', {
+          operation: 'organization_administrator_provisioning',
+          organizationId: normalized.organizationId,
           errorClass: 'auth_compensation_failed',
         });
       }

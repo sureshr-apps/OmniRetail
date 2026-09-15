@@ -98,8 +98,6 @@ class OrganizationAdminService implements IOrganizationAdminService {
         userId: administratorId,
         displayName: input.name.trim(),
         phone: input.phone.trim(),
-        auditId: globalThis.crypto.randomUUID(),
-        requestId: globalThis.crypto.randomUUID(),
       });
       // Data Connect doesn't support a second `query` block in this
       // @transaction mutation (see the outlet service note on this), so a

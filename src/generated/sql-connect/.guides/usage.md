@@ -12,7 +12,7 @@ For each operation, there is a wrapper hook that can be used to call the operati
 
 Here are all of the hooks that get generated:
 ```ts
-import { useGetCurrentUserAuthorization, useGetUserAuthorizationByFirebaseUid, useResolveUsernameLogin, useRecordSuccessfulLogin, useUpdateAppUserProfile, useRecordPasswordChange, useGetAppUserForBootstrap, useBootstrapMasterAdmin, useGetCurrentAppUser, useGetAppUserByFirebaseUid } from '@omniretail/sql-connect/react';
+import { useGetCurrentUserAuthorization, useGetUserAuthorizationByFirebaseUid, useResolveUsernameLogin, useRecordSuccessfulLogin, useUpdateAppUserProfile, useGetAppUserForBootstrap, useBootstrapMasterAdmin, useGetCurrentAppUser, useGetAppUserByFirebaseUid, useListLicensePlans } from '@omniretail/sql-connect/react';
 // The types of these hooks are available in react/index.d.ts
 
 const { data, isPending, isSuccess, isError, error } = useGetCurrentUserAuthorization();
@@ -25,8 +25,6 @@ const { data, isPending, isSuccess, isError, error } = useRecordSuccessfulLogin(
 
 const { data, isPending, isSuccess, isError, error } = useUpdateAppUserProfile(updateAppUserProfileVars);
 
-const { data, isPending, isSuccess, isError, error } = useRecordPasswordChange(recordPasswordChangeVars);
-
 const { data, isPending, isSuccess, isError, error } = useGetAppUserForBootstrap(getAppUserForBootstrapVars);
 
 const { data, isPending, isSuccess, isError, error } = useBootstrapMasterAdmin(bootstrapMasterAdminVars);
@@ -34,6 +32,8 @@ const { data, isPending, isSuccess, isError, error } = useBootstrapMasterAdmin(b
 const { data, isPending, isSuccess, isError, error } = useGetCurrentAppUser();
 
 const { data, isPending, isSuccess, isError, error } = useGetAppUserByFirebaseUid(getAppUserByFirebaseUidVars);
+
+const { data, isPending, isSuccess, isError, error } = useListLicensePlans();
 
 ```
 
@@ -72,10 +72,10 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { getCurrentUserAuthorization, getUserAuthorizationByFirebaseUid, resolveUsernameLogin, recordSuccessfulLogin, updateAppUserProfile, recordPasswordChange, getAppUserForBootstrap, bootstrapMasterAdmin, getCurrentAppUser, getAppUserByFirebaseUid } from '@omniretail/sql-connect';
+import { getCurrentUserAuthorization, getUserAuthorizationByFirebaseUid, resolveUsernameLogin, recordSuccessfulLogin, updateAppUserProfile, getAppUserForBootstrap, bootstrapMasterAdmin, getCurrentAppUser, getAppUserByFirebaseUid, listLicensePlans } from '@omniretail/sql-connect';
 
 
-// Operation GetCurrentUserAuthorization: 
+// Operation GetCurrentUserAuthorization:
 const { data } = await GetCurrentUserAuthorization(dataConnect);
 
 // Operation GetUserAuthorizationByFirebaseUid:  For variables, look at type GetUserAuthorizationByFirebaseUidVars in ../index.d.ts
@@ -90,20 +90,20 @@ const { data } = await RecordSuccessfulLogin(dataConnect, recordSuccessfulLoginV
 // Operation UpdateAppUserProfile:  For variables, look at type UpdateAppUserProfileVars in ../index.d.ts
 const { data } = await UpdateAppUserProfile(dataConnect, updateAppUserProfileVars);
 
-// Operation RecordPasswordChange:  For variables, look at type RecordPasswordChangeVars in ../index.d.ts
-const { data } = await RecordPasswordChange(dataConnect, recordPasswordChangeVars);
-
 // Operation GetAppUserForBootstrap:  For variables, look at type GetAppUserForBootstrapVars in ../index.d.ts
 const { data } = await GetAppUserForBootstrap(dataConnect, getAppUserForBootstrapVars);
 
 // Operation BootstrapMasterAdmin:  For variables, look at type BootstrapMasterAdminVars in ../index.d.ts
 const { data } = await BootstrapMasterAdmin(dataConnect, bootstrapMasterAdminVars);
 
-// Operation GetCurrentAppUser: 
+// Operation GetCurrentAppUser:
 const { data } = await GetCurrentAppUser(dataConnect);
 
 // Operation GetAppUserByFirebaseUid:  For variables, look at type GetAppUserByFirebaseUidVars in ../index.d.ts
 const { data } = await GetAppUserByFirebaseUid(dataConnect, getAppUserByFirebaseUidVars);
+
+// Operation ListLicensePlans:
+const { data } = await ListLicensePlans(dataConnect);
 
 
 ```

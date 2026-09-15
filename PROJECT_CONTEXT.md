@@ -774,46 +774,25 @@ License writes use trusted Cloud Functions plus internal:
 
 Data Connect transactional mutations.
 
-License update/create + LicenseHistory + AuditEvent must succeed/fail atomically in PostgreSQL.
+License update/create + LicenseHistory must succeed/fail atomically in PostgreSQL. Operational failures are emitted to Cloud Logging; no generic database audit-event table is maintained.
 
 Browser clients never choose arbitrary history event types or snapshot values.
 
 ---
 
-## 24. Reconciliation
+## 24. Operational failure handling
 
-Cross-system Auth/SQL failures that cannot be compensated cleanly are recorded through reconciliation state.
+Cross-system Auth/SQL failures that cannot be compensated cleanly are emitted as structured Cloud Functions logs (`console.error`) and surfaced through the original callable failure. The application does not maintain a `ProvisioningReconciliation` table or reconciliation queue.
 
-Never silently ignore partial lifecycle failure.
-
-Reconciliation records contain no passwords/tokens.
+Operational logs never include passwords, password hashes, tokens, or reset codes. They are intended for Cloud Logging investigation, not in-app history or retry orchestration.
 
 ---
 
-## 25. Audit
+## 25. Operational logs and business history
 
-Important administrative mutations write AuditEvent records.
+Cloud Functions emit safe security-operation summaries and failure details to Cloud Logging. The application does not persist a generic `AuditEvent` table.
 
-Audit identifies:
-
-- actor
-- action
-- target
-- organization where relevant
-- timestamp
-- safe metadata
-
-Audit never stores:
-
-- passwords
-- password hashes
-- tokens
-- reset codes
-
-LicenseHistory and AuditEvent have different responsibilities:
-
-- LicenseHistory = business history of the agreement
-- AuditEvent = who performed the administrative action
+`LicenseHistory` remains the business history of licensing agreements; it is not a substitute for operational logs.
 
 ---
 

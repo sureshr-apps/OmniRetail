@@ -133,13 +133,17 @@ describe('tenant Data Connect foundation schema', () => {
     }
   });
 
-  it('does not define the retired lifecycle idempotency table or connector operations', () => {
+  it('does not define retired lifecycle, reconciliation, or database audit storage', () => {
     const schemaSource = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     expect(schemaSource).not.toContain('type LifecycleIdempotency');
     expect(schemaSource).not.toContain('enum ProvisioningAttemptStatus');
+    expect(schemaSource).not.toContain('type ProvisioningReconciliation');
+    expect(schemaSource).not.toContain('type AuditEvent');
     expect(connector).not.toContain('LifecycleIdempotency');
     expect(connector).not.toContain('lifecycleIdempotency');
+    expect(connector).not.toContain('ProvisioningReconciliation');
+    expect(connector).not.toContain('auditEvent_');
   });
 
   it('includes employee profile fields in reads and trusted write operations', () => {

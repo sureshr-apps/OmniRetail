@@ -81,7 +81,7 @@ jobs:
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/migrate-product-taxonomy.mjs
 
-      - name: Remove retired LifecycleIdempotency storage
+      - name: Remove retired lifecycle, reconciliation, and audit storage
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-lifecycle-idempotency.mjs
 

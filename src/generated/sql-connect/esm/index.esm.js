@@ -194,18 +194,6 @@ export function updateAppUserProfile(dcOrVars, vars) {
   return executeMutation(updateAppUserProfileRef(dcInstance, inputVars));
 }
 
-export const recordPasswordChangeRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'RecordPasswordChange', inputVars);
-}
-recordPasswordChangeRef.operationName = 'RecordPasswordChange';
-
-export function recordPasswordChange(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(recordPasswordChangeRef(dcInstance, inputVars));
-}
-
 export const getAppUserForBootstrapRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -521,18 +509,6 @@ export function resolveOrganizationAdministratorIdentity(dcOrVars, varsOrOptions
   return executeQuery(resolveOrganizationAdministratorIdentityRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
-export const recordAdministratorSecurityEventRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'RecordAdministratorSecurityEvent', inputVars);
-}
-recordAdministratorSecurityEventRef.operationName = 'RecordAdministratorSecurityEvent';
-
-export function recordAdministratorSecurityEvent(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(recordAdministratorSecurityEventRef(dcInstance, inputVars));
-}
-
 export const getOrganizationLicenseRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -694,18 +670,6 @@ renewOrganizationLicenseTrustedRef.operationName = 'RenewOrganizationLicenseTrus
 export function renewOrganizationLicenseTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(renewOrganizationLicenseTrustedRef(dcInstance, inputVars));
-}
-
-export const recordProvisioningReconciliationRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'RecordProvisioningReconciliation', inputVars);
-}
-recordProvisioningReconciliationRef.operationName = 'RecordProvisioningReconciliation';
-
-export function recordProvisioningReconciliation(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(recordProvisioningReconciliationRef(dcInstance, inputVars));
 }
 
 export const createOrganizationRef = (dcOrVars, vars) => {

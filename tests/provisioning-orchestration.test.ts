@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { orchestrateProvision, type ProvisionDeps } from '../functions/src/auth/provisioning';
 
 function fakes(sqlFail = false, compensationFail = false) {
-  const state: any = { preflight: 0, auth: 0, sql: 0, compensate: 0, reconcile: [] };
+  const state: any = { preflight: 0, auth: 0, sql: 0, compensate: 0 };
   const deps: ProvisionDeps = {
     async preflight() { state.preflight++; },
     auth: {
@@ -26,7 +26,6 @@ function fakes(sqlFail = false, compensationFail = false) {
         };
       },
     },
-    reconcile: { async record(record) { state.reconcile.push(record); } },
   };
   return { state, deps };
 }
@@ -58,12 +57,19 @@ describe('organization administrator provisioning', () => {
     await expect(orchestrateProvision(input, deps)).rejects.toThrow('sql');
     expect(state.auth).toBe(1);
     expect(state.compensate).toBe(1);
-    expect(state.reconcile).toEqual([]);
   });
 
-  it('records reconciliation when Firebase cleanup also fails', async () => {
+  it('logs when Firebase cleanup also fails without requiring a reconciliation table', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const { state, deps } = fakes(true, true);
     await expect(orchestrateProvision(input, deps)).rejects.toThrow('sql');
-    expect(state.reconcile).toEqual([{ idempotencyKey: 'org:uid-1', firebaseUid: 'uid-1', errorClass: 'auth_compensation_failed' }]);
+    expect(errorSpy).toHaveBeenCalledWith('Firebase Auth compensation failed', {
+      operation: 'organization_administrator_provisioning',
+      organizationId: 'org',
+      errorClass: 'auth_compensation_failed',
+    });
+    errorSpy.mockRestore();
   });
 });
+
+afterEach(() => vi.restoreAllMocks());

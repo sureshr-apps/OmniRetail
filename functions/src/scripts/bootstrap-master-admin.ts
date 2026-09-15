@@ -6,7 +6,6 @@ import {
   bootstrapMasterAdmin,
   getAppUserForBootstrap,
 } from '@omniretail/sql-connect-admin';
-import { deterministicUuid } from '../auth/bootstrap.js';
 
 const MASTER_ADMIN_ROLE_ID = '00000000-0000-4000-8000-000000000001';
 
@@ -118,8 +117,6 @@ async function main(): Promise<void> {
   const { user: firebaseUser, created } = await findOrCreateFirebaseUser(email, displayName, password);
   const existing = (await getAppUserForBootstrap({ firebaseUid: firebaseUser.uid })).data.appUsers[0];
   const userId = existing?.id ?? randomUUID();
-  const auditId = deterministicUuid(`bootstrap-master-admin:${firebaseUser.uid}`);
-
   await bootstrapMasterAdmin({
     userId,
     firebaseUid: firebaseUser.uid,
@@ -128,8 +125,6 @@ async function main(): Promise<void> {
     displayName,
     phone,
     roleId: MASTER_ADMIN_ROLE_ID,
-    auditId,
-    requestId: `bootstrap-master-admin:${firebaseUser.uid}`,
   });
 
   if (!firebaseUser.emailVerified) {

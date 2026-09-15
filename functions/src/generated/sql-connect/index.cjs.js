@@ -184,13 +184,6 @@ function updateAppUserProfile(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.updateAppUserProfile = updateAppUserProfile;
 
-function recordPasswordChange(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('RecordPasswordChange', inputVars, inputOpts);
-}
-exports.recordPasswordChange = recordPasswordChange;
-
 function getAppUserForBootstrap(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -366,13 +359,6 @@ function resolveOrganizationAdministratorIdentity(dcOrVarsOrOptions, varsOrOptio
 }
 exports.resolveOrganizationAdministratorIdentity = resolveOrganizationAdministratorIdentity;
 
-function recordAdministratorSecurityEvent(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('RecordAdministratorSecurityEvent', inputVars, inputOpts);
-}
-exports.recordAdministratorSecurityEvent = recordAdministratorSecurityEvent;
-
 function getOrganizationLicense(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -463,13 +449,6 @@ function renewOrganizationLicenseTrusted(dcOrVarsOrOptions, varsOrOptions, optio
   return dcInstance.executeMutation('RenewOrganizationLicenseTrusted', inputVars, inputOpts);
 }
 exports.renewOrganizationLicenseTrusted = renewOrganizationLicenseTrusted;
-
-function recordProvisioningReconciliation(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('RecordProvisioningReconciliation', inputVars, inputOpts);
-}
-exports.recordProvisioningReconciliation = recordProvisioningReconciliation;
 
 function createOrganization(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);

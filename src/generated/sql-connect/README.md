@@ -60,7 +60,6 @@ This README will guide you through the process of using the generated JavaScript
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
-  - [*RecordPasswordChange*](#recordpasswordchange)
   - [*BootstrapMasterAdmin*](#bootstrapmasteradmin)
   - [*CreateLicensePlan*](#createlicenseplan)
   - [*UpdateLicensePlan*](#updatelicenseplan)
@@ -71,14 +70,12 @@ This README will guide you through the process of using the generated JavaScript
   - [*EnsureAppUserRoleTrusted*](#ensureappuserroletrusted)
   - [*UpdateOrganizationAdministrator*](#updateorganizationadministrator)
   - [*ChangeOrganizationAdministratorStatus*](#changeorganizationadministratorstatus)
-  - [*RecordAdministratorSecurityEvent*](#recordadministratorsecurityevent)
   - [*DeleteOrganizationTrusted*](#deleteorganizationtrusted)
   - [*DeleteAppUserTrusted*](#deleteappusertrusted)
   - [*AssignOrganizationLicenseTrusted*](#assignorganizationlicensetrusted)
   - [*ChangeOrganizationLicensePlanTrusted*](#changeorganizationlicenseplantrusted)
   - [*ModifyOrganizationCommercialTermsTrusted*](#modifyorganizationcommercialtermstrusted)
   - [*RenewOrganizationLicenseTrusted*](#reneworganizationlicensetrusted)
-  - [*RecordProvisioningReconciliation*](#recordprovisioningreconciliation)
   - [*CreateOrganization*](#createorganization)
   - [*UpdateOrganization*](#updateorganization)
   - [*ChangeOrganizationStatus*](#changeorganizationstatus)
@@ -6377,8 +6374,6 @@ The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccess
 ```typescript
 export interface RecordSuccessfulLoginVariables {
   userId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6388,7 +6383,6 @@ The `data` property is an object of type `RecordSuccessfulLoginData`, which is d
 ```typescript
 export interface RecordSuccessfulLoginData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `RecordSuccessfulLogin`'s action shortcut function
@@ -6400,28 +6394,24 @@ import { connectorConfig, recordSuccessfulLogin, RecordSuccessfulLoginVariables 
 // The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`:
 const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
   userId: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `recordSuccessfulLogin()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await recordSuccessfulLogin(recordSuccessfulLoginVars);
 // Variables can be defined inline as well.
-const { data } = await recordSuccessfulLogin({ userId: ..., auditId: ..., requestId: ..., });
+const { data } = await recordSuccessfulLogin({ userId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await recordSuccessfulLogin(dataConnect, recordSuccessfulLoginVars);
 
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 recordSuccessfulLogin(recordSuccessfulLoginVars).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -6434,14 +6424,12 @@ import { connectorConfig, recordSuccessfulLoginRef, RecordSuccessfulLoginVariabl
 // The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`:
 const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
   userId: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `recordSuccessfulLoginRef()` function to get a reference to the mutation.
 const ref = recordSuccessfulLoginRef(recordSuccessfulLoginVars);
 // Variables can be defined inline as well.
-const ref = recordSuccessfulLoginRef({ userId: ..., auditId: ..., requestId: ..., });
+const ref = recordSuccessfulLoginRef({ userId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6452,13 +6440,11 @@ const ref = recordSuccessfulLoginRef(dataConnect, recordSuccessfulLoginVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -6499,8 +6485,6 @@ export interface UpdateAppUserProfileVariables {
   userId: UUIDString;
   displayName: string;
   phone?: string | null;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6510,7 +6494,6 @@ The `data` property is an object of type `UpdateAppUserProfileData`, which is de
 ```typescript
 export interface UpdateAppUserProfileData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateAppUserProfile`'s action shortcut function
@@ -6524,28 +6507,24 @@ const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
   userId: ...,
   displayName: ...,
   phone: ..., // optional
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateAppUserProfile()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateAppUserProfile(updateAppUserProfileVars);
 // Variables can be defined inline as well.
-const { data } = await updateAppUserProfile({ userId: ..., displayName: ..., phone: ..., auditId: ..., requestId: ..., });
+const { data } = await updateAppUserProfile({ userId: ..., displayName: ..., phone: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateAppUserProfile(dataConnect, updateAppUserProfileVars);
 
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateAppUserProfile(updateAppUserProfileVars).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -6560,14 +6539,12 @@ const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
   userId: ...,
   displayName: ...,
   phone: ..., // optional
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateAppUserProfileRef()` function to get a reference to the mutation.
 const ref = updateAppUserProfileRef(updateAppUserProfileVars);
 // Variables can be defined inline as well.
-const ref = updateAppUserProfileRef({ userId: ..., displayName: ..., phone: ..., auditId: ..., requestId: ..., });
+const ref = updateAppUserProfileRef({ userId: ..., displayName: ..., phone: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6578,128 +6555,11 @@ const ref = updateAppUserProfileRef(dataConnect, updateAppUserProfileVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
-});
-```
-
-## RecordPasswordChange
-You can execute the `RecordPasswordChange` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-recordPasswordChange(vars: RecordPasswordChangeVariables): MutationPromise<RecordPasswordChangeData, RecordPasswordChangeVariables>;
-
-interface RecordPasswordChangeRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: RecordPasswordChangeVariables): MutationRef<RecordPasswordChangeData, RecordPasswordChangeVariables>;
-}
-export const recordPasswordChangeRef: RecordPasswordChangeRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
-recordPasswordChange(dc: DataConnect, vars: RecordPasswordChangeVariables): MutationPromise<RecordPasswordChangeData, RecordPasswordChangeVariables>;
-
-interface RecordPasswordChangeRef {
-  ...
-  (dc: DataConnect, vars: RecordPasswordChangeVariables): MutationRef<RecordPasswordChangeData, RecordPasswordChangeVariables>;
-}
-export const recordPasswordChangeRef: RecordPasswordChangeRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the recordPasswordChangeRef:
-```typescript
-const name = recordPasswordChangeRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `RecordPasswordChange` mutation requires an argument of type `RecordPasswordChangeVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface RecordPasswordChangeVariables {
-  userId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-}
-```
-### Return Type
-Recall that executing the `RecordPasswordChange` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `RecordPasswordChangeData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface RecordPasswordChangeData {
-  auditEvent_insert: AuditEvent_Key;
-}
-```
-### Using `RecordPasswordChange`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, recordPasswordChange, RecordPasswordChangeVariables } from '@omniretail/sql-connect';
-
-// The `RecordPasswordChange` mutation requires an argument of type `RecordPasswordChangeVariables`:
-const recordPasswordChangeVars: RecordPasswordChangeVariables = {
-  userId: ...,
-  auditId: ...,
-  requestId: ...,
-};
-
-// Call the `recordPasswordChange()` function to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await recordPasswordChange(recordPasswordChangeVars);
-// Variables can be defined inline as well.
-const { data } = await recordPasswordChange({ userId: ..., auditId: ..., requestId: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await recordPasswordChange(dataConnect, recordPasswordChangeVars);
-
-console.log(data.auditEvent_insert);
-
-// Or, you can use the `Promise` API.
-recordPasswordChange(recordPasswordChangeVars).then((response) => {
-  const data = response.data;
-  console.log(data.auditEvent_insert);
-});
-```
-
-### Using `RecordPasswordChange`'s `MutationRef` function
-
-```typescript
-import { getDataConnect, executeMutation } from 'firebase/data-connect';
-import { connectorConfig, recordPasswordChangeRef, RecordPasswordChangeVariables } from '@omniretail/sql-connect';
-
-// The `RecordPasswordChange` mutation requires an argument of type `RecordPasswordChangeVariables`:
-const recordPasswordChangeVars: RecordPasswordChangeVariables = {
-  userId: ...,
-  auditId: ...,
-  requestId: ...,
-};
-
-// Call the `recordPasswordChangeRef()` function to get a reference to the mutation.
-const ref = recordPasswordChangeRef(recordPasswordChangeVars);
-// Variables can be defined inline as well.
-const ref = recordPasswordChangeRef({ userId: ..., auditId: ..., requestId: ..., });
-
-// You can also pass in a `DataConnect` instance to the `MutationRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = recordPasswordChangeRef(dataConnect, recordPasswordChangeVars);
-
-// Call `executeMutation()` on the reference to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeMutation(ref);
-
-console.log(data.auditEvent_insert);
-
-// Or, you can use the `Promise` API.
-executeMutation(ref).then((response) => {
-  const data = response.data;
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -6744,8 +6604,6 @@ export interface BootstrapMasterAdminVariables {
   displayName: string;
   phone?: string | null;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6756,7 +6614,6 @@ The `data` property is an object of type `BootstrapMasterAdminData`, which is de
 export interface BootstrapMasterAdminData {
   appUser_upsert: AppUser_Key;
   userRole_upsert: UserRole_Key;
-  auditEvent_upsert: AuditEvent_Key;
 }
 ```
 ### Using `BootstrapMasterAdmin`'s action shortcut function
@@ -6774,15 +6631,13 @@ const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
   displayName: ...,
   phone: ..., // optional
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `bootstrapMasterAdmin()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await bootstrapMasterAdmin(bootstrapMasterAdminVars);
 // Variables can be defined inline as well.
-const { data } = await bootstrapMasterAdmin({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., auditId: ..., requestId: ..., });
+const { data } = await bootstrapMasterAdmin({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6790,14 +6645,12 @@ const { data } = await bootstrapMasterAdmin(dataConnect, bootstrapMasterAdminVar
 
 console.log(data.appUser_upsert);
 console.log(data.userRole_upsert);
-console.log(data.auditEvent_upsert);
 
 // Or, you can use the `Promise` API.
 bootstrapMasterAdmin(bootstrapMasterAdminVars).then((response) => {
   const data = response.data;
   console.log(data.appUser_upsert);
   console.log(data.userRole_upsert);
-  console.log(data.auditEvent_upsert);
 });
 ```
 
@@ -6816,14 +6669,12 @@ const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
   displayName: ...,
   phone: ..., // optional
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `bootstrapMasterAdminRef()` function to get a reference to the mutation.
 const ref = bootstrapMasterAdminRef(bootstrapMasterAdminVars);
 // Variables can be defined inline as well.
-const ref = bootstrapMasterAdminRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., auditId: ..., requestId: ..., });
+const ref = bootstrapMasterAdminRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6835,14 +6686,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.appUser_upsert);
 console.log(data.userRole_upsert);
-console.log(data.auditEvent_upsert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.appUser_upsert);
   console.log(data.userRole_upsert);
-  console.log(data.auditEvent_upsert);
 });
 ```
 
@@ -6886,8 +6735,6 @@ export interface CreateLicensePlanVariables {
   level: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6897,7 +6744,6 @@ The `data` property is an object of type `CreateLicensePlanData`, which is defin
 ```typescript
 export interface CreateLicensePlanData {
   licensePlan_insert: LicensePlan_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateLicensePlan`'s action shortcut function
@@ -6914,28 +6760,24 @@ const createLicensePlanVars: CreateLicensePlanVariables = {
   level: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `createLicensePlan()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createLicensePlan(createLicensePlanVars);
 // Variables can be defined inline as well.
-const { data } = await createLicensePlan({ planCode: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., auditId: ..., requestId: ..., });
+const { data } = await createLicensePlan({ planCode: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createLicensePlan(dataConnect, createLicensePlanVars);
 
 console.log(data.licensePlan_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createLicensePlan(createLicensePlanVars).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -6953,14 +6795,12 @@ const createLicensePlanVars: CreateLicensePlanVariables = {
   level: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `createLicensePlanRef()` function to get a reference to the mutation.
 const ref = createLicensePlanRef(createLicensePlanVars);
 // Variables can be defined inline as well.
-const ref = createLicensePlanRef({ planCode: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., auditId: ..., requestId: ..., });
+const ref = createLicensePlanRef({ planCode: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -6971,13 +6811,11 @@ const ref = createLicensePlanRef(dataConnect, createLicensePlanVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.licensePlan_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7021,8 +6859,6 @@ export interface UpdateLicensePlanVariables {
   level: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7032,7 +6868,6 @@ The `data` property is an object of type `UpdateLicensePlanData`, which is defin
 ```typescript
 export interface UpdateLicensePlanData {
   licensePlan_update?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateLicensePlan`'s action shortcut function
@@ -7049,28 +6884,24 @@ const updateLicensePlanVars: UpdateLicensePlanVariables = {
   level: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateLicensePlan()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateLicensePlan(updateLicensePlanVars);
 // Variables can be defined inline as well.
-const { data } = await updateLicensePlan({ id: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., auditId: ..., requestId: ..., });
+const { data } = await updateLicensePlan({ id: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateLicensePlan(dataConnect, updateLicensePlanVars);
 
 console.log(data.licensePlan_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateLicensePlan(updateLicensePlanVars).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7088,14 +6919,12 @@ const updateLicensePlanVars: UpdateLicensePlanVariables = {
   level: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateLicensePlanRef()` function to get a reference to the mutation.
 const ref = updateLicensePlanRef(updateLicensePlanVars);
 // Variables can be defined inline as well.
-const ref = updateLicensePlanRef({ id: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., auditId: ..., requestId: ..., });
+const ref = updateLicensePlanRef({ id: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7106,13 +6935,11 @@ const ref = updateLicensePlanRef(dataConnect, updateLicensePlanVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.licensePlan_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7152,9 +6979,6 @@ The `ChangeLicensePlanStatus` mutation requires an argument of type `ChangeLicen
 export interface ChangeLicensePlanStatusVariables {
   id: UUIDString;
   status: LicensePlanStatus;
-  action: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7164,7 +6988,6 @@ The `data` property is an object of type `ChangeLicensePlanStatusData`, which is
 ```typescript
 export interface ChangeLicensePlanStatusData {
   licensePlan_update?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeLicensePlanStatus`'s action shortcut function
@@ -7177,29 +7000,24 @@ import { connectorConfig, changeLicensePlanStatus, ChangeLicensePlanStatusVariab
 const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
   id: ...,
   status: ...,
-  action: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `changeLicensePlanStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeLicensePlanStatus(changeLicensePlanStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeLicensePlanStatus({ id: ..., status: ..., action: ..., auditId: ..., requestId: ..., });
+const { data } = await changeLicensePlanStatus({ id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeLicensePlanStatus(dataConnect, changeLicensePlanStatusVars);
 
 console.log(data.licensePlan_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeLicensePlanStatus(changeLicensePlanStatusVars).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7213,15 +7031,12 @@ import { connectorConfig, changeLicensePlanStatusRef, ChangeLicensePlanStatusVar
 const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
   id: ...,
   status: ...,
-  action: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `changeLicensePlanStatusRef()` function to get a reference to the mutation.
 const ref = changeLicensePlanStatusRef(changeLicensePlanStatusVars);
 // Variables can be defined inline as well.
-const ref = changeLicensePlanStatusRef({ id: ..., status: ..., action: ..., auditId: ..., requestId: ..., });
+const ref = changeLicensePlanStatusRef({ id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7232,13 +7047,11 @@ const ref = changeLicensePlanStatusRef(dataConnect, changeLicensePlanStatusVars)
 const { data } = await executeMutation(ref);
 
 console.log(data.licensePlan_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7277,8 +7090,6 @@ The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlan
 ```typescript
 export interface DeleteLicensePlanVariables {
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7288,7 +7099,6 @@ The `data` property is an object of type `DeleteLicensePlanData`, which is defin
 ```typescript
 export interface DeleteLicensePlanData {
   licensePlan_delete?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteLicensePlan`'s action shortcut function
@@ -7300,28 +7110,24 @@ import { connectorConfig, deleteLicensePlan, DeleteLicensePlanVariables } from '
 // The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
 const deleteLicensePlanVars: DeleteLicensePlanVariables = {
   id: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `deleteLicensePlan()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteLicensePlan(deleteLicensePlanVars);
 // Variables can be defined inline as well.
-const { data } = await deleteLicensePlan({ id: ..., auditId: ..., requestId: ..., });
+const { data } = await deleteLicensePlan({ id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteLicensePlan(dataConnect, deleteLicensePlanVars);
 
 console.log(data.licensePlan_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteLicensePlan(deleteLicensePlanVars).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7334,14 +7140,12 @@ import { connectorConfig, deleteLicensePlanRef, DeleteLicensePlanVariables } fro
 // The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
 const deleteLicensePlanVars: DeleteLicensePlanVariables = {
   id: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `deleteLicensePlanRef()` function to get a reference to the mutation.
 const ref = deleteLicensePlanRef(deleteLicensePlanVars);
 // Variables can be defined inline as well.
-const ref = deleteLicensePlanRef({ id: ..., auditId: ..., requestId: ..., });
+const ref = deleteLicensePlanRef({ id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7352,13 +7156,11 @@ const ref = deleteLicensePlanRef(dataConnect, deleteLicensePlanVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.licensePlan_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7397,9 +7199,6 @@ The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLice
 ```typescript
 export interface DeleteLicensePlanTrustedVariables {
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -7409,7 +7208,6 @@ The `data` property is an object of type `DeleteLicensePlanTrustedData`, which i
 ```typescript
 export interface DeleteLicensePlanTrustedData {
   licensePlan_delete?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteLicensePlanTrusted`'s action shortcut function
@@ -7421,29 +7219,24 @@ import { connectorConfig, deleteLicensePlanTrusted, DeleteLicensePlanTrustedVari
 // The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
 const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteLicensePlanTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteLicensePlanTrusted(deleteLicensePlanTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteLicensePlanTrusted({ id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteLicensePlanTrusted({ id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteLicensePlanTrusted(dataConnect, deleteLicensePlanTrustedVars);
 
 console.log(data.licensePlan_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteLicensePlanTrusted(deleteLicensePlanTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7456,15 +7249,12 @@ import { connectorConfig, deleteLicensePlanTrustedRef, DeleteLicensePlanTrustedV
 // The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
 const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteLicensePlanTrustedRef()` function to get a reference to the mutation.
 const ref = deleteLicensePlanTrustedRef(deleteLicensePlanTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteLicensePlanTrustedRef({ id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteLicensePlanTrustedRef({ id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7475,13 +7265,11 @@ const ref = deleteLicensePlanTrustedRef(dataConnect, deleteLicensePlanTrustedVar
 const { data } = await executeMutation(ref);
 
 console.log(data.licensePlan_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.licensePlan_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7527,8 +7315,6 @@ export interface ProvisionOrganizationAdministratorVariables {
   phone: string;
   organizationId: UUIDString;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7540,7 +7326,6 @@ export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ProvisionOrganizationAdministrator`'s action shortcut function
@@ -7559,15 +7344,13 @@ const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministrator
   phone: ...,
   organizationId: ...,
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `provisionOrganizationAdministrator()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await provisionOrganizationAdministrator(provisionOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const { data } = await provisionOrganizationAdministrator({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
+const { data } = await provisionOrganizationAdministrator({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7576,7 +7359,6 @@ const { data } = await provisionOrganizationAdministrator(dataConnect, provision
 console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then((response) => {
@@ -7584,7 +7366,6 @@ provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then(
   console.log(data.appUser_insert);
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7604,14 +7385,12 @@ const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministrator
   phone: ...,
   organizationId: ...,
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `provisionOrganizationAdministratorRef()` function to get a reference to the mutation.
 const ref = provisionOrganizationAdministratorRef(provisionOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const ref = provisionOrganizationAdministratorRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
+const ref = provisionOrganizationAdministratorRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7624,7 +7403,6 @@ const { data } = await executeMutation(ref);
 console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -7632,7 +7410,6 @@ executeMutation(ref).then((response) => {
   console.log(data.appUser_insert);
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7786,8 +7563,6 @@ export interface UpdateOrganizationAdministratorVariables {
   userId: UUIDString;
   displayName: string;
   phone: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7797,7 +7572,6 @@ The `data` property is an object of type `UpdateOrganizationAdministratorData`, 
 ```typescript
 export interface UpdateOrganizationAdministratorData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateOrganizationAdministrator`'s action shortcut function
@@ -7812,28 +7586,24 @@ const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariab
   userId: ...,
   displayName: ...,
   phone: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateOrganizationAdministrator()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateOrganizationAdministrator(updateOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const { data } = await updateOrganizationAdministrator({ organizationId: ..., userId: ..., displayName: ..., phone: ..., auditId: ..., requestId: ..., });
+const { data } = await updateOrganizationAdministrator({ organizationId: ..., userId: ..., displayName: ..., phone: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateOrganizationAdministrator(dataConnect, updateOrganizationAdministratorVars);
 
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateOrganizationAdministrator(updateOrganizationAdministratorVars).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7849,14 +7619,12 @@ const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariab
   userId: ...,
   displayName: ...,
   phone: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateOrganizationAdministratorRef()` function to get a reference to the mutation.
 const ref = updateOrganizationAdministratorRef(updateOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const ref = updateOrganizationAdministratorRef({ organizationId: ..., userId: ..., displayName: ..., phone: ..., auditId: ..., requestId: ..., });
+const ref = updateOrganizationAdministratorRef({ organizationId: ..., userId: ..., displayName: ..., phone: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7867,13 +7635,11 @@ const ref = updateOrganizationAdministratorRef(dataConnect, updateOrganizationAd
 const { data } = await executeMutation(ref);
 
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7915,10 +7681,6 @@ export interface ChangeOrganizationAdministratorStatusVariables {
   userId: UUIDString;
   status: AppUserStatus;
   membershipStatus: MembershipStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid?: string | null;
-  action?: string | null;
 }
 ```
 ### Return Type
@@ -7929,7 +7691,6 @@ The `data` property is an object of type `ChangeOrganizationAdministratorStatusD
 export interface ChangeOrganizationAdministratorStatusData {
   appUser_update?: AppUser_Key | null;
   organizationMembership_update?: OrganizationMembership_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeOrganizationAdministratorStatus`'s action shortcut function
@@ -7944,17 +7705,13 @@ const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministrator
   userId: ...,
   status: ...,
   membershipStatus: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ..., // optional
-  action: ..., // optional
 };
 
 // Call the `changeOrganizationAdministratorStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeOrganizationAdministratorStatus(changeOrganizationAdministratorStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeOrganizationAdministratorStatus({ organizationId: ..., userId: ..., status: ..., membershipStatus: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., action: ..., });
+const { data } = await changeOrganizationAdministratorStatus({ organizationId: ..., userId: ..., status: ..., membershipStatus: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7962,14 +7719,12 @@ const { data } = await changeOrganizationAdministratorStatus(dataConnect, change
 
 console.log(data.appUser_update);
 console.log(data.organizationMembership_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeOrganizationAdministratorStatus(changeOrganizationAdministratorStatusVars).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
   console.log(data.organizationMembership_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -7985,16 +7740,12 @@ const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministrator
   userId: ...,
   status: ...,
   membershipStatus: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ..., // optional
-  action: ..., // optional
 };
 
 // Call the `changeOrganizationAdministratorStatusRef()` function to get a reference to the mutation.
 const ref = changeOrganizationAdministratorStatusRef(changeOrganizationAdministratorStatusVars);
 // Variables can be defined inline as well.
-const ref = changeOrganizationAdministratorStatusRef({ organizationId: ..., userId: ..., status: ..., membershipStatus: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., action: ..., });
+const ref = changeOrganizationAdministratorStatusRef({ organizationId: ..., userId: ..., status: ..., membershipStatus: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8006,138 +7757,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.appUser_update);
 console.log(data.organizationMembership_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.appUser_update);
   console.log(data.organizationMembership_update);
-  console.log(data.auditEvent_insert);
-});
-```
-
-## RecordAdministratorSecurityEvent
-You can execute the `RecordAdministratorSecurityEvent` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-recordAdministratorSecurityEvent(vars: RecordAdministratorSecurityEventVariables): MutationPromise<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
-
-interface RecordAdministratorSecurityEventRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: RecordAdministratorSecurityEventVariables): MutationRef<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
-}
-export const recordAdministratorSecurityEventRef: RecordAdministratorSecurityEventRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
-recordAdministratorSecurityEvent(dc: DataConnect, vars: RecordAdministratorSecurityEventVariables): MutationPromise<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
-
-interface RecordAdministratorSecurityEventRef {
-  ...
-  (dc: DataConnect, vars: RecordAdministratorSecurityEventVariables): MutationRef<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
-}
-export const recordAdministratorSecurityEventRef: RecordAdministratorSecurityEventRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the recordAdministratorSecurityEventRef:
-```typescript
-const name = recordAdministratorSecurityEventRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `RecordAdministratorSecurityEvent` mutation requires an argument of type `RecordAdministratorSecurityEventVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface RecordAdministratorSecurityEventVariables {
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  action: string;
-  targetId: UUIDString;
-  organizationId: UUIDString;
-  requestId: string;
-}
-```
-### Return Type
-Recall that executing the `RecordAdministratorSecurityEvent` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `RecordAdministratorSecurityEventData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface RecordAdministratorSecurityEventData {
-  auditEvent_insert: AuditEvent_Key;
-}
-```
-### Using `RecordAdministratorSecurityEvent`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, recordAdministratorSecurityEvent, RecordAdministratorSecurityEventVariables } from '@omniretail/sql-connect';
-
-// The `RecordAdministratorSecurityEvent` mutation requires an argument of type `RecordAdministratorSecurityEventVariables`:
-const recordAdministratorSecurityEventVars: RecordAdministratorSecurityEventVariables = {
-  auditId: ...,
-  actorFirebaseUid: ...,
-  action: ...,
-  targetId: ...,
-  organizationId: ...,
-  requestId: ...,
-};
-
-// Call the `recordAdministratorSecurityEvent()` function to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await recordAdministratorSecurityEvent(recordAdministratorSecurityEventVars);
-// Variables can be defined inline as well.
-const { data } = await recordAdministratorSecurityEvent({ auditId: ..., actorFirebaseUid: ..., action: ..., targetId: ..., organizationId: ..., requestId: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await recordAdministratorSecurityEvent(dataConnect, recordAdministratorSecurityEventVars);
-
-console.log(data.auditEvent_insert);
-
-// Or, you can use the `Promise` API.
-recordAdministratorSecurityEvent(recordAdministratorSecurityEventVars).then((response) => {
-  const data = response.data;
-  console.log(data.auditEvent_insert);
-});
-```
-
-### Using `RecordAdministratorSecurityEvent`'s `MutationRef` function
-
-```typescript
-import { getDataConnect, executeMutation } from 'firebase/data-connect';
-import { connectorConfig, recordAdministratorSecurityEventRef, RecordAdministratorSecurityEventVariables } from '@omniretail/sql-connect';
-
-// The `RecordAdministratorSecurityEvent` mutation requires an argument of type `RecordAdministratorSecurityEventVariables`:
-const recordAdministratorSecurityEventVars: RecordAdministratorSecurityEventVariables = {
-  auditId: ...,
-  actorFirebaseUid: ...,
-  action: ...,
-  targetId: ...,
-  organizationId: ...,
-  requestId: ...,
-};
-
-// Call the `recordAdministratorSecurityEventRef()` function to get a reference to the mutation.
-const ref = recordAdministratorSecurityEventRef(recordAdministratorSecurityEventVars);
-// Variables can be defined inline as well.
-const ref = recordAdministratorSecurityEventRef({ auditId: ..., actorFirebaseUid: ..., action: ..., targetId: ..., organizationId: ..., requestId: ..., });
-
-// You can also pass in a `DataConnect` instance to the `MutationRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = recordAdministratorSecurityEventRef(dataConnect, recordAdministratorSecurityEventVars);
-
-// Call `executeMutation()` on the reference to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeMutation(ref);
-
-console.log(data.auditEvent_insert);
-
-// Or, you can use the `Promise` API.
-executeMutation(ref).then((response) => {
-  const data = response.data;
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8406,9 +8031,6 @@ export interface AssignOrganizationLicenseTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -8419,7 +8041,6 @@ The `data` property is an object of type `AssignOrganizationLicenseTrustedData`,
 export interface AssignOrganizationLicenseTrustedData {
   organizationLicense_insert: OrganizationLicense_Key;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `AssignOrganizationLicenseTrusted`'s action shortcut function
@@ -8443,16 +8064,13 @@ const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVari
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
 };
 
 // Call the `assignOrganizationLicenseTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await assignOrganizationLicenseTrusted(assignOrganizationLicenseTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await assignOrganizationLicenseTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., });
+const { data } = await assignOrganizationLicenseTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8460,14 +8078,12 @@ const { data } = await assignOrganizationLicenseTrusted(dataConnect, assignOrgan
 
 console.log(data.organizationLicense_insert);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 assignOrganizationLicenseTrusted(assignOrganizationLicenseTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_insert);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8492,15 +8108,12 @@ const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVari
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
 };
 
 // Call the `assignOrganizationLicenseTrustedRef()` function to get a reference to the mutation.
 const ref = assignOrganizationLicenseTrustedRef(assignOrganizationLicenseTrustedVars);
 // Variables can be defined inline as well.
-const ref = assignOrganizationLicenseTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., });
+const ref = assignOrganizationLicenseTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8512,14 +8125,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.organizationLicense_insert);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_insert);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8570,9 +8181,6 @@ export interface ChangeOrganizationLicensePlanTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 ```
@@ -8584,7 +8192,6 @@ The `data` property is an object of type `ChangeOrganizationLicensePlanTrustedDa
 export interface ChangeOrganizationLicensePlanTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeOrganizationLicensePlanTrusted`'s action shortcut function
@@ -8608,9 +8215,6 @@ const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTru
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
   changes: ..., // optional
 };
 
@@ -8618,7 +8222,7 @@ const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTru
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeOrganizationLicensePlanTrusted(changeOrganizationLicensePlanTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await changeOrganizationLicensePlanTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+const { data } = await changeOrganizationLicensePlanTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8626,14 +8230,12 @@ const { data } = await changeOrganizationLicensePlanTrusted(dataConnect, changeO
 
 console.log(data.organizationLicense_update);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeOrganizationLicensePlanTrusted(changeOrganizationLicensePlanTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8658,16 +8260,13 @@ const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTru
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
   changes: ..., // optional
 };
 
 // Call the `changeOrganizationLicensePlanTrustedRef()` function to get a reference to the mutation.
 const ref = changeOrganizationLicensePlanTrustedRef(changeOrganizationLicensePlanTrustedVars);
 // Variables can be defined inline as well.
-const ref = changeOrganizationLicensePlanTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+const ref = changeOrganizationLicensePlanTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8679,14 +8278,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.organizationLicense_update);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8737,9 +8334,6 @@ export interface ModifyOrganizationCommercialTermsTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 ```
@@ -8751,7 +8345,6 @@ The `data` property is an object of type `ModifyOrganizationCommercialTermsTrust
 export interface ModifyOrganizationCommercialTermsTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ModifyOrganizationCommercialTermsTrusted`'s action shortcut function
@@ -8775,9 +8368,6 @@ const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercial
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
   changes: ..., // optional
 };
 
@@ -8785,7 +8375,7 @@ const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercial
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await modifyOrganizationCommercialTermsTrusted(modifyOrganizationCommercialTermsTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await modifyOrganizationCommercialTermsTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+const { data } = await modifyOrganizationCommercialTermsTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8793,14 +8383,12 @@ const { data } = await modifyOrganizationCommercialTermsTrusted(dataConnect, mod
 
 console.log(data.organizationLicense_update);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 modifyOrganizationCommercialTermsTrusted(modifyOrganizationCommercialTermsTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8825,16 +8413,13 @@ const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercial
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
   changes: ..., // optional
 };
 
 // Call the `modifyOrganizationCommercialTermsTrustedRef()` function to get a reference to the mutation.
 const ref = modifyOrganizationCommercialTermsTrustedRef(modifyOrganizationCommercialTermsTrustedVars);
 // Variables can be defined inline as well.
-const ref = modifyOrganizationCommercialTermsTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+const ref = modifyOrganizationCommercialTermsTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8846,14 +8431,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.organizationLicense_update);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8904,9 +8487,6 @@ export interface RenewOrganizationLicenseTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 ```
@@ -8918,7 +8498,6 @@ The `data` property is an object of type `RenewOrganizationLicenseTrustedData`, 
 export interface RenewOrganizationLicenseTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `RenewOrganizationLicenseTrusted`'s action shortcut function
@@ -8942,9 +8521,6 @@ const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariab
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
   changes: ..., // optional
 };
 
@@ -8952,7 +8528,7 @@ const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariab
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await renewOrganizationLicenseTrusted(renewOrganizationLicenseTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await renewOrganizationLicenseTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+const { data } = await renewOrganizationLicenseTrusted({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -8960,14 +8536,12 @@ const { data } = await renewOrganizationLicenseTrusted(dataConnect, renewOrganiz
 
 console.log(data.organizationLicense_update);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 renewOrganizationLicenseTrusted(renewOrganizationLicenseTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -8992,16 +8566,13 @@ const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariab
   planLevel: ...,
   maxStores: ...,
   maxUsers: ...,
-  auditId: ...,
-  actorFirebaseUid: ...,
-  requestId: ...,
   changes: ..., // optional
 };
 
 // Call the `renewOrganizationLicenseTrustedRef()` function to get a reference to the mutation.
 const ref = renewOrganizationLicenseTrustedRef(renewOrganizationLicenseTrustedVars);
 // Variables can be defined inline as well.
-const ref = renewOrganizationLicenseTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+const ref = renewOrganizationLicenseTrustedRef({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -9013,129 +8584,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.organizationLicense_update);
 console.log(data.licenseHistory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
-  console.log(data.auditEvent_insert);
-});
-```
-
-## RecordProvisioningReconciliation
-You can execute the `RecordProvisioningReconciliation` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-recordProvisioningReconciliation(vars: RecordProvisioningReconciliationVariables): MutationPromise<RecordProvisioningReconciliationData, RecordProvisioningReconciliationVariables>;
-
-interface RecordProvisioningReconciliationRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: RecordProvisioningReconciliationVariables): MutationRef<RecordProvisioningReconciliationData, RecordProvisioningReconciliationVariables>;
-}
-export const recordProvisioningReconciliationRef: RecordProvisioningReconciliationRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
-recordProvisioningReconciliation(dc: DataConnect, vars: RecordProvisioningReconciliationVariables): MutationPromise<RecordProvisioningReconciliationData, RecordProvisioningReconciliationVariables>;
-
-interface RecordProvisioningReconciliationRef {
-  ...
-  (dc: DataConnect, vars: RecordProvisioningReconciliationVariables): MutationRef<RecordProvisioningReconciliationData, RecordProvisioningReconciliationVariables>;
-}
-export const recordProvisioningReconciliationRef: RecordProvisioningReconciliationRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the recordProvisioningReconciliationRef:
-```typescript
-const name = recordProvisioningReconciliationRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `RecordProvisioningReconciliation` mutation requires an argument of type `RecordProvisioningReconciliationVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface RecordProvisioningReconciliationVariables {
-  idempotencyKey: string;
-  firebaseUid: string;
-  errorClass: string;
-}
-```
-### Return Type
-Recall that executing the `RecordProvisioningReconciliation` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `RecordProvisioningReconciliationData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface RecordProvisioningReconciliationData {
-  provisioningReconciliation_insert: ProvisioningReconciliation_Key;
-}
-```
-### Using `RecordProvisioningReconciliation`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, recordProvisioningReconciliation, RecordProvisioningReconciliationVariables } from '@omniretail/sql-connect';
-
-// The `RecordProvisioningReconciliation` mutation requires an argument of type `RecordProvisioningReconciliationVariables`:
-const recordProvisioningReconciliationVars: RecordProvisioningReconciliationVariables = {
-  idempotencyKey: ...,
-  firebaseUid: ...,
-  errorClass: ...,
-};
-
-// Call the `recordProvisioningReconciliation()` function to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await recordProvisioningReconciliation(recordProvisioningReconciliationVars);
-// Variables can be defined inline as well.
-const { data } = await recordProvisioningReconciliation({ idempotencyKey: ..., firebaseUid: ..., errorClass: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await recordProvisioningReconciliation(dataConnect, recordProvisioningReconciliationVars);
-
-console.log(data.provisioningReconciliation_insert);
-
-// Or, you can use the `Promise` API.
-recordProvisioningReconciliation(recordProvisioningReconciliationVars).then((response) => {
-  const data = response.data;
-  console.log(data.provisioningReconciliation_insert);
-});
-```
-
-### Using `RecordProvisioningReconciliation`'s `MutationRef` function
-
-```typescript
-import { getDataConnect, executeMutation } from 'firebase/data-connect';
-import { connectorConfig, recordProvisioningReconciliationRef, RecordProvisioningReconciliationVariables } from '@omniretail/sql-connect';
-
-// The `RecordProvisioningReconciliation` mutation requires an argument of type `RecordProvisioningReconciliationVariables`:
-const recordProvisioningReconciliationVars: RecordProvisioningReconciliationVariables = {
-  idempotencyKey: ...,
-  firebaseUid: ...,
-  errorClass: ...,
-};
-
-// Call the `recordProvisioningReconciliationRef()` function to get a reference to the mutation.
-const ref = recordProvisioningReconciliationRef(recordProvisioningReconciliationVars);
-// Variables can be defined inline as well.
-const ref = recordProvisioningReconciliationRef({ idempotencyKey: ..., firebaseUid: ..., errorClass: ..., });
-
-// You can also pass in a `DataConnect` instance to the `MutationRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = recordProvisioningReconciliationRef(dataConnect, recordProvisioningReconciliationVars);
-
-// Call `executeMutation()` on the reference to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeMutation(ref);
-
-console.log(data.provisioningReconciliation_insert);
-
-// Or, you can use the `Promise` API.
-executeMutation(ref).then((response) => {
-  const data = response.data;
-  console.log(data.provisioningReconciliation_insert);
 });
 ```
 
@@ -9187,8 +8641,6 @@ export interface CreateOrganizationVariables {
   postalCode?: string | null;
   timezone: string;
   currency: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -9198,7 +8650,6 @@ The `data` property is an object of type `CreateOrganizationData`, which is defi
 ```typescript
 export interface CreateOrganizationData {
   organization_insert: Organization_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateOrganization`'s action shortcut function
@@ -9223,28 +8674,24 @@ const createOrganizationVars: CreateOrganizationVariables = {
   postalCode: ..., // optional
   timezone: ...,
   currency: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `createOrganization()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createOrganization(createOrganizationVars);
 // Variables can be defined inline as well.
-const { data } = await createOrganization({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const { data } = await createOrganization({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createOrganization(dataConnect, createOrganizationVars);
 
 console.log(data.organization_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createOrganization(createOrganizationVars).then((response) => {
   const data = response.data;
   console.log(data.organization_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9270,14 +8717,12 @@ const createOrganizationVars: CreateOrganizationVariables = {
   postalCode: ..., // optional
   timezone: ...,
   currency: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `createOrganizationRef()` function to get a reference to the mutation.
 const ref = createOrganizationRef(createOrganizationVars);
 // Variables can be defined inline as well.
-const ref = createOrganizationRef({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const ref = createOrganizationRef({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -9288,13 +8733,11 @@ const ref = createOrganizationRef(dataConnect, createOrganizationVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.organization_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organization_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9345,8 +8788,6 @@ export interface UpdateOrganizationVariables {
   postalCode?: string | null;
   timezone: string;
   currency: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -9356,7 +8797,6 @@ The `data` property is an object of type `UpdateOrganizationData`, which is defi
 ```typescript
 export interface UpdateOrganizationData {
   organization_update?: Organization_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateOrganization`'s action shortcut function
@@ -9380,28 +8820,24 @@ const updateOrganizationVars: UpdateOrganizationVariables = {
   postalCode: ..., // optional
   timezone: ...,
   currency: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateOrganization()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateOrganization(updateOrganizationVars);
 // Variables can be defined inline as well.
-const { data } = await updateOrganization({ id: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const { data } = await updateOrganization({ id: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateOrganization(dataConnect, updateOrganizationVars);
 
 console.log(data.organization_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateOrganization(updateOrganizationVars).then((response) => {
   const data = response.data;
   console.log(data.organization_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9426,14 +8862,12 @@ const updateOrganizationVars: UpdateOrganizationVariables = {
   postalCode: ..., // optional
   timezone: ...,
   currency: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateOrganizationRef()` function to get a reference to the mutation.
 const ref = updateOrganizationRef(updateOrganizationVars);
 // Variables can be defined inline as well.
-const ref = updateOrganizationRef({ id: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+const ref = updateOrganizationRef({ id: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -9444,13 +8878,11 @@ const ref = updateOrganizationRef(dataConnect, updateOrganizationVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.organization_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organization_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9490,9 +8922,6 @@ The `ChangeOrganizationStatus` mutation requires an argument of type `ChangeOrga
 export interface ChangeOrganizationStatusVariables {
   id: UUIDString;
   status: OrganizationStatus;
-  action: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -9502,7 +8931,6 @@ The `data` property is an object of type `ChangeOrganizationStatusData`, which i
 ```typescript
 export interface ChangeOrganizationStatusData {
   organization_update?: Organization_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeOrganizationStatus`'s action shortcut function
@@ -9515,29 +8943,24 @@ import { connectorConfig, changeOrganizationStatus, ChangeOrganizationStatusVari
 const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
   id: ...,
   status: ...,
-  action: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `changeOrganizationStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeOrganizationStatus(changeOrganizationStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeOrganizationStatus({ id: ..., status: ..., action: ..., auditId: ..., requestId: ..., });
+const { data } = await changeOrganizationStatus({ id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeOrganizationStatus(dataConnect, changeOrganizationStatusVars);
 
 console.log(data.organization_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeOrganizationStatus(changeOrganizationStatusVars).then((response) => {
   const data = response.data;
   console.log(data.organization_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9551,15 +8974,12 @@ import { connectorConfig, changeOrganizationStatusRef, ChangeOrganizationStatusV
 const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
   id: ...,
   status: ...,
-  action: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `changeOrganizationStatusRef()` function to get a reference to the mutation.
 const ref = changeOrganizationStatusRef(changeOrganizationStatusVars);
 // Variables can be defined inline as well.
-const ref = changeOrganizationStatusRef({ id: ..., status: ..., action: ..., auditId: ..., requestId: ..., });
+const ref = changeOrganizationStatusRef({ id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -9570,13 +8990,11 @@ const ref = changeOrganizationStatusRef(dataConnect, changeOrganizationStatusVar
 const { data } = await executeMutation(ref);
 
 console.log(data.organization_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.organization_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9630,9 +9048,6 @@ export interface CreateTenantExpenseVariables {
   paidByEmployee: string;
   submittedBy: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9642,7 +9057,6 @@ The `data` property is an object of type `CreateTenantExpenseData`, which is def
 ```typescript
 export interface CreateTenantExpenseData {
   expense_insert: Expense_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantExpense`'s action shortcut function
@@ -9669,29 +9083,24 @@ const createTenantExpenseVars: CreateTenantExpenseVariables = {
   paidByEmployee: ...,
   submittedBy: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantExpense()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantExpense(createTenantExpenseVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantExpense({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantExpense({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantExpense(dataConnect, createTenantExpenseVars);
 
 console.log(data.expense_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantExpense(createTenantExpenseVars).then((response) => {
   const data = response.data;
   console.log(data.expense_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9719,15 +9128,12 @@ const createTenantExpenseVars: CreateTenantExpenseVariables = {
   paidByEmployee: ...,
   submittedBy: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantExpenseRef()` function to get a reference to the mutation.
 const ref = createTenantExpenseRef(createTenantExpenseVars);
 // Variables can be defined inline as well.
-const ref = createTenantExpenseRef({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantExpenseRef({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -9738,13 +9144,11 @@ const ref = createTenantExpenseRef(dataConnect, createTenantExpenseVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.expense_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.expense_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9796,9 +9200,6 @@ export interface UpdateTenantExpenseVariables {
   paymentMethod: string;
   paidByEmployee: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9808,7 +9209,6 @@ The `data` property is an object of type `UpdateTenantExpenseData`, which is def
 ```typescript
 export interface UpdateTenantExpenseData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantExpense`'s action shortcut function
@@ -9833,29 +9233,24 @@ const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
   paymentMethod: ...,
   paidByEmployee: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantExpense()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantExpense(updateTenantExpenseVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantExpense({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantExpense({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantExpense(dataConnect, updateTenantExpenseVars);
 
 console.log(data.expense_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantExpense(updateTenantExpenseVars).then((response) => {
   const data = response.data;
   console.log(data.expense_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9881,15 +9276,12 @@ const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
   paymentMethod: ...,
   paidByEmployee: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantExpenseRef()` function to get a reference to the mutation.
 const ref = updateTenantExpenseRef(updateTenantExpenseVars);
 // Variables can be defined inline as well.
-const ref = updateTenantExpenseRef({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantExpenseRef({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -9900,13 +9292,11 @@ const ref = updateTenantExpenseRef(dataConnect, updateTenantExpenseVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.expense_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.expense_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -9948,9 +9338,6 @@ export interface ChangeTenantExpenseApprovalVariables {
   id: UUIDString;
   approvalStatus: ExpenseApprovalStatus;
   reason?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9960,7 +9347,6 @@ The `data` property is an object of type `ChangeTenantExpenseApprovalData`, whic
 ```typescript
 export interface ChangeTenantExpenseApprovalData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantExpenseApproval`'s action shortcut function
@@ -9975,29 +9361,24 @@ const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
   id: ...,
   approvalStatus: ...,
   reason: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantExpenseApproval()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantExpenseApproval(changeTenantExpenseApprovalVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantExpenseApproval({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantExpenseApproval({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantExpenseApproval(dataConnect, changeTenantExpenseApprovalVars);
 
 console.log(data.expense_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantExpenseApproval(changeTenantExpenseApprovalVars).then((response) => {
   const data = response.data;
   console.log(data.expense_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10013,15 +9394,12 @@ const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
   id: ...,
   approvalStatus: ...,
   reason: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantExpenseApprovalRef()` function to get a reference to the mutation.
 const ref = changeTenantExpenseApprovalRef(changeTenantExpenseApprovalVars);
 // Variables can be defined inline as well.
-const ref = changeTenantExpenseApprovalRef({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantExpenseApprovalRef({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10032,13 +9410,11 @@ const ref = changeTenantExpenseApprovalRef(dataConnect, changeTenantExpenseAppro
 const { data } = await executeMutation(ref);
 
 console.log(data.expense_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.expense_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10079,9 +9455,6 @@ export interface VoidTenantExpenseVariables {
   organizationId: UUIDString;
   id: UUIDString;
   reason: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10091,7 +9464,6 @@ The `data` property is an object of type `VoidTenantExpenseData`, which is defin
 ```typescript
 export interface VoidTenantExpenseData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `VoidTenantExpense`'s action shortcut function
@@ -10105,29 +9477,24 @@ const voidTenantExpenseVars: VoidTenantExpenseVariables = {
   organizationId: ...,
   id: ...,
   reason: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantExpense()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await voidTenantExpense(voidTenantExpenseVars);
 // Variables can be defined inline as well.
-const { data } = await voidTenantExpense({ organizationId: ..., id: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await voidTenantExpense({ organizationId: ..., id: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await voidTenantExpense(dataConnect, voidTenantExpenseVars);
 
 console.log(data.expense_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 voidTenantExpense(voidTenantExpenseVars).then((response) => {
   const data = response.data;
   console.log(data.expense_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10142,15 +9509,12 @@ const voidTenantExpenseVars: VoidTenantExpenseVariables = {
   organizationId: ...,
   id: ...,
   reason: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantExpenseRef()` function to get a reference to the mutation.
 const ref = voidTenantExpenseRef(voidTenantExpenseVars);
 // Variables can be defined inline as well.
-const ref = voidTenantExpenseRef({ organizationId: ..., id: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = voidTenantExpenseRef({ organizationId: ..., id: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10161,13 +9525,11 @@ const ref = voidTenantExpenseRef(dataConnect, voidTenantExpenseVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.expense_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.expense_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10219,9 +9581,6 @@ export interface CreateTenantSaleVariables {
   discount: number;
   subtotal: number;
   totalNet: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10231,7 +9590,6 @@ The `data` property is an object of type `CreateTenantSaleData`, which is define
 ```typescript
 export interface CreateTenantSaleData {
   sale_insert: Sale_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantSale`'s action shortcut function
@@ -10256,29 +9614,24 @@ const createTenantSaleVars: CreateTenantSaleVariables = {
   discount: ...,
   subtotal: ...,
   totalNet: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSale()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantSale(createTenantSaleVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantSale({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantSale({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantSale(dataConnect, createTenantSaleVars);
 
 console.log(data.sale_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantSale(createTenantSaleVars).then((response) => {
   const data = response.data;
   console.log(data.sale_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10304,15 +9657,12 @@ const createTenantSaleVars: CreateTenantSaleVariables = {
   discount: ...,
   subtotal: ...,
   totalNet: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSaleRef()` function to get a reference to the mutation.
 const ref = createTenantSaleRef(createTenantSaleVars);
 // Variables can be defined inline as well.
-const ref = createTenantSaleRef({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantSaleRef({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10323,13 +9673,11 @@ const ref = createTenantSaleRef(dataConnect, createTenantSaleVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.sale_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.sale_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10375,9 +9723,6 @@ export interface AddTenantSaleLineVariables {
   newStockQty: number;
   unitPrice: number;
   subtotal: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10388,7 +9733,6 @@ The `data` property is an object of type `AddTenantSaleLineData`, which is defin
 export interface AddTenantSaleLineData {
   saleLine_insert: SaleLine_Key;
   inventoryStock_update?: InventoryStock_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `AddTenantSaleLine`'s action shortcut function
@@ -10407,16 +9751,13 @@ const addTenantSaleLineVars: AddTenantSaleLineVariables = {
   newStockQty: ...,
   unitPrice: ...,
   subtotal: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `addTenantSaleLine()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await addTenantSaleLine(addTenantSaleLineVars);
 // Variables can be defined inline as well.
-const { data } = await addTenantSaleLine({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await addTenantSaleLine({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10424,14 +9765,12 @@ const { data } = await addTenantSaleLine(dataConnect, addTenantSaleLineVars);
 
 console.log(data.saleLine_insert);
 console.log(data.inventoryStock_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 addTenantSaleLine(addTenantSaleLineVars).then((response) => {
   const data = response.data;
   console.log(data.saleLine_insert);
   console.log(data.inventoryStock_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10451,15 +9790,12 @@ const addTenantSaleLineVars: AddTenantSaleLineVariables = {
   newStockQty: ...,
   unitPrice: ...,
   subtotal: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `addTenantSaleLineRef()` function to get a reference to the mutation.
 const ref = addTenantSaleLineRef(addTenantSaleLineVars);
 // Variables can be defined inline as well.
-const ref = addTenantSaleLineRef({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = addTenantSaleLineRef({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10471,14 +9807,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.saleLine_insert);
 console.log(data.inventoryStock_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.saleLine_insert);
   console.log(data.inventoryStock_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10519,9 +9853,6 @@ export interface VoidTenantSaleVariables {
   organizationId: UUIDString;
   saleId: UUIDString;
   reason: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10531,7 +9862,6 @@ The `data` property is an object of type `VoidTenantSaleData`, which is defined 
 ```typescript
 export interface VoidTenantSaleData {
   sale_update?: Sale_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `VoidTenantSale`'s action shortcut function
@@ -10545,29 +9875,24 @@ const voidTenantSaleVars: VoidTenantSaleVariables = {
   organizationId: ...,
   saleId: ...,
   reason: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantSale()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await voidTenantSale(voidTenantSaleVars);
 // Variables can be defined inline as well.
-const { data } = await voidTenantSale({ organizationId: ..., saleId: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await voidTenantSale({ organizationId: ..., saleId: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await voidTenantSale(dataConnect, voidTenantSaleVars);
 
 console.log(data.sale_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 voidTenantSale(voidTenantSaleVars).then((response) => {
   const data = response.data;
   console.log(data.sale_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10582,15 +9907,12 @@ const voidTenantSaleVars: VoidTenantSaleVariables = {
   organizationId: ...,
   saleId: ...,
   reason: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantSaleRef()` function to get a reference to the mutation.
 const ref = voidTenantSaleRef(voidTenantSaleVars);
 // Variables can be defined inline as well.
-const ref = voidTenantSaleRef({ organizationId: ..., saleId: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = voidTenantSaleRef({ organizationId: ..., saleId: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10601,13 +9923,11 @@ const ref = voidTenantSaleRef(dataConnect, voidTenantSaleVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.sale_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.sale_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10663,9 +9983,6 @@ export interface CreateTenantPurchaseVariables {
   receiptStatus: PurchaseReceiptStatus;
   status: PurchaseStatus;
   createdBy: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10675,7 +9992,6 @@ The `data` property is an object of type `CreateTenantPurchaseData`, which is de
 ```typescript
 export interface CreateTenantPurchaseData {
   purchase_insert: Purchase_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantPurchase`'s action shortcut function
@@ -10704,29 +10020,24 @@ const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
   receiptStatus: ...,
   status: ...,
   createdBy: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchase()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantPurchase(createTenantPurchaseVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantPurchase({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantPurchase({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantPurchase(dataConnect, createTenantPurchaseVars);
 
 console.log(data.purchase_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantPurchase(createTenantPurchaseVars).then((response) => {
   const data = response.data;
   console.log(data.purchase_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10756,15 +10067,12 @@ const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
   receiptStatus: ...,
   status: ...,
   createdBy: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchaseRef()` function to get a reference to the mutation.
 const ref = createTenantPurchaseRef(createTenantPurchaseVars);
 // Variables can be defined inline as well.
-const ref = createTenantPurchaseRef({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantPurchaseRef({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10775,13 +10083,11 @@ const ref = createTenantPurchaseRef(dataConnect, createTenantPurchaseVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.purchase_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.purchase_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10828,9 +10134,6 @@ export interface CreateTenantPurchaseLineVariables {
   taxRate: number;
   taxAmount: number;
   lineTotal: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10840,7 +10143,6 @@ The `data` property is an object of type `CreateTenantPurchaseLineData`, which i
 ```typescript
 export interface CreateTenantPurchaseLineData {
   purchaseLine_insert: PurchaseLine_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantPurchaseLine`'s action shortcut function
@@ -10860,29 +10162,24 @@ const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
   taxRate: ...,
   taxAmount: ...,
   lineTotal: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchaseLine()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantPurchaseLine(createTenantPurchaseLineVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantPurchaseLine({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantPurchaseLine({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantPurchaseLine(dataConnect, createTenantPurchaseLineVars);
 
 console.log(data.purchaseLine_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantPurchaseLine(createTenantPurchaseLineVars).then((response) => {
   const data = response.data;
   console.log(data.purchaseLine_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10903,15 +10200,12 @@ const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
   taxRate: ...,
   taxAmount: ...,
   lineTotal: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchaseLineRef()` function to get a reference to the mutation.
 const ref = createTenantPurchaseLineRef(createTenantPurchaseLineVars);
 // Variables can be defined inline as well.
-const ref = createTenantPurchaseLineRef({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantPurchaseLineRef({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10922,13 +10216,11 @@ const ref = createTenantPurchaseLineRef(dataConnect, createTenantPurchaseLineVar
 const { data } = await executeMutation(ref);
 
 console.log(data.purchaseLine_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.purchaseLine_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -10970,9 +10262,6 @@ export interface ChangeTenantPurchaseStatusVariables {
   id: UUIDString;
   status: PurchaseStatus;
   reason?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10982,7 +10271,6 @@ The `data` property is an object of type `ChangeTenantPurchaseStatusData`, which
 ```typescript
 export interface ChangeTenantPurchaseStatusData {
   purchase_update?: Purchase_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantPurchaseStatus`'s action shortcut function
@@ -10997,29 +10285,24 @@ const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
   id: ...,
   status: ...,
   reason: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantPurchaseStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantPurchaseStatus(changeTenantPurchaseStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantPurchaseStatus({ organizationId: ..., id: ..., status: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantPurchaseStatus({ organizationId: ..., id: ..., status: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantPurchaseStatus(dataConnect, changeTenantPurchaseStatusVars);
 
 console.log(data.purchase_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantPurchaseStatus(changeTenantPurchaseStatusVars).then((response) => {
   const data = response.data;
   console.log(data.purchase_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11035,15 +10318,12 @@ const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
   id: ...,
   status: ...,
   reason: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantPurchaseStatusRef()` function to get a reference to the mutation.
 const ref = changeTenantPurchaseStatusRef(changeTenantPurchaseStatusVars);
 // Variables can be defined inline as well.
-const ref = changeTenantPurchaseStatusRef({ organizationId: ..., id: ..., status: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantPurchaseStatusRef({ organizationId: ..., id: ..., status: ..., reason: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11054,13 +10334,11 @@ const ref = changeTenantPurchaseStatusRef(dataConnect, changeTenantPurchaseStatu
 const { data } = await executeMutation(ref);
 
 console.log(data.purchase_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.purchase_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11109,9 +10387,6 @@ export interface ReceiveTenantPurchaseLineVariables {
   batchNumber?: string | null;
   mfgDate?: DateString | null;
   expiryDate?: DateString | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11123,7 +10398,6 @@ export interface ReceiveTenantPurchaseLineData {
   purchaseLine_update?: PurchaseLine_Key | null;
   purchase_update?: Purchase_Key | null;
   inventoryStock_update?: InventoryStock_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ReceiveTenantPurchaseLine`'s action shortcut function
@@ -11145,16 +10419,13 @@ const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
   batchNumber: ..., // optional
   mfgDate: ..., // optional
   expiryDate: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `receiveTenantPurchaseLine()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await receiveTenantPurchaseLine(receiveTenantPurchaseLineVars);
 // Variables can be defined inline as well.
-const { data } = await receiveTenantPurchaseLine({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await receiveTenantPurchaseLine({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11163,7 +10434,6 @@ const { data } = await receiveTenantPurchaseLine(dataConnect, receiveTenantPurch
 console.log(data.purchaseLine_update);
 console.log(data.purchase_update);
 console.log(data.inventoryStock_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 receiveTenantPurchaseLine(receiveTenantPurchaseLineVars).then((response) => {
@@ -11171,7 +10441,6 @@ receiveTenantPurchaseLine(receiveTenantPurchaseLineVars).then((response) => {
   console.log(data.purchaseLine_update);
   console.log(data.purchase_update);
   console.log(data.inventoryStock_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11194,15 +10463,12 @@ const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
   batchNumber: ..., // optional
   mfgDate: ..., // optional
   expiryDate: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `receiveTenantPurchaseLineRef()` function to get a reference to the mutation.
 const ref = receiveTenantPurchaseLineRef(receiveTenantPurchaseLineVars);
 // Variables can be defined inline as well.
-const ref = receiveTenantPurchaseLineRef({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = receiveTenantPurchaseLineRef({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11215,7 +10481,6 @@ const { data } = await executeMutation(ref);
 console.log(data.purchaseLine_update);
 console.log(data.purchase_update);
 console.log(data.inventoryStock_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -11223,7 +10488,6 @@ executeMutation(ref).then((response) => {
   console.log(data.purchaseLine_update);
   console.log(data.purchase_update);
   console.log(data.inventoryStock_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11277,9 +10541,6 @@ export interface CreateTenantSupplierVariables {
   paymentTerms: string;
   creditLimit: number;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11289,7 +10550,6 @@ The `data` property is an object of type `CreateTenantSupplierData`, which is de
 ```typescript
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantSupplier`'s action shortcut function
@@ -11316,29 +10576,24 @@ const createTenantSupplierVars: CreateTenantSupplierVariables = {
   paymentTerms: ...,
   creditLimit: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSupplier()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantSupplier(createTenantSupplierVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantSupplier({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantSupplier({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantSupplier(dataConnect, createTenantSupplierVars);
 
 console.log(data.supplier_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantSupplier(createTenantSupplierVars).then((response) => {
   const data = response.data;
   console.log(data.supplier_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11366,15 +10621,12 @@ const createTenantSupplierVars: CreateTenantSupplierVariables = {
   paymentTerms: ...,
   creditLimit: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSupplierRef()` function to get a reference to the mutation.
 const ref = createTenantSupplierRef(createTenantSupplierVars);
 // Variables can be defined inline as well.
-const ref = createTenantSupplierRef({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantSupplierRef({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11385,13 +10637,11 @@ const ref = createTenantSupplierRef(dataConnect, createTenantSupplierVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.supplier_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.supplier_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11445,9 +10695,6 @@ export interface UpdateTenantSupplierVariables {
   paymentTerms: string;
   creditLimit: number;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11457,7 +10704,6 @@ The `data` property is an object of type `UpdateTenantSupplierData`, which is de
 ```typescript
 export interface UpdateTenantSupplierData {
   supplier_update?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantSupplier`'s action shortcut function
@@ -11484,29 +10730,24 @@ const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
   paymentTerms: ...,
   creditLimit: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantSupplier()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantSupplier(updateTenantSupplierVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantSupplier({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantSupplier({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantSupplier(dataConnect, updateTenantSupplierVars);
 
 console.log(data.supplier_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantSupplier(updateTenantSupplierVars).then((response) => {
   const data = response.data;
   console.log(data.supplier_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11534,15 +10775,12 @@ const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
   paymentTerms: ...,
   creditLimit: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantSupplierRef()` function to get a reference to the mutation.
 const ref = updateTenantSupplierRef(updateTenantSupplierVars);
 // Variables can be defined inline as well.
-const ref = updateTenantSupplierRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantSupplierRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11553,13 +10791,11 @@ const ref = updateTenantSupplierRef(dataConnect, updateTenantSupplierVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.supplier_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.supplier_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11600,9 +10836,6 @@ export interface ChangeTenantSupplierStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: SupplierStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11612,7 +10845,6 @@ The `data` property is an object of type `ChangeTenantSupplierStatusData`, which
 ```typescript
 export interface ChangeTenantSupplierStatusData {
   supplier_update?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantSupplierStatus`'s action shortcut function
@@ -11626,29 +10858,24 @@ const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantSupplierStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantSupplierStatus(changeTenantSupplierStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantSupplierStatus({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantSupplierStatus({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantSupplierStatus(dataConnect, changeTenantSupplierStatusVars);
 
 console.log(data.supplier_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantSupplierStatus(changeTenantSupplierStatusVars).then((response) => {
   const data = response.data;
   console.log(data.supplier_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11663,15 +10890,12 @@ const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantSupplierStatusRef()` function to get a reference to the mutation.
 const ref = changeTenantSupplierStatusRef(changeTenantSupplierStatusVars);
 // Variables can be defined inline as well.
-const ref = changeTenantSupplierStatusRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantSupplierStatusRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11682,13 +10906,11 @@ const ref = changeTenantSupplierStatusRef(dataConnect, changeTenantSupplierStatu
 const { data } = await executeMutation(ref);
 
 console.log(data.supplier_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.supplier_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11745,9 +10967,6 @@ export interface CreateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11757,7 +10976,6 @@ The `data` property is an object of type `CreateTenantCustomerData`, which is de
 ```typescript
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantCustomer`'s action shortcut function
@@ -11787,29 +11005,24 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCustomer()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantCustomer(createTenantCustomerVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantCustomer({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantCustomer({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantCustomer(dataConnect, createTenantCustomerVars);
 
 console.log(data.customer_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantCustomer(createTenantCustomerVars).then((response) => {
   const data = response.data;
   console.log(data.customer_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11840,15 +11053,12 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCustomerRef()` function to get a reference to the mutation.
 const ref = createTenantCustomerRef(createTenantCustomerVars);
 // Variables can be defined inline as well.
-const ref = createTenantCustomerRef({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantCustomerRef({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11859,13 +11069,11 @@ const ref = createTenantCustomerRef(dataConnect, createTenantCustomerVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.customer_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.customer_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -11922,9 +11130,6 @@ export interface UpdateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11934,7 +11139,6 @@ The `data` property is an object of type `UpdateTenantCustomerData`, which is de
 ```typescript
 export interface UpdateTenantCustomerData {
   customer_update?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantCustomer`'s action shortcut function
@@ -11964,29 +11168,24 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantCustomer()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantCustomer(updateTenantCustomerVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantCustomer({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantCustomer({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantCustomer(dataConnect, updateTenantCustomerVars);
 
 console.log(data.customer_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantCustomer(updateTenantCustomerVars).then((response) => {
   const data = response.data;
   console.log(data.customer_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12017,15 +11216,12 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantCustomerRef()` function to get a reference to the mutation.
 const ref = updateTenantCustomerRef(updateTenantCustomerVars);
 // Variables can be defined inline as well.
-const ref = updateTenantCustomerRef({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantCustomerRef({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12036,13 +11232,11 @@ const ref = updateTenantCustomerRef(dataConnect, updateTenantCustomerVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.customer_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.customer_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12083,9 +11277,6 @@ export interface ChangeTenantCustomerStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: CustomerStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12095,7 +11286,6 @@ The `data` property is an object of type `ChangeTenantCustomerStatusData`, which
 ```typescript
 export interface ChangeTenantCustomerStatusData {
   customer_update?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantCustomerStatus`'s action shortcut function
@@ -12109,29 +11299,24 @@ const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantCustomerStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantCustomerStatus(changeTenantCustomerStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantCustomerStatus({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantCustomerStatus({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantCustomerStatus(dataConnect, changeTenantCustomerStatusVars);
 
 console.log(data.customer_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantCustomerStatus(changeTenantCustomerStatusVars).then((response) => {
   const data = response.data;
   console.log(data.customer_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12146,15 +11331,12 @@ const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantCustomerStatusRef()` function to get a reference to the mutation.
 const ref = changeTenantCustomerStatusRef(changeTenantCustomerStatusVars);
 // Variables can be defined inline as well.
-const ref = changeTenantCustomerStatusRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantCustomerStatusRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12165,13 +11347,11 @@ const ref = changeTenantCustomerStatusRef(dataConnect, changeTenantCustomerStatu
 const { data } = await executeMutation(ref);
 
 console.log(data.customer_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.customer_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12212,9 +11392,6 @@ export interface CreateTenantCategoryTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
   value: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12224,7 +11401,6 @@ The `data` property is an object of type `CreateTenantCategoryTrustedData`, whic
 ```typescript
 export interface CreateTenantCategoryTrustedData {
   category_insert: Category_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantCategoryTrusted`'s action shortcut function
@@ -12238,29 +11414,24 @@ const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
   id: ...,
   organizationId: ...,
   value: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCategoryTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantCategoryTrusted(createTenantCategoryTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantCategoryTrusted({ id: ..., organizationId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantCategoryTrusted({ id: ..., organizationId: ..., value: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantCategoryTrusted(dataConnect, createTenantCategoryTrustedVars);
 
 console.log(data.category_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantCategoryTrusted(createTenantCategoryTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.category_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12275,15 +11446,12 @@ const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
   id: ...,
   organizationId: ...,
   value: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCategoryTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantCategoryTrustedRef(createTenantCategoryTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantCategoryTrustedRef({ id: ..., organizationId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantCategoryTrustedRef({ id: ..., organizationId: ..., value: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12294,13 +11462,11 @@ const ref = createTenantCategoryTrustedRef(dataConnect, createTenantCategoryTrus
 const { data } = await executeMutation(ref);
 
 console.log(data.category_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.category_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12342,9 +11508,6 @@ export interface CreateTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   categoryId: UUIDString;
   value: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12354,7 +11517,6 @@ The `data` property is an object of type `CreateTenantSubcategoryTrustedData`, w
 ```typescript
 export interface CreateTenantSubcategoryTrustedData {
   subcategory_insert: Subcategory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantSubcategoryTrusted`'s action shortcut function
@@ -12369,29 +11531,24 @@ const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariable
   organizationId: ...,
   categoryId: ...,
   value: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSubcategoryTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantSubcategoryTrusted(createTenantSubcategoryTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantSubcategoryTrusted({ id: ..., organizationId: ..., categoryId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantSubcategoryTrusted({ id: ..., organizationId: ..., categoryId: ..., value: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantSubcategoryTrusted(dataConnect, createTenantSubcategoryTrustedVars);
 
 console.log(data.subcategory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantSubcategoryTrusted(createTenantSubcategoryTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.subcategory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12407,15 +11564,12 @@ const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariable
   organizationId: ...,
   categoryId: ...,
   value: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantSubcategoryTrustedRef(createTenantSubcategoryTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantSubcategoryTrustedRef({ id: ..., organizationId: ..., categoryId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantSubcategoryTrustedRef({ id: ..., organizationId: ..., categoryId: ..., value: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12426,13 +11580,11 @@ const ref = createTenantSubcategoryTrustedRef(dataConnect, createTenantSubcatego
 const { data } = await executeMutation(ref);
 
 console.log(data.subcategory_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.subcategory_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12492,9 +11644,6 @@ export interface CreateTenantProductVariables {
   primarySupplier?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12504,7 +11653,6 @@ The `data` property is an object of type `CreateTenantProductData`, which is def
 ```typescript
 export interface CreateTenantProductData {
   product_insert: Product_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantProduct`'s action shortcut function
@@ -12537,29 +11685,24 @@ const createTenantProductVars: CreateTenantProductVariables = {
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantProduct()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantProduct(createTenantProductVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantProduct({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantProduct({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantProduct(dataConnect, createTenantProductVars);
 
 console.log(data.product_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantProduct(createTenantProductVars).then((response) => {
   const data = response.data;
   console.log(data.product_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12593,15 +11736,12 @@ const createTenantProductVars: CreateTenantProductVariables = {
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantProductRef()` function to get a reference to the mutation.
 const ref = createTenantProductRef(createTenantProductVars);
 // Variables can be defined inline as well.
-const ref = createTenantProductRef({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantProductRef({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12612,13 +11752,11 @@ const ref = createTenantProductRef(dataConnect, createTenantProductVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.product_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.product_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12678,9 +11816,6 @@ export interface UpdateTenantProductVariables {
   primarySupplier?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12690,7 +11825,6 @@ The `data` property is an object of type `UpdateTenantProductData`, which is def
 ```typescript
 export interface UpdateTenantProductData {
   product_update?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantProduct`'s action shortcut function
@@ -12723,29 +11857,24 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantProduct()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantProduct(updateTenantProductVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantProduct({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantProduct({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantProduct(dataConnect, updateTenantProductVars);
 
 console.log(data.product_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantProduct(updateTenantProductVars).then((response) => {
   const data = response.data;
   console.log(data.product_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12779,15 +11908,12 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantProductRef()` function to get a reference to the mutation.
 const ref = updateTenantProductRef(updateTenantProductVars);
 // Variables can be defined inline as well.
-const ref = updateTenantProductRef({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantProductRef({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12798,13 +11924,11 @@ const ref = updateTenantProductRef(dataConnect, updateTenantProductVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.product_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.product_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12845,9 +11969,6 @@ export interface ChangeTenantProductStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: ProductStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12857,7 +11978,6 @@ The `data` property is an object of type `ChangeTenantProductStatusData`, which 
 ```typescript
 export interface ChangeTenantProductStatusData {
   product_update?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantProductStatus`'s action shortcut function
@@ -12871,29 +11991,24 @@ const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantProductStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantProductStatus(changeTenantProductStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantProductStatus({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantProductStatus({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantProductStatus(dataConnect, changeTenantProductStatusVars);
 
 console.log(data.product_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantProductStatus(changeTenantProductStatusVars).then((response) => {
   const data = response.data;
   console.log(data.product_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -12908,15 +12023,12 @@ const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantProductStatusRef()` function to get a reference to the mutation.
 const ref = changeTenantProductStatusRef(changeTenantProductStatusVars);
 // Variables can be defined inline as well.
-const ref = changeTenantProductStatusRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantProductStatusRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -12927,13 +12039,11 @@ const ref = changeTenantProductStatusRef(dataConnect, changeTenantProductStatusV
 const { data } = await executeMutation(ref);
 
 console.log(data.product_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.product_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13256,8 +12366,6 @@ export interface CreateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -13267,7 +12375,6 @@ The `data` property is an object of type `CreateTenantOutletData`, which is defi
 ```typescript
 export interface CreateTenantOutletData {
   outlet_insert: Outlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantOutlet`'s action shortcut function
@@ -13284,28 +12391,24 @@ const createTenantOutletVars: CreateTenantOutletVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `createTenantOutlet()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantOutlet(createTenantOutletVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantOutlet({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+const { data } = await createTenantOutlet({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantOutlet(dataConnect, createTenantOutletVars);
 
 console.log(data.outlet_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantOutlet(createTenantOutletVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13323,14 +12426,12 @@ const createTenantOutletVars: CreateTenantOutletVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `createTenantOutletRef()` function to get a reference to the mutation.
 const ref = createTenantOutletRef(createTenantOutletVars);
 // Variables can be defined inline as well.
-const ref = createTenantOutletRef({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+const ref = createTenantOutletRef({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -13341,13 +12442,11 @@ const ref = createTenantOutletRef(dataConnect, createTenantOutletVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13392,8 +12491,6 @@ export interface UpdateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -13403,7 +12500,6 @@ The `data` property is an object of type `UpdateTenantOutletData`, which is defi
 ```typescript
 export interface UpdateTenantOutletData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantOutlet`'s action shortcut function
@@ -13421,28 +12517,24 @@ const updateTenantOutletVars: UpdateTenantOutletVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateTenantOutlet()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantOutlet(updateTenantOutletVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantOutlet({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+const { data } = await updateTenantOutlet({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantOutlet(dataConnect, updateTenantOutletVars);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantOutlet(updateTenantOutletVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13461,14 +12553,12 @@ const updateTenantOutletVars: UpdateTenantOutletVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `updateTenantOutletRef()` function to get a reference to the mutation.
 const ref = updateTenantOutletRef(updateTenantOutletVars);
 // Variables can be defined inline as well.
-const ref = updateTenantOutletRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+const ref = updateTenantOutletRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -13479,13 +12569,11 @@ const ref = updateTenantOutletRef(dataConnect, updateTenantOutletVars);
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13526,8 +12614,6 @@ export interface ChangeTenantOutletStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: OutletStatus;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -13537,7 +12623,6 @@ The `data` property is an object of type `ChangeTenantOutletStatusData`, which i
 ```typescript
 export interface ChangeTenantOutletStatusData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantOutletStatus`'s action shortcut function
@@ -13551,28 +12636,24 @@ const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `changeTenantOutletStatus()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantOutletStatus(changeTenantOutletStatusVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantOutletStatus({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., });
+const { data } = await changeTenantOutletStatus({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantOutletStatus(dataConnect, changeTenantOutletStatusVars);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantOutletStatus(changeTenantOutletStatusVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13587,14 +12668,12 @@ const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
 };
 
 // Call the `changeTenantOutletStatusRef()` function to get a reference to the mutation.
 const ref = changeTenantOutletStatusRef(changeTenantOutletStatusVars);
 // Variables can be defined inline as well.
-const ref = changeTenantOutletStatusRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., });
+const ref = changeTenantOutletStatusRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -13605,13 +12684,11 @@ const ref = changeTenantOutletStatusRef(dataConnect, changeTenantOutletStatusVar
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13656,9 +12733,6 @@ export interface CreateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13668,7 +12742,6 @@ The `data` property is an object of type `CreateTenantOutletTrustedData`, which 
 ```typescript
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantOutletTrusted`'s action shortcut function
@@ -13686,29 +12759,24 @@ const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantOutletTrusted(createTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantOutletTrusted({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantOutletTrusted({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantOutletTrusted(dataConnect, createTenantOutletTrustedVars);
 
 console.log(data.outlet_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantOutletTrusted(createTenantOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13727,15 +12795,12 @@ const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantOutletTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantOutletTrustedRef(createTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantOutletTrustedRef({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantOutletTrustedRef({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -13746,13 +12811,11 @@ const ref = createTenantOutletTrustedRef(dataConnect, createTenantOutletTrustedV
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13797,9 +12860,6 @@ export interface UpdateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13809,7 +12869,6 @@ The `data` property is an object of type `UpdateTenantOutletTrustedData`, which 
 ```typescript
 export interface UpdateTenantOutletTrustedData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantOutletTrusted`'s action shortcut function
@@ -13827,29 +12886,24 @@ const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantOutletTrusted(updateTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantOutletTrusted({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantOutletTrusted({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantOutletTrusted(dataConnect, updateTenantOutletTrustedVars);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantOutletTrusted(updateTenantOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13868,15 +12922,12 @@ const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
   email: ..., // optional
   phone: ...,
   address: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantOutletTrustedRef()` function to get a reference to the mutation.
 const ref = updateTenantOutletTrustedRef(updateTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = updateTenantOutletTrustedRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantOutletTrustedRef({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -13887,13 +12938,11 @@ const ref = updateTenantOutletTrustedRef(dataConnect, updateTenantOutletTrustedV
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13934,9 +12983,6 @@ export interface ChangeTenantOutletStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: OutletStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13946,7 +12992,6 @@ The `data` property is an object of type `ChangeTenantOutletStatusTrustedData`, 
 ```typescript
 export interface ChangeTenantOutletStatusTrustedData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantOutletStatusTrusted`'s action shortcut function
@@ -13960,29 +13005,24 @@ const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariab
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantOutletStatusTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantOutletStatusTrusted(changeTenantOutletStatusTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantOutletStatusTrusted({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantOutletStatusTrusted({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantOutletStatusTrusted(dataConnect, changeTenantOutletStatusTrustedVars);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantOutletStatusTrusted(changeTenantOutletStatusTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -13997,15 +13037,12 @@ const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariab
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantOutletStatusTrustedRef()` function to get a reference to the mutation.
 const ref = changeTenantOutletStatusTrustedRef(changeTenantOutletStatusTrustedVars);
 // Variables can be defined inline as well.
-const ref = changeTenantOutletStatusTrustedRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantOutletStatusTrustedRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14016,13 +13053,11 @@ const ref = changeTenantOutletStatusTrustedRef(dataConnect, changeTenantOutletSt
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14062,9 +13097,6 @@ The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTen
 export interface DeleteTenantOutletTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14074,7 +13106,6 @@ The `data` property is an object of type `DeleteTenantOutletTrustedData`, which 
 ```typescript
 export interface DeleteTenantOutletTrustedData {
   outlet_delete?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantOutletTrusted`'s action shortcut function
@@ -14087,29 +13118,24 @@ import { connectorConfig, deleteTenantOutletTrusted, DeleteTenantOutletTrustedVa
 const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantOutletTrusted(deleteTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantOutletTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantOutletTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantOutletTrusted(dataConnect, deleteTenantOutletTrustedVars);
 
 console.log(data.outlet_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantOutletTrusted(deleteTenantOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.outlet_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14123,15 +13149,12 @@ import { connectorConfig, deleteTenantOutletTrustedRef, DeleteTenantOutletTruste
 const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantOutletTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantOutletTrustedRef(deleteTenantOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantOutletTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantOutletTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14142,13 +13165,11 @@ const ref = deleteTenantOutletTrustedRef(dataConnect, deleteTenantOutletTrustedV
 const { data } = await executeMutation(ref);
 
 console.log(data.outlet_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.outlet_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14188,9 +13209,6 @@ The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteT
 export interface DeleteTenantEmployeeTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14200,7 +13218,6 @@ The `data` property is an object of type `DeleteTenantEmployeeTrustedData`, whic
 ```typescript
 export interface DeleteTenantEmployeeTrustedData {
   employee_delete?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantEmployeeTrusted`'s action shortcut function
@@ -14213,29 +13230,24 @@ import { connectorConfig, deleteTenantEmployeeTrusted, DeleteTenantEmployeeTrust
 const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantEmployeeTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantEmployeeTrusted(deleteTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantEmployeeTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantEmployeeTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantEmployeeTrusted(dataConnect, deleteTenantEmployeeTrustedVars);
 
 console.log(data.employee_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantEmployeeTrusted(deleteTenantEmployeeTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employee_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14249,15 +13261,12 @@ import { connectorConfig, deleteTenantEmployeeTrustedRef, DeleteTenantEmployeeTr
 const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantEmployeeTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantEmployeeTrustedRef(deleteTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantEmployeeTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantEmployeeTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14268,13 +13277,11 @@ const ref = deleteTenantEmployeeTrustedRef(dataConnect, deleteTenantEmployeeTrus
 const { data } = await executeMutation(ref);
 
 console.log(data.employee_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14314,9 +13321,6 @@ The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `De
 export interface DeleteTenantServicePersonTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14326,7 +13330,6 @@ The `data` property is an object of type `DeleteTenantServicePersonTrustedData`,
 ```typescript
 export interface DeleteTenantServicePersonTrustedData {
   servicePerson_delete?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantServicePersonTrusted`'s action shortcut function
@@ -14339,29 +13342,24 @@ import { connectorConfig, deleteTenantServicePersonTrusted, DeleteTenantServiceP
 const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantServicePersonTrusted(deleteTenantServicePersonTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantServicePersonTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantServicePersonTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantServicePersonTrusted(dataConnect, deleteTenantServicePersonTrustedVars);
 
 console.log(data.servicePerson_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantServicePersonTrusted(deleteTenantServicePersonTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14375,15 +13373,12 @@ import { connectorConfig, deleteTenantServicePersonTrustedRef, DeleteTenantServi
 const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantServicePersonTrustedRef(deleteTenantServicePersonTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantServicePersonTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantServicePersonTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14394,13 +13389,11 @@ const ref = deleteTenantServicePersonTrustedRef(dataConnect, deleteTenantService
 const { data } = await executeMutation(ref);
 
 console.log(data.servicePerson_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14441,9 +13434,6 @@ export interface DeleteTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14453,7 +13443,6 @@ The `data` property is an object of type `DeleteTenantServicePersonOutletTrusted
 ```typescript
 export interface DeleteTenantServicePersonOutletTrustedData {
   servicePersonOutlet_delete?: ServicePersonOutlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantServicePersonOutletTrusted`'s action shortcut function
@@ -14467,29 +13456,24 @@ const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutle
   organizationId: ...,
   servicePersonId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantServicePersonOutletTrusted(deleteTenantServicePersonOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantServicePersonOutletTrusted({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantServicePersonOutletTrusted({ organizationId: ..., servicePersonId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantServicePersonOutletTrusted(dataConnect, deleteTenantServicePersonOutletTrustedVars);
 
 console.log(data.servicePersonOutlet_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantServicePersonOutletTrusted(deleteTenantServicePersonOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePersonOutlet_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14504,15 +13488,12 @@ const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutle
   organizationId: ...,
   servicePersonId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonOutletTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantServicePersonOutletTrustedRef(deleteTenantServicePersonOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantServicePersonOutletTrustedRef({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantServicePersonOutletTrustedRef({ organizationId: ..., servicePersonId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14523,13 +13504,11 @@ const ref = deleteTenantServicePersonOutletTrustedRef(dataConnect, deleteTenantS
 const { data } = await executeMutation(ref);
 
 console.log(data.servicePersonOutlet_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePersonOutlet_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14569,9 +13548,6 @@ The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteT
 export interface DeleteTenantCustomerTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14581,7 +13557,6 @@ The `data` property is an object of type `DeleteTenantCustomerTrustedData`, whic
 ```typescript
 export interface DeleteTenantCustomerTrustedData {
   customer_delete?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantCustomerTrusted`'s action shortcut function
@@ -14594,29 +13569,24 @@ import { connectorConfig, deleteTenantCustomerTrusted, DeleteTenantCustomerTrust
 const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCustomerTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantCustomerTrusted(deleteTenantCustomerTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantCustomerTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantCustomerTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantCustomerTrusted(dataConnect, deleteTenantCustomerTrustedVars);
 
 console.log(data.customer_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantCustomerTrusted(deleteTenantCustomerTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.customer_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14630,15 +13600,12 @@ import { connectorConfig, deleteTenantCustomerTrustedRef, DeleteTenantCustomerTr
 const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCustomerTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantCustomerTrustedRef(deleteTenantCustomerTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantCustomerTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantCustomerTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14649,13 +13616,11 @@ const ref = deleteTenantCustomerTrustedRef(dataConnect, deleteTenantCustomerTrus
 const { data } = await executeMutation(ref);
 
 console.log(data.customer_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.customer_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14695,9 +13660,6 @@ The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteT
 export interface DeleteTenantSupplierTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14707,7 +13669,6 @@ The `data` property is an object of type `DeleteTenantSupplierTrustedData`, whic
 ```typescript
 export interface DeleteTenantSupplierTrustedData {
   supplier_delete?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantSupplierTrusted`'s action shortcut function
@@ -14720,29 +13681,24 @@ import { connectorConfig, deleteTenantSupplierTrusted, DeleteTenantSupplierTrust
 const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSupplierTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantSupplierTrusted(deleteTenantSupplierTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantSupplierTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantSupplierTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantSupplierTrusted(dataConnect, deleteTenantSupplierTrustedVars);
 
 console.log(data.supplier_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantSupplierTrusted(deleteTenantSupplierTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.supplier_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14756,15 +13712,12 @@ import { connectorConfig, deleteTenantSupplierTrustedRef, DeleteTenantSupplierTr
 const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSupplierTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantSupplierTrustedRef(deleteTenantSupplierTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantSupplierTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantSupplierTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14775,13 +13728,11 @@ const ref = deleteTenantSupplierTrustedRef(dataConnect, deleteTenantSupplierTrus
 const { data } = await executeMutation(ref);
 
 console.log(data.supplier_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.supplier_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14821,9 +13772,6 @@ The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTe
 export interface DeleteTenantProductTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14833,7 +13781,6 @@ The `data` property is an object of type `DeleteTenantProductTrustedData`, which
 ```typescript
 export interface DeleteTenantProductTrustedData {
   product_delete?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantProductTrusted`'s action shortcut function
@@ -14846,29 +13793,24 @@ import { connectorConfig, deleteTenantProductTrusted, DeleteTenantProductTrusted
 const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantProductTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantProductTrusted(deleteTenantProductTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantProductTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantProductTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantProductTrusted(dataConnect, deleteTenantProductTrustedVars);
 
 console.log(data.product_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantProductTrusted(deleteTenantProductTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.product_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14882,15 +13824,12 @@ import { connectorConfig, deleteTenantProductTrustedRef, DeleteTenantProductTrus
 const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantProductTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantProductTrustedRef(deleteTenantProductTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantProductTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantProductTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -14901,13 +13840,11 @@ const ref = deleteTenantProductTrustedRef(dataConnect, deleteTenantProductTruste
 const { data } = await executeMutation(ref);
 
 console.log(data.product_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.product_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -14947,9 +13884,6 @@ The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteT
 export interface DeleteTenantCategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -14959,7 +13893,6 @@ The `data` property is an object of type `DeleteTenantCategoryTrustedData`, whic
 ```typescript
 export interface DeleteTenantCategoryTrustedData {
   category_delete?: Category_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantCategoryTrusted`'s action shortcut function
@@ -14972,29 +13905,24 @@ import { connectorConfig, deleteTenantCategoryTrusted, DeleteTenantCategoryTrust
 const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCategoryTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantCategoryTrusted(deleteTenantCategoryTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantCategoryTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantCategoryTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantCategoryTrusted(dataConnect, deleteTenantCategoryTrustedVars);
 
 console.log(data.category_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantCategoryTrusted(deleteTenantCategoryTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.category_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15008,15 +13936,12 @@ import { connectorConfig, deleteTenantCategoryTrustedRef, DeleteTenantCategoryTr
 const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCategoryTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantCategoryTrustedRef(deleteTenantCategoryTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantCategoryTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantCategoryTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15027,13 +13952,11 @@ const ref = deleteTenantCategoryTrustedRef(dataConnect, deleteTenantCategoryTrus
 const { data } = await executeMutation(ref);
 
 console.log(data.category_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.category_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15073,9 +13996,6 @@ The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `Dele
 export interface DeleteTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -15085,7 +14005,6 @@ The `data` property is an object of type `DeleteTenantSubcategoryTrustedData`, w
 ```typescript
 export interface DeleteTenantSubcategoryTrustedData {
   subcategory_delete?: Subcategory_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantSubcategoryTrusted`'s action shortcut function
@@ -15098,29 +14017,24 @@ import { connectorConfig, deleteTenantSubcategoryTrusted, DeleteTenantSubcategor
 const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSubcategoryTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantSubcategoryTrusted(deleteTenantSubcategoryTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantSubcategoryTrusted({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantSubcategoryTrusted({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantSubcategoryTrusted(dataConnect, deleteTenantSubcategoryTrustedVars);
 
 console.log(data.subcategory_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantSubcategoryTrusted(deleteTenantSubcategoryTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.subcategory_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15134,15 +14048,12 @@ import { connectorConfig, deleteTenantSubcategoryTrustedRef, DeleteTenantSubcate
 const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
   organizationId: ...,
   id: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantSubcategoryTrustedRef(deleteTenantSubcategoryTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantSubcategoryTrustedRef({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantSubcategoryTrustedRef({ organizationId: ..., id: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15153,13 +14064,11 @@ const ref = deleteTenantSubcategoryTrustedRef(dataConnect, deleteTenantSubcatego
 const { data } = await executeMutation(ref);
 
 console.log(data.subcategory_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.subcategory_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15210,9 +14119,6 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   address?: string | null;
   notes?: string | null;
   assignmentScope: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -15222,7 +14128,6 @@ The `data` property is an object of type `CreateTenantEmployeeProfileTrustedData
 ```typescript
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantEmployeeProfileTrusted`'s action shortcut function
@@ -15246,29 +14151,24 @@ const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrusted
   address: ..., // optional
   notes: ..., // optional
   assignmentScope: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantEmployeeProfileTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantEmployeeProfileTrusted(createTenantEmployeeProfileTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantEmployeeProfileTrusted({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantEmployeeProfileTrusted({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantEmployeeProfileTrusted(dataConnect, createTenantEmployeeProfileTrustedVars);
 
 console.log(data.employee_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantEmployeeProfileTrusted(createTenantEmployeeProfileTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employee_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15293,15 +14193,12 @@ const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrusted
   address: ..., // optional
   notes: ..., // optional
   assignmentScope: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantEmployeeProfileTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantEmployeeProfileTrustedRef(createTenantEmployeeProfileTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantEmployeeProfileTrustedRef({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantEmployeeProfileTrustedRef({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15312,13 +14209,11 @@ const ref = createTenantEmployeeProfileTrustedRef(dataConnect, createTenantEmplo
 const { data } = await executeMutation(ref);
 
 console.log(data.employee_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15373,9 +14268,6 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   notes?: string | null;
   assignmentScope: string;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -15388,7 +14280,6 @@ export interface ProvisionTenantEmployeeTrustedData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ProvisionTenantEmployeeTrusted`'s action shortcut function
@@ -15416,16 +14307,13 @@ const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariable
   notes: ..., // optional
   assignmentScope: ...,
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await provisionTenantEmployeeTrusted({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await provisionTenantEmployeeTrusted({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15435,7 +14323,6 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.employee_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars).then((response) => {
@@ -15444,7 +14331,6 @@ provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars).then((respons
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.employee_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15473,15 +14359,12 @@ const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariable
   notes: ..., // optional
   assignmentScope: ...,
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeTrustedRef()` function to get a reference to the mutation.
 const ref = provisionTenantEmployeeTrustedRef(provisionTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const ref = provisionTenantEmployeeTrustedRef({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = provisionTenantEmployeeTrustedRef({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15495,7 +14378,6 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.employee_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -15504,7 +14386,6 @@ executeMutation(ref).then((response) => {
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.employee_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15551,9 +14432,6 @@ export interface ProvisionTenantEmployeeLoginTrustedVariables {
   displayName: string;
   phone?: string | null;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -15566,7 +14444,6 @@ export interface ProvisionTenantEmployeeLoginTrustedData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ProvisionTenantEmployeeLoginTrusted`'s action shortcut function
@@ -15586,16 +14463,13 @@ const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrust
   displayName: ...,
   phone: ..., // optional
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeLoginTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await provisionTenantEmployeeLoginTrusted(provisionTenantEmployeeLoginTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await provisionTenantEmployeeLoginTrusted({ organizationId: ..., employeeId: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await provisionTenantEmployeeLoginTrusted({ organizationId: ..., employeeId: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15605,7 +14479,6 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 provisionTenantEmployeeLoginTrusted(provisionTenantEmployeeLoginTrustedVars).then((response) => {
@@ -15614,7 +14487,6 @@ provisionTenantEmployeeLoginTrusted(provisionTenantEmployeeLoginTrustedVars).the
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15635,15 +14507,12 @@ const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrust
   displayName: ...,
   phone: ..., // optional
   roleId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeLoginTrustedRef()` function to get a reference to the mutation.
 const ref = provisionTenantEmployeeLoginTrustedRef(provisionTenantEmployeeLoginTrustedVars);
 // Variables can be defined inline as well.
-const ref = provisionTenantEmployeeLoginTrustedRef({ organizationId: ..., employeeId: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = provisionTenantEmployeeLoginTrustedRef({ organizationId: ..., employeeId: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15657,7 +14526,6 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -15666,7 +14534,6 @@ executeMutation(ref).then((response) => {
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15711,9 +14578,6 @@ export interface UpdateTenantEmployeeLoginTrustedVariables {
   email: string;
   roleId: UUIDString;
   loginAccess: LoginAccessStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -15728,7 +14592,6 @@ export interface UpdateTenantEmployeeLoginTrustedData {
   removeEmployeeRole?: UserRole_Key | null;
   userRole_upsert: UserRole_Key;
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantEmployeeLoginTrusted`'s action shortcut function
@@ -15746,16 +14609,13 @@ const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVari
   email: ...,
   roleId: ...,
   loginAccess: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeLoginTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantEmployeeLoginTrusted(updateTenantEmployeeLoginTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantEmployeeLoginTrusted({ organizationId: ..., employeeId: ..., userId: ..., username: ..., email: ..., roleId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantEmployeeLoginTrusted({ organizationId: ..., employeeId: ..., userId: ..., username: ..., email: ..., roleId: ..., loginAccess: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15767,7 +14627,6 @@ console.log(data.removeAdminRole);
 console.log(data.removeEmployeeRole);
 console.log(data.userRole_upsert);
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantEmployeeLoginTrusted(updateTenantEmployeeLoginTrustedVars).then((response) => {
@@ -15778,7 +14637,6 @@ updateTenantEmployeeLoginTrusted(updateTenantEmployeeLoginTrustedVars).then((res
   console.log(data.removeEmployeeRole);
   console.log(data.userRole_upsert);
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15797,15 +14655,12 @@ const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVari
   email: ...,
   roleId: ...,
   loginAccess: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeLoginTrustedRef()` function to get a reference to the mutation.
 const ref = updateTenantEmployeeLoginTrustedRef(updateTenantEmployeeLoginTrustedVars);
 // Variables can be defined inline as well.
-const ref = updateTenantEmployeeLoginTrustedRef({ organizationId: ..., employeeId: ..., userId: ..., username: ..., email: ..., roleId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantEmployeeLoginTrustedRef({ organizationId: ..., employeeId: ..., userId: ..., username: ..., email: ..., roleId: ..., loginAccess: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15821,7 +14676,6 @@ console.log(data.removeAdminRole);
 console.log(data.removeEmployeeRole);
 console.log(data.userRole_upsert);
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -15832,7 +14686,6 @@ executeMutation(ref).then((response) => {
   console.log(data.removeEmployeeRole);
   console.log(data.userRole_upsert);
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15883,9 +14736,6 @@ export interface UpdateTenantEmployeeTrustedVariables {
   address?: string | null;
   notes?: string | null;
   assignmentScope: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -15895,7 +14745,6 @@ The `data` property is an object of type `UpdateTenantEmployeeTrustedData`, whic
 ```typescript
 export interface UpdateTenantEmployeeTrustedData {
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantEmployeeTrusted`'s action shortcut function
@@ -15919,29 +14768,24 @@ const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
   address: ..., // optional
   notes: ..., // optional
   assignmentScope: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantEmployeeTrusted(updateTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantEmployeeTrusted({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantEmployeeTrusted({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantEmployeeTrusted(dataConnect, updateTenantEmployeeTrustedVars);
 
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantEmployeeTrusted(updateTenantEmployeeTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -15966,15 +14810,12 @@ const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
   address: ..., // optional
   notes: ..., // optional
   assignmentScope: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeTrustedRef()` function to get a reference to the mutation.
 const ref = updateTenantEmployeeTrustedRef(updateTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const ref = updateTenantEmployeeTrustedRef({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantEmployeeTrustedRef({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15985,13 +14826,11 @@ const ref = updateTenantEmployeeTrustedRef(dataConnect, updateTenantEmployeeTrus
 const { data } = await executeMutation(ref);
 
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16032,9 +14871,6 @@ export interface ChangeTenantEmployeeStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: EmploymentStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16044,7 +14880,6 @@ The `data` property is an object of type `ChangeTenantEmployeeStatusTrustedData`
 ```typescript
 export interface ChangeTenantEmployeeStatusTrustedData {
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantEmployeeStatusTrusted`'s action shortcut function
@@ -16058,29 +14893,24 @@ const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVa
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeStatusTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantEmployeeStatusTrusted(changeTenantEmployeeStatusTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantEmployeeStatusTrusted({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantEmployeeStatusTrusted({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantEmployeeStatusTrusted(dataConnect, changeTenantEmployeeStatusTrustedVars);
 
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantEmployeeStatusTrusted(changeTenantEmployeeStatusTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16095,15 +14925,12 @@ const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVa
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeStatusTrustedRef()` function to get a reference to the mutation.
 const ref = changeTenantEmployeeStatusTrustedRef(changeTenantEmployeeStatusTrustedVars);
 // Variables can be defined inline as well.
-const ref = changeTenantEmployeeStatusTrustedRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantEmployeeStatusTrustedRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16114,13 +14941,11 @@ const ref = changeTenantEmployeeStatusTrustedRef(dataConnect, changeTenantEmploy
 const { data } = await executeMutation(ref);
 
 console.log(data.employee_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16162,9 +14987,6 @@ export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
   id: UUIDString;
   userId: UUIDString;
   loginAccess: LoginAccessStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16175,7 +14997,6 @@ The `data` property is an object of type `ChangeTenantEmployeeLoginAccessTrusted
 export interface ChangeTenantEmployeeLoginAccessTrustedData {
   employee_update?: Employee_Key | null;
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantEmployeeLoginAccessTrusted`'s action shortcut function
@@ -16190,16 +15011,13 @@ const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAcces
   id: ...,
   userId: ...,
   loginAccess: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeLoginAccessTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantEmployeeLoginAccessTrusted(changeTenantEmployeeLoginAccessTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantEmployeeLoginAccessTrusted({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantEmployeeLoginAccessTrusted({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16207,14 +15025,12 @@ const { data } = await changeTenantEmployeeLoginAccessTrusted(dataConnect, chang
 
 console.log(data.employee_update);
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantEmployeeLoginAccessTrusted(changeTenantEmployeeLoginAccessTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16230,15 +15046,12 @@ const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAcces
   id: ...,
   userId: ...,
   loginAccess: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeLoginAccessTrustedRef()` function to get a reference to the mutation.
 const ref = changeTenantEmployeeLoginAccessTrustedRef(changeTenantEmployeeLoginAccessTrustedVars);
 // Variables can be defined inline as well.
-const ref = changeTenantEmployeeLoginAccessTrustedRef({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantEmployeeLoginAccessTrustedRef({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16250,14 +15063,12 @@ const { data } = await executeMutation(ref);
 
 console.log(data.employee_update);
 console.log(data.appUser_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
   console.log(data.appUser_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16305,9 +15116,6 @@ export interface CreateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16317,7 +15125,6 @@ The `data` property is an object of type `CreateTenantServicePersonTrustedData`,
 ```typescript
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `CreateTenantServicePersonTrusted`'s action shortcut function
@@ -16338,29 +15145,24 @@ const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVari
   yearsOfExperience: ..., // optional
   assignmentScope: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantServicePersonTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantServicePersonTrusted(createTenantServicePersonTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantServicePersonTrusted({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantServicePersonTrusted({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await createTenantServicePersonTrusted(dataConnect, createTenantServicePersonTrustedVars);
 
 console.log(data.servicePerson_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 createTenantServicePersonTrusted(createTenantServicePersonTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16382,15 +15184,12 @@ const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVari
   yearsOfExperience: ..., // optional
   assignmentScope: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantServicePersonTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantServicePersonTrustedRef(createTenantServicePersonTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantServicePersonTrustedRef({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantServicePersonTrustedRef({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16401,13 +15200,11 @@ const ref = createTenantServicePersonTrustedRef(dataConnect, createTenantService
 const { data } = await executeMutation(ref);
 
 console.log(data.servicePerson_insert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_insert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16455,9 +15252,6 @@ export interface UpdateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16467,7 +15261,6 @@ The `data` property is an object of type `UpdateTenantServicePersonTrustedData`,
 ```typescript
 export interface UpdateTenantServicePersonTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `UpdateTenantServicePersonTrusted`'s action shortcut function
@@ -16488,29 +15281,24 @@ const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVari
   yearsOfExperience: ..., // optional
   assignmentScope: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantServicePersonTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantServicePersonTrusted(updateTenantServicePersonTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantServicePersonTrusted({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantServicePersonTrusted({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await updateTenantServicePersonTrusted(dataConnect, updateTenantServicePersonTrustedVars);
 
 console.log(data.servicePerson_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 updateTenantServicePersonTrusted(updateTenantServicePersonTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16532,15 +15320,12 @@ const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVari
   yearsOfExperience: ..., // optional
   assignmentScope: ...,
   notes: ..., // optional
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantServicePersonTrustedRef()` function to get a reference to the mutation.
 const ref = updateTenantServicePersonTrustedRef(updateTenantServicePersonTrustedVars);
 // Variables can be defined inline as well.
-const ref = updateTenantServicePersonTrustedRef({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantServicePersonTrustedRef({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16551,13 +15336,11 @@ const ref = updateTenantServicePersonTrustedRef(dataConnect, updateTenantService
 const { data } = await executeMutation(ref);
 
 console.log(data.servicePerson_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16598,9 +15381,6 @@ export interface ChangeTenantServicePersonStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: EmploymentStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16610,7 +15390,6 @@ The `data` property is an object of type `ChangeTenantServicePersonStatusTrusted
 ```typescript
 export interface ChangeTenantServicePersonStatusTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `ChangeTenantServicePersonStatusTrusted`'s action shortcut function
@@ -16624,29 +15403,24 @@ const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatu
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantServicePersonStatusTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await changeTenantServicePersonStatusTrusted(changeTenantServicePersonStatusTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await changeTenantServicePersonStatusTrusted({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await changeTenantServicePersonStatusTrusted({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await changeTenantServicePersonStatusTrusted(dataConnect, changeTenantServicePersonStatusTrustedVars);
 
 console.log(data.servicePerson_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 changeTenantServicePersonStatusTrusted(changeTenantServicePersonStatusTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16661,15 +15435,12 @@ const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatu
   organizationId: ...,
   id: ...,
   status: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantServicePersonStatusTrustedRef()` function to get a reference to the mutation.
 const ref = changeTenantServicePersonStatusTrustedRef(changeTenantServicePersonStatusTrustedVars);
 // Variables can be defined inline as well.
-const ref = changeTenantServicePersonStatusTrustedRef({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = changeTenantServicePersonStatusTrustedRef({ organizationId: ..., id: ..., status: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16680,13 +15451,11 @@ const ref = changeTenantServicePersonStatusTrustedRef(dataConnect, changeTenantS
 const { data } = await executeMutation(ref);
 
 console.log(data.servicePerson_update);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePerson_update);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16727,9 +15496,6 @@ export interface AssignTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16739,7 +15505,6 @@ The `data` property is an object of type `AssignTenantEmployeeOutletTrustedData`
 ```typescript
 export interface AssignTenantEmployeeOutletTrustedData {
   employeeOutlet_upsert: EmployeeOutlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `AssignTenantEmployeeOutletTrusted`'s action shortcut function
@@ -16753,29 +15518,24 @@ const assignTenantEmployeeOutletTrustedVars: AssignTenantEmployeeOutletTrustedVa
   organizationId: ...,
   employeeId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `assignTenantEmployeeOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await assignTenantEmployeeOutletTrusted(assignTenantEmployeeOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await assignTenantEmployeeOutletTrusted({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await assignTenantEmployeeOutletTrusted({ organizationId: ..., employeeId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await assignTenantEmployeeOutletTrusted(dataConnect, assignTenantEmployeeOutletTrustedVars);
 
 console.log(data.employeeOutlet_upsert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 assignTenantEmployeeOutletTrusted(assignTenantEmployeeOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employeeOutlet_upsert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16790,15 +15550,12 @@ const assignTenantEmployeeOutletTrustedVars: AssignTenantEmployeeOutletTrustedVa
   organizationId: ...,
   employeeId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `assignTenantEmployeeOutletTrustedRef()` function to get a reference to the mutation.
 const ref = assignTenantEmployeeOutletTrustedRef(assignTenantEmployeeOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = assignTenantEmployeeOutletTrustedRef({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = assignTenantEmployeeOutletTrustedRef({ organizationId: ..., employeeId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16809,13 +15566,11 @@ const ref = assignTenantEmployeeOutletTrustedRef(dataConnect, assignTenantEmploy
 const { data } = await executeMutation(ref);
 
 console.log(data.employeeOutlet_upsert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employeeOutlet_upsert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16856,9 +15611,6 @@ export interface DeleteTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16868,7 +15620,6 @@ The `data` property is an object of type `DeleteTenantEmployeeOutletTrustedData`
 ```typescript
 export interface DeleteTenantEmployeeOutletTrustedData {
   employeeOutlet_delete?: EmployeeOutlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `DeleteTenantEmployeeOutletTrusted`'s action shortcut function
@@ -16882,29 +15633,24 @@ const deleteTenantEmployeeOutletTrustedVars: DeleteTenantEmployeeOutletTrustedVa
   organizationId: ...,
   employeeId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantEmployeeOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await deleteTenantEmployeeOutletTrusted(deleteTenantEmployeeOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await deleteTenantEmployeeOutletTrusted({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await deleteTenantEmployeeOutletTrusted({ organizationId: ..., employeeId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await deleteTenantEmployeeOutletTrusted(dataConnect, deleteTenantEmployeeOutletTrustedVars);
 
 console.log(data.employeeOutlet_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 deleteTenantEmployeeOutletTrusted(deleteTenantEmployeeOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.employeeOutlet_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16919,15 +15665,12 @@ const deleteTenantEmployeeOutletTrustedVars: DeleteTenantEmployeeOutletTrustedVa
   organizationId: ...,
   employeeId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantEmployeeOutletTrustedRef()` function to get a reference to the mutation.
 const ref = deleteTenantEmployeeOutletTrustedRef(deleteTenantEmployeeOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = deleteTenantEmployeeOutletTrustedRef({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = deleteTenantEmployeeOutletTrustedRef({ organizationId: ..., employeeId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -16938,13 +15681,11 @@ const ref = deleteTenantEmployeeOutletTrustedRef(dataConnect, deleteTenantEmploy
 const { data } = await executeMutation(ref);
 
 console.log(data.employeeOutlet_delete);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employeeOutlet_delete);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -16985,9 +15726,6 @@ export interface AssignTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -16997,7 +15735,6 @@ The `data` property is an object of type `AssignTenantServicePersonOutletTrusted
 ```typescript
 export interface AssignTenantServicePersonOutletTrustedData {
   servicePersonOutlet_upsert: ServicePersonOutlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 ### Using `AssignTenantServicePersonOutletTrusted`'s action shortcut function
@@ -17011,29 +15748,24 @@ const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutle
   organizationId: ...,
   servicePersonId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `assignTenantServicePersonOutletTrusted()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await assignTenantServicePersonOutletTrusted(assignTenantServicePersonOutletTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await assignTenantServicePersonOutletTrusted({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await assignTenantServicePersonOutletTrusted({ organizationId: ..., servicePersonId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
 const { data } = await assignTenantServicePersonOutletTrusted(dataConnect, assignTenantServicePersonOutletTrustedVars);
 
 console.log(data.servicePersonOutlet_upsert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 assignTenantServicePersonOutletTrusted(assignTenantServicePersonOutletTrustedVars).then((response) => {
   const data = response.data;
   console.log(data.servicePersonOutlet_upsert);
-  console.log(data.auditEvent_insert);
 });
 ```
 
@@ -17048,15 +15780,12 @@ const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutle
   organizationId: ...,
   servicePersonId: ...,
   outletId: ...,
-  auditId: ...,
-  requestId: ...,
-  actorFirebaseUid: ...,
 };
 
 // Call the `assignTenantServicePersonOutletTrustedRef()` function to get a reference to the mutation.
 const ref = assignTenantServicePersonOutletTrustedRef(assignTenantServicePersonOutletTrustedVars);
 // Variables can be defined inline as well.
-const ref = assignTenantServicePersonOutletTrustedRef({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = assignTenantServicePersonOutletTrustedRef({ organizationId: ..., servicePersonId: ..., outletId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -17067,12 +15796,10 @@ const ref = assignTenantServicePersonOutletTrustedRef(dataConnect, assignTenantS
 const { data } = await executeMutation(ref);
 
 console.log(data.servicePersonOutlet_upsert);
-console.log(data.auditEvent_insert);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.servicePersonOutlet_upsert);
-  console.log(data.auditEvent_insert);
 });
 ```

@@ -67,7 +67,6 @@ You can also follow the instructions from the [Data Connect documentation](https
 - [**Mutations**](#mutations)
   - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
-  - [*RecordPasswordChange*](#recordpasswordchange)
   - [*BootstrapMasterAdmin*](#bootstrapmasteradmin)
   - [*CreateLicensePlan*](#createlicenseplan)
   - [*UpdateLicensePlan*](#updatelicenseplan)
@@ -78,14 +77,12 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*EnsureAppUserRoleTrusted*](#ensureappuserroletrusted)
   - [*UpdateOrganizationAdministrator*](#updateorganizationadministrator)
   - [*ChangeOrganizationAdministratorStatus*](#changeorganizationadministratorstatus)
-  - [*RecordAdministratorSecurityEvent*](#recordadministratorsecurityevent)
   - [*DeleteOrganizationTrusted*](#deleteorganizationtrusted)
   - [*DeleteAppUserTrusted*](#deleteappusertrusted)
   - [*AssignOrganizationLicenseTrusted*](#assignorganizationlicensetrusted)
   - [*ChangeOrganizationLicensePlanTrusted*](#changeorganizationlicenseplantrusted)
   - [*ModifyOrganizationCommercialTermsTrusted*](#modifyorganizationcommercialtermstrusted)
   - [*RenewOrganizationLicenseTrusted*](#reneworganizationlicensetrusted)
-  - [*RecordProvisioningReconciliation*](#recordprovisioningreconciliation)
   - [*CreateOrganization*](#createorganization)
   - [*UpdateOrganization*](#updateorganization)
   - [*ChangeOrganizationStatus*](#changeorganizationstatus)
@@ -5127,8 +5124,6 @@ The `RecordSuccessfulLogin` Mutation requires an argument of type `RecordSuccess
 ```javascript
 export interface RecordSuccessfulLoginVariables {
   userId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5142,7 +5137,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface RecordSuccessfulLoginData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -5180,12 +5174,10 @@ export default function RecordSuccessfulLoginComponent() {
   // The `useRecordSuccessfulLogin` Mutation requires an argument of type `RecordSuccessfulLoginVariables`:
   const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
     userId: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(recordSuccessfulLoginVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ userId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5205,7 +5197,6 @@ export default function RecordSuccessfulLoginComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.appUser_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5229,8 +5220,6 @@ export interface UpdateAppUserProfileVariables {
   userId: UUIDString;
   displayName: string;
   phone?: string | null;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5244,7 +5233,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateAppUserProfileData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -5284,12 +5272,10 @@ export default function UpdateAppUserProfileComponent() {
     userId: ...,
     displayName: ...,
     phone: ..., // optional
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(updateAppUserProfileVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., displayName: ..., phone: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ userId: ..., displayName: ..., phone: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5309,105 +5295,6 @@ export default function UpdateAppUserProfileComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.appUser_update);
-    console.log(mutation.data.auditEvent_insert);
-  }
-  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
-}
-```
-
-## RecordPasswordChange
-You can execute the `RecordPasswordChange` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
-```javascript
-useRecordPasswordChange(options?: useDataConnectMutationOptions<RecordPasswordChangeData, FirebaseError, RecordPasswordChangeVariables>): UseDataConnectMutationResult<RecordPasswordChangeData, RecordPasswordChangeVariables>;
-```
-You can also pass in a `DataConnect` instance to the Mutation hook function.
-```javascript
-useRecordPasswordChange(dc: DataConnect, options?: useDataConnectMutationOptions<RecordPasswordChangeData, FirebaseError, RecordPasswordChangeVariables>): UseDataConnectMutationResult<RecordPasswordChangeData, RecordPasswordChangeVariables>;
-```
-
-### Variables
-The `RecordPasswordChange` Mutation requires an argument of type `RecordPasswordChangeVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-
-```javascript
-export interface RecordPasswordChangeVariables {
-  userId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-}
-```
-### Return Type
-Recall that calling the `RecordPasswordChange` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
-
-To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
-
-To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
-
-To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `RecordPasswordChange` Mutation is of type `RecordPasswordChangeData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-```javascript
-export interface RecordPasswordChangeData {
-  auditEvent_insert: AuditEvent_Key;
-}
-```
-
-To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
-
-### Using `RecordPasswordChange`'s Mutation hook function
-
-```javascript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, RecordPasswordChangeVariables } from '@omniretail/sql-connect';
-import { useRecordPasswordChange } from '@omniretail/sql-connect/react'
-
-export default function RecordPasswordChangeComponent() {
-  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
-  const mutation = useRecordPasswordChange();
-
-  // You can also pass in a `DataConnect` instance to the Mutation hook function.
-  const dataConnect = getDataConnect(connectorConfig);
-  const mutation = useRecordPasswordChange(dataConnect);
-
-  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordPasswordChange(options);
-
-  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
-  const dataConnect = getDataConnect(connectorConfig);
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordPasswordChange(dataConnect, options);
-
-  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
-  // The `useRecordPasswordChange` Mutation requires an argument of type `RecordPasswordChangeVariables`:
-  const recordPasswordChangeVars: RecordPasswordChangeVariables = {
-    userId: ...,
-    auditId: ...,
-    requestId: ...,
-  };
-  mutation.mutate(recordPasswordChangeVars);
-  // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., auditId: ..., requestId: ..., });
-
-  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  mutation.mutate(recordPasswordChangeVars, options);
-
-  // Then, you can render your component dynamically based on the status of the Mutation.
-  if (mutation.isPending) {
-    return <div>Loading...</div>;
-  }
-
-  if (mutation.isError) {
-    return <div>Error: {mutation.error.message}</div>;
-  }
-
-  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
-  if (mutation.isSuccess) {
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5435,8 +5322,6 @@ export interface BootstrapMasterAdminVariables {
   displayName: string;
   phone?: string | null;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5451,7 +5336,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface BootstrapMasterAdminData {
   appUser_upsert: AppUser_Key;
   userRole_upsert: UserRole_Key;
-  auditEvent_upsert: AuditEvent_Key;
 }
 ```
 
@@ -5495,12 +5379,10 @@ export default function BootstrapMasterAdminComponent() {
     displayName: ...,
     phone: ..., // optional
     roleId: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(bootstrapMasterAdminVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5521,7 +5403,6 @@ export default function BootstrapMasterAdminComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.appUser_upsert);
     console.log(mutation.data.userRole_upsert);
-    console.log(mutation.data.auditEvent_upsert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5548,8 +5429,6 @@ export interface CreateLicensePlanVariables {
   level: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5563,7 +5442,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateLicensePlanData {
   licensePlan_insert: LicensePlan_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -5606,12 +5484,10 @@ export default function CreateLicensePlanComponent() {
     level: ...,
     maxStores: ...,
     maxUsers: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(createLicensePlanVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ planCode: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ planCode: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5631,7 +5507,6 @@ export default function CreateLicensePlanComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.licensePlan_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5658,8 +5533,6 @@ export interface UpdateLicensePlanVariables {
   level: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5673,7 +5546,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateLicensePlanData {
   licensePlan_update?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -5716,12 +5588,10 @@ export default function UpdateLicensePlanComponent() {
     level: ...,
     maxStores: ...,
     maxUsers: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(updateLicensePlanVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., name: ..., description: ..., level: ..., maxStores: ..., maxUsers: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5741,7 +5611,6 @@ export default function UpdateLicensePlanComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.licensePlan_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5764,9 +5633,6 @@ The `ChangeLicensePlanStatus` Mutation requires an argument of type `ChangeLicen
 export interface ChangeLicensePlanStatusVariables {
   id: UUIDString;
   status: LicensePlanStatus;
-  action: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5780,7 +5646,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeLicensePlanStatusData {
   licensePlan_update?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -5819,13 +5684,10 @@ export default function ChangeLicensePlanStatusComponent() {
   const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
     id: ...,
     status: ...,
-    action: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(changeLicensePlanStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., status: ..., action: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5845,7 +5707,6 @@ export default function ChangeLicensePlanStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.licensePlan_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5867,8 +5728,6 @@ The `DeleteLicensePlan` Mutation requires an argument of type `DeleteLicensePlan
 ```javascript
 export interface DeleteLicensePlanVariables {
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -5882,7 +5741,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteLicensePlanData {
   licensePlan_delete?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -5920,12 +5778,10 @@ export default function DeleteLicensePlanComponent() {
   // The `useDeleteLicensePlan` Mutation requires an argument of type `DeleteLicensePlanVariables`:
   const deleteLicensePlanVars: DeleteLicensePlanVariables = {
     id: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(deleteLicensePlanVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -5945,7 +5801,6 @@ export default function DeleteLicensePlanComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.licensePlan_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -5967,9 +5822,6 @@ The `DeleteLicensePlanTrusted` Mutation requires an argument of type `DeleteLice
 ```javascript
 export interface DeleteLicensePlanTrustedVariables {
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -5983,7 +5835,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteLicensePlanTrustedData {
   licensePlan_delete?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -6021,13 +5872,10 @@ export default function DeleteLicensePlanTrustedComponent() {
   // The `useDeleteLicensePlanTrusted` Mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
   const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteLicensePlanTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -6047,7 +5895,6 @@ export default function DeleteLicensePlanTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.licensePlan_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -6076,8 +5923,6 @@ export interface ProvisionOrganizationAdministratorVariables {
   phone: string;
   organizationId: UUIDString;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6093,7 +5938,6 @@ export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -6138,12 +5982,10 @@ export default function ProvisionOrganizationAdministratorComponent() {
     phone: ...,
     organizationId: ...,
     roleId: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(provisionOrganizationAdministratorVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -6165,7 +6007,6 @@ export default function ProvisionOrganizationAdministratorComponent() {
     console.log(mutation.data.appUser_insert);
     console.log(mutation.data.organizationMembership_insert);
     console.log(mutation.data.userRole_upsert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -6286,8 +6127,6 @@ export interface UpdateOrganizationAdministratorVariables {
   userId: UUIDString;
   displayName: string;
   phone: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6301,7 +6140,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateOrganizationAdministratorData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -6342,12 +6180,10 @@ export default function UpdateOrganizationAdministratorComponent() {
     userId: ...,
     displayName: ...,
     phone: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(updateOrganizationAdministratorVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., userId: ..., displayName: ..., phone: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ organizationId: ..., userId: ..., displayName: ..., phone: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -6367,7 +6203,6 @@ export default function UpdateOrganizationAdministratorComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.appUser_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -6392,10 +6227,6 @@ export interface ChangeOrganizationAdministratorStatusVariables {
   userId: UUIDString;
   status: AppUserStatus;
   membershipStatus: MembershipStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid?: string | null;
-  action?: string | null;
 }
 ```
 ### Return Type
@@ -6410,7 +6241,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface ChangeOrganizationAdministratorStatusData {
   appUser_update?: AppUser_Key | null;
   organizationMembership_update?: OrganizationMembership_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -6451,14 +6281,10 @@ export default function ChangeOrganizationAdministratorStatusComponent() {
     userId: ...,
     status: ...,
     membershipStatus: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ..., // optional
-    action: ..., // optional
   };
   mutation.mutate(changeOrganizationAdministratorStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., userId: ..., status: ..., membershipStatus: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., action: ..., });
+  mutation.mutate({ organizationId: ..., userId: ..., status: ..., membershipStatus: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -6479,111 +6305,6 @@ export default function ChangeOrganizationAdministratorStatusComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.appUser_update);
     console.log(mutation.data.organizationMembership_update);
-    console.log(mutation.data.auditEvent_insert);
-  }
-  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
-}
-```
-
-## RecordAdministratorSecurityEvent
-You can execute the `RecordAdministratorSecurityEvent` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
-```javascript
-useRecordAdministratorSecurityEvent(options?: useDataConnectMutationOptions<RecordAdministratorSecurityEventData, FirebaseError, RecordAdministratorSecurityEventVariables>): UseDataConnectMutationResult<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
-```
-You can also pass in a `DataConnect` instance to the Mutation hook function.
-```javascript
-useRecordAdministratorSecurityEvent(dc: DataConnect, options?: useDataConnectMutationOptions<RecordAdministratorSecurityEventData, FirebaseError, RecordAdministratorSecurityEventVariables>): UseDataConnectMutationResult<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
-```
-
-### Variables
-The `RecordAdministratorSecurityEvent` Mutation requires an argument of type `RecordAdministratorSecurityEventVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-
-```javascript
-export interface RecordAdministratorSecurityEventVariables {
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  action: string;
-  targetId: UUIDString;
-  organizationId: UUIDString;
-  requestId: string;
-}
-```
-### Return Type
-Recall that calling the `RecordAdministratorSecurityEvent` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
-
-To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
-
-To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
-
-To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `RecordAdministratorSecurityEvent` Mutation is of type `RecordAdministratorSecurityEventData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-```javascript
-export interface RecordAdministratorSecurityEventData {
-  auditEvent_insert: AuditEvent_Key;
-}
-```
-
-To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
-
-### Using `RecordAdministratorSecurityEvent`'s Mutation hook function
-
-```javascript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, RecordAdministratorSecurityEventVariables } from '@omniretail/sql-connect';
-import { useRecordAdministratorSecurityEvent } from '@omniretail/sql-connect/react'
-
-export default function RecordAdministratorSecurityEventComponent() {
-  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
-  const mutation = useRecordAdministratorSecurityEvent();
-
-  // You can also pass in a `DataConnect` instance to the Mutation hook function.
-  const dataConnect = getDataConnect(connectorConfig);
-  const mutation = useRecordAdministratorSecurityEvent(dataConnect);
-
-  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordAdministratorSecurityEvent(options);
-
-  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
-  const dataConnect = getDataConnect(connectorConfig);
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordAdministratorSecurityEvent(dataConnect, options);
-
-  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
-  // The `useRecordAdministratorSecurityEvent` Mutation requires an argument of type `RecordAdministratorSecurityEventVariables`:
-  const recordAdministratorSecurityEventVars: RecordAdministratorSecurityEventVariables = {
-    auditId: ...,
-    actorFirebaseUid: ...,
-    action: ...,
-    targetId: ...,
-    organizationId: ...,
-    requestId: ...,
-  };
-  mutation.mutate(recordAdministratorSecurityEventVars);
-  // Variables can be defined inline as well.
-  mutation.mutate({ auditId: ..., actorFirebaseUid: ..., action: ..., targetId: ..., organizationId: ..., requestId: ..., });
-
-  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  mutation.mutate(recordAdministratorSecurityEventVars, options);
-
-  // Then, you can render your component dynamically based on the status of the Mutation.
-  if (mutation.isPending) {
-    return <div>Loading...</div>;
-  }
-
-  if (mutation.isError) {
-    return <div>Error: {mutation.error.message}</div>;
-  }
-
-  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
-  if (mutation.isSuccess) {
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -6805,9 +6526,6 @@ export interface AssignOrganizationLicenseTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -6822,7 +6540,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface AssignOrganizationLicenseTrustedData {
   organizationLicense_insert: OrganizationLicense_Key;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -6872,13 +6589,10 @@ export default function AssignOrganizationLicenseTrustedComponent() {
     planLevel: ...,
     maxStores: ...,
     maxUsers: ...,
-    auditId: ...,
-    actorFirebaseUid: ...,
-    requestId: ...,
   };
   mutation.mutate(assignOrganizationLicenseTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -6899,7 +6613,6 @@ export default function AssignOrganizationLicenseTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.organizationLicense_insert);
     console.log(mutation.data.licenseHistory_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -6933,9 +6646,6 @@ export interface ChangeOrganizationLicensePlanTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 ```
@@ -6951,7 +6661,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface ChangeOrganizationLicensePlanTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7001,14 +6710,11 @@ export default function ChangeOrganizationLicensePlanTrustedComponent() {
     planLevel: ...,
     maxStores: ...,
     maxUsers: ...,
-    auditId: ...,
-    actorFirebaseUid: ...,
-    requestId: ...,
     changes: ..., // optional
   };
   mutation.mutate(changeOrganizationLicensePlanTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7029,7 +6735,6 @@ export default function ChangeOrganizationLicensePlanTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.organizationLicense_update);
     console.log(mutation.data.licenseHistory_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7063,9 +6768,6 @@ export interface ModifyOrganizationCommercialTermsTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 ```
@@ -7081,7 +6783,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface ModifyOrganizationCommercialTermsTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7131,14 +6832,11 @@ export default function ModifyOrganizationCommercialTermsTrustedComponent() {
     planLevel: ...,
     maxStores: ...,
     maxUsers: ...,
-    auditId: ...,
-    actorFirebaseUid: ...,
-    requestId: ...,
     changes: ..., // optional
   };
   mutation.mutate(modifyOrganizationCommercialTermsTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7159,7 +6857,6 @@ export default function ModifyOrganizationCommercialTermsTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.organizationLicense_update);
     console.log(mutation.data.licenseHistory_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7193,9 +6890,6 @@ export interface RenewOrganizationLicenseTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 ```
@@ -7211,7 +6905,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface RenewOrganizationLicenseTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7261,14 +6954,11 @@ export default function RenewOrganizationLicenseTrustedComponent() {
     planLevel: ...,
     maxStores: ...,
     maxUsers: ...,
-    auditId: ...,
-    actorFirebaseUid: ...,
-    requestId: ...,
     changes: ..., // optional
   };
   mutation.mutate(renewOrganizationLicenseTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., auditId: ..., actorFirebaseUid: ..., requestId: ..., changes: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., planId: ..., startDate: ..., expiryDate: ..., negotiatedPrice: ..., currency: ..., historyId: ..., planCode: ..., planName: ..., planLevel: ..., maxStores: ..., maxUsers: ..., changes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7289,105 +6979,6 @@ export default function RenewOrganizationLicenseTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.organizationLicense_update);
     console.log(mutation.data.licenseHistory_insert);
-    console.log(mutation.data.auditEvent_insert);
-  }
-  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
-}
-```
-
-## RecordProvisioningReconciliation
-You can execute the `RecordProvisioningReconciliation` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
-```javascript
-useRecordProvisioningReconciliation(options?: useDataConnectMutationOptions<RecordProvisioningReconciliationData, FirebaseError, RecordProvisioningReconciliationVariables>): UseDataConnectMutationResult<RecordProvisioningReconciliationData, RecordProvisioningReconciliationVariables>;
-```
-You can also pass in a `DataConnect` instance to the Mutation hook function.
-```javascript
-useRecordProvisioningReconciliation(dc: DataConnect, options?: useDataConnectMutationOptions<RecordProvisioningReconciliationData, FirebaseError, RecordProvisioningReconciliationVariables>): UseDataConnectMutationResult<RecordProvisioningReconciliationData, RecordProvisioningReconciliationVariables>;
-```
-
-### Variables
-The `RecordProvisioningReconciliation` Mutation requires an argument of type `RecordProvisioningReconciliationVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-
-```javascript
-export interface RecordProvisioningReconciliationVariables {
-  idempotencyKey: string;
-  firebaseUid: string;
-  errorClass: string;
-}
-```
-### Return Type
-Recall that calling the `RecordProvisioningReconciliation` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
-
-To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
-
-To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
-
-To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `RecordProvisioningReconciliation` Mutation is of type `RecordProvisioningReconciliationData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-```javascript
-export interface RecordProvisioningReconciliationData {
-  provisioningReconciliation_insert: ProvisioningReconciliation_Key;
-}
-```
-
-To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
-
-### Using `RecordProvisioningReconciliation`'s Mutation hook function
-
-```javascript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, RecordProvisioningReconciliationVariables } from '@omniretail/sql-connect';
-import { useRecordProvisioningReconciliation } from '@omniretail/sql-connect/react'
-
-export default function RecordProvisioningReconciliationComponent() {
-  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
-  const mutation = useRecordProvisioningReconciliation();
-
-  // You can also pass in a `DataConnect` instance to the Mutation hook function.
-  const dataConnect = getDataConnect(connectorConfig);
-  const mutation = useRecordProvisioningReconciliation(dataConnect);
-
-  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordProvisioningReconciliation(options);
-
-  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
-  const dataConnect = getDataConnect(connectorConfig);
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordProvisioningReconciliation(dataConnect, options);
-
-  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
-  // The `useRecordProvisioningReconciliation` Mutation requires an argument of type `RecordProvisioningReconciliationVariables`:
-  const recordProvisioningReconciliationVars: RecordProvisioningReconciliationVariables = {
-    idempotencyKey: ...,
-    firebaseUid: ...,
-    errorClass: ...,
-  };
-  mutation.mutate(recordProvisioningReconciliationVars);
-  // Variables can be defined inline as well.
-  mutation.mutate({ idempotencyKey: ..., firebaseUid: ..., errorClass: ..., });
-
-  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  mutation.mutate(recordProvisioningReconciliationVars, options);
-
-  // Then, you can render your component dynamically based on the status of the Mutation.
-  if (mutation.isPending) {
-    return <div>Loading...</div>;
-  }
-
-  if (mutation.isError) {
-    return <div>Error: {mutation.error.message}</div>;
-  }
-
-  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
-  if (mutation.isSuccess) {
-    console.log(mutation.data.provisioningReconciliation_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7422,8 +7013,6 @@ export interface CreateOrganizationVariables {
   postalCode?: string | null;
   timezone: string;
   currency: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7437,7 +7026,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateOrganizationData {
   organization_insert: Organization_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7488,12 +7076,10 @@ export default function CreateOrganizationComponent() {
     postalCode: ..., // optional
     timezone: ...,
     currency: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(createOrganizationVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., organizationCode: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7513,7 +7099,6 @@ export default function CreateOrganizationComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.organization_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7547,8 +7132,6 @@ export interface UpdateOrganizationVariables {
   postalCode?: string | null;
   timezone: string;
   currency: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7562,7 +7145,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateOrganizationData {
   organization_update?: Organization_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7612,12 +7194,10 @@ export default function UpdateOrganizationComponent() {
     postalCode: ..., // optional
     timezone: ...,
     currency: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(updateOrganizationVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., businessName: ..., legalEntityName: ..., taxId: ..., primaryContactName: ..., email: ..., phone: ..., address: ..., city: ..., state: ..., postalCode: ..., timezone: ..., currency: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7637,7 +7217,6 @@ export default function UpdateOrganizationComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.organization_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7660,9 +7239,6 @@ The `ChangeOrganizationStatus` Mutation requires an argument of type `ChangeOrga
 export interface ChangeOrganizationStatusVariables {
   id: UUIDString;
   status: OrganizationStatus;
-  action: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -7676,7 +7252,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeOrganizationStatusData {
   organization_update?: Organization_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7715,13 +7290,10 @@ export default function ChangeOrganizationStatusComponent() {
   const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
     id: ...,
     status: ...,
-    action: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(changeOrganizationStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., status: ..., action: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7741,7 +7313,6 @@ export default function ChangeOrganizationStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.organization_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7778,9 +7349,6 @@ export interface CreateTenantExpenseVariables {
   paidByEmployee: string;
   submittedBy: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -7794,7 +7362,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantExpenseData {
   expense_insert: Expense_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7847,13 +7414,10 @@ export default function CreateTenantExpenseComponent() {
     paidByEmployee: ...,
     submittedBy: ...,
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantExpenseVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., expenseNumber: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., outletId: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., submittedBy: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -7873,7 +7437,6 @@ export default function CreateTenantExpenseComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.expense_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -7908,9 +7471,6 @@ export interface UpdateTenantExpenseVariables {
   paymentMethod: string;
   paidByEmployee: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -7924,7 +7484,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantExpenseData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -7975,13 +7534,10 @@ export default function UpdateTenantExpenseComponent() {
     paymentMethod: ...,
     paidByEmployee: ...,
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantExpenseVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., expenseDate: ..., category: ..., description: ..., reference: ..., vendorName: ..., scope: ..., baseAmount: ..., taxAmount: ..., amount: ..., paymentMethod: ..., paidByEmployee: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8001,7 +7557,6 @@ export default function UpdateTenantExpenseComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.expense_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8026,9 +7581,6 @@ export interface ChangeTenantExpenseApprovalVariables {
   id: UUIDString;
   approvalStatus: ExpenseApprovalStatus;
   reason?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8042,7 +7594,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantExpenseApprovalData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8083,13 +7634,10 @@ export default function ChangeTenantExpenseApprovalComponent() {
     id: ...,
     approvalStatus: ...,
     reason: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantExpenseApprovalVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., approvalStatus: ..., reason: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8109,7 +7657,6 @@ export default function ChangeTenantExpenseApprovalComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.expense_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8133,9 +7680,6 @@ export interface VoidTenantExpenseVariables {
   organizationId: UUIDString;
   id: UUIDString;
   reason: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8149,7 +7693,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface VoidTenantExpenseData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8189,13 +7732,10 @@ export default function VoidTenantExpenseComponent() {
     organizationId: ...,
     id: ...,
     reason: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(voidTenantExpenseVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., reason: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8215,7 +7755,6 @@ export default function VoidTenantExpenseComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.expense_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8250,9 +7789,6 @@ export interface CreateTenantSaleVariables {
   discount: number;
   subtotal: number;
   totalNet: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8266,7 +7802,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantSaleData {
   sale_insert: Sale_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8317,13 +7852,10 @@ export default function CreateTenantSaleComponent() {
     discount: ...,
     subtotal: ...,
     totalNet: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantSaleVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., outletId: ..., receiptNumber: ..., saleTimestamp: ..., customerId: ..., customerName: ..., staffName: ..., channel: ..., terminalId: ..., tenderType: ..., tax: ..., discount: ..., subtotal: ..., totalNet: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8343,7 +7875,6 @@ export default function CreateTenantSaleComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.sale_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8372,9 +7903,6 @@ export interface AddTenantSaleLineVariables {
   newStockQty: number;
   unitPrice: number;
   subtotal: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8389,7 +7917,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface AddTenantSaleLineData {
   saleLine_insert: SaleLine_Key;
   inventoryStock_update?: InventoryStock_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8434,13 +7961,10 @@ export default function AddTenantSaleLineComponent() {
     newStockQty: ...,
     unitPrice: ...,
     subtotal: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(addTenantSaleLineVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., saleId: ..., outletId: ..., productId: ..., quantity: ..., newStockQty: ..., unitPrice: ..., subtotal: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8461,7 +7985,6 @@ export default function AddTenantSaleLineComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.saleLine_insert);
     console.log(mutation.data.inventoryStock_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8485,9 +8008,6 @@ export interface VoidTenantSaleVariables {
   organizationId: UUIDString;
   saleId: UUIDString;
   reason: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8501,7 +8021,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface VoidTenantSaleData {
   sale_update?: Sale_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8541,13 +8060,10 @@ export default function VoidTenantSaleComponent() {
     organizationId: ...,
     saleId: ...,
     reason: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(voidTenantSaleVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., saleId: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., saleId: ..., reason: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8567,7 +8083,6 @@ export default function VoidTenantSaleComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.sale_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8606,9 +8121,6 @@ export interface CreateTenantPurchaseVariables {
   receiptStatus: PurchaseReceiptStatus;
   status: PurchaseStatus;
   createdBy: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8622,7 +8134,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantPurchaseData {
   purchase_insert: Purchase_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8677,13 +8188,10 @@ export default function CreateTenantPurchaseComponent() {
     receiptStatus: ...,
     status: ...,
     createdBy: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantPurchaseVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., purchaseNumber: ..., purchaseDate: ..., supplierId: ..., outletId: ..., scope: ..., paymentTerms: ..., subtotal: ..., shippingFee: ..., handlingFee: ..., tax: ..., totalAmount: ..., amountPaid: ..., outstandingAmount: ..., paymentStatus: ..., receiptStatus: ..., status: ..., createdBy: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8703,7 +8211,6 @@ export default function CreateTenantPurchaseComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.purchase_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8733,9 +8240,6 @@ export interface CreateTenantPurchaseLineVariables {
   taxRate: number;
   taxAmount: number;
   lineTotal: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8749,7 +8253,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantPurchaseLineData {
   purchaseLine_insert: PurchaseLine_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8795,13 +8298,10 @@ export default function CreateTenantPurchaseLineComponent() {
     taxRate: ...,
     taxAmount: ...,
     lineTotal: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantPurchaseLineVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., purchaseId: ..., productId: ..., quantityOrdered: ..., unitCost: ..., discountPercent: ..., taxRate: ..., taxAmount: ..., lineTotal: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8821,7 +8321,6 @@ export default function CreateTenantPurchaseLineComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.purchaseLine_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8846,9 +8345,6 @@ export interface ChangeTenantPurchaseStatusVariables {
   id: UUIDString;
   status: PurchaseStatus;
   reason?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8862,7 +8358,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantPurchaseStatusData {
   purchase_update?: Purchase_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -8903,13 +8398,10 @@ export default function ChangeTenantPurchaseStatusComponent() {
     id: ...,
     status: ...,
     reason: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantPurchaseStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., reason: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., reason: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8929,7 +8421,6 @@ export default function ChangeTenantPurchaseStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.purchase_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -8961,9 +8452,6 @@ export interface ReceiveTenantPurchaseLineVariables {
   batchNumber?: string | null;
   mfgDate?: DateString | null;
   expiryDate?: DateString | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -8979,7 +8467,6 @@ export interface ReceiveTenantPurchaseLineData {
   purchaseLine_update?: PurchaseLine_Key | null;
   purchase_update?: Purchase_Key | null;
   inventoryStock_update?: InventoryStock_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9027,13 +8514,10 @@ export default function ReceiveTenantPurchaseLineComponent() {
     batchNumber: ..., // optional
     mfgDate: ..., // optional
     expiryDate: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(receiveTenantPurchaseLineVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., purchaseId: ..., lineId: ..., outletId: ..., productId: ..., quantityReceived: ..., newStockQty: ..., receiptStatus: ..., batchNumber: ..., mfgDate: ..., expiryDate: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9055,7 +8539,6 @@ export default function ReceiveTenantPurchaseLineComponent() {
     console.log(mutation.data.purchaseLine_update);
     console.log(mutation.data.purchase_update);
     console.log(mutation.data.inventoryStock_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9092,9 +8575,6 @@ export interface CreateTenantSupplierVariables {
   paymentTerms: string;
   creditLimit: number;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9108,7 +8588,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9161,13 +8640,10 @@ export default function CreateTenantSupplierComponent() {
     paymentTerms: ...,
     creditLimit: ...,
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantSupplierVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9187,7 +8663,6 @@ export default function CreateTenantSupplierComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.supplier_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9224,9 +8699,6 @@ export interface UpdateTenantSupplierVariables {
   paymentTerms: string;
   creditLimit: number;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9240,7 +8712,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantSupplierData {
   supplier_update?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9293,13 +8764,10 @@ export default function UpdateTenantSupplierComponent() {
     paymentTerms: ...,
     creditLimit: ...,
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantSupplierVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9319,7 +8787,6 @@ export default function UpdateTenantSupplierComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.supplier_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9343,9 +8810,6 @@ export interface ChangeTenantSupplierStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: SupplierStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9359,7 +8823,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantSupplierStatusData {
   supplier_update?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9399,13 +8862,10 @@ export default function ChangeTenantSupplierStatusComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantSupplierStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9425,7 +8885,6 @@ export default function ChangeTenantSupplierStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.supplier_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9465,9 +8924,6 @@ export interface CreateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9481,7 +8937,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9537,13 +8992,10 @@ export default function CreateTenantCustomerComponent() {
     dateOfBirth: ..., // optional
     gender: ..., // optional
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9563,7 +9015,6 @@ export default function CreateTenantCustomerComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.customer_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9603,9 +9054,6 @@ export interface UpdateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9619,7 +9067,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantCustomerData {
   customer_update?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9675,13 +9122,10 @@ export default function UpdateTenantCustomerComponent() {
     dateOfBirth: ..., // optional
     gender: ..., // optional
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9701,7 +9145,6 @@ export default function UpdateTenantCustomerComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.customer_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9725,9 +9168,6 @@ export interface ChangeTenantCustomerStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: CustomerStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9741,7 +9181,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantCustomerStatusData {
   customer_update?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9781,13 +9220,10 @@ export default function ChangeTenantCustomerStatusComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantCustomerStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9807,7 +9243,6 @@ export default function ChangeTenantCustomerStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.customer_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9831,9 +9266,6 @@ export interface CreateTenantCategoryTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
   value: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9847,7 +9279,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantCategoryTrustedData {
   category_insert: Category_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9887,13 +9318,10 @@ export default function CreateTenantCategoryTrustedComponent() {
     id: ...,
     organizationId: ...,
     value: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantCategoryTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., value: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9913,7 +9341,6 @@ export default function CreateTenantCategoryTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.category_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -9938,9 +9365,6 @@ export interface CreateTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   categoryId: UUIDString;
   value: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -9954,7 +9378,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantSubcategoryTrustedData {
   subcategory_insert: Subcategory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -9995,13 +9418,10 @@ export default function CreateTenantSubcategoryTrustedComponent() {
     organizationId: ...,
     categoryId: ...,
     value: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantSubcategoryTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., categoryId: ..., value: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., categoryId: ..., value: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10021,7 +9441,6 @@ export default function CreateTenantSubcategoryTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.subcategory_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10064,9 +9483,6 @@ export interface CreateTenantProductVariables {
   primarySupplier?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10080,7 +9496,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantProductData {
   product_insert: Product_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -10139,13 +9554,10 @@ export default function CreateTenantProductComponent() {
     primarySupplier: ..., // optional
     description: ..., // optional
     imageUrl: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantProductVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10165,7 +9577,6 @@ export default function CreateTenantProductComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.product_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10208,9 +9619,6 @@ export interface UpdateTenantProductVariables {
   primarySupplier?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10224,7 +9632,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantProductData {
   product_update?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -10283,13 +9690,10 @@ export default function UpdateTenantProductComponent() {
     primarySupplier: ..., // optional
     description: ..., // optional
     imageUrl: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantProductVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10309,7 +9713,6 @@ export default function UpdateTenantProductComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.product_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10333,9 +9736,6 @@ export interface ChangeTenantProductStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: ProductStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -10349,7 +9749,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantProductStatusData {
   product_update?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -10389,13 +9788,10 @@ export default function ChangeTenantProductStatusComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantProductStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10415,7 +9811,6 @@ export default function ChangeTenantProductStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.product_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10668,8 +10063,6 @@ export interface CreateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -10683,7 +10076,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantOutletData {
   outlet_insert: Outlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -10726,12 +10118,10 @@ export default function CreateTenantOutletComponent() {
     email: ..., // optional
     phone: ...,
     address: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(createTenantOutletVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10751,7 +10141,6 @@ export default function CreateTenantOutletComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10779,8 +10168,6 @@ export interface UpdateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -10794,7 +10181,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantOutletData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -10838,12 +10224,10 @@ export default function UpdateTenantOutletComponent() {
     email: ..., // optional
     phone: ...,
     address: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(updateTenantOutletVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10863,7 +10247,6 @@ export default function UpdateTenantOutletComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10887,8 +10270,6 @@ export interface ChangeTenantOutletStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: OutletStatus;
-  auditId: UUIDString;
-  requestId: string;
 }
 ```
 ### Return Type
@@ -10902,7 +10283,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantOutletStatusData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -10942,12 +10322,10 @@ export default function ChangeTenantOutletStatusComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
   };
   mutation.mutate(changeTenantOutletStatusVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -10967,7 +10345,6 @@ export default function ChangeTenantOutletStatusComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -10995,9 +10372,6 @@ export interface CreateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11011,7 +10385,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11055,13 +10428,10 @@ export default function CreateTenantOutletTrustedComponent() {
     email: ..., // optional
     phone: ...,
     address: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11081,7 +10451,6 @@ export default function CreateTenantOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11109,9 +10478,6 @@ export interface UpdateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11125,7 +10491,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantOutletTrustedData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11169,13 +10534,10 @@ export default function UpdateTenantOutletTrustedComponent() {
     email: ..., // optional
     phone: ...,
     address: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., email: ..., phone: ..., address: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11195,7 +10557,6 @@ export default function UpdateTenantOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11219,9 +10580,6 @@ export interface ChangeTenantOutletStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: OutletStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11235,7 +10593,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantOutletStatusTrustedData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11275,13 +10632,10 @@ export default function ChangeTenantOutletStatusTrustedComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantOutletStatusTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11301,7 +10655,6 @@ export default function ChangeTenantOutletStatusTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11324,9 +10677,6 @@ The `DeleteTenantOutletTrusted` Mutation requires an argument of type `DeleteTen
 export interface DeleteTenantOutletTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11340,7 +10690,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantOutletTrustedData {
   outlet_delete?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11379,13 +10728,10 @@ export default function DeleteTenantOutletTrustedComponent() {
   const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11405,7 +10751,6 @@ export default function DeleteTenantOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.outlet_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11428,9 +10773,6 @@ The `DeleteTenantEmployeeTrusted` Mutation requires an argument of type `DeleteT
 export interface DeleteTenantEmployeeTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11444,7 +10786,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantEmployeeTrustedData {
   employee_delete?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11483,13 +10824,10 @@ export default function DeleteTenantEmployeeTrustedComponent() {
   const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11509,7 +10847,6 @@ export default function DeleteTenantEmployeeTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11532,9 +10869,6 @@ The `DeleteTenantServicePersonTrusted` Mutation requires an argument of type `De
 export interface DeleteTenantServicePersonTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11548,7 +10882,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantServicePersonTrustedData {
   servicePerson_delete?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11587,13 +10920,10 @@ export default function DeleteTenantServicePersonTrustedComponent() {
   const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantServicePersonTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11613,7 +10943,6 @@ export default function DeleteTenantServicePersonTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePerson_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11637,9 +10966,6 @@ export interface DeleteTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11653,7 +10979,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantServicePersonOutletTrustedData {
   servicePersonOutlet_delete?: ServicePersonOutlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11693,13 +11018,10 @@ export default function DeleteTenantServicePersonOutletTrustedComponent() {
     organizationId: ...,
     servicePersonId: ...,
     outletId: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantServicePersonOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., servicePersonId: ..., outletId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11719,7 +11041,6 @@ export default function DeleteTenantServicePersonOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePersonOutlet_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11742,9 +11063,6 @@ The `DeleteTenantCustomerTrusted` Mutation requires an argument of type `DeleteT
 export interface DeleteTenantCustomerTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11758,7 +11076,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantCustomerTrustedData {
   customer_delete?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11797,13 +11114,10 @@ export default function DeleteTenantCustomerTrustedComponent() {
   const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantCustomerTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11823,7 +11137,6 @@ export default function DeleteTenantCustomerTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.customer_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11846,9 +11159,6 @@ The `DeleteTenantSupplierTrusted` Mutation requires an argument of type `DeleteT
 export interface DeleteTenantSupplierTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11862,7 +11172,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantSupplierTrustedData {
   supplier_delete?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -11901,13 +11210,10 @@ export default function DeleteTenantSupplierTrustedComponent() {
   const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantSupplierTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -11927,7 +11233,6 @@ export default function DeleteTenantSupplierTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.supplier_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -11950,9 +11255,6 @@ The `DeleteTenantProductTrusted` Mutation requires an argument of type `DeleteTe
 export interface DeleteTenantProductTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -11966,7 +11268,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantProductTrustedData {
   product_delete?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12005,13 +11306,10 @@ export default function DeleteTenantProductTrustedComponent() {
   const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantProductTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12031,7 +11329,6 @@ export default function DeleteTenantProductTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.product_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12054,9 +11351,6 @@ The `DeleteTenantCategoryTrusted` Mutation requires an argument of type `DeleteT
 export interface DeleteTenantCategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12070,7 +11364,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantCategoryTrustedData {
   category_delete?: Category_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12109,13 +11402,10 @@ export default function DeleteTenantCategoryTrustedComponent() {
   const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantCategoryTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12135,7 +11425,6 @@ export default function DeleteTenantCategoryTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.category_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12158,9 +11447,6 @@ The `DeleteTenantSubcategoryTrusted` Mutation requires an argument of type `Dele
 export interface DeleteTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12174,7 +11460,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantSubcategoryTrustedData {
   subcategory_delete?: Subcategory_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12213,13 +11498,10 @@ export default function DeleteTenantSubcategoryTrustedComponent() {
   const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
     organizationId: ...,
     id: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantSubcategoryTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12239,7 +11521,6 @@ export default function DeleteTenantSubcategoryTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.subcategory_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12273,9 +11554,6 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   address?: string | null;
   notes?: string | null;
   assignmentScope: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12289,7 +11567,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12339,13 +11616,10 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
     address: ..., // optional
     notes: ..., // optional
     assignmentScope: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantEmployeeProfileTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12365,7 +11639,6 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12403,9 +11676,6 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   notes?: string | null;
   assignmentScope: string;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12422,7 +11692,6 @@ export interface ProvisionTenantEmployeeTrustedData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12476,13 +11745,10 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
     notes: ..., // optional
     assignmentScope: ...,
     roleId: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(provisionTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12505,7 +11771,6 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
     console.log(mutation.data.organizationMembership_insert);
     console.log(mutation.data.userRole_upsert);
     console.log(mutation.data.employee_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12535,9 +11800,6 @@ export interface ProvisionTenantEmployeeLoginTrustedVariables {
   displayName: string;
   phone?: string | null;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12554,7 +11816,6 @@ export interface ProvisionTenantEmployeeLoginTrustedData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12600,13 +11861,10 @@ export default function ProvisionTenantEmployeeLoginTrustedComponent() {
     displayName: ...,
     phone: ..., // optional
     roleId: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(provisionTenantEmployeeLoginTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., employeeId: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., employeeId: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., roleId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12629,7 +11887,6 @@ export default function ProvisionTenantEmployeeLoginTrustedComponent() {
     console.log(mutation.data.organizationMembership_insert);
     console.log(mutation.data.userRole_upsert);
     console.log(mutation.data.employee_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12657,9 +11914,6 @@ export interface UpdateTenantEmployeeLoginTrustedVariables {
   email: string;
   roleId: UUIDString;
   loginAccess: LoginAccessStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12678,7 +11932,6 @@ export interface UpdateTenantEmployeeLoginTrustedData {
   removeEmployeeRole?: UserRole_Key | null;
   userRole_upsert: UserRole_Key;
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12722,13 +11975,10 @@ export default function UpdateTenantEmployeeLoginTrustedComponent() {
     email: ...,
     roleId: ...,
     loginAccess: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantEmployeeLoginTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., employeeId: ..., userId: ..., username: ..., email: ..., roleId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., employeeId: ..., userId: ..., username: ..., email: ..., roleId: ..., loginAccess: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12753,7 +12003,6 @@ export default function UpdateTenantEmployeeLoginTrustedComponent() {
     console.log(mutation.data.removeEmployeeRole);
     console.log(mutation.data.userRole_upsert);
     console.log(mutation.data.employee_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12787,9 +12036,6 @@ export interface UpdateTenantEmployeeTrustedVariables {
   address?: string | null;
   notes?: string | null;
   assignmentScope: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12803,7 +12049,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantEmployeeTrustedData {
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12853,13 +12098,10 @@ export default function UpdateTenantEmployeeTrustedComponent() {
     address: ..., // optional
     notes: ..., // optional
     assignmentScope: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., gender: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12879,7 +12121,6 @@ export default function UpdateTenantEmployeeTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -12903,9 +12144,6 @@ export interface ChangeTenantEmployeeStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: EmploymentStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -12919,7 +12157,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantEmployeeStatusTrustedData {
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -12959,13 +12196,10 @@ export default function ChangeTenantEmployeeStatusTrustedComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantEmployeeStatusTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12985,7 +12219,6 @@ export default function ChangeTenantEmployeeStatusTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13010,9 +12243,6 @@ export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
   id: UUIDString;
   userId: UUIDString;
   loginAccess: LoginAccessStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13027,7 +12257,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 export interface ChangeTenantEmployeeLoginAccessTrustedData {
   employee_update?: Employee_Key | null;
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13068,13 +12297,10 @@ export default function ChangeTenantEmployeeLoginAccessTrustedComponent() {
     id: ...,
     userId: ...,
     loginAccess: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantEmployeeLoginAccessTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., userId: ..., loginAccess: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13095,7 +12321,6 @@ export default function ChangeTenantEmployeeLoginAccessTrustedComponent() {
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_update);
     console.log(mutation.data.appUser_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13126,9 +12351,6 @@ export interface CreateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13142,7 +12364,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13189,13 +12410,10 @@ export default function CreateTenantServicePersonTrustedComponent() {
     yearsOfExperience: ..., // optional
     assignmentScope: ...,
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(createTenantServicePersonTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13215,7 +12433,6 @@ export default function CreateTenantServicePersonTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePerson_insert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13246,9 +12463,6 @@ export interface UpdateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13262,7 +12476,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface UpdateTenantServicePersonTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13309,13 +12522,10 @@ export default function UpdateTenantServicePersonTrustedComponent() {
     yearsOfExperience: ..., // optional
     assignmentScope: ...,
     notes: ..., // optional
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(updateTenantServicePersonTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., address: ..., specialization: ..., yearsOfExperience: ..., assignmentScope: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13335,7 +12545,6 @@ export default function UpdateTenantServicePersonTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePerson_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13359,9 +12568,6 @@ export interface ChangeTenantServicePersonStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: EmploymentStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13375,7 +12581,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface ChangeTenantServicePersonStatusTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13415,13 +12620,10 @@ export default function ChangeTenantServicePersonStatusTrustedComponent() {
     organizationId: ...,
     id: ...,
     status: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(changeTenantServicePersonStatusTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., status: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., status: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13441,7 +12643,6 @@ export default function ChangeTenantServicePersonStatusTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePerson_update);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13465,9 +12666,6 @@ export interface AssignTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13481,7 +12679,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface AssignTenantEmployeeOutletTrustedData {
   employeeOutlet_upsert: EmployeeOutlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13521,13 +12718,10 @@ export default function AssignTenantEmployeeOutletTrustedComponent() {
     organizationId: ...,
     employeeId: ...,
     outletId: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(assignTenantEmployeeOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., employeeId: ..., outletId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13547,7 +12741,6 @@ export default function AssignTenantEmployeeOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employeeOutlet_upsert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13571,9 +12764,6 @@ export interface DeleteTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13587,7 +12777,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface DeleteTenantEmployeeOutletTrustedData {
   employeeOutlet_delete?: EmployeeOutlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13627,13 +12816,10 @@ export default function DeleteTenantEmployeeOutletTrustedComponent() {
     organizationId: ...,
     employeeId: ...,
     outletId: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(deleteTenantEmployeeOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., employeeId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., employeeId: ..., outletId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13653,7 +12839,6 @@ export default function DeleteTenantEmployeeOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employeeOutlet_delete);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -13677,9 +12862,6 @@ export interface AssignTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 ```
 ### Return Type
@@ -13693,7 +12875,6 @@ To access the data returned by a Mutation, use the `UseMutationResult.data` fiel
 ```javascript
 export interface AssignTenantServicePersonOutletTrustedData {
   servicePersonOutlet_upsert: ServicePersonOutlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 ```
 
@@ -13733,13 +12914,10 @@ export default function AssignTenantServicePersonOutletTrustedComponent() {
     organizationId: ...,
     servicePersonId: ...,
     outletId: ...,
-    auditId: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
   };
   mutation.mutate(assignTenantServicePersonOutletTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., servicePersonId: ..., outletId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., servicePersonId: ..., outletId: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -13759,7 +12937,6 @@ export default function AssignTenantServicePersonOutletTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.servicePersonOutlet_upsert);
-    console.log(mutation.data.auditEvent_insert);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }

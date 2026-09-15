@@ -111,7 +111,6 @@ export enum SupplierStatus {
 export interface AddTenantSaleLineData {
   saleLine_insert: SaleLine_Key;
   inventoryStock_update?: InventoryStock_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface AddTenantSaleLineVariables {
@@ -123,9 +122,6 @@ export interface AddTenantSaleLineVariables {
   newStockQty: number;
   unitPrice: number;
   subtotal: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface AdjustTenantInventoryData {
@@ -155,7 +151,6 @@ export interface AppUser_Key {
 export interface AssignOrganizationLicenseTrustedData {
   organizationLicense_insert: OrganizationLicense_Key;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface AssignOrganizationLicenseTrustedVariables {
@@ -172,48 +167,31 @@ export interface AssignOrganizationLicenseTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
 }
 
 export interface AssignTenantEmployeeOutletTrustedData {
   employeeOutlet_upsert: EmployeeOutlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface AssignTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface AssignTenantServicePersonOutletTrustedData {
   servicePersonOutlet_upsert: ServicePersonOutlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface AssignTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
-}
-
-export interface AuditEvent_Key {
-  id: UUIDString;
-  __typename?: 'AuditEvent_Key';
 }
 
 export interface BootstrapMasterAdminData {
   appUser_upsert: AppUser_Key;
   userRole_upsert: UserRole_Key;
-  auditEvent_upsert: AuditEvent_Key;
 }
 
 export interface BootstrapMasterAdminVariables {
@@ -224,8 +202,6 @@ export interface BootstrapMasterAdminVariables {
   displayName: string;
   phone?: string | null;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface Category_Key {
@@ -235,21 +211,16 @@ export interface Category_Key {
 
 export interface ChangeLicensePlanStatusData {
   licensePlan_update?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeLicensePlanStatusVariables {
   id: UUIDString;
   status: LicensePlanStatus;
-  action: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface ChangeOrganizationAdministratorStatusData {
   appUser_update?: AppUser_Key | null;
   organizationMembership_update?: OrganizationMembership_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeOrganizationAdministratorStatusVariables {
@@ -257,16 +228,11 @@ export interface ChangeOrganizationAdministratorStatusVariables {
   userId: UUIDString;
   status: AppUserStatus;
   membershipStatus: MembershipStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid?: string | null;
-  action?: string | null;
 }
 
 export interface ChangeOrganizationLicensePlanTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeOrganizationLicensePlanTrustedVariables {
@@ -283,43 +249,31 @@ export interface ChangeOrganizationLicensePlanTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 
 export interface ChangeOrganizationStatusData {
   organization_update?: Organization_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeOrganizationStatusVariables {
   id: UUIDString;
   status: OrganizationStatus;
-  action: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface ChangeTenantCustomerStatusData {
   customer_update?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantCustomerStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: CustomerStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantEmployeeLoginAccessTrustedData {
   employee_update?: Employee_Key | null;
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
@@ -327,28 +281,20 @@ export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
   id: UUIDString;
   userId: UUIDString;
   loginAccess: LoginAccessStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantEmployeeStatusTrustedData {
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantEmployeeStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: EmploymentStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantExpenseApprovalData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantExpenseApprovalVariables {
@@ -356,55 +302,40 @@ export interface ChangeTenantExpenseApprovalVariables {
   id: UUIDString;
   approvalStatus: ExpenseApprovalStatus;
   reason?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantOutletStatusData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantOutletStatusTrustedData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantOutletStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: OutletStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantOutletStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: OutletStatus;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface ChangeTenantProductStatusData {
   product_update?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantProductStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: ProductStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantPurchaseStatusData {
   purchase_update?: Purchase_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantPurchaseStatusVariables {
@@ -412,42 +343,30 @@ export interface ChangeTenantPurchaseStatusVariables {
   id: UUIDString;
   status: PurchaseStatus;
   reason?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantServicePersonStatusTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantServicePersonStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: EmploymentStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ChangeTenantSupplierStatusData {
   supplier_update?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ChangeTenantSupplierStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
   status: SupplierStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateLicensePlanData {
   licensePlan_insert: LicensePlan_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateLicensePlanVariables {
@@ -457,13 +376,10 @@ export interface CreateLicensePlanVariables {
   level: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface CreateOrganizationData {
   organization_insert: Organization_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateOrganizationVariables {
@@ -481,27 +397,20 @@ export interface CreateOrganizationVariables {
   postalCode?: string | null;
   timezone: string;
   currency: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface CreateTenantCategoryTrustedData {
   category_insert: Category_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantCategoryTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
   value: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantCustomerVariables {
@@ -524,14 +433,10 @@ export interface CreateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantEmployeeProfileTrustedVariables {
@@ -548,14 +453,10 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   address?: string | null;
   notes?: string | null;
   assignmentScope: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantExpenseData {
   expense_insert: Expense_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantExpenseVariables {
@@ -575,9 +476,6 @@ export interface CreateTenantExpenseVariables {
   paidByEmployee: string;
   submittedBy: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantInventoryStockData {
@@ -598,12 +496,10 @@ export interface CreateTenantInventoryStockVariables {
 
 export interface CreateTenantOutletData {
   outlet_insert: Outlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantOutletTrustedVariables {
@@ -614,9 +510,6 @@ export interface CreateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantOutletVariables {
@@ -626,13 +519,10 @@ export interface CreateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface CreateTenantProductData {
   product_insert: Product_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantProductVariables {
@@ -658,19 +548,14 @@ export interface CreateTenantProductVariables {
   primarySupplier?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantPurchaseData {
   purchase_insert: Purchase_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantPurchaseLineData {
   purchaseLine_insert: PurchaseLine_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantPurchaseLineVariables {
@@ -683,9 +568,6 @@ export interface CreateTenantPurchaseLineVariables {
   taxRate: number;
   taxAmount: number;
   lineTotal: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantPurchaseVariables {
@@ -707,14 +589,10 @@ export interface CreateTenantPurchaseVariables {
   receiptStatus: PurchaseReceiptStatus;
   status: PurchaseStatus;
   createdBy: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantSaleData {
   sale_insert: Sale_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantSaleVariables {
@@ -732,14 +610,10 @@ export interface CreateTenantSaleVariables {
   discount: number;
   subtotal: number;
   totalNet: number;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantServicePersonTrustedVariables {
@@ -753,14 +627,10 @@ export interface CreateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantSubcategoryTrustedData {
   subcategory_insert: Subcategory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantSubcategoryTrustedVariables {
@@ -768,14 +638,10 @@ export interface CreateTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   categoryId: UUIDString;
   value: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface CreateTenantSupplierVariables {
@@ -795,9 +661,6 @@ export interface CreateTenantSupplierVariables {
   paymentTerms: string;
   creditLimit: number;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface Customer_Key {
@@ -815,25 +678,18 @@ export interface DeleteAppUserTrustedVariables {
 
 export interface DeleteLicensePlanData {
   licensePlan_delete?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteLicensePlanTrustedData {
   licensePlan_delete?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteLicensePlanTrustedVariables {
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteLicensePlanVariables {
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface DeleteOrganizationTrustedData {
@@ -846,134 +702,94 @@ export interface DeleteOrganizationTrustedVariables {
 
 export interface DeleteTenantCategoryTrustedData {
   category_delete?: Category_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantCategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantCustomerTrustedData {
   customer_delete?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantCustomerTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantEmployeeOutletTrustedData {
   employeeOutlet_delete?: EmployeeOutlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantEmployeeTrustedData {
   employee_delete?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantEmployeeTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantOutletTrustedData {
   outlet_delete?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantOutletTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantProductTrustedData {
   product_delete?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantProductTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantServicePersonOutletTrustedData {
   servicePersonOutlet_delete?: ServicePersonOutlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
   outletId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantServicePersonTrustedData {
   servicePerson_delete?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantServicePersonTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantSubcategoryTrustedData {
   subcategory_delete?: Subcategory_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface DeleteTenantSupplierTrustedData {
   supplier_delete?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface DeleteTenantSupplierTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface EmployeeOutlet_Key {
@@ -2380,7 +2196,6 @@ export interface ListTenantSuppliersVariables {
 export interface ModifyOrganizationCommercialTermsTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ModifyOrganizationCommercialTermsTrustedVariables {
@@ -2397,9 +2212,6 @@ export interface ModifyOrganizationCommercialTermsTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 
@@ -2438,7 +2250,6 @@ export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ProvisionOrganizationAdministratorVariables {
@@ -2450,8 +2261,6 @@ export interface ProvisionOrganizationAdministratorVariables {
   phone: string;
   organizationId: UUIDString;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface ProvisionTenantEmployeeLoginTrustedData {
@@ -2459,7 +2268,6 @@ export interface ProvisionTenantEmployeeLoginTrustedData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ProvisionTenantEmployeeLoginTrustedVariables {
@@ -2472,9 +2280,6 @@ export interface ProvisionTenantEmployeeLoginTrustedVariables {
   displayName: string;
   phone?: string | null;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface ProvisionTenantEmployeeTrustedData {
@@ -2482,7 +2287,6 @@ export interface ProvisionTenantEmployeeTrustedData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   employee_insert: Employee_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ProvisionTenantEmployeeTrustedVariables {
@@ -2503,14 +2307,6 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   notes?: string | null;
   assignmentScope: string;
   roleId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
-}
-
-export interface ProvisioningReconciliation_Key {
-  id: UUIDString;
-  __typename?: 'ProvisioningReconciliation_Key';
 }
 
 export interface PurchaseLine_Key {
@@ -2527,7 +2323,6 @@ export interface ReceiveTenantPurchaseLineData {
   purchaseLine_update?: PurchaseLine_Key | null;
   purchase_update?: Purchase_Key | null;
   inventoryStock_update?: InventoryStock_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface ReceiveTenantPurchaseLineVariables {
@@ -2542,59 +2337,19 @@ export interface ReceiveTenantPurchaseLineVariables {
   batchNumber?: string | null;
   mfgDate?: DateString | null;
   expiryDate?: DateString | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
-}
-
-export interface RecordAdministratorSecurityEventData {
-  auditEvent_insert: AuditEvent_Key;
-}
-
-export interface RecordAdministratorSecurityEventVariables {
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  action: string;
-  targetId: UUIDString;
-  organizationId: UUIDString;
-  requestId: string;
-}
-
-export interface RecordPasswordChangeData {
-  auditEvent_insert: AuditEvent_Key;
-}
-
-export interface RecordPasswordChangeVariables {
-  userId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
-}
-
-export interface RecordProvisioningReconciliationData {
-  provisioningReconciliation_insert: ProvisioningReconciliation_Key;
-}
-
-export interface RecordProvisioningReconciliationVariables {
-  idempotencyKey: string;
-  firebaseUid: string;
-  errorClass: string;
 }
 
 export interface RecordSuccessfulLoginData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface RecordSuccessfulLoginVariables {
   userId: UUIDString;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface RenewOrganizationLicenseTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface RenewOrganizationLicenseTrustedVariables {
@@ -2611,9 +2366,6 @@ export interface RenewOrganizationLicenseTrustedVariables {
   planLevel: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  actorFirebaseUid: string;
-  requestId: string;
   changes?: unknown | null;
 }
 
@@ -2709,20 +2461,16 @@ export interface Supplier_Key {
 
 export interface UpdateAppUserProfileData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateAppUserProfileVariables {
   userId: UUIDString;
   displayName: string;
   phone?: string | null;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface UpdateLicensePlanData {
   licensePlan_update?: LicensePlan_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateLicensePlanVariables {
@@ -2732,13 +2480,10 @@ export interface UpdateLicensePlanVariables {
   level: number;
   maxStores: number;
   maxUsers: number;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface UpdateOrganizationAdministratorData {
   appUser_update?: AppUser_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateOrganizationAdministratorVariables {
@@ -2746,13 +2491,10 @@ export interface UpdateOrganizationAdministratorVariables {
   userId: UUIDString;
   displayName: string;
   phone: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface UpdateOrganizationData {
   organization_update?: Organization_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateOrganizationVariables {
@@ -2769,13 +2511,10 @@ export interface UpdateOrganizationVariables {
   postalCode?: string | null;
   timezone: string;
   currency: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface UpdateTenantCustomerData {
   customer_update?: Customer_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantCustomerVariables {
@@ -2798,9 +2537,6 @@ export interface UpdateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantEmployeeLoginTrustedData {
@@ -2810,7 +2546,6 @@ export interface UpdateTenantEmployeeLoginTrustedData {
   removeEmployeeRole?: UserRole_Key | null;
   userRole_upsert: UserRole_Key;
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantEmployeeLoginTrustedVariables {
@@ -2821,14 +2556,10 @@ export interface UpdateTenantEmployeeLoginTrustedVariables {
   email: string;
   roleId: UUIDString;
   loginAccess: LoginAccessStatus;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantEmployeeTrustedData {
   employee_update?: Employee_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantEmployeeTrustedVariables {
@@ -2845,14 +2576,10 @@ export interface UpdateTenantEmployeeTrustedVariables {
   address?: string | null;
   notes?: string | null;
   assignmentScope: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantExpenseData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantExpenseVariables {
@@ -2870,19 +2597,14 @@ export interface UpdateTenantExpenseVariables {
   paymentMethod: string;
   paidByEmployee: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantOutletData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantOutletTrustedData {
   outlet_update?: Outlet_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantOutletTrustedVariables {
@@ -2893,9 +2615,6 @@ export interface UpdateTenantOutletTrustedVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantOutletVariables {
@@ -2906,13 +2625,10 @@ export interface UpdateTenantOutletVariables {
   email?: string | null;
   phone: string;
   address: string;
-  auditId: UUIDString;
-  requestId: string;
 }
 
 export interface UpdateTenantProductData {
   product_update?: Product_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantProductVariables {
@@ -2938,14 +2654,10 @@ export interface UpdateTenantProductVariables {
   primarySupplier?: string | null;
   description?: string | null;
   imageUrl?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantServicePersonTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantServicePersonTrustedVariables {
@@ -2959,14 +2671,10 @@ export interface UpdateTenantServicePersonTrustedVariables {
   yearsOfExperience?: number | null;
   assignmentScope: string;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UpdateTenantSupplierData {
   supplier_update?: Supplier_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface UpdateTenantSupplierVariables {
@@ -2986,9 +2694,6 @@ export interface UpdateTenantSupplierVariables {
   paymentTerms: string;
   creditLimit: number;
   notes?: string | null;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface UserRole_Key {
@@ -2999,30 +2704,22 @@ export interface UserRole_Key {
 
 export interface VoidTenantExpenseData {
   expense_update?: Expense_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface VoidTenantExpenseVariables {
   organizationId: UUIDString;
   id: UUIDString;
   reason: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 export interface VoidTenantSaleData {
   sale_update?: Sale_Key | null;
-  auditEvent_insert: AuditEvent_Key;
 }
 
 export interface VoidTenantSaleVariables {
   organizationId: UUIDString;
   saleId: UUIDString;
   reason: string;
-  auditId: UUIDString;
-  requestId: string;
-  actorFirebaseUid: string;
 }
 
 /** Generated Node Admin SDK operation action function for the 'GetCurrentUserAuthorization' Query. Allow users to execute without passing in DataConnect. */
@@ -3049,11 +2746,6 @@ export function recordSuccessfulLogin(vars: RecordSuccessfulLoginVariables, opti
 export function updateAppUserProfile(dc: DataConnect, vars: UpdateAppUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateAppUserProfileData>>;
 /** Generated Node Admin SDK operation action function for the 'UpdateAppUserProfile' Mutation. Allow users to pass in custom DataConnect instances. */
 export function updateAppUserProfile(vars: UpdateAppUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateAppUserProfileData>>;
-
-/** Generated Node Admin SDK operation action function for the 'RecordPasswordChange' Mutation. Allow users to execute without passing in DataConnect. */
-export function recordPasswordChange(dc: DataConnect, vars: RecordPasswordChangeVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordPasswordChangeData>>;
-/** Generated Node Admin SDK operation action function for the 'RecordPasswordChange' Mutation. Allow users to pass in custom DataConnect instances. */
-export function recordPasswordChange(vars: RecordPasswordChangeVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordPasswordChangeData>>;
 
 /** Generated Node Admin SDK operation action function for the 'GetAppUserForBootstrap' Query. Allow users to execute without passing in DataConnect. */
 export function getAppUserForBootstrap(dc: DataConnect, vars: GetAppUserForBootstrapVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetAppUserForBootstrapData>>;
@@ -3180,11 +2872,6 @@ export function resolveOrganizationAdministratorIdentity(dc: DataConnect, vars: 
 /** Generated Node Admin SDK operation action function for the 'ResolveOrganizationAdministratorIdentity' Query. Allow users to pass in custom DataConnect instances. */
 export function resolveOrganizationAdministratorIdentity(vars: ResolveOrganizationAdministratorIdentityVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ResolveOrganizationAdministratorIdentityData>>;
 
-/** Generated Node Admin SDK operation action function for the 'RecordAdministratorSecurityEvent' Mutation. Allow users to execute without passing in DataConnect. */
-export function recordAdministratorSecurityEvent(dc: DataConnect, vars: RecordAdministratorSecurityEventVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordAdministratorSecurityEventData>>;
-/** Generated Node Admin SDK operation action function for the 'RecordAdministratorSecurityEvent' Mutation. Allow users to pass in custom DataConnect instances. */
-export function recordAdministratorSecurityEvent(vars: RecordAdministratorSecurityEventVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordAdministratorSecurityEventData>>;
-
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicense' Query. Allow users to execute without passing in DataConnect. */
 export function getOrganizationLicense(dc: DataConnect, vars: GetOrganizationLicenseVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseData>>;
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicense' Query. Allow users to pass in custom DataConnect instances. */
@@ -3249,11 +2936,6 @@ export function modifyOrganizationCommercialTermsTrusted(vars: ModifyOrganizatio
 export function renewOrganizationLicenseTrusted(dc: DataConnect, vars: RenewOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RenewOrganizationLicenseTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'RenewOrganizationLicenseTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function renewOrganizationLicenseTrusted(vars: RenewOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RenewOrganizationLicenseTrustedData>>;
-
-/** Generated Node Admin SDK operation action function for the 'RecordProvisioningReconciliation' Mutation. Allow users to execute without passing in DataConnect. */
-export function recordProvisioningReconciliation(dc: DataConnect, vars: RecordProvisioningReconciliationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordProvisioningReconciliationData>>;
-/** Generated Node Admin SDK operation action function for the 'RecordProvisioningReconciliation' Mutation. Allow users to pass in custom DataConnect instances. */
-export function recordProvisioningReconciliation(vars: RecordProvisioningReconciliationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordProvisioningReconciliationData>>;
 
 /** Generated Node Admin SDK operation action function for the 'CreateOrganization' Mutation. Allow users to execute without passing in DataConnect. */
 export function createOrganization(dc: DataConnect, vars: CreateOrganizationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateOrganizationData>>;

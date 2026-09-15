@@ -11,6 +11,7 @@ const appUserColumnRemovalSource = readFileSync(new URL('../scripts/drop-app-use
 const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-legacy-columns.mjs', import.meta.url), 'utf8');
 const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop-customer-address-columns.mjs', import.meta.url), 'utf8');
 const taxonomyIndexRemovalSource = readFileSync(new URL('../scripts/drop-product-taxonomy-helper-indexes.mjs', import.meta.url), 'utf8');
+const inventoryBatchMigrationSource = readFileSync(new URL('../scripts/migrate-inventory-batches.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 const cloudSqlSource = readFileSync(new URL('../functions/src/cloudSql.ts', import.meta.url), 'utf8');
 const cloudSqlRuntimePrivilegesSource = readFileSync(new URL('../scripts/grant-cloud-sql-runtime-privileges.mjs', import.meta.url), 'utf8');
@@ -80,7 +81,7 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes|migrate-inventory-batches)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force');
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');
@@ -145,6 +146,10 @@ describe('tenant callable contract', () => {
     expect(taxonomyMigrationSource).toContain('category_id');
     expect(taxonomyMigrationSource).toContain('await client.query(\'BEGIN\')');
     expect(taxonomyMigrationSource).toContain('await client.query(\'COMMIT\')');
+    expect(inventoryBatchMigrationSource).toContain('WHERE NOT EXISTS');
+    expect(inventoryBatchMigrationSource).toContain('ON CONFLICT (organization_id, outlet_id, product_id, batch_number) DO NOTHING');
+    expect(inventoryBatchMigrationSource).toContain('inventory_batch');
+    expect(inventoryBatchMigrationSource).toContain('cloud-sql-migration-helpers.mjs');
   });
 
   it('removes AppUser legacy columns with an idempotent transactional migration', () => {
@@ -376,7 +381,10 @@ describe('tenant callable contract', () => {
     expect(source).toContain('persistProductBatch(organizationId, fields)');
     expect(source).toContain('PRODUCT_BATCH_MAX_SIZE');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
-    expect(source).toContain('await createTenantProduct({ id, organizationId');
+    expect(source).toContain('persistProductBatch(organizationId, [fields])');
+    expect(source).toContain('export const createTenantProductWithInventoryRecord = onCall');
+    expect(source).toContain('persistProductBatchInTransaction(client, organizationId, [fields])');
+    expect(source).toContain('createInventoryStockRecord(client');
     expect(source).toContain('type: productData.type as ProductType');
     expect(source).not.toContain('d.productCode');
     expect(source).not.toContain('supplierProductCode');
@@ -393,7 +401,7 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const changeTenantProductStatus = onCall');
     expect(source).toContain('export const adjustTenantInventoryStock = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'inventory.read')");
-    expect(source).toContain('adjustTenantInventory({ organizationId, outletId, productId');
+    expect(source).toContain('adjustInventoryWithBatches(client');
   });
 
   it('exposes an organization-scoped customer creation boundary', () => {
@@ -432,7 +440,7 @@ describe('tenant callable contract', () => {
 
   it('exposes a tenant purchase receiving boundary', () => {
     expect(source).toContain('export const receiveTenantPurchaseLineRecord = onCall');
-    expect(source).toContain('receiveTenantPurchaseLine({ organizationId, purchaseId, lineId');
+    expect(source).toContain('receiveInventoryForPurchase(client');
     expect(source).toContain('batchNumber: typeof d.batchNumber');
   });
 
@@ -457,9 +465,10 @@ describe('tenant callable contract', () => {
 
   it('exposes tenant-validated sale line persistence', () => {
     expect(source).toContain('export const addTenantSaleLineRecord = onCall');
-    expect(source).toContain('addTenantSaleLine({ organizationId, saleId, outletId, productId');
-    expect(source).toContain('getTenantInventoryStockTrusted');
-    expect(source).toContain('insufficient stock');
+    expect(source).toContain('persistSaleLineWithInventory(client');
+    expect(readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8')).toContain('consumeInventoryForSale');
+    expect(source).toContain('export const voidTenantSaleRecord = onCall');
+    expect(source).toContain('reverseSaleInventory(client');
   });
 
   it('exposes tenant-scoped held-order persistence for the POS cart', () => {
@@ -471,8 +480,17 @@ describe('tenant callable contract', () => {
 
   it('exposes the production inventory creation boundary', () => {
     expect(source).toContain('export const createTenantInventoryStockRecord = onCall');
-    expect(source).toContain('createTenantInventoryStock');
+    expect(source).toContain('createInventoryStockRecord(client');
+    expect(source).toContain('export const addTenantInventoryUnits = onCall');
+    expect(source).toContain('addInventoryUnits(client');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'inventory.read')");
+  });
+
+  it('uses batch-aware purchase receiving in one SQL transaction', () => {
+    expect(source).toContain('export const receiveTenantPurchaseLineRecord = onCall');
+    expect(source).toContain('receiveInventoryForPurchase(client');
+    expect(source).toContain('batchNumber: typeof d.batchNumber');
+    expect(readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8')).toContain('purchase_line_batch_allocation');
   });
 
   it('never embeds a same-transaction read-back query in a create mutation (Data Connect does not read your own writes there)', () => {

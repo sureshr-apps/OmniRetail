@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import pg from 'pg';
 import { getCloudSqlPool } from './cloudSql.js';
+import { consumeInventoryForSale, isStockTrackedProduct, operationRequestId } from './inventoryBatches.js';
+
+export { isStockTrackedProduct } from './inventoryBatches.js';
 
 export interface CheckoutLineInput {
   productId: string | null;
@@ -25,6 +27,8 @@ export interface CheckoutInput {
   subtotal: number;
   totalNet: number;
   lines: CheckoutLineInput[];
+  requestId?: string;
+  actorFirebaseUid?: string;
 }
 
 export const SALE_INSERT_SQL = 'INSERT INTO "sale" (id, organization_id, outlet_id, receipt_number, sale_timestamp, customer_id, customer_name, staff_name, channel, terminal_id, tender_type, tax, discount, subtotal, total_net, status, created_at) VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, \'COMPLETED\', NOW())';
@@ -34,10 +38,6 @@ export function buildSaleInsertQuery(input: CheckoutInput, saleId: string): { te
     text: SALE_INSERT_SQL,
     values: [saleId, input.organizationId, input.outletId, input.receiptNumber, input.customerId, input.customerName, input.staffName, input.channel, input.terminalId, input.tenderType, input.tax, input.discount, input.subtotal, input.totalNet],
   };
-}
-
-export function isStockTrackedProduct(type: unknown): boolean {
-  return String(type).toUpperCase() === 'STOCKABLE';
 }
 
 export function validateCheckoutInput(input: CheckoutInput): void {
@@ -67,16 +67,17 @@ export async function persistCheckout(input: CheckoutInput): Promise<{ saleId: s
     const saleId = randomUUID();
     const saleInsert = buildSaleInsertQuery(input, saleId);
     await client.query(saleInsert.text, saleInsert.values);
-    for (const line of input.lines) {
+    for (const [lineIndex, line] of input.lines.entries()) {
       let productId: string | null = line.productId;
       if (productId) {
-        const product = await client.query('SELECT id, type FROM "product" WHERE id = $1 AND organization_id = $2 FOR SHARE', [productId, input.organizationId]);
-        if (!product.rowCount) throw new Error('Product is not in this organization.');
+        const product = await client.query('SELECT id, type, status FROM "product" WHERE id = $1 AND organization_id = $2 FOR SHARE', [productId, input.organizationId]);
+        if (!product.rowCount || product.rows[0].status !== 'ACTIVE') throw new Error('Product is not active in this organization.');
+        const saleLineId = randomUUID();
+        await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, $6, $7)', [saleLineId, saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
         if (isStockTrackedProduct(product.rows[0].type)) {
-          const stock = await client.query('SELECT on_hand_qty FROM "inventory_stock" WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3 FOR UPDATE', [input.organizationId, input.outletId, productId]);
-          if (!stock.rowCount || Number(stock.rows[0].on_hand_qty) < line.quantity) throw new Error(`Insufficient stock for ${line.itemName}.`);
-          await client.query('UPDATE "inventory_stock" SET on_hand_qty = on_hand_qty - $1, updated_at = NOW() WHERE organization_id = $2 AND outlet_id = $3 AND product_id = $4', [line.quantity, input.organizationId, input.outletId, productId]);
+          await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId, quantity: line.quantity, saleId, saleLineId, receiptNumber: input.receiptNumber, requestId: operationRequestId(input.requestId ?? randomUUID(), `LINE-${lineIndex + 1}`), actorFirebaseUid: input.actorFirebaseUid ?? input.staffName, itemName: line.itemName });
         }
+        continue;
       }
       await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, $6, $7)', [randomUUID(), saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
     }

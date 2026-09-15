@@ -55,6 +55,8 @@ export interface InventoryItem {
   cost: number;
   retailPrice: number;
   lotNumber?: string;
+  mfgDate?: string;
+  expiryDate?: string;
   incomingPurchaseOrder?: string;
   badgeMetadata?: string; // e.g., 'Precision Series', 'Serial Tracking', 'Fast Mover'
   recentMovements?: InventoryMovementLog[];
@@ -107,4 +109,13 @@ export interface StockAdjustmentInput {
   storageLocation: string;
   auditNote?: string;
   operatorName: string;
+}
+
+export interface AddInventoryInput {
+  productId: string;
+  outletId: string;
+  quantity: number;
+  batchNumber?: string;
+  mfgDate?: string;
+  expiryDate?: string;
 }

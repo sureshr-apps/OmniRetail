@@ -1,18 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChevronDown, User as UserIcon, KeyRound, LogOut } from 'lucide-react';
+import { ChevronDown, User as UserIcon, KeyRound, LogOut, Store } from 'lucide-react';
 import { useAuth } from '@/app/context/AuthContext';
+import { useTenantOutlet } from '@/app/context/TenantOutletContext';
 
 export function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isOutletOpen, setIsOutletOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const outletRef = useRef<HTMLDivElement>(null);
+  const outletSelection = useTenantOutlet();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+      }
+      if (outletRef.current && !outletRef.current.contains(event.target as Node)) {
+        setIsOutletOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -31,6 +38,48 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
+        {outletSelection && (
+          <div className="relative" ref={outletRef}>
+            <button
+              type="button"
+              aria-label="Select active outlet"
+              aria-expanded={isOutletOpen}
+              onClick={() => setIsOutletOpen((open) => !open)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-border-subdued bg-surface-subdued hover:bg-surface-subdued/70 transition-colors"
+            >
+              <Store className="w-4 h-4 text-primary" />
+              <span className="max-w-44 truncate text-xs font-semibold text-text-primary">
+                {outletSelection.isLoading ? 'Loading outlets…' : outletSelection.selectedOutlet?.name ?? 'Select outlet'}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-text-muted" />
+            </button>
+            {isOutletOpen && (
+              <div className="absolute right-0 mt-1 w-64 bg-surface-elevated rounded-md shadow-lg border border-border-subdued py-1 z-50">
+                <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-text-muted border-b border-border-subdued">
+                  Active outlet
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { outletSelection.selectOutlet(null); setIsOutletOpen(false); }}
+                  className="w-full text-left px-3 py-2 text-xs text-text-secondary hover:bg-surface-subdued"
+                >
+                  No outlet selected
+                </button>
+                {outletSelection.outlets.map((outlet) => (
+                  <button
+                    key={outlet.id}
+                    type="button"
+                    onClick={() => { outletSelection.selectOutlet(outlet.id); setIsOutletOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-xs hover:bg-surface-subdued ${outlet.id === outletSelection.selectedOutletId ? 'text-primary font-semibold' : 'text-text-secondary'}`}
+                  >
+                    {outlet.name}
+                  </button>
+                ))}
+                {outletSelection.error && <p className="px-3 py-2 text-xs text-critical">{outletSelection.error}</p>}
+              </div>
+            )}
+          </div>
+        )}
         <div className="relative" ref={profileRef}>
           <button 
             className="flex items-center gap-2 hover:bg-surface-subdued px-2 py-1 rounded transition-colors"

@@ -86,6 +86,15 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/type InventoryStock[\s\S]*outlet: Outlet![\s\S]*product: Product!/);
   });
 
+  it('defines batch-level inventory and sale/purchase allocation records while retaining aggregate stock', () => {
+    expect(schema).toMatch(/type InventoryBatch @table[\s\S]*organization: Organization![\s\S]*outlet: Outlet![\s\S]*product: Product![\s\S]*batchNumber: String![\s\S]*expiryDate: Date[\s\S]*onHandQty: Float!/);
+    expect(schema).toMatch(/type PurchaseLine @table[\s\S]*batchNumber: String[\s\S]*mfgDate: Date[\s\S]*expiryDate: Date/);
+    expect(schema).toMatch(/type PurchaseLineBatchAllocation @table[\s\S]*purchaseLine: PurchaseLine![\s\S]*inventoryBatch: InventoryBatch![\s\S]*quantity: Float!/);
+    expect(schema).toMatch(/type SaleLineBatchAllocation @table[\s\S]*saleLine: SaleLine![\s\S]*inventoryBatch: InventoryBatch![\s\S]*quantity: Float![\s\S]*refundedQty: Float!/);
+    expect(schema).toMatch(/type InventoryMovement @table[\s\S]*inventoryBatch: InventoryBatch[\s\S]*requestId: String! @unique/);
+    expect(schema).toMatch(/type InventoryStock @table\(key: \["organization", "outlet", "product"\]\)/);
+  });
+
   it('removes the retired supplier part-code field from Product storage and connectors', () => {
     const product = schema.match(/type Product @table[^\{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');

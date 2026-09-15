@@ -10,11 +10,9 @@ export async function completeTenantCheckout(input: { orderNumber: string; items
   if (!membership) throw new Error('No active organization membership.');
   const outlets = await listTenantOutlets(services.dataConnect, { organizationId: membership.organization.id });
   const activeOutlets = outlets.data.outlets.filter((item) => item.status === 'ACTIVE');
-  const assignedOutletIds = new Set((authorization.data.appUsers[0]?.employees_on_user ?? []).flatMap((employee) => employee.employeeOutlets_on_employee.map((assignment) => assignment.outlet.id)));
   const configuredOutletId = typeof window !== 'undefined' ? window.sessionStorage.getItem('omniretail.activeOutletId') : null;
-  const outlet = activeOutlets.find((item) => item.id === configuredOutletId)
-    ?? (assignedOutletIds.size === 1 ? activeOutlets.find((item) => assignedOutletIds.has(item.id)) : undefined)
-    ?? (activeOutlets.length === 1 ? activeOutlets[0] : undefined);
+  if (!configuredOutletId) throw new Error('Please select an outlet before completing the sale.');
+  const outlet = activeOutlets.find((item) => item.id === configuredOutletId);
   if (!outlet) throw new Error('No active outlet is available for checkout.');
   const receiptNumber = input.orderNumber.replace(/^#/, '');
   const staffName = authorization.data.appUsers[0]?.displayName || authorization.data.appUsers[0]?.username || 'Current cashier';

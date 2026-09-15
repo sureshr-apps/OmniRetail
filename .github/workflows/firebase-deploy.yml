@@ -49,7 +49,7 @@ jobs:
           fi
           if echo "$CHANGED" | grep -Eq '^\.github/workflows/firebase-deploy\.yml$'; then
             TARGETS="hosting,functions,dataconnect"
-          elif echo "$CHANGED" | grep -Eq '^scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\.mjs$'; then
+          elif echo "$CHANGED" | grep -Eq '^scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes|migrate-inventory-batches)\.mjs$'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
           if echo "$CHANGED" | grep -Eq '^scripts/grant-cloud-sql-runtime-privileges\.mjs$'; then
@@ -83,7 +83,7 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Configure Functions Cloud SQL IAM access
-        if: contains(steps.changes.outputs.targets, 'functions')
+        if: contains(steps.changes.outputs.targets, 'functions') || contains(steps.changes.outputs.targets, 'dataconnect')
         id: cloudsql
         run: |
           PROJECT_NUMBER="$(gcloud projects describe "$FIREBASE_PROJECT_ID" --format='value(projectNumber)')"
@@ -105,7 +105,7 @@ jobs:
           echo "iam_user=${RUNTIME_IAM_USER}" >> "$GITHUB_OUTPUT"
 
       - name: Grant Functions Cloud SQL table access
-        if: contains(steps.changes.outputs.targets, 'functions')
+        if: contains(steps.changes.outputs.targets, 'functions') || contains(steps.changes.outputs.targets, 'dataconnect')
         env:
           CLOUD_SQL_RUNTIME_IAM_USER: ${{ steps.cloudsql.outputs.iam_user }}
         run: node scripts/grant-cloud-sql-runtime-privileges.mjs
@@ -145,6 +145,16 @@ jobs:
       - name: Apply Data Connect SQL schema migration
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --force
+
+      - name: Grant runtime access to new Data Connect tables
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        env:
+          CLOUD_SQL_RUNTIME_IAM_USER: ${{ steps.cloudsql.outputs.iam_user }}
+        run: node scripts/grant-cloud-sql-runtime-privileges.mjs
+
+      - name: Backfill legacy inventory into batches
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: node scripts/migrate-inventory-batches.mjs
 
       - name: Deploy Data Connect schema and connectors
         if: contains(steps.changes.outputs.targets, 'dataconnect')

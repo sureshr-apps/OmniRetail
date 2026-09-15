@@ -7,6 +7,7 @@ import {
   StockStatusTab,
   SortOption,
   StockAdjustmentInput,
+  AddInventoryInput,
 } from '../types';
 import {
   inventoryService,
@@ -24,7 +25,11 @@ import { InventoryShortcutsBar } from '../components/InventoryShortcutsBar';
 import { StockAdjustModal } from '../components/StockAdjustModal';
 import { StockAuditHistoryModal } from '../components/StockAuditHistoryModal';
 import { AddNewProductModal } from '../components/AddNewProductModal';
+import { AddInventoryModal } from '../components/AddInventoryModal';
 import { InventoryToast } from '../components/InventoryToast';
+import { productService } from '@/features/products/services/productService';
+import type { Product } from '@/features/products/types';
+import { useTenantOutlet } from '@/app/context/TenantOutletContext';
 
 export function InventoryPage() {
   // Query Filters State
@@ -51,6 +56,9 @@ export function InventoryPage() {
   const [adjustingItem, setAdjustingItem] = useState<InventoryItem | null>(null);
   const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [isAddInventoryOpen, setIsAddInventoryOpen] = useState(false);
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
+  const tenantOutlet = useTenantOutlet();
 
   // Toast Notification State
   const [toast, setToast] = useState<{ title: string; message: string } | null>(null);
@@ -111,6 +119,14 @@ export function InventoryPage() {
     }).catch((error) => console.error('Failed to load inventory filters', error));
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    productService.getAllProducts().then((products) => {
+      if (active) setCatalogProducts(products.filter((product) => product.status === 'active' && product.type !== 'service'));
+    }).catch((error) => console.error('Failed to load catalogue products', error));
+    return () => { active = false; };
+  }, []);
+
   // Keyboard Shortcuts Handler
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -118,6 +134,7 @@ export function InventoryPage() {
         setAdjustingItem(null);
         setHistoryItem(null);
         setIsAddProductOpen(false);
+        setIsAddInventoryOpen(false);
       } else if (e.key === 'F3') {
         e.preventDefault();
         searchInputRef.current?.focus();
@@ -267,6 +284,9 @@ export function InventoryPage() {
   // Add Product Handler
   const handleCreateProduct = async (productData: Partial<InventoryItem>) => {
     try {
+      if (!tenantOutlet?.selectedOutletId) {
+        throw new Error('Please select an outlet before creating inventory.');
+      }
       const created = await inventoryService.addProduct(productData);
       setIsAddProductOpen(false);
       showToast('Product Cataloged', `${created.sku} • ${created.name} added to inventory.`);
@@ -276,12 +296,31 @@ export function InventoryPage() {
     }
   };
 
+  const handleAddInventory = async (input: AddInventoryInput) => {
+    try {
+      if (!tenantOutlet?.selectedOutletId) {
+        throw new Error('Please select an outlet before adding inventory.');
+      }
+      await inventoryService.addInventoryUnits({ ...input, outletId: tenantOutlet.selectedOutletId });
+      setIsAddInventoryOpen(false);
+      const product = catalogProducts.find((candidate) => candidate.id === input.productId);
+      showToast(
+        'Inventory Added',
+        `${input.quantity} units of ${product?.name ?? 'the product'} added to ${tenantOutlet.selectedOutlet?.name ?? 'the selected outlet'}.`
+      );
+      await loadData();
+    } catch (err: any) {
+      showToast('Inventory Addition Failed', err?.message || 'Could not add inventory.');
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full min-h-0 overflow-y-auto pr-1">
       <div className="flex flex-col gap-space-base py-space-base pb-16">
         {/* Top Command & Action Bar */}
         <InventoryHeader
           onExportCsv={handleExportCsv}
+          onAddInventory={() => setIsAddInventoryOpen(true)}
           onAddNewProduct={() => setIsAddProductOpen(true)}
         />
 
@@ -386,7 +425,18 @@ export function InventoryPage() {
         <AddNewProductModal
           onClose={() => setIsAddProductOpen(false)}
           onSave={handleCreateProduct}
-          availableLocations={locations.filter((location) => location.id !== 'all')}
+          currentOutletId={tenantOutlet?.selectedOutletId ?? null}
+          currentOutletName={tenantOutlet?.selectedOutlet?.name}
+        />
+      )}
+
+      {isAddInventoryOpen && (
+        <AddInventoryModal
+          currentOutletId={tenantOutlet?.selectedOutletId ?? null}
+          currentOutletName={tenantOutlet?.selectedOutlet?.name}
+          products={catalogProducts}
+          onClose={() => setIsAddInventoryOpen(false)}
+          onSave={handleAddInventory}
         />
       )}
 

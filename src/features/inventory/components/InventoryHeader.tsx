@@ -3,9 +3,10 @@ import React from 'react';
 interface InventoryHeaderProps {
   onExportCsv: () => void;
   onAddNewProduct: () => void;
+  onAddInventory: () => void;
 }
 
-export function InventoryHeader({ onExportCsv, onAddNewProduct }: InventoryHeaderProps) {
+export function InventoryHeader({ onExportCsv, onAddNewProduct, onAddInventory }: InventoryHeaderProps) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-space-base bg-surface-container-lowest p-space-base rounded-lg shadow-sm">
       <div className="flex flex-col">
@@ -25,6 +26,15 @@ export function InventoryHeader({ onExportCsv, onAddNewProduct }: InventoryHeade
         >
           <span className="material-symbols-outlined text-[16px] text-on-surface-variant">download</span>
           <span>Export CSV</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onAddInventory}
+          className="h-8 px-space-base bg-surface-container hover:bg-surface-container-high text-on-surface rounded font-body-medium text-body-medium flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-[16px] text-primary">playlist_add</span>
+          <span>Add Inventory</span>
         </button>
 
         <button

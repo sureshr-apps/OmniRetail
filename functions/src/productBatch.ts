@@ -179,32 +179,41 @@ async function loadCreatedProduct(client: import('pg').PoolClient, organizationI
   };
 }
 
-export async function persistProductBatch(organizationId: string, inputs: ProductBatchFields[]): Promise<CreatedProductRecord[]> {
+export async function persistProductBatchInTransaction(
+  client: import('pg').PoolClient,
+  organizationId: string,
+  inputs: ProductBatchFields[],
+): Promise<CreatedProductRecord[]> {
   validateBatch(inputs);
+  const created: CreatedProductRecord[] = [];
+  for (const input of inputs) {
+    const category = await resolveCategory(client, organizationId, input.categoryName);
+    const subcategory = await resolveSubcategory(client, category.id, input.subcategoryName ?? '');
+    const id = randomUUID();
+    await client.query(
+      `INSERT INTO "product" (
+        id, organization_id, name, brand, category_id, subcategory_id, type, sku, barcode, hsn_code,
+        unit_of_measure, selling_price, mrp, cost, min_selling_price, discount_allowed, tax_category,
+        status, reorder_level, reorder_quantity, primary_supplier, description
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'ACTIVE', $18, $19, $20, $21)`,
+      [
+        id, organizationId, input.name, input.brand, category.id, subcategory?.id ?? null, input.type, input.sku,
+        input.barcode, input.hsnCode, input.unitOfMeasure, input.sellingPrice, input.mrp, input.cost,
+        input.minSellingPrice, input.discountAllowed, input.taxCategory, input.reorderLevel, input.reorderQuantity,
+        input.primarySupplier, input.description,
+      ],
+    );
+    created.push(await loadCreatedProduct(client, organizationId, id));
+  }
+  return created;
+}
+
+export async function persistProductBatch(organizationId: string, inputs: ProductBatchFields[]): Promise<CreatedProductRecord[]> {
   const { pool } = await getCloudSqlPool();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const created: CreatedProductRecord[] = [];
-    for (const input of inputs) {
-      const category = await resolveCategory(client, organizationId, input.categoryName);
-      const subcategory = await resolveSubcategory(client, category.id, input.subcategoryName ?? '');
-      const id = randomUUID();
-      await client.query(
-        `INSERT INTO "product" (
-          id, organization_id, name, brand, category_id, subcategory_id, type, sku, barcode, hsn_code,
-          unit_of_measure, selling_price, mrp, cost, min_selling_price, discount_allowed, tax_category,
-          status, reorder_level, reorder_quantity, primary_supplier, description
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'ACTIVE', $18, $19, $20, $21)`,
-        [
-          id, organizationId, input.name, input.brand, category.id, subcategory?.id ?? null, input.type, input.sku,
-          input.barcode, input.hsnCode, input.unitOfMeasure, input.sellingPrice, input.mrp, input.cost,
-          input.minSellingPrice, input.discountAllowed, input.taxCategory, input.reorderLevel, input.reorderQuantity,
-          input.primarySupplier, input.description,
-        ],
-      );
-      created.push(await loadCreatedProduct(client, organizationId, id));
-    }
+    const created = await persistProductBatchInTransaction(client, organizationId, inputs);
     await client.query('COMMIT');
     return created;
   } catch (error) {

@@ -235,10 +235,22 @@ type InventoryStock @table(key: ["organization", "outlet", "product"]) {
   updatedAt: Timestamp! @default(expr: "request.time")
 }
 
+type InventoryBatch @table @unique(fields: ["organization", "outlet", "product", "batchNumber"]) {
+  organization: Organization!
+  outlet: Outlet!
+  product: Product!
+  batchNumber: String!
+  mfgDate: Date
+  expiryDate: Date
+  onHandQty: Float!
+  receivedAt: Timestamp! @default(expr: "request.time")
+}
+
 type InventoryMovement @table {
   organization: Organization!
   outlet: Outlet!
   product: Product!
+  inventoryBatch: InventoryBatch
   mode: InventoryAdjustmentMode!
   quantity: Float!
   previousQty: Float!
@@ -319,6 +331,9 @@ type PurchaseLine @table {
   product: Product!
   quantityOrdered: Float!
   quantityReceived: Float!
+  batchNumber: String
+  mfgDate: Date
+  expiryDate: Date
   unitCost: Float! @col(dataType: "numeric(19,2)")
   discountPercent: Float!
   taxRate: Float!
@@ -376,6 +391,19 @@ type SaleLine @table {
   quantity: Float!
   unitPrice: Float! @col(dataType: "numeric(19,2)")
   subtotal: Float! @col(dataType: "numeric(19,2)")
+}
+
+type PurchaseLineBatchAllocation @table @unique(fields: ["purchaseLine", "inventoryBatch"]) {
+  purchaseLine: PurchaseLine!
+  inventoryBatch: InventoryBatch!
+  quantity: Float!
+}
+
+type SaleLineBatchAllocation @table @unique(fields: ["saleLine", "inventoryBatch"]) {
+  saleLine: SaleLine!
+  inventoryBatch: InventoryBatch!
+  quantity: Float!
+  refundedQty: Float!
 }
 
 type Role @table {

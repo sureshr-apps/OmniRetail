@@ -4,6 +4,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { defineString } from 'firebase-functions/params';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
+import type { PoolClient } from 'pg';
 import {
   AppUserStatus, LoginAccessStatus, CustomerType, ProductType, PurchasePaymentStatus, PurchaseReceiptStatus, PurchaseStatus, SaleTenderType,
   getUserAuthorizationByFirebaseUid,
@@ -51,9 +52,6 @@ import {
   assignTenantEmployeeOutletTrusted,
   deleteTenantEmployeeOutletTrusted,
   assignTenantServicePersonOutletTrusted,
-  adjustTenantInventory,
-  createTenantInventoryStock,
-  createTenantProduct,
   listTenantCategoriesTrusted,
   createTenantCategoryTrusted,
   createTenantSubcategoryTrusted,
@@ -77,16 +75,15 @@ import {
   getOrganizationAdministratorTrusted,
   createTenantPurchase, createTenantPurchaseLine,
   changeTenantPurchaseStatus as changeTenantPurchaseStatusSql,
-  receiveTenantPurchaseLine,
   createTenantSale,
-  addTenantSaleLine,
-  voidTenantSale,
-  getTenantInventoryStockTrusted, listTenantOutlets, listTenantCustomers,
+  listTenantOutlets, listTenantCustomers,
   createTenantExpense, updateTenantExpense, changeTenantExpenseApproval, voidTenantExpense,
   changeTenantSupplierStatus as changeTenantSupplierStatusSql,
 } from '@omniretail/sql-connect-admin';
 import { persistCheckout } from './checkout.js';
-import { persistProductBatch, validateProductFields, PRODUCT_BATCH_MAX_SIZE, type ProductBatchFields } from './productBatch.js';
+import { addInventoryUnits, adjustInventoryWithBatches, createInventoryStockRecord, operationRequestId, persistSaleLineWithInventory, receiveInventoryForPurchase, reverseSaleInventory } from './inventoryBatches.js';
+import { getCloudSqlPool } from './cloudSql.js';
+import { persistProductBatch, persistProductBatchInTransaction, validateProductFields, PRODUCT_BATCH_MAX_SIZE, type ProductBatchFields } from './productBatch.js';
 import {
   authenticateUsername,
   GENERIC_AUTH_ERROR,
@@ -106,6 +103,22 @@ if (!getApps().length) initializeApp();
 const firebaseWebApiKey = defineString('OMNIRETAIL_WEB_API_KEY');
 const enforceAppCheck = process.env.AUTH_ENFORCE_APP_CHECK === 'true';
 const rateLimiter = new LoginRateLimiter();
+
+async function withSqlTransaction<T>(operation: (client: PoolClient) => Promise<T>): Promise<T> {
+  const { pool } = await getCloudSqlPool();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await operation(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
 
 const callableOptions = {
   region: 'asia-south1',
@@ -192,6 +205,17 @@ function productCreationFailure(error: unknown): HttpsError {
   if (/invalid input/i.test(message)) return new HttpsError('invalid-argument', 'Some product details are invalid.');
   if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'A product with this SKU, barcode, or product code already exists.');
   return new HttpsError('internal', 'Unable to create the product.');
+}
+
+function productInventoryCreationFailure(error: unknown): HttpsError {
+  if (error instanceof HttpsError) return error;
+  const value = error as { message?: unknown } | null;
+  const message = typeof value?.message === 'string' ? value.message : '';
+  if (message === 'scope') return new HttpsError('permission-denied', 'You do not have permission to create inventory in this organization.');
+  if (/invalid input/i.test(message)) return new HttpsError('invalid-argument', 'Some product or inventory details are invalid.');
+  if (/unique|duplicate|already exists/i.test(message)) return new HttpsError('already-exists', 'A product with this SKU, barcode, or product code already exists.');
+  if (message) return new HttpsError('failed-precondition', message);
+  return new HttpsError('internal', 'Unable to create the product and inventory record.');
 }
 
 function outletCreationFailure(error: unknown): HttpsError {
@@ -1233,8 +1257,8 @@ export const adjustTenantInventoryStock = onCall(callableOptions, async (request
     const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const productId = typeof d.productId === 'string' ? d.productId : ''; const mode = d.mode === 'INCREASE' || d.mode === 'DECREASE' || d.mode === 'RECONCILE' ? d.mode : ''; const quantity = Number(d.quantity); const previousQty = Number(d.previousQty); const newQty = Number(d.newQty); const reasonCode = typeof d.reasonCode === 'string' ? d.reasonCode.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !outletId || !productId || !mode || !Number.isFinite(quantity) || quantity < 0 || !Number.isFinite(previousQty) || previousQty < 0 || !Number.isFinite(newQty) || newQty < 0 || !reasonCode || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationCapability(actor, organizationId, 'inventory.read');
-    await adjustTenantInventory({ organizationId, outletId, productId, mode, quantity, previousQty, newQty, reasonCode, auditNote: typeof d.auditNote === 'string' ? d.auditNote.trim() || null : null, requestId, actorFirebaseUid: actor });
-    return { success: true, organizationId, outletId, productId, newQty };
+    const result = await withSqlTransaction((client) => adjustInventoryWithBatches(client, { organizationId, outletId, productId, mode, quantity, expectedPreviousQty: previousQty, reasonCode, auditNote: typeof d.auditNote === 'string' ? d.auditNote.trim() || null : null, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, outletId, productId, newQty: result.newQty };
   } catch (error) { logCallableFailure('adjustTenantInventoryStock', error); throw new HttpsError('permission-denied', 'Unable to adjust inventory stock.'); }
 });
 
@@ -1251,11 +1275,35 @@ export const createTenantInventoryStockRecord = onCall(callableOptions, async (r
     const reorderLevel = Number(d.reorderLevel);
     const overstockThreshold = Number(d.overstockThreshold);
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const batchNumber = typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null;
+    const mfgDate = typeof d.mfgDate === 'string' ? d.mfgDate.trim() || null : null;
+    const expiryDate = typeof d.expiryDate === 'string' ? d.expiryDate.trim() || null : null;
     if (!organizationId || !outletId || !productId || !Number.isFinite(onHandQty) || onHandQty < 0 || !Number.isFinite(reorderLevel) || reorderLevel < 0 || !Number.isFinite(overstockThreshold) || overstockThreshold < reorderLevel || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationCapability(actor, organizationId, 'inventory.read');
-    await createTenantInventoryStock({ organizationId, outletId, productId, onHandQty, reorderLevel, overstockThreshold, requestId, actorFirebaseUid: actor });
-    return { success: true, organizationId, outletId, productId };
-  } catch (error) { logCallableFailure('createTenantInventoryStockRecord', error); throw new HttpsError('permission-denied', 'Unable to create the inventory record.'); }
+    const result = await withSqlTransaction((client) => createInventoryStockRecord(client, { organizationId, outletId, productId, quantity: onHandQty, reorderLevel, overstockThreshold, batchNumber, mfgDate, expiryDate, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, outletId, productId, batchNumber: result.batchNumber, newQty: result.newQty };
+  } catch (error) { logCallableFailure('createTenantInventoryStockRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to create the inventory record.'); }
+});
+
+export const addTenantInventoryUnits = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'inventory.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const productId = typeof d.productId === 'string' ? d.productId : '';
+    const quantity = Number(d.quantity);
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const batchNumber = typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null;
+    const mfgDate = typeof d.mfgDate === 'string' ? d.mfgDate.trim() || null : null;
+    const expiryDate = typeof d.expiryDate === 'string' ? d.expiryDate.trim() || null : null;
+    if (!organizationId || !outletId || !productId || !Number.isFinite(quantity) || quantity <= 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'inventory.read');
+    const result = await withSqlTransaction((client) => addInventoryUnits(client, { organizationId, outletId, productId, quantity, batchNumber, mfgDate, expiryDate, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, outletId, productId, batchNumber: result.batchNumber, newQty: result.newQty };
+  } catch (error) { logCallableFailure('addTenantInventoryUnits', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to add inventory units.'); }
 });
 
 function productFields(d: any): ProductBatchFields {
@@ -1304,7 +1352,34 @@ async function resolveProductTaxonomy(organizationId: string, categoryName: stri
 }
 
 export const createTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); validateProductFields(fields); if (!organizationId || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName); const id = randomUUID(); await createTenantProduct({ id, organizationId, ...productData, type: productData.type as ProductType, ...taxonomy }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const fields = productFields(d); validateProductFields(fields);
+    if (!organizationId || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'products.read');
+    const [row] = await persistProductBatch(organizationId, [fields]);
+    return { success: true, organizationId, ...row };
+  } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
+});
+
+export const createTenantProductWithInventoryRecord = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const fields = productFields(d); validateProductFields(fields);
+    const onHandQty = Number(d.onHandQty); const reorderLevel = Number(d.reorderLevel); const overstockThreshold = Number(d.overstockThreshold);
+    const batchNumber = typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null; const mfgDate = typeof d.mfgDate === 'string' ? d.mfgDate.trim() || null : null; const expiryDate = typeof d.expiryDate === 'string' ? d.expiryDate.trim() || null : null;
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    if (!organizationId || !outletId || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !Number.isFinite(onHandQty) || onHandQty < 0 || !Number.isFinite(reorderLevel) || reorderLevel < 0 || !Number.isFinite(overstockThreshold) || overstockThreshold < reorderLevel || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'products.read'); await requireOrganizationCapability(actor, organizationId, 'inventory.read');
+    const result = await withSqlTransaction(async (client) => {
+      const [product] = await persistProductBatchInTransaction(client, organizationId, [fields]);
+      const inventory = await createInventoryStockRecord(client, { organizationId, outletId, productId: product.id, quantity: onHandQty, reorderLevel, overstockThreshold, batchNumber, mfgDate, expiryDate, requestId: operationRequestId(requestId, 'INVENTORY'), actorFirebaseUid: actor });
+      return { product, inventory };
+    });
+    return { success: true, organizationId, ...result.product, inventory: { batchNumber: result.inventory.batchNumber, newQty: result.inventory.newQty } };
+  } catch (error) { logCallableFailure('createTenantProductWithInventoryRecord', error); throw productInventoryCreationFailure(error); }
 });
 
 export const createTenantProductBatchRecord = onCall(callableOptions, async (request) => {
@@ -1372,7 +1447,14 @@ export const changeTenantPurchaseStatus = onCall(callableOptions, async (request
 });
 
 export const receiveTenantPurchaseLineRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'purchases.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : ''; const lineId = typeof d.lineId === 'string' ? d.lineId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const productId = typeof d.productId === 'string' ? d.productId : ''; const quantityReceived = Number(d.quantityReceived); const receiptStatus = d.receiptStatus === 'PENDING' || d.receiptStatus === 'PARTIALLY_RECEIVED' || d.receiptStatus === 'RECEIVED' ? d.receiptStatus : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !purchaseId || !lineId || !outletId || !productId || !receiptStatus || !Number.isFinite(quantityReceived) || quantityReceived < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'purchases.read'); const stock = (await getTenantInventoryStockTrusted({ organizationId, outletId, productId })).data.inventoryStocks[0]; if (!stock) throw new Error('inventory item not found'); await receiveTenantPurchaseLine({ organizationId, purchaseId, lineId, outletId, productId, quantityReceived, newStockQty: stock.onHandQty + quantityReceived, receiptStatus, batchNumber: typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null, mfgDate: typeof d.mfgDate === 'string' ? d.mfgDate : null, expiryDate: typeof d.expiryDate === 'string' ? d.expiryDate : null }); return { success: true, organizationId, purchaseId, lineId }; } catch (error) { logCallableFailure('receiveTenantPurchaseLineRecord', error); throw new HttpsError('permission-denied', 'Unable to receive the purchase line.'); }
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : ''; const lineId = typeof d.lineId === 'string' ? d.lineId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const productId = typeof d.productId === 'string' ? d.productId : ''; const quantityReceived = Number(d.quantityReceived); const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !purchaseId || !lineId || !outletId || !productId || !Number.isFinite(quantityReceived) || quantityReceived <= 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+    const result = await withSqlTransaction((client) => receiveInventoryForPurchase(client, { organizationId, purchaseId, lineId, outletId, productId, quantityReceived, batchNumber: typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null, mfgDate: typeof d.mfgDate === 'string' ? d.mfgDate.trim() || null : null, expiryDate: typeof d.expiryDate === 'string' ? d.expiryDate.trim() || null : null, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, purchaseId, lineId, batchNumber: result.batchNumber, newStockQty: result.newStockQty, receiptStatus: result.receiptStatus };
+  } catch (error) { logCallableFailure('receiveTenantPurchaseLineRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to receive the purchase line.'); }
 });
 
 export const createTenantExpenseRecord = onCall(callableOptions, async (request) => {
@@ -1418,6 +1500,8 @@ export const completeTenantCheckout = onCall(callableOptions, async (request) =>
       discount: Number(d.discount),
       subtotal: Number(d.subtotal),
       totalNet: Number(d.totalNet),
+      requestId: typeof d.requestId === 'string' ? d.requestId.trim() : '',
+      actorFirebaseUid: actor,
       lines: lines.map((line: any) => ({ productId: typeof line?.productId === 'string' && line.productId ? line.productId : null, itemName: typeof line?.itemName === 'string' ? line.itemName.trim() : '', quantity: Number(line?.quantity), unitPrice: Number(line?.unitPrice), subtotal: Number(line?.subtotal) })),
     };
     if (typeof d.requestId !== 'string' || !/^[A-Za-z0-9._:-]{8,128}$/.test(d.requestId.trim())) throw new Error('invalid input');
@@ -1432,11 +1516,20 @@ export const completeTenantCheckout = onCall(callableOptions, async (request) =>
 });
 
 export const addTenantSaleLineRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const saleId = typeof d.saleId === 'string' ? d.saleId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const productId = typeof d.productId === 'string' ? d.productId : ''; const quantity = Number(d.quantity); const unitPrice = Number(d.unitPrice); const subtotal = Number(d.subtotal); const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !saleId || !outletId || !productId || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0 || !Number.isFinite(subtotal) || subtotal < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'sales.read'); const stock = (await getTenantInventoryStockTrusted({ organizationId, outletId, productId })).data.inventoryStocks[0]; if (!stock || stock.onHandQty < quantity) throw new Error('insufficient stock'); await addTenantSaleLine({ organizationId, saleId, outletId, productId, quantity, newStockQty: stock.onHandQty - quantity, unitPrice, subtotal }); return { success: true, organizationId, saleId, productId }; } catch (error) { logCallableFailure('addTenantSaleLineRecord', error); throw new HttpsError('permission-denied', 'Unable to add the sale line.'); }
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const saleId = typeof d.saleId === 'string' ? d.saleId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const productId = typeof d.productId === 'string' ? d.productId : ''; const itemName = typeof d.itemName === 'string' ? d.itemName.trim() : 'Product'; const quantity = Number(d.quantity); const unitPrice = Number(d.unitPrice); const subtotal = Number(d.subtotal); const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !saleId || !outletId || !productId || !itemName || !Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0 || !Number.isFinite(subtotal) || subtotal < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'sales.read');
+    const result = await withSqlTransaction((client) => persistSaleLineWithInventory(client, { organizationId, saleId, outletId, productId, itemName, quantity, unitPrice, subtotal, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, saleId, productId, saleLineId: result.saleLineId, allocations: result.allocations };
+  } catch (error) { logCallableFailure('addTenantSaleLineRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to add the sale line.'); }
 });
 
 export const voidTenantSaleRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const saleId = typeof d.saleId === 'string' ? d.saleId : ''; const reason = typeof d.reason === 'string' ? d.reason.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !saleId || !reason || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'sales.read'); await voidTenantSale({ organizationId, saleId, reason }); return { success: true, organizationId, saleId }; } catch (error) { logCallableFailure('voidTenantSaleRecord', error); throw new HttpsError('permission-denied', 'Unable to void the incomplete sale.'); }
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const saleId = typeof d.saleId === 'string' ? d.saleId : ''; const reason = typeof d.reason === 'string' ? d.reason.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !saleId || !reason || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'sales.read'); const result = await withSqlTransaction((client) => reverseSaleInventory(client, { organizationId, saleId, reason, requestId, actorFirebaseUid: actor })); return { success: true, organizationId, saleId, restoredQty: result.restoredQty };
+  } catch (error) { logCallableFailure('voidTenantSaleRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to void the sale.'); }
 });
 
 async function authorizeTarget(request: any, capability: string) {

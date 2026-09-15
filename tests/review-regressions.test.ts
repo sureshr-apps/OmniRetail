@@ -57,10 +57,10 @@ describe('review regression coverage', () => {
     expect(query.text).not.toContain('$15');
   });
 
-  it('requires inventory only for stockable products', () => {
+  it('requires inventory for stockable and consumable products, but not service products', () => {
     expect(isStockTrackedProduct('STOCKABLE')).toBe(true);
     expect(isStockTrackedProduct('SERVICE')).toBe(false);
-    expect(isStockTrackedProduct('CONSUMABLE')).toBe(false);
+    expect(isStockTrackedProduct('CONSUMABLE')).toBe(true);
   });
 
   it('rejects oversized product text at the callable boundary', () => {

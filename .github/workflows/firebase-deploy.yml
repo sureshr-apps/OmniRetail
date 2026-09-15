@@ -32,7 +32,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
             echo "Manual run or no previous commit to diff against; deploying everything."
             echo "targets=hosting,functions,dataconnect" >> "$GITHUB_OUTPUT"
-            echo "connector_first=true" >> "$GITHUB_OUTPUT"
+            echo "connector_first=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
@@ -55,10 +55,11 @@ jobs:
             echo "No deploy-relevant paths changed; deploying everything as a safe default."
             TARGETS="hosting,functions,dataconnect"
           fi
-          CONNECTOR_FIRST=true
-          if echo "$CHANGED" | grep -q '^scripts/drop-customer-address-columns\.mjs$'; then
-            CONNECTOR_FIRST=false
-          fi
+          # Custom SQL migrations run before the full Data Connect deployment.
+          # The full deployment updates the schema and connectors together, so
+          # a connector-only pre-deploy is not needed and can reject a valid
+          # already-migrated schema as an invalid intermediate source.
+          CONNECTOR_FIRST=false
           echo "Deploy targets: $TARGETS"
           echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
           echo "connector_first=$CONNECTOR_FIRST" >> "$GITHUB_OUTPUT"

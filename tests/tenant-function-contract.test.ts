@@ -35,16 +35,16 @@ describe('tenant callable contract', () => {
   });
 
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
-    expect(deploymentSource).toContain('--only "${{ steps.changes.outputs.targets }}" --non-interactive --force');
+    expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
     expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
-    expect(deploymentSource).toContain('dataconnect:sql:migrate');
+    expect(deploymentSource).not.toContain('dataconnect:sql:migrate');
+    expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force');
     expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac');
-    expect(deploymentSource.indexOf('dataconnect:sql:migrate')).toBeLessThan(deploymentSource.indexOf('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac'));
+    expect(deploymentSource.indexOf('Deploy Data Connect schema and connectors')).toBeLessThan(deploymentSource.indexOf('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac'));
     expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac_permissions.gql BootstrapPlatformRbacPermissions');
     expect(deploymentSource.indexOf('BootstrapPlatformRbac')).toBeLessThan(deploymentSource.indexOf('BootstrapPlatformRbacPermissions'));
-    expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
     expect(deploymentSource).toContain('Remove retired Service Person and Product columns');
     expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
@@ -53,9 +53,9 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('node scripts/restore-product-taxonomy-indexes.mjs');
     expect(deploymentSource).toContain('Prepare Product category migration');
     expect(deploymentSource).toContain('Remove retired LifecycleIdempotency storage');
-    expect(deploymentSource.indexOf('Prepare Product category migration')).toBeLessThan(deploymentSource.indexOf('Migrate Data Connect SQL schema'));
-    expect(deploymentSource.indexOf('Remove retired LifecycleIdempotency storage')).toBeLessThan(deploymentSource.indexOf('Migrate Data Connect SQL schema'));
-    expect(deploymentSource.indexOf('Migrate Data Connect SQL schema')).toBeLessThan(deploymentSource.indexOf('Restore Product taxonomy uniqueness indexes'));
+    expect(deploymentSource.indexOf('Prepare Product category migration')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
+    expect(deploymentSource.indexOf('Remove retired LifecycleIdempotency storage')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
+    expect(deploymentSource.indexOf('Deploy Data Connect schema and connectors')).toBeLessThan(deploymentSource.indexOf('Restore Product taxonomy uniqueness indexes'));
     expect(cloudSqlMigrationHelperSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
     expect(cloudSqlMigrationHelperSource).toContain('client_email');
     expect(deploymentSource).toContain('--non-interactive --force');

@@ -85,11 +85,9 @@ jobs:
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-lifecycle-idempotency.mjs
 
-      - name: Migrate Data Connect SQL schema
+      - name: Deploy Data Connect schema and connectors
         if: contains(steps.changes.outputs.targets, 'dataconnect')
-        run: |
-          npx --no-install firebase-tools experiments:disable fdcapimigration
-          npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
+        run: npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force
 
       - name: Restore Product taxonomy uniqueness indexes
         if: contains(steps.changes.outputs.targets, 'dataconnect')
@@ -124,5 +122,14 @@ jobs:
           OMNIRETAIL_WEB_API_KEY: ${{ secrets.OMNIRETAIL_WEB_API_KEY }}
         run: printf 'OMNIRETAIL_WEB_API_KEY="%s"\n' "$OMNIRETAIL_WEB_API_KEY" > functions/.env.omniretail-60c71
 
-      - name: Deploy Hosting, Functions, and Data Connect
-        run: npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only "${{ steps.changes.outputs.targets }}" --non-interactive --force
+      - name: Deploy Hosting and Functions
+        run: |
+          TARGETS="${{ steps.changes.outputs.targets }}"
+          TARGETS="${TARGETS//,dataconnect/}"
+          TARGETS="${TARGETS//dataconnect,/}"
+          TARGETS="${TARGETS//dataconnect/}"
+          if [ -z "$TARGETS" ]; then
+            echo "Data Connect was deployed in its dedicated step; no Hosting or Functions target is required."
+            exit 0
+          fi
+          npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only "$TARGETS" --non-interactive --force

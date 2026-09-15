@@ -17,7 +17,7 @@ import { SuppliersKpiCards } from '../components/SuppliersKpiCards';
 import { SuppliersFilterToolbar } from '../components/SuppliersFilterToolbar';
 import { SuppliersTable } from '../components/SuppliersTable';
 import { SuppliersPagination } from '../components/SuppliersPagination';
-import { AddSupplierDrawer } from '../components/AddSupplierDrawer';
+import { AddSupplierDrawer as AddSupplierModal } from '../components/AddSupplierDrawer';
 import { SupplierDetailDrawer } from '../components/SupplierDetailDrawer';
 import { SupplierToast, SupplierToastMessage } from '../components/SupplierToast';
 
@@ -43,7 +43,7 @@ export function SuppliersPage() {
   // Drawers & Modals — selection is an id; the record itself is always derived
   // from allSuppliers, so it reflects mutations with no extra sync code.
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
-  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [toast, setToast] = useState<SupplierToastMessage | null>(null);
 
   const data = useMemo(
@@ -122,7 +122,7 @@ export function SuppliersPage() {
       // Alt+N -> Add New Supplier
       if (e.altKey && (e.key === 'n' || e.key === 'N')) {
         e.preventDefault();
-        setIsAddDrawerOpen(true);
+        setIsAddModalOpen(true);
         return;
       }
 
@@ -136,16 +136,16 @@ export function SuppliersPage() {
         return;
       }
 
-      // Escape -> Close drawer
+      // Escape -> Close modal or detail drawer
       if (e.key === 'Escape') {
-        if (isAddDrawerOpen) setIsAddDrawerOpen(false);
+        if (isAddModalOpen) setIsAddModalOpen(false);
         else if (selectedSupplierId) setSelectedSupplierId(null);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAddDrawerOpen, selectedSupplierId]);
+  }, [isAddModalOpen, selectedSupplierId]);
 
   // Handlers
   const handleResetFilters = () => {
@@ -255,7 +255,7 @@ export function SuppliersPage() {
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden space-y-4 pb-2">
       {/* Page Header */}
       <SuppliersHeader
-        onAddSupplier={() => setIsAddDrawerOpen(true)}
+        onAddSupplier={() => setIsAddModalOpen(true)}
         onExportDirectory={handleExportDirectory}
       />
 
@@ -313,10 +313,10 @@ export function SuppliersPage() {
         />
       )}
 
-      {/* Add Supplier Slide-out Drawer */}
-      <AddSupplierDrawer
-        isOpen={isAddDrawerOpen}
-        onClose={() => setIsAddDrawerOpen(false)}
+      {/* Add Supplier Modal */}
+      <AddSupplierModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddSupplier}
         categories={categories}
       />

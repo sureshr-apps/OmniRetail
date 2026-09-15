@@ -118,34 +118,39 @@ export function AddSupplierDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Backdrop */}
+    <div
+      className="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-xs flex items-center justify-center p-space-base"
+      onClick={onClose}
+    >
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Drawer content */}
-      <div className="relative w-full max-w-xl bg-surface-container-lowest h-full shadow-2xl z-10 flex flex-col border-l border-outline-variant/40 animate-in slide-in-from-right duration-200">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-outline-variant/30 flex items-center justify-between shrink-0 bg-surface-container-lowest">
-          <div>
-            <span className="text-micro-label uppercase font-semibold text-primary tracking-wider">
-              Master Data Integration
-            </span>
-            <h2 className="text-xl font-bold text-on-surface">Add New Supplier</h2>
+        className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="px-space-2xl py-space-base bg-surface-container-low border-b border-outline-variant/30 flex items-center justify-between">
+          <div className="flex items-center gap-space-sm">
+            <div className="w-8 h-8 rounded bg-primary text-on-primary flex items-center justify-center">
+              <span className="material-symbols-outlined text-[18px]">local_shipping</span>
+            </div>
+            <div>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Add New Supplier</h2>
+              <p className="font-caption text-caption text-on-surface-variant">
+                Register a supplier for purchasing and inventory operations.
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors"
+            className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
-        {/* Scrollable Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+        {/* Modal Body (Scrollable Form) */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="p-space-2xl overflow-y-auto space-y-space-xl flex-1">
           {/* Section 1: Supplier Information */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
@@ -392,29 +397,29 @@ export function AddSupplierDrawer({
             </div>
           </div>
 
-          {/* Form Actions Footer */}
-          <div className="pt-4 border-t border-outline-variant/30 flex items-center justify-end gap-3 sticky bottom-0 bg-surface-container-lowest py-3 -mx-6 px-6 shadow-md">
+          </div>
+
+          {/* Modal Footer */}
+          <div className="px-space-2xl py-space-base bg-surface-container-low border-t border-outline-variant/30 flex items-center justify-end gap-space-base">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium rounded text-on-surface hover:bg-surface-container-high transition-colors"
+              className="h-9 px-space-base bg-surface-container hover:bg-surface-container-high text-on-surface rounded font-body-medium text-body-medium transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container disabled:opacity-50 transition-colors shadow-xs"
+              className="h-9 px-space-2xl bg-primary hover:bg-primary-container text-on-primary rounded font-body-medium text-body-medium shadow-xs transition-colors disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-on-primary border-t-transparent" />
-                  <span>Saving...</span>
+                  <span>Creating...</span>
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                  <span>Save Supplier Record</span>
+                  <span>Create Supplier</span>
                 </>
               )}
             </button>

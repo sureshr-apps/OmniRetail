@@ -38,6 +38,8 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
     expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac');
     expect(deploymentSource.indexOf('dataconnect:sql:migrate')).toBeLessThan(deploymentSource.indexOf('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac'));
+    expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac_permissions.gql BootstrapPlatformRbacPermissions');
+    expect(deploymentSource.indexOf('BootstrapPlatformRbac')).toBeLessThan(deploymentSource.indexOf('BootstrapPlatformRbacPermissions'));
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
     expect(deploymentSource).toContain('Remove retired Service Person and Product columns');

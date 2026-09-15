@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const seed = readFileSync(new URL('../dataconnect/bootstrap_rbac.gql', import.meta.url), 'utf8');
+const rolePermissionSeed = readFileSync(new URL('../dataconnect/bootstrap_rbac_permissions.gql', import.meta.url), 'utf8');
+const completeSeed = `${seed}\n${rolePermissionSeed}`;
 const administratorSeed = readFileSync(new URL('../dataconnect/seed_organization_administrators.gql', import.meta.url), 'utf8');
 
 describe('tenant RBAC seed', () => {
@@ -15,13 +17,13 @@ describe('tenant RBAC seed', () => {
     for (const code of ['outlets.read', 'employees.read', 'service_persons.read']) {
       expect(seed).toContain(`code: "${code}"`);
     }
-    expect(seed).toContain('roleId: "00000000-0000-4000-8000-000000000002"');
+    expect(completeSeed).toContain('roleId: "00000000-0000-4000-8000-000000000002"');
   });
 
   it('defines the organization employee role with operational access only', () => {
     expect(seed).toContain('code: "organization.employee"');
-    expect(seed).toContain('rpEmployeeBillingRead');
-    expect(seed).toContain('rpEmployeeExpensesRead');
+    expect(rolePermissionSeed).toContain('rpEmployeeBillingRead');
+    expect(rolePermissionSeed).toContain('rpEmployeeExpensesRead');
   });
 
   it('seeds organization administrators with the organization-admin role', () => {

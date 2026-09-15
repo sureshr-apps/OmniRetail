@@ -1014,6 +1014,7 @@ mutation ProvisionTenantEmployeeTrusted($id: UUID!, $userId: UUID!, $firebaseUid
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.login_provisioned" targetType: "Employee" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
+# Employee login can be provisioned later for a profile created without access.
 mutation ProvisionTenantEmployeeLoginTrusted($organizationId: UUID!, $employeeId: UUID!, $userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String, $roleId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact {
     employees(where: { id: { eq: $employeeId }, organization: { id: { eq: $organizationId } }, loginAccess: { eq: DISABLED }, user: { id: { isNull: true } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee already has login access or is not in this organization.") { id }

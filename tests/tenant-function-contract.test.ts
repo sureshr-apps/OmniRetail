@@ -10,6 +10,7 @@ const lifecycleRemovalSource = readFileSync(new URL('../scripts/drop-lifecycle-i
 const appUserColumnRemovalSource = readFileSync(new URL('../scripts/drop-app-user-legacy-columns.mjs', import.meta.url), 'utf8');
 const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-legacy-columns.mjs', import.meta.url), 'utf8');
 const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop-customer-address-columns.mjs', import.meta.url), 'utf8');
+const customerAddressPreparationSource = readFileSync(new URL('../scripts/prepare-customer-address-migration.mjs', import.meta.url), 'utf8');
 const taxonomyIndexRestoreSource = readFileSync(new URL('../scripts/restore-product-taxonomy-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 
@@ -40,11 +41,10 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain('connector_first=false');
+    expect(deploymentSource).toContain('connector_first=true');
     expect(deploymentSource).toContain('connector_first=$CONNECTOR_FIRST');
-    expect(deploymentSource).toContain('Custom SQL migrations run before the full Data Connect deployment.');
     expect(deploymentSource).toContain("steps.changes.outputs.connector_first == 'true'");
-    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|prepare-customer-address-migration|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect:omniretail-platform:master-admin --non-interactive --force');
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
@@ -144,6 +144,21 @@ describe('tenant callable contract', () => {
     expect(customerAddressColumnRemovalSource).toContain("await client.query('BEGIN')");
     expect(customerAddressColumnRemovalSource).toContain("await client.query('COMMIT')");
     expect(customerAddressColumnRemovalSource).toContain("await client.query('ROLLBACK')");
+  });
+
+  it('prepares customer compatibility columns before the connector compatibility deployment', () => {
+    expect(customerAddressPreparationSource).toContain("quoteIdentifier('customer')");
+    expect(customerAddressPreparationSource).toContain("quoteIdentifier('email')");
+    for (const column of ['city', 'state', 'postal_code', 'country']) {
+      expect(customerAddressPreparationSource).toContain(`quoteIdentifier('${column}')`);
+      expect(customerAddressPreparationSource).toContain('ADD COLUMN IF NOT EXISTS');
+    }
+    expect(customerAddressPreparationSource).toContain("await client.query('BEGIN')");
+    expect(customerAddressPreparationSource).toContain("await client.query('COMMIT')");
+    expect(customerAddressPreparationSource).toContain("await client.query('ROLLBACK')");
+    expect(deploymentSource).toContain('node scripts/prepare-customer-address-migration.mjs');
+    expect(deploymentSource.indexOf('node scripts/prepare-customer-address-migration.mjs')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect connectors before SQL migration'));
+    expect(deploymentSource.indexOf('Deploy Data Connect connectors before SQL migration')).toBeLessThan(deploymentSource.indexOf('node scripts/drop-customer-address-columns.mjs'));
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

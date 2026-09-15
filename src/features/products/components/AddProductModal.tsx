@@ -2,7 +2,18 @@ import React, { useState } from 'react';
 import { CreateProductInput, ProductCategoryOption, ProductType } from '../types';
 import { productService } from '../services/productService';
 import { Supplier } from '@/features/suppliers/types';
-import { expandProductVariants, parseProductVariants } from '../utils/variants';
+import {
+  expandProductVariantDimensions,
+  getProductVariantCombinationCount,
+  parseProductVariants,
+  PRODUCT_VARIANT_COMBINATION_LIMIT,
+} from '../utils/variants';
+
+interface VariantDimensionDraft {
+  id: number;
+  name: string;
+  valuesInput: string;
+}
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -34,7 +45,9 @@ export function AddProductModal({
   const [barcode, setBarcode] = useState('');
   const [hsnCode, setHsnCode] = useState('');
   const [unitOfMeasure, setUnitOfMeasure] = useState('Pieces (Pcs)');
-  const [variantsInput, setVariantsInput] = useState('');
+  const [variantDimensions, setVariantDimensions] = useState<VariantDimensionDraft[]>([
+    { id: 1, name: '', valuesInput: '' },
+  ]);
 
   const [cost, setCost] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
@@ -56,12 +69,16 @@ export function AddProductModal({
   const selectedCategory = categoryOptions.find((category) => category.value.trim().toLowerCase() === categoryName.trim().toLowerCase());
   const availableSubcategories = selectedCategory?.subcategories.map((subcategoryOption) => subcategoryOption.value) ?? [];
   const activeSuppliers = suppliers.filter((supplier) => supplier.status === 'Active');
+  const normalizedVariantDimensions = variantDimensions
+    .map((dimension) => ({ name: dimension.name.trim(), values: parseProductVariants(dimension.valuesInput) }))
+    .filter((dimension) => dimension.name || dimension.values.length > 0);
+  const variantCombinationCount = getProductVariantCombinationCount(normalizedVariantDimensions);
 
   if (!isOpen) return null;
 
   const validate = async (): Promise<boolean> => {
     const errs: { [key: string]: string } = {};
-    const configuredVariants = parseProductVariants(variantsInput);
+    const configuredVariants = normalizedVariantDimensions;
 
     if (!name.trim()) {
       errs.name = 'Product name is required';
@@ -80,6 +97,23 @@ export function AddProductModal({
       errs.barcode = 'A shared barcode cannot identify multiple variants. Assign barcodes after creation.';
     } else if (barcode.trim() && !(await productService.checkBarcodeUnique(barcode.trim()))) {
       errs.barcode = 'Barcode is already assigned to another item';
+    }
+
+    const dimensionNames = new Set<string>();
+    for (const dimension of configuredVariants) {
+      const normalizedName = dimension.name.toLowerCase();
+      if (!dimension.name || dimension.values.length === 0) {
+        errs.variants = 'Each variant dimension must have a name and at least one value.';
+        break;
+      }
+      if (dimensionNames.has(normalizedName)) {
+        errs.variants = 'Variant dimension names must be unique.';
+        break;
+      }
+      dimensionNames.add(normalizedName);
+    }
+    if (!errs.variants && variantCombinationCount > PRODUCT_VARIANT_COMBINATION_LIMIT) {
+      errs.variants = `You can create up to ${PRODUCT_VARIANT_COMBINATION_LIMIT} products at once. Reduce the number of variant values.`;
     }
 
     if (!sellingPrice.trim() || isNaN(Number(sellingPrice)) || Number(sellingPrice) < 0) {
@@ -135,8 +169,22 @@ export function AddProductModal({
       description: description.trim() || undefined,
     };
 
-    await onCreated(expandProductVariants(payload, parseProductVariants(variantsInput)));
-    setVariantsInput('');
+    await onCreated(expandProductVariantDimensions(payload, normalizedVariantDimensions));
+    setVariantDimensions([{ id: Date.now(), name: '', valuesInput: '' }]);
+  };
+
+  const addVariantDimension = () => {
+    setVariantDimensions((previous) => [...previous, { id: Date.now(), name: '', valuesInput: '' }]);
+  };
+
+  const updateVariantDimension = (id: number, field: 'name' | 'valuesInput', value: string) => {
+    setVariantDimensions((previous) => previous.map((dimension) => dimension.id === id ? { ...dimension, [field]: value } : dimension));
+  };
+
+  const removeVariantDimension = (id: number) => {
+    setVariantDimensions((previous) => previous.length === 1
+      ? [{ id: Date.now(), name: '', valuesInput: '' }]
+      : previous.filter((dimension) => dimension.id !== id));
   };
 
   return (
@@ -340,7 +388,7 @@ export function AddProductModal({
                   }`}
                 />
                 {errors.barcode && <span className="text-error text-[10px]">{errors.barcode}</span>}
-                {!errors.barcode && parseProductVariants(variantsInput).length > 0 && (
+                {!errors.barcode && normalizedVariantDimensions.length > 0 && (
                   <span className="text-on-surface-variant text-[10px]">Variant barcodes are assigned individually after creation.</span>
                 )}
               </div>
@@ -375,20 +423,63 @@ export function AddProductModal({
                 </select>
               </div>
 
-              <div className="col-span-1 sm:col-span-2">
-                <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Variants (optional)
-                </label>
-                <input
-                  type="text"
-                  value={variantsInput}
-                  onChange={(e) => setVariantsInput(e.target.value)}
-                  placeholder="e.g. S, M, L or Olive, White"
-                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                />
-                <p className="mt-1 text-[10px] text-on-surface-variant">
-                  Each value creates a separate product with the variant appended to its name and SKU.
-                </p>
+              <div className="col-span-1 sm:col-span-2 rounded-lg border border-outline-variant/30 bg-surface-container-low/40 p-space-sm">
+                <div className="flex items-start justify-between gap-space-sm">
+                  <div>
+                    <label className="font-caption text-caption text-on-surface font-medium block">
+                      Variant Dimensions (optional)
+                    </label>
+                    <p className="mt-1 text-[10px] text-on-surface-variant">
+                      Add dimensions such as Color and Size. Every combination becomes a separate product and SKU.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addVariantDimension}
+                    className="shrink-0 rounded border border-primary/30 px-2 py-1 font-caption text-caption font-semibold text-primary hover:bg-primary/10"
+                  >
+                    + Add Dimension
+                  </button>
+                </div>
+
+                <div className="mt-space-sm space-y-space-xs">
+                  {variantDimensions.map((dimension, index) => (
+                    <div key={dimension.id} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)_auto] items-center gap-space-xs">
+                      <input
+                        type="text"
+                        value={dimension.name}
+                        onChange={(event) => updateVariantDimension(dimension.id, 'name', event.target.value)}
+                        placeholder={index === 0 ? 'e.g. Color' : 'e.g. Size'}
+                        aria-label={`Variant dimension ${index + 1} name`}
+                        className="h-9 min-w-0 rounded bg-surface-container-lowest border border-outline-variant/40 px-3 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <input
+                        type="text"
+                        value={dimension.valuesInput}
+                        onChange={(event) => updateVariantDimension(dimension.id, 'valuesInput', event.target.value)}
+                        placeholder={index === 0 ? 'e.g. Red, Blue, Green' : 'e.g. S, M, L'}
+                        aria-label={`Variant dimension ${index + 1} values`}
+                        className="h-9 min-w-0 rounded bg-surface-container-lowest border border-outline-variant/40 px-3 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeVariantDimension(dimension.id)}
+                        aria-label={`Remove variant dimension ${index + 1}`}
+                        className="h-9 w-9 rounded border border-outline-variant/40 text-on-surface-variant hover:bg-surface-container"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {normalizedVariantDimensions.length > 0 && (
+                  <p className="mt-space-xs font-caption text-caption text-on-surface-variant">
+                    {variantCombinationCount} product{variantCombinationCount === 1 ? '' : 's'} will be created
+                    {variantCombinationCount > PRODUCT_VARIANT_COMBINATION_LIMIT ? ` (limit: ${PRODUCT_VARIANT_COMBINATION_LIMIT})` : ''}.
+                  </p>
+                )}
+                {errors.variants && <span className="mt-1 block text-error text-[10px]">{errors.variants}</span>}
               </div>
             </div>
           </div>
@@ -542,8 +633,8 @@ export function AddProductModal({
                     onChange={(e) => setOpeningStock(e.target.value)}
                     className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary"
                   />
-                  {parseProductVariants(variantsInput).length > 0 && (
-                    <span className="text-on-surface-variant text-[10px]">The total is split across the selected variants.</span>
+                  {variantCombinationCount > 1 && (
+                    <span className="text-on-surface-variant text-[10px]">The total is split across the generated product combinations.</span>
                   )}
                 </div>
 

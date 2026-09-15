@@ -13,9 +13,12 @@ describe('product UI contract', () => {
     }
   });
 
-  it('does not prefill HSN and supports variant creation in the add form', () => {
+  it('does not prefill HSN and supports multi-dimensional variant creation in the add form', () => {
     expect(addSource).toContain("useState('')");
-    expect(addSource).toContain('Variants (optional)');
+    expect(addSource).toContain('Variant Dimensions (optional)');
+    expect(addSource).toContain('+ Add Dimension');
+    expect(addSource).toContain('Every combination becomes a separate product and SKU.');
+    expect(addSource).toContain('variantCombinationCount');
     expect(addSource).toContain('parseProductVariants');
     expect(addSource).not.toContain("useState('6205.20.00')");
   });

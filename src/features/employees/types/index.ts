@@ -41,6 +41,7 @@ export interface Employee {
   phone: string;
   email: string;
   outletAssignment: string[]; // List of outlet names or IDs
+  outletIds?: string[];
   assignmentScope: AssignmentScope;
   employmentStatus: EmployeeStatus;
   loginAccess: LoginAccessStatus;

@@ -46,7 +46,7 @@ const createInput = {
   phone: '+919876543210',
   gender: 'Female',
   assignmentScope: 'Specific Outlets' as const,
-  outletAssignment: ['Main Street'],
+  outletAssignment: ['outlet-1'],
   allowLogin: false,
 };
 
@@ -90,6 +90,20 @@ describe('employeeService mutations return the canonical entity directly', () =>
       initialPassword: 'initial-secret',
     }));
     expect(callable.mock.calls[0][0]).not.toHaveProperty('email');
+  });
+
+  it('passes the selected outlet id when creating a specific-outlet employee', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ id: 'employee-5', employeeCode: 1005 }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await employeeService.createEmployee(createInput);
+
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({
+      assignmentScope: 'OUTLET',
+      outletId: 'outlet-1',
+    }));
   });
 
   it('passes the employee DOB, address, and notes to the profile mutation', async () => {
@@ -147,6 +161,23 @@ describe('employeeService mutations return the canonical entity directly', () =>
       allowLogin: true,
       username: 'jordan.lee',
       initialPassword: 'initial-secret',
+    }));
+  });
+
+  it('passes the selected outlet id when changing an employee outlet assignment', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ employeeOutlets_on_employee: [{ outlet: { id: 'outlet-2', outletCode: 2, name: 'Second Street' } }] }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await employeeService.updateEmployee('employee-1', {
+      assignmentScope: 'Specific Outlets',
+      outletAssignment: ['outlet-2'],
+    });
+
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({
+      assignmentScope: 'OUTLET',
+      outletId: 'outlet-2',
     }));
   });
 

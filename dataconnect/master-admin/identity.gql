@@ -1101,6 +1101,15 @@ mutation AssignTenantEmployeeOutletTrusted($organizationId: UUID!, $employeeId: 
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.outlet_assigned" targetType: "Employee" targetId: $employeeId requestId: $requestId metadata: { organizationId: $organizationId outletId: $outletId } })
 }
 
+mutation DeleteTenantEmployeeOutletTrusted($organizationId: UUID!, $employeeId: UUID!, $outletId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  query @redact {
+    employees(where: { id: { eq: $employeeId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee is not in this organization.") { id }
+    outlets(where: { id: { eq: $outletId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Outlet is not in this organization.") { id }
+  }
+  employeeOutlet_delete(key: { employeeId: $employeeId outletId: $outletId })
+  auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.outlet_unassigned" targetType: "Employee" targetId: $employeeId requestId: $requestId metadata: { organizationId: $organizationId outletId: $outletId } })
+}
+
 mutation AssignTenantServicePersonOutletTrusted($organizationId: UUID!, $servicePersonId: UUID!, $outletId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact {
     servicePeople(where: { id: { eq: $servicePersonId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { id }

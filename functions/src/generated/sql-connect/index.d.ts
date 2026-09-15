@@ -897,6 +897,20 @@ export interface DeleteTenantCustomerTrustedVariables {
   actorFirebaseUid: string;
 }
 
+export interface DeleteTenantEmployeeOutletTrustedData {
+  employeeOutlet_delete?: EmployeeOutlet_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface DeleteTenantEmployeeOutletTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
+  outletId: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface DeleteTenantEmployeeTrustedData {
   employee_delete?: Employee_Key | null;
   auditEvent_insert: AuditEvent_Key;
@@ -3682,6 +3696,11 @@ export function getTenantServicePersonTrusted(vars: GetTenantServicePersonTruste
 export function assignTenantEmployeeOutletTrusted(dc: DataConnect, vars: AssignTenantEmployeeOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignTenantEmployeeOutletTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'AssignTenantEmployeeOutletTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function assignTenantEmployeeOutletTrusted(vars: AssignTenantEmployeeOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignTenantEmployeeOutletTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantEmployeeOutletTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function deleteTenantEmployeeOutletTrusted(dc: DataConnect, vars: DeleteTenantEmployeeOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantEmployeeOutletTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'DeleteTenantEmployeeOutletTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function deleteTenantEmployeeOutletTrusted(vars: DeleteTenantEmployeeOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<DeleteTenantEmployeeOutletTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'AssignTenantServicePersonOutletTrusted' Mutation. Allow users to execute without passing in DataConnect. */
 export function assignTenantServicePersonOutletTrusted(dc: DataConnect, vars: AssignTenantServicePersonOutletTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<AssignTenantServicePersonOutletTrustedData>>;

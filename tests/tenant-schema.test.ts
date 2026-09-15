@@ -128,7 +128,7 @@ describe('tenant Data Connect foundation schema', () => {
 
   it('defines connector operations for tenant-scoped master reads and outlet writes', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
-    for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantCategories', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'DeleteTenantOutletTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'ProvisionTenantEmployeeLoginTrusted', 'UpdateTenantEmployeeTrusted', 'UpdateTenantEmployeeLoginTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'DeleteTenantEmployeeTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'DeleteTenantServicePersonTrusted', 'AssignTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted', 'DeleteTenantCustomerTrusted', 'DeleteTenantSupplierTrusted', 'DeleteTenantProductTrusted', 'DeleteTenantCategoryTrusted', 'DeleteTenantSubcategoryTrusted']) {
+    for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantCategories', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'DeleteTenantOutletTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'ProvisionTenantEmployeeLoginTrusted', 'UpdateTenantEmployeeTrusted', 'UpdateTenantEmployeeLoginTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'DeleteTenantEmployeeTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'DeleteTenantServicePersonTrusted', 'AssignTenantEmployeeOutletTrusted', 'DeleteTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted', 'DeleteTenantCustomerTrusted', 'DeleteTenantSupplierTrusted', 'DeleteTenantProductTrusted', 'DeleteTenantCategoryTrusted', 'DeleteTenantSubcategoryTrusted']) {
       expect(connector).toContain(operation);
     }
   });
@@ -152,6 +152,12 @@ describe('tenant Data Connect foundation schema', () => {
     expect(connector).toContain('subcategories(where: { category: { id: { eq: $id } } }');
     expect(connector).toContain('products(where: { category: { id: { eq: $id } }');
     expect(connector).toContain('products(where: { subcategory: { id: { eq: $id } }');
+  });
+
+  it('defines employee outlet join mutations for assignment persistence', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(connector).toContain('employeeOutlet_upsert(data: { employeeId: $employeeId outletId: $outletId })');
+    expect(connector).toContain('employeeOutlet_delete(key: { employeeId: $employeeId outletId: $outletId })');
   });
 
   it('keeps Service Person storage aligned with the supported form fields', () => {

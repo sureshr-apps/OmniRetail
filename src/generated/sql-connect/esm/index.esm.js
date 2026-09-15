@@ -1675,6 +1675,18 @@ export function assignTenantEmployeeOutletTrusted(dcOrVars, vars) {
   return executeMutation(assignTenantEmployeeOutletTrustedRef(dcInstance, inputVars));
 }
 
+export const deleteTenantEmployeeOutletTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteTenantEmployeeOutletTrusted', inputVars);
+}
+deleteTenantEmployeeOutletTrustedRef.operationName = 'DeleteTenantEmployeeOutletTrusted';
+
+export function deleteTenantEmployeeOutletTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(deleteTenantEmployeeOutletTrustedRef(dcInstance, inputVars));
+}
+
 export const assignTenantServicePersonOutletTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

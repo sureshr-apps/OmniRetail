@@ -1026,6 +1026,13 @@ function assignTenantEmployeeOutletTrusted(dcOrVarsOrOptions, varsOrOptions, opt
 }
 exports.assignTenantEmployeeOutletTrusted = assignTenantEmployeeOutletTrusted;
 
+function deleteTenantEmployeeOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('DeleteTenantEmployeeOutletTrusted', inputVars, inputOpts);
+}
+exports.deleteTenantEmployeeOutletTrusted = deleteTenantEmployeeOutletTrusted;
+
 function assignTenantServicePersonOutletTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

@@ -21,6 +21,7 @@ import { EmployeeDetailDrawer } from '../components/EmployeeDetailDrawer';
 import { EmployeeModal } from '../components/EmployeeModal';
 import { EmployeeStatusConfirmDialog } from '../components/EmployeeStatusConfirmDialog';
 import { EmployeeMoreFiltersModal } from '../components/EmployeeMoreFiltersModal';
+import type { Outlet } from '../../outlets/types';
 
 export function EmployeeMasterPage() {
   // Query States
@@ -36,7 +37,7 @@ export function EmployeeMasterPage() {
   // Data: the full org-scoped set. Mutations upsert into this directly; the
   // visible page, sort, and aggregate counts are all derived from it below.
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
-  const [availableOutlets, setAvailableOutlets] = useState<string[]>([]);
+  const [availableOutlets, setAvailableOutlets] = useState<Outlet[]>([]);
   const [availableDepartments, setAvailableDepartments] = useState<string[]>([]);
 
   // Loading & Error states
@@ -93,7 +94,7 @@ export function EmployeeMasterPage() {
           outletService.getAllActiveOutlets(),
           employeeService.getDepartments(),
         ]);
-        setAvailableOutlets(activeOutlets.map((o) => o.name));
+        setAvailableOutlets(activeOutlets);
         setAvailableDepartments(depts);
       } catch (e) {
         console.error('Error loading metadata:', e);
@@ -286,7 +287,7 @@ export function EmployeeMasterPage() {
         onLoginFilterChange={handleLoginFilterChange}
         outletFilter={outletFilter}
         onOutletFilterChange={handleOutletFilterChange}
-        availableOutlets={availableOutlets}
+        availableOutlets={availableOutlets.map((outlet) => outlet.name)}
         onOpenMoreFilters={() => setIsMoreFiltersOpen(true)}
         onExportCsv={handleExportCsv}
         isFiltered={hasActiveFilters}

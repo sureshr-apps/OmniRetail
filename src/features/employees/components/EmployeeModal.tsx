@@ -8,13 +8,18 @@ import {
 import { formatEmployeeCode } from '../utils/formatEmployeeCode';
 import { formatEmployeeDateForDisplay, parseEmployeeDate } from '../utils/date';
 
+interface EmployeeOutletOption {
+  id: string;
+  name: string;
+}
+
 interface EmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmitCreate: (input: CreateEmployeeInput) => Promise<void>;
   onSubmitUpdate: (id: string, input: UpdateEmployeeInput) => Promise<void>;
   employeeToEdit: Employee | null;
-  availableOutlets: string[];
+  availableOutlets: EmployeeOutletOption[];
 }
 
 export function EmployeeModal({
@@ -74,7 +79,7 @@ export function EmployeeModal({
       setAddress(employeeToEdit.address || '');
       setNotes(employeeToEdit.notes || '');
       setAssignmentScope(employeeToEdit.assignmentScope || 'Specific Outlets');
-      setSelectedOutlets(employeeToEdit.outletAssignment || []);
+      setSelectedOutlets(employeeToEdit.outletIds || []);
       setAllowLogin(employeeToEdit.loginAccess === 'Enabled');
       setUsername(employeeToEdit.username || '');
       setPermissionProfile(employeeToEdit.permissionProfile || 'User');
@@ -93,7 +98,7 @@ export function EmployeeModal({
       setAddress('');
       setNotes('');
       setAssignmentScope('Specific Outlets');
-      setSelectedOutlets(availableOutlets.length > 0 ? [availableOutlets[0]] : []);
+      setSelectedOutlets(availableOutlets.length > 0 ? [availableOutlets[0].id] : []);
       setAllowLogin(true);
       setUsername('');
       setPermissionProfile('User');
@@ -503,7 +508,7 @@ export function EmployeeModal({
                   }`}
                 >
                   <option value="">Select an outlet</option>
-                  {availableOutlets.map((outletName) => <option key={outletName} value={outletName}>{outletName}</option>)}
+                  {availableOutlets.map((outlet) => <option key={outlet.id} value={outlet.id}>{outlet.name}</option>)}
                 </select>
                 {errors.outlets && (
                   <p className="text-xs text-error mt-1">{errors.outlets}</p>

@@ -176,6 +176,11 @@ describe('tenant callable contract', () => {
     expect(source).toContain('provisionTenantEmployeeLoginTrusted');
     expect(source).toContain('updateTenantEmployeeLoginTrusted');
     expect(source).toContain('export const createTenantEmployeeProfile = onCall');
+    expect(source).toContain('async function syncEmployeeOutletAssignment');
+    expect(source).toContain('deleteTenantEmployeeOutletTrusted');
+    expect(source).toContain('await syncEmployeeOutletAssignment({ organizationId, employeeId: id, assignmentScope, outletId, currentOutletIds, actorFirebaseUid: actor, requestId });');
+    expect(source).toContain('await syncEmployeeOutletAssignment({ organizationId, employeeId: id, assignmentScope, outletId, currentOutletIds: [], actorFirebaseUid: actor, requestId });');
+    expect(connectorSource).toContain('mutation DeleteTenantEmployeeOutletTrusted');
   });
 
   it('exposes service-person lifecycle callables without employee login coupling', () => {

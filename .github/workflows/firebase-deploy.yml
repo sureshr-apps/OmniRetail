@@ -52,6 +52,9 @@ jobs:
           elif echo "$CHANGED" | grep -Eq '^scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\.mjs$'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
+          if echo "$CHANGED" | grep -Eq '^scripts/grant-cloud-sql-runtime-privileges\.mjs$'; then
+            TARGETS="${TARGETS:+$TARGETS,}functions"
+          fi
           if [ -z "$TARGETS" ]; then
             echo "No deploy-relevant paths changed; deploying everything as a safe default."
             TARGETS="hosting,functions,dataconnect"
@@ -100,6 +103,12 @@ jobs:
               --quiet
           fi
           echo "iam_user=${RUNTIME_IAM_USER}" >> "$GITHUB_OUTPUT"
+
+      - name: Grant Functions Cloud SQL table access
+        if: contains(steps.changes.outputs.targets, 'functions')
+        env:
+          CLOUD_SQL_RUNTIME_IAM_USER: ${{ steps.cloudsql.outputs.iam_user }}
+        run: node scripts/grant-cloud-sql-runtime-privileges.mjs
 
       - name: Prepare Product category migration
         if: contains(steps.changes.outputs.targets, 'dataconnect')

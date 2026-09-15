@@ -13,6 +13,7 @@ const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop
 const taxonomyIndexRemovalSource = readFileSync(new URL('../scripts/drop-product-taxonomy-helper-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 const cloudSqlSource = readFileSync(new URL('../functions/src/cloudSql.ts', import.meta.url), 'utf8');
+const cloudSqlRuntimePrivilegesSource = readFileSync(new URL('../scripts/grant-cloud-sql-runtime-privileges.mjs', import.meta.url), 'utf8');
 const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
 const functionsPackageSource = readFileSync(new URL('../functions/package.json', import.meta.url), 'utf8');
 const productBatchSource = readFileSync(new URL('../functions/src/productBatch.ts', import.meta.url), 'utf8');
@@ -50,6 +51,13 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('CLOUD_SQL_IAM_USER');
     expect(deploymentSource).toContain('${PROJECT_NUMBER}-compute@developer.gserviceaccount.com');
     expect(deploymentSource).toContain('cannot mutate project IAM policy');
+    expect(deploymentSource).toContain('Grant Functions Cloud SQL table access');
+    expect(deploymentSource).toContain('node scripts/grant-cloud-sql-runtime-privileges.mjs');
+    expect(cloudSqlRuntimePrivilegesSource).toContain('CLOUD_SQL_RUNTIME_IAM_USER');
+    expect(cloudSqlRuntimePrivilegesSource).toContain('SET LOCAL ROLE');
+    expect(cloudSqlRuntimePrivilegesSource).toContain('GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON ALL TABLES');
+    expect(cloudSqlRuntimePrivilegesSource).toContain('GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES');
+    expect(cloudSqlRuntimePrivilegesSource).toContain('await client.query(\'COMMIT\')');
   });
 
   it('keeps the functions package independent from the workspace root', () => {

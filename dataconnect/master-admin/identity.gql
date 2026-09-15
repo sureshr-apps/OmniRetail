@@ -592,7 +592,7 @@ query ListTenantOutlets($organizationId: UUID!) @auth(level: USER) {
 query ListTenantEmployees($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'employees.read'))", message: "Employee access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
   employees(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
-    id organization { id } user { id username email } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
+    id organization { id } user { id username email } employeeCode fullName email phone designation department dateOfBirth dateOfJoining address notes assignmentScope employmentStatus loginAccess createdAt updatedAt
     employeeOutlets_on_employee { outlet { id outletCode name } }
   }
 }
@@ -1001,22 +1001,22 @@ query GetTenantOutletTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO
   }
 }
 
-mutation CreateTenantEmployeeProfileTrusted($id: UUID!, $organizationId: UUID!, $fullName: String!, $email: String, $phone: String!, $designation: String!, $department: String, $dateOfJoining: Date!, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
-  employee_insert(data: { id: $id organization: { id: $organizationId } fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfJoining: $dateOfJoining assignmentScope: $assignmentScope employmentStatus: ACTIVE loginAccess: DISABLED })
+mutation CreateTenantEmployeeProfileTrusted($id: UUID!, $organizationId: UUID!, $fullName: String!, $email: String, $phone: String!, $designation: String!, $department: String, $dateOfBirth: Date, $dateOfJoining: Date!, $address: String, $notes: String, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  employee_insert(data: { id: $id organization: { id: $organizationId } fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfBirth: $dateOfBirth dateOfJoining: $dateOfJoining address: $address notes: $notes assignmentScope: $assignmentScope employmentStatus: ACTIVE loginAccess: DISABLED })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.created" targetType: "Employee" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
-mutation ProvisionTenantEmployeeTrusted($id: UUID!, $userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $organizationId: UUID!, $fullName: String!, $phone: String!, $designation: String!, $department: String, $dateOfJoining: Date!, $assignmentScope: String!, $roleId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+mutation ProvisionTenantEmployeeTrusted($id: UUID!, $userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $organizationId: UUID!, $fullName: String!, $phone: String!, $designation: String!, $department: String, $dateOfBirth: Date, $dateOfJoining: Date!, $address: String, $notes: String, $assignmentScope: String!, $roleId: UUID!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   appUser_insert(data: { id: $userId firebaseUid: $firebaseUid username: $username email: $email displayName: $fullName phone: $phone status: ACTIVE })
   organizationMembership_insert(data: { organizationId: $organizationId userId: $userId roleId: $roleId status: ACTIVE })
   userRole_upsert(data: { userId: $userId roleId: $roleId })
-  employee_insert(data: { id: $id organization: { id: $organizationId } user: { id: $userId } fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfJoining: $dateOfJoining assignmentScope: $assignmentScope employmentStatus: ACTIVE loginAccess: ENABLED })
+  employee_insert(data: { id: $id organization: { id: $organizationId } user: { id: $userId } fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfBirth: $dateOfBirth dateOfJoining: $dateOfJoining address: $address notes: $notes assignmentScope: $assignmentScope employmentStatus: ACTIVE loginAccess: ENABLED })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.login_provisioned" targetType: "Employee" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
-mutation UpdateTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!, $fullName: String!, $email: String, $phone: String!, $designation: String!, $department: String, $dateOfJoining: Date!, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+mutation UpdateTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!, $fullName: String!, $email: String, $phone: String!, $designation: String!, $department: String, $dateOfBirth: Date, $dateOfJoining: Date!, $address: String, $notes: String, $assignmentScope: String!, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee is not in this organization.") { organization { id } } }
-  employee_update(id: $id, data: { fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfJoining: $dateOfJoining assignmentScope: $assignmentScope updatedAt_expr: "request.time" })
+  employee_update(id: $id, data: { fullName: $fullName email: $email phone: $phone designation: $designation department: $department dateOfBirth: $dateOfBirth dateOfJoining: $dateOfJoining address: $address notes: $notes assignmentScope: $assignmentScope updatedAt_expr: "request.time" })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "employee.updated" targetType: "Employee" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
@@ -1038,7 +1038,7 @@ mutation ChangeTenantEmployeeLoginAccessTrusted($organizationId: UUID!, $id: UUI
 # separate operation rather than a second `query` block in the same mutation).
 query GetTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } user { id username email firebaseUid } employeeCode fullName email phone designation department dateOfJoining assignmentScope employmentStatus loginAccess createdAt updatedAt
+    id organization { id } user { id username email firebaseUid } employeeCode fullName email phone designation department dateOfBirth dateOfJoining address notes assignmentScope employmentStatus loginAccess createdAt updatedAt
     employeeOutlets_on_employee { outlet { id outletCode name } }
   }
 }

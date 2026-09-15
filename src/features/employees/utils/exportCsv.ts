@@ -13,9 +13,10 @@ export function exportEmployeesToCsv(employees: Employee[], filename = 'omni_ret
     'Assigned Outlets',
     'Login Access',
     'Employment Status',
+    'Date of Birth',
     'Date of Joining',
-    'City',
-    'State',
+    'Address',
+    'Notes',
     'Created Date',
   ];
 
@@ -30,9 +31,10 @@ export function exportEmployeesToCsv(employees: Employee[], filename = 'omni_ret
     `"${emp.outletAssignment.join('; ').replace(/"/g, '""')}"`,
     `"${emp.loginAccess}"`,
     `"${emp.employmentStatus}"`,
+    `"${emp.dateOfBirth || ''}"`,
     `"${emp.dateOfJoining || ''}"`,
-    `"${(emp.city || '').replace(/"/g, '""')}"`,
-    `"${(emp.state || '').replace(/"/g, '""')}"`,
+    `"${(emp.address || '').replace(/"/g, '""')}"`,
+    `"${(emp.notes || '').replace(/"/g, '""')}"`,
     `"${emp.createdAt}"`,
   ]);
 

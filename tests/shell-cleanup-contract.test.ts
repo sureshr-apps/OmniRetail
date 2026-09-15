@@ -121,9 +121,26 @@ describe('requested shell cleanup', () => {
   it('keeps employee role fields editable with suggestions and outlet selection as a dropdown', () => {
     const modal = read('features/employees/components/EmployeeModal.tsx');
 
-    expect(modal).toContain('list="employee-designation-options"');
-    expect(modal).toContain('list="employee-department-options"');
+    expect(modal).not.toContain('employee-designation-options');
+    expect(modal).not.toContain('employee-department-options');
     expect(modal).toContain('value={selectedOutlets[0] ?? \'\'}');
     expect(modal).not.toContain('handleOutletCheckboxToggle');
+  });
+
+  it('keeps employee dates, address, and notes in the approved form contract', () => {
+    const modal = read('features/employees/components/EmployeeModal.tsx');
+    const drawer = read('features/employees/components/EmployeeDetailDrawer.tsx');
+
+    expect(modal).toContain('placeholder="DD/MM/YYYY"');
+    expect(modal).toContain('parseEmployeeDate(dateOfBirth)');
+    expect(modal).toContain('parseEmployeeDate(dateOfJoining)');
+    expect(modal).toContain('value={address}');
+    expect(modal).toContain('value={notes}');
+    expect(modal).not.toContain('City');
+    expect(modal).not.toContain('State / Province');
+    expect(modal).not.toContain('Postal Code');
+    expect(drawer).toContain('formatEmployeeDateForDisplay(employee.dateOfBirth)');
+    expect(drawer).toContain('formatEmployeeDateForDisplay(employee.dateOfJoining)');
+    expect(drawer).toContain('{employee.notes}');
   });
 });

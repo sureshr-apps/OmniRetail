@@ -594,7 +594,10 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   auditId: UUIDString;
   requestId: string;
@@ -1496,7 +1499,10 @@ export interface GetTenantEmployeeTrustedData {
     phone: string;
     designation: string;
     department?: string | null;
+    dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
+    address?: string | null;
+    notes?: string | null;
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
@@ -1999,7 +2005,10 @@ export interface ListTenantEmployeesData {
     phone: string;
     designation: string;
     department?: string | null;
+    dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
+    address?: string | null;
+    notes?: string | null;
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
@@ -2518,7 +2527,10 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   roleId: UUIDString;
   auditId: UUIDString;
@@ -2834,7 +2846,10 @@ export interface UpdateTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   auditId: UUIDString;
   requestId: string;

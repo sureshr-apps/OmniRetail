@@ -37,7 +37,10 @@ interface EmployeeMutationResponse {
   phone: string;
   designation: string;
   department: string | null;
+  dateOfBirth: string | null;
   dateOfJoining: string;
+  address: string | null;
+  notes: string | null;
   assignmentScope: string;
   employmentStatus: string;
   loginAccess: string;
@@ -83,7 +86,7 @@ export function deriveEmployeeView(all: Employee[], query: EmployeeQuery): Emplo
 
 class ProductionEmployeeService implements IEmployeeService {
   private async organizationId(): Promise<string> { const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
-  private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, dateOfJoining: row.dateOfJoining, createdAt: row.createdAt, updatedAt: row.updatedAt, recentActivity: [] }; }
+  private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, dateOfBirth: row.dateOfBirth ?? undefined, dateOfJoining: row.dateOfJoining, address: row.address ?? undefined, notes: row.notes ?? undefined, createdAt: row.createdAt, updatedAt: row.updatedAt, recentActivity: [] }; }
 
   /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */
   public async getAllEmployees(): Promise<Employee[]> { const organizationId = await this.organizationId(); const result = await listTenantEmployees(getFirebaseClientServices().dataConnect, { organizationId }); return result.data.employees.map((row) => this.map(row)); }
@@ -101,7 +104,10 @@ class ProductionEmployeeService implements IEmployeeService {
       phone: input.phone.trim(),
       designation: input.designation.trim(),
       department: input.department?.trim(),
+      dateOfBirth: input.dateOfBirth || null,
       dateOfJoining: input.dateOfJoining || new Date().toISOString().slice(0, 10),
+      address: input.address?.trim() || null,
+      notes: input.notes?.trim() || null,
       assignmentScope: input.assignmentScope === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
       requestId: globalThis.crypto.randomUUID(),
     };
@@ -124,7 +130,10 @@ class ProductionEmployeeService implements IEmployeeService {
       phone: input.phone ?? current.phone,
       designation: input.designation ?? current.designation,
       department: input.department ?? current.department,
+      dateOfBirth: input.dateOfBirth ?? current.dateOfBirth ?? null,
       dateOfJoining: input.dateOfJoining ?? current.dateOfJoining,
+      address: input.address ?? current.address ?? null,
+      notes: input.notes ?? current.notes ?? null,
       assignmentScope: (input.assignmentScope ?? current.assignmentScope) === 'Entire Organization' ? 'ORGANIZATION' : 'OUTLET',
       requestId: globalThis.crypto.randomUUID(),
     });

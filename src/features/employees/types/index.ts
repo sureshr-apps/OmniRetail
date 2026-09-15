@@ -48,10 +48,8 @@ export interface Employee {
   gender?: string;
   dateOfBirth?: string;
   dateOfJoining?: string;
-  residentialAddress?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
+  address?: string;
+  notes?: string;
   username?: string;
   permissionProfile?: string;
   terminalPinConfigured?: boolean;
@@ -92,10 +90,8 @@ export interface CreateEmployeeInput {
   gender?: string;
   dateOfBirth?: string;
   dateOfJoining?: string;
-  residentialAddress?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
+  address?: string;
+  notes?: string;
   assignmentScope: AssignmentScope;
   outletAssignment: string[];
   allowLogin: boolean;
@@ -114,10 +110,8 @@ export interface UpdateEmployeeInput {
   gender?: string;
   dateOfBirth?: string;
   dateOfJoining?: string;
-  residentialAddress?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
+  address?: string;
+  notes?: string;
   assignmentScope?: AssignmentScope;
   outletAssignment?: string[];
   username?: string;

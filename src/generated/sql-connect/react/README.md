@@ -2860,7 +2860,10 @@ export interface ListTenantEmployeesData {
     phone: string;
     designation: string;
     department?: string | null;
+    dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
+    address?: string | null;
+    notes?: string | null;
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
@@ -4988,7 +4991,10 @@ export interface GetTenantEmployeeTrustedData {
     phone: string;
     designation: string;
     department?: string | null;
+    dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
+    address?: string | null;
+    notes?: string | null;
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
@@ -12546,7 +12552,10 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   auditId: UUIDString;
   requestId: string;
@@ -12608,7 +12617,10 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
     phone: ...,
     designation: ...,
     department: ..., // optional
+    dateOfBirth: ..., // optional
     dateOfJoining: ...,
+    address: ..., // optional
+    notes: ..., // optional
     assignmentScope: ...,
     auditId: ...,
     requestId: ...,
@@ -12616,7 +12628,7 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   };
   mutation.mutate(createTenantEmployeeProfileTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12667,7 +12679,10 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   roleId: UUIDString;
   auditId: UUIDString;
@@ -12736,7 +12751,10 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
     phone: ...,
     designation: ...,
     department: ..., // optional
+    dateOfBirth: ..., // optional
     dateOfJoining: ...,
+    address: ..., // optional
+    notes: ..., // optional
     assignmentScope: ...,
     roleId: ...,
     auditId: ...,
@@ -12745,7 +12763,7 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
   };
   mutation.mutate(provisionTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -12796,7 +12814,10 @@ export interface UpdateTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   auditId: UUIDString;
   requestId: string;
@@ -12858,7 +12879,10 @@ export default function UpdateTenantEmployeeTrustedComponent() {
     phone: ...,
     designation: ...,
     department: ..., // optional
+    dateOfBirth: ..., // optional
     dateOfJoining: ...,
+    address: ..., // optional
+    notes: ..., // optional
     assignmentScope: ...,
     auditId: ...,
     requestId: ...,
@@ -12866,7 +12890,7 @@ export default function UpdateTenantEmployeeTrustedComponent() {
   };
   mutation.mutate(updateTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Employee } from '../types';
 import { formatEmployeeCode } from '../utils/formatEmployeeCode';
+import { formatEmployeeDateForDisplay } from '../utils/date';
 
 interface EmployeeDetailDrawerProps {
   employee: Employee | null;
@@ -130,7 +131,7 @@ export function EmployeeDetailDrawer({
               <div>
                 <span className="font-caption text-caption text-on-surface-variant block">Date of Joining</span>
                 <span className="font-body-mono-num text-caption text-on-surface">
-                  {employee.dateOfJoining || '15 Jan 2022'}
+                  {formatEmployeeDateForDisplay(employee.dateOfJoining) || '—'}
                 </span>
               </div>
               <div className="col-span-2">
@@ -156,14 +157,27 @@ export function EmployeeDetailDrawer({
                   )}
                 </div>
               </div>
-              {employee.residentialAddress && (
+              {employee.dateOfBirth && (
                 <div className="col-span-2 border-t border-outline-variant/20 pt-2 mt-1">
-                  <span className="font-caption text-caption text-on-surface-variant block">Residential Address</span>
+                  <span className="font-caption text-caption text-on-surface-variant block">Date of Birth</span>
+                  <span className="font-body-mono-num text-caption text-on-surface">
+                    {formatEmployeeDateForDisplay(employee.dateOfBirth)}
+                  </span>
+                </div>
+              )}
+              {employee.address && (
+                <div className="col-span-2 border-t border-outline-variant/20 pt-2 mt-1">
+                  <span className="font-caption text-caption text-on-surface-variant block">Address</span>
                   <span className="font-body-default text-caption text-on-surface">
-                    {employee.residentialAddress}
-                    {employee.city ? `, ${employee.city}` : ''}
-                    {employee.state ? `, ${employee.state}` : ''}
-                    {employee.postalCode ? ` ${employee.postalCode}` : ''}
+                    {employee.address}
+                  </span>
+                </div>
+              )}
+              {employee.notes && (
+                <div className="col-span-2 border-t border-outline-variant/20 pt-2 mt-1">
+                  <span className="font-caption text-caption text-on-surface-variant block">Notes</span>
+                  <span className="font-body-default text-caption text-on-surface whitespace-pre-wrap">
+                    {employee.notes}
                   </span>
                 </div>
               )}

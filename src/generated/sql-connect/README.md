@@ -3532,7 +3532,10 @@ export interface ListTenantEmployeesData {
     phone: string;
     designation: string;
     department?: string | null;
+    dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
+    address?: string | null;
+    notes?: string | null;
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
@@ -6216,7 +6219,10 @@ export interface GetTenantEmployeeTrustedData {
     phone: string;
     designation: string;
     department?: string | null;
+    dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
+    address?: string | null;
+    notes?: string | null;
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
@@ -15549,7 +15555,10 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   auditId: UUIDString;
   requestId: string;
@@ -15581,7 +15590,10 @@ const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrusted
   phone: ...,
   designation: ...,
   department: ..., // optional
+  dateOfBirth: ..., // optional
   dateOfJoining: ...,
+  address: ..., // optional
+  notes: ..., // optional
   assignmentScope: ...,
   auditId: ...,
   requestId: ...,
@@ -15592,7 +15604,7 @@ const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrusted
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantEmployeeProfileTrusted(createTenantEmployeeProfileTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantEmployeeProfileTrusted({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await createTenantEmployeeProfileTrusted({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15624,7 +15636,10 @@ const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrusted
   phone: ...,
   designation: ...,
   department: ..., // optional
+  dateOfBirth: ..., // optional
   dateOfJoining: ...,
+  address: ..., // optional
+  notes: ..., // optional
   assignmentScope: ...,
   auditId: ...,
   requestId: ...,
@@ -15634,7 +15649,7 @@ const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrusted
 // Call the `createTenantEmployeeProfileTrustedRef()` function to get a reference to the mutation.
 const ref = createTenantEmployeeProfileTrustedRef(createTenantEmployeeProfileTrustedVars);
 // Variables can be defined inline as well.
-const ref = createTenantEmployeeProfileTrustedRef({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = createTenantEmployeeProfileTrustedRef({ id: ..., organizationId: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15699,7 +15714,10 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   roleId: UUIDString;
   auditId: UUIDString;
@@ -15738,7 +15756,10 @@ const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariable
   phone: ...,
   designation: ...,
   department: ..., // optional
+  dateOfBirth: ..., // optional
   dateOfJoining: ...,
+  address: ..., // optional
+  notes: ..., // optional
   assignmentScope: ...,
   roleId: ...,
   auditId: ...,
@@ -15750,7 +15771,7 @@ const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariable
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await provisionTenantEmployeeTrusted({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await provisionTenantEmployeeTrusted({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15791,7 +15812,10 @@ const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariable
   phone: ...,
   designation: ...,
   department: ..., // optional
+  dateOfBirth: ..., // optional
   dateOfJoining: ...,
+  address: ..., // optional
+  notes: ..., // optional
   assignmentScope: ...,
   roleId: ...,
   auditId: ...,
@@ -15802,7 +15826,7 @@ const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariable
 // Call the `provisionTenantEmployeeTrustedRef()` function to get a reference to the mutation.
 const ref = provisionTenantEmployeeTrustedRef(provisionTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const ref = provisionTenantEmployeeTrustedRef({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = provisionTenantEmployeeTrustedRef({ id: ..., userId: ..., firebaseUid: ..., username: ..., email: ..., organizationId: ..., fullName: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., roleId: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15870,7 +15894,10 @@ export interface UpdateTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
+  address?: string | null;
+  notes?: string | null;
   assignmentScope: string;
   auditId: UUIDString;
   requestId: string;
@@ -15902,7 +15929,10 @@ const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
   phone: ...,
   designation: ...,
   department: ..., // optional
+  dateOfBirth: ..., // optional
   dateOfJoining: ...,
+  address: ..., // optional
+  notes: ..., // optional
   assignmentScope: ...,
   auditId: ...,
   requestId: ...,
@@ -15913,7 +15943,7 @@ const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantEmployeeTrusted(updateTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantEmployeeTrusted({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const { data } = await updateTenantEmployeeTrusted({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -15945,7 +15975,10 @@ const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
   phone: ...,
   designation: ...,
   department: ..., // optional
+  dateOfBirth: ..., // optional
   dateOfJoining: ...,
+  address: ..., // optional
+  notes: ..., // optional
   assignmentScope: ...,
   auditId: ...,
   requestId: ...,
@@ -15955,7 +15988,7 @@ const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
 // Call the `updateTenantEmployeeTrustedRef()` function to get a reference to the mutation.
 const ref = updateTenantEmployeeTrustedRef(updateTenantEmployeeTrustedVars);
 // Variables can be defined inline as well.
-const ref = updateTenantEmployeeTrustedRef({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfJoining: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
+const ref = updateTenantEmployeeTrustedRef({ organizationId: ..., id: ..., fullName: ..., email: ..., phone: ..., designation: ..., department: ..., dateOfBirth: ..., dateOfJoining: ..., address: ..., notes: ..., assignmentScope: ..., auditId: ..., requestId: ..., actorFirebaseUid: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

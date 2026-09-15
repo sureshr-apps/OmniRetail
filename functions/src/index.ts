@@ -871,7 +871,8 @@ export const deleteTenantSubcategory = onCall(callableOptions, async (request) =
 
 function mapTrustedEmployeeRow(row: {
   id: string; employeeCode: number; fullName: string; email?: string | null; phone: string;
-  designation: string; department?: string | null; dateOfJoining: string; assignmentScope: string;
+  designation: string; department?: string | null; dateOfBirth?: string | null; dateOfJoining: string;
+  address?: string | null; notes?: string | null; assignmentScope: string;
   employmentStatus: string; loginAccess: string; createdAt: string; updatedAt: string;
   user?: { id: string; username: string; email: string } | null;
   employeeOutlets_on_employee: { outlet: { id: string; outletCode: number; name: string } }[];
@@ -879,7 +880,8 @@ function mapTrustedEmployeeRow(row: {
   return {
     id: row.id, employeeCode: row.employeeCode, fullName: row.fullName, email: row.email ?? null,
     phone: row.phone, designation: row.designation, department: row.department ?? null,
-    dateOfJoining: row.dateOfJoining, assignmentScope: row.assignmentScope,
+    dateOfBirth: row.dateOfBirth ?? null, dateOfJoining: row.dateOfJoining,
+    address: row.address ?? null, notes: row.notes ?? null, assignmentScope: row.assignmentScope,
     employmentStatus: row.employmentStatus, loginAccess: row.loginAccess,
     createdAt: row.createdAt, updatedAt: row.updatedAt,
     user: row.user ? { id: row.user.id, username: row.user.username, email: row.user.email } : null,
@@ -891,15 +893,15 @@ export const provisionTenantEmployee = onCall(callableOptions, async (request) =
   let createdUid: string | undefined;
   try {
     const actorFirebaseUid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actorFirebaseUid); requireCapability(caller, 'employees.read');
-    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const username = normalizeUsername(d.username); const email = employeeAuthEmail(username); const initialPassword = typeof d.initialPassword === 'string' ? d.initialPassword : ''; const permissionProfile = d.permissionProfile === 'Admin' ? 'Admin' : d.permissionProfile === 'User' || d.permissionProfile === undefined ? 'User' : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : '';
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const username = normalizeUsername(d.username); const email = employeeAuthEmail(username); const initialPassword = typeof d.initialPassword === 'string' ? d.initialPassword : ''; const permissionProfile = d.permissionProfile === 'Admin' ? 'Admin' : d.permissionProfile === 'User' || d.permissionProfile === undefined ? 'User' : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfBirth = typeof d.dateOfBirth === 'string' && d.dateOfBirth ? d.dateOfBirth : null; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : ''; const address = typeof d.address === 'string' ? d.address.trim() || null : null; const notes = typeof d.notes === 'string' ? d.notes.trim() || null : null;
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !username || !permissionProfile || initialPassword.length < 6 || initialPassword.length > 4096 || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    if (!organizationId || !username || !permissionProfile || initialPassword.length < 6 || initialPassword.length > 4096 || !fullName || !phone || !designation || (dateOfBirth !== null && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actorFirebaseUid, organizationId);
     if ((await resolveUsernameLogin({ username })).data.appUsers.length) throw new Error('username');
     try { await getAuth().getUserByEmail(email); throw new Error('email'); } catch (error: any) { if (error?.message === 'email') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
     const created = await getAuth().createUser({ email, password: initialPassword, displayName: fullName, emailVerified: false, disabled: false }); createdUid = created.uid;
     const employeeId = randomUUID();
-    await provisionTenantEmployeeTrusted({ id: employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: permissionProfile === 'Admin' ? '00000000-0000-4000-8000-000000000002' : '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
+    await provisionTenantEmployeeTrusted({ id: employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, organizationId, fullName, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfBirth, dateOfJoining, address, notes, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', roleId: permissionProfile === 'Admin' ? '00000000-0000-4000-8000-000000000002' : '00000000-0000-4000-8000-000000000003', auditId: randomUUID(), requestId, actorFirebaseUid });
     const row = (await getTenantEmployeeTrusted({ organizationId, id: employeeId })).data.employees[0];
     if (!row) throw new Error('employee not found after provisioning');
     return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
@@ -908,10 +910,10 @@ export const provisionTenantEmployee = onCall(callableOptions, async (request) =
 
 export const createTenantEmployeeProfile = onCall(callableOptions, async (request) => {
   try {
-    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
+    const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfBirth = typeof d.dateOfBirth === 'string' && d.dateOfBirth ? d.dateOfBirth : null; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : ''; const address = typeof d.address === 'string' ? d.address.trim() || null : null; const notes = typeof d.notes === 'string' ? d.notes.trim() || null : null; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !fullName || !phone || !designation || (dateOfBirth !== null && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
     const id = randomUUID();
-    await createTenantEmployeeProfileTrusted({ id, organizationId, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    await createTenantEmployeeProfileTrusted({ id, organizationId, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfBirth, dateOfJoining, address, notes, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
     const row = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
     if (!row) throw new Error('employee not found after creation');
     return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
@@ -921,10 +923,10 @@ export const createTenantEmployeeProfile = onCall(callableOptions, async (reques
 export const updateTenantEmployee = onCall(callableOptions, async (request) => {
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read');
-    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : '';
-    if (!organizationId || !id || !fullName || !phone || !designation || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fullName = typeof d.fullName === 'string' ? d.fullName.trim() : ''; const phone = typeof d.phone === 'string' ? d.phone.trim() : ''; const designation = typeof d.designation === 'string' ? d.designation.trim() : ''; const dateOfBirth = typeof d.dateOfBirth === 'string' && d.dateOfBirth ? d.dateOfBirth : null; const dateOfJoining = typeof d.dateOfJoining === 'string' ? d.dateOfJoining : ''; const address = typeof d.address === 'string' ? d.address.trim() || null : null; const notes = typeof d.notes === 'string' ? d.notes.trim() || null : null;
+    if (!organizationId || !id || !fullName || !phone || !designation || (dateOfBirth !== null && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) || !/^\d{4}-\d{2}-\d{2}$/.test(dateOfJoining) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
-    await updateTenantEmployeeTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfJoining, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    await updateTenantEmployeeTrusted({ organizationId, id, fullName, email: typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null, phone, designation, department: typeof d.department === 'string' ? d.department.trim() || null : null, dateOfBirth, dateOfJoining, address, notes, assignmentScope: typeof d.assignmentScope === 'string' ? d.assignmentScope : 'ORGANIZATION', auditId: randomUUID(), requestId, actorFirebaseUid: actor });
     const row = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
     if (!row) throw new Error('employee not found after update');
     return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };

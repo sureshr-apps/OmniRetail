@@ -91,6 +91,28 @@ describe('employeeService mutations return the canonical entity directly', () =>
     expect(callable.mock.calls[0][0]).not.toHaveProperty('email');
   });
 
+  it('passes the employee DOB, address, and notes to the profile mutation', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ id: 'employee-4', employeeCode: 1004, fullName: 'Jordan Lee', dateOfBirth: '1995-02-03', address: '12 Market Road', notes: 'Part-time staff' }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await employeeService.createEmployee({
+      ...createInput,
+      dateOfBirth: '1995-02-03',
+      dateOfJoining: '2026-09-15',
+      address: '12 Market Road',
+      notes: 'Part-time staff',
+    });
+
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({
+      dateOfBirth: '1995-02-03',
+      dateOfJoining: '2026-09-15',
+      address: '12 Market Road',
+      notes: 'Part-time staff',
+    }));
+  });
+
   it('updateEmployee returns the enriched entity from the callable, with no follow-up list query after the mutation', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...employeeRow({ fullName: 'Renamed Employee' }) },

@@ -185,7 +185,10 @@ type Employee @table {
   phone: String!
   designation: String!
   department: String
+  dateOfBirth: Date
   dateOfJoining: Date!
+  address: String
+  notes: String
   assignmentScope: String!
   employmentStatus: EmploymentStatus! @default(value: ACTIVE)
   loginAccess: LoginAccessStatus! @default(value: DISABLED)

@@ -26,6 +26,16 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum LoginAccessStatus[\s\S]*ENABLED[\s\S]*DISABLED/);
   });
 
+  it('stores employee DOB, address, and notes as optional fields', () => {
+    const employee = schema.match(/type Employee @table[\s\S]*?\n}\n\ntype EmployeeOutlet/)?.[0] ?? '';
+    expect(employee).toContain('dateOfBirth: Date');
+    expect(employee).toContain('address: String');
+    expect(employee).toContain('notes: String');
+    expect(employee).not.toContain('city:');
+    expect(employee).not.toContain('state:');
+    expect(employee).not.toContain('postalCode:');
+  });
+
   it('keeps employee Firebase identities behind the trusted connector boundary', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const employeeList = connector.match(/query ListTenantEmployees[\s\S]*?(?=\nquery ListTenantServicePersons)/)?.[0] ?? '';
@@ -118,6 +128,12 @@ describe('tenant Data Connect foundation schema', () => {
     for (const operation of ['ListTenantOutlets', 'ListTenantEmployees', 'ListTenantServicePersons', 'ListTenantCategories', 'ListTenantProducts', 'ListTenantInventory', 'ListTenantCustomers', 'ListTenantSuppliers', 'ListTenantPurchases', 'GetTenantMembershipTrusted', 'CreateTenantOutlet', 'UpdateTenantOutlet', 'ChangeTenantOutletStatus', 'CreateTenantOutletTrusted', 'UpdateTenantOutletTrusted', 'ChangeTenantOutletStatusTrusted', 'DeleteTenantOutletTrusted', 'CreateTenantEmployeeProfileTrusted', 'ProvisionTenantEmployeeTrusted', 'UpdateTenantEmployeeTrusted', 'ChangeTenantEmployeeStatusTrusted', 'ChangeTenantEmployeeLoginAccessTrusted', 'DeleteTenantEmployeeTrusted', 'CreateTenantServicePersonTrusted', 'UpdateTenantServicePersonTrusted', 'ChangeTenantServicePersonStatusTrusted', 'DeleteTenantServicePersonTrusted', 'AssignTenantEmployeeOutletTrusted', 'AssignTenantServicePersonOutletTrusted', 'DeleteTenantCustomerTrusted', 'DeleteTenantSupplierTrusted', 'DeleteTenantProductTrusted', 'DeleteTenantCategoryTrusted', 'DeleteTenantSubcategoryTrusted']) {
       expect(connector).toContain(operation);
     }
+  });
+
+  it('includes employee profile fields in reads and trusted write operations', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const employeeOperations = connector.match(/(?:query ListTenantEmployees|mutation CreateTenantEmployeeProfileTrusted|mutation ProvisionTenantEmployeeTrusted|mutation UpdateTenantEmployeeTrusted|query GetTenantEmployeeTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g)?.join('\n') ?? '';
+    for (const field of ['dateOfBirth', 'address', 'notes']) expect(employeeOperations).toContain(field);
   });
 
   it('guards tenant master deletes against linked operational history', () => {

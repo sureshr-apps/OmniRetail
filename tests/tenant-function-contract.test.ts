@@ -144,6 +144,15 @@ describe('tenant callable contract', () => {
     expect(provisioningHandler).not.toContain('phoneNumber: phone');
   });
 
+  it('validates optional employee DOB server-side before writing SQL', () => {
+    expect(source).toContain("const dateOfBirth = typeof d.dateOfBirth === 'string' && d.dateOfBirth ? d.dateOfBirth : null");
+    expect(source).toContain("dateOfBirth !== null && !/^\\d{4}-\\d{2}-\\d{2}$/.test(dateOfBirth)");
+    expect(connectorSource).toContain('$dateOfBirth: Date');
+    expect(connectorSource).toContain('dateOfBirth: $dateOfBirth');
+    expect(connectorSource).toContain('address: $address');
+    expect(connectorSource).toContain('notes: $notes');
+  });
+
   it('exposes employee lifecycle callables with Auth synchronization', () => {
     expect(source).toContain('export const updateTenantEmployee = onCall');
     expect(source).toContain('export const changeTenantEmployeeStatus = onCall');

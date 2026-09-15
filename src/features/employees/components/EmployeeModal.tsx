@@ -6,6 +6,7 @@ import {
   AssignmentScope,
 } from '../types';
 import { formatEmployeeCode } from '../utils/formatEmployeeCode';
+import { formatEmployeeDateForDisplay, parseEmployeeDate } from '../utils/date';
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -33,10 +34,8 @@ export function EmployeeModal({
   const [phone, setPhone] = useState('');
   const [designation, setDesignation] = useState('Sales Associate');
   const [department, setDepartment] = useState('Retail Operations & Sales');
-  const [residentialAddress, setResidentialAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [postalCode, setPostalCode] = useState('');
+  const [address, setAddress] = useState('');
+  const [notes, setNotes] = useState('');
 
   // Scope & Outlets
   const [assignmentScope, setAssignmentScope] = useState<AssignmentScope>('Specific Outlets');
@@ -67,15 +66,13 @@ export function EmployeeModal({
       setFirstName(employeeToEdit.firstName || '');
       setLastName(employeeToEdit.lastName || '');
       setGender(employeeToEdit.gender || 'Prefer not to say');
-      setDateOfBirth(employeeToEdit.dateOfBirth || '');
-      setDateOfJoining(employeeToEdit.dateOfJoining || '');
+      setDateOfBirth(formatEmployeeDateForDisplay(employeeToEdit.dateOfBirth));
+      setDateOfJoining(formatEmployeeDateForDisplay(employeeToEdit.dateOfJoining));
       setPhone(employeeToEdit.phone || '');
       setDesignation(employeeToEdit.designation || 'Sales Associate');
       setDepartment(employeeToEdit.department || 'Retail Operations & Sales');
-      setResidentialAddress(employeeToEdit.residentialAddress || '');
-      setCity(employeeToEdit.city || '');
-      setState(employeeToEdit.state || '');
-      setPostalCode(employeeToEdit.postalCode || '');
+      setAddress(employeeToEdit.address || '');
+      setNotes(employeeToEdit.notes || '');
       setAssignmentScope(employeeToEdit.assignmentScope || 'Specific Outlets');
       setSelectedOutlets(employeeToEdit.outletAssignment || []);
       setAllowLogin(employeeToEdit.loginAccess === 'Enabled');
@@ -89,14 +86,12 @@ export function EmployeeModal({
       setGender('Female');
       setDateOfBirth('');
       const today = new Date().toISOString().split('T')[0];
-      setDateOfJoining(today);
+      setDateOfJoining(formatEmployeeDateForDisplay(today));
       setPhone('');
       setDesignation('Sales Associate');
       setDepartment('Retail Operations & Sales');
-      setResidentialAddress('');
-      setCity('');
-      setState('');
-      setPostalCode('');
+      setAddress('');
+      setNotes('');
       setAssignmentScope('Specific Outlets');
       setSelectedOutlets(availableOutlets.length > 0 ? [availableOutlets[0]] : []);
       setAllowLogin(true);
@@ -123,8 +118,11 @@ export function EmployeeModal({
       errs.phone = 'Please enter a valid phone number.';
     }
 
-    if (!dateOfJoining) {
+    if (!parseEmployeeDate(dateOfJoining)) {
       errs.dateOfJoining = 'Date of joining is required.';
+    }
+    if (dateOfBirth.trim() && !parseEmployeeDate(dateOfBirth)) {
+      errs.dateOfBirth = 'Use a valid date in DD/MM/YYYY format.';
     }
 
     if (!isEditing && allowLogin) {
@@ -155,12 +153,10 @@ export function EmployeeModal({
           department,
           phone,
           gender,
-          dateOfBirth,
-          dateOfJoining,
-          residentialAddress,
-          city,
-          state,
-          postalCode,
+          dateOfBirth: parseEmployeeDate(dateOfBirth),
+          dateOfJoining: parseEmployeeDate(dateOfJoining),
+          address,
+          notes,
           assignmentScope,
           outletAssignment: assignmentScope === 'Entire Organization' ? ['Organization-wide (All Outlets)'] : selectedOutlets,
           username: username.trim() || undefined,
@@ -174,12 +170,10 @@ export function EmployeeModal({
           department,
           phone,
           gender,
-          dateOfBirth,
-          dateOfJoining,
-          residentialAddress,
-          city,
-          state,
-          postalCode,
+          dateOfBirth: parseEmployeeDate(dateOfBirth),
+          dateOfJoining: parseEmployeeDate(dateOfJoining),
+          address,
+          notes,
           assignmentScope,
           outletAssignment: assignmentScope === 'Entire Organization' ? ['Organization-wide (All Outlets)'] : selectedOutlets,
           allowLogin,
@@ -328,11 +322,15 @@ export function EmployeeModal({
                   Date of Birth
                 </label>
                 <input
-                  type="date"
+                  type="text"
                   value={dateOfBirth}
                   onChange={(e) => setDateOfBirth(e.target.value)}
-                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
+                  placeholder="DD/MM/YYYY"
+                  inputMode="numeric"
+                  maxLength={10}
+                  className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${errors.dateOfBirth ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'}`}
                 />
+                {errors.dateOfBirth && <p className="text-[11px] text-error mt-0.5">{errors.dateOfBirth}</p>}
               </div>
 
               <div>
@@ -340,9 +338,12 @@ export function EmployeeModal({
                   Date of Joining <span className="text-error">*</span>
                 </label>
                 <input
-                  type="date"
+                  type="text"
                   value={dateOfJoining}
                   onChange={(e) => setDateOfJoining(e.target.value)}
+                  placeholder="DD/MM/YYYY"
+                  inputMode="numeric"
+                  maxLength={10}
                   className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
                     errors.dateOfJoining ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
                   }`}
@@ -374,23 +375,12 @@ export function EmployeeModal({
                   Designation <span className="text-error">*</span>
                 </label>
                 <input
-                  list="employee-designation-options"
                   value={designation}
                   onChange={(e) => setDesignation(e.target.value)}
                   className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
                     errors.designation ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
                   }`}
                 />
-                <datalist id="employee-designation-options">
-                  <option value="Sales Associate" />
-                  <option value="Senior Cashier" />
-                  <option value="Cashier" />
-                  <option value="Assistant Manager" />
-                  <option value="Store Manager" />
-                  <option value="Inventory Specialist" />
-                  <option value="Visual Merchandiser" />
-                  <option value="Inventory Auditor" />
-                </datalist>
               </div>
 
               <div>
@@ -398,56 +388,37 @@ export function EmployeeModal({
                   Department
                 </label>
                 <input
-                  list="employee-department-options"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                 />
-                <datalist id="employee-department-options">
-                  <option value="Retail Operations & Sales" />
-                  <option value="Cash & Billing" />
-                  <option value="Warehouse & Logistics" />
-                  <option value="Visual Merchandising" />
-                  <option value="Store Management" />
-                  <option value="Inventory & Audit" />
-                </datalist>
               </div>
             </div>
 
             <div>
               <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
-                Residential Address
+                Address
               </label>
               <input
                 type="text"
-                value={residentialAddress}
-                onChange={(e) => setResidentialAddress(e.target.value)}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 placeholder="104 Fashion Avenue, Suite 3B"
-                className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary mb-2"
+                className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
               />
-              <div className="grid grid-cols-3 gap-space-base">
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="City"
-                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                />
-                <input
-                  type="text"
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  placeholder="State / Province"
-                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                />
-                <input
-                  type="text"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder="Postal Code"
-                  className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                />
-              </div>
+            </div>
+
+            <div>
+              <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
+                Notes
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add any relevant employee notes"
+                rows={3}
+                className="w-full px-3 py-2 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary resize-y"
+              />
             </div>
           </div>
 

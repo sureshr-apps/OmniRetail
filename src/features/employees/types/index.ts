@@ -116,4 +116,6 @@ export interface UpdateEmployeeInput {
   outletAssignment?: string[];
   username?: string;
   permissionProfile?: string;
+  allowLogin?: boolean;
+  initialPassword?: string;
 }

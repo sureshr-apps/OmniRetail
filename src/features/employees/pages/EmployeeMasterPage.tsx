@@ -20,7 +20,6 @@ import { EmployeePagination } from '../components/EmployeePagination';
 import { EmployeeDetailDrawer } from '../components/EmployeeDetailDrawer';
 import { EmployeeModal } from '../components/EmployeeModal';
 import { EmployeeStatusConfirmDialog } from '../components/EmployeeStatusConfirmDialog';
-import { EmployeeAccessConfirmDialog } from '../components/EmployeeAccessConfirmDialog';
 import { EmployeeMoreFiltersModal } from '../components/EmployeeMoreFiltersModal';
 
 export function EmployeeMasterPage() {
@@ -55,10 +54,6 @@ export function EmployeeMasterPage() {
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [employeeForStatusChange, setEmployeeForStatusChange] = useState<Employee | null>(null);
   const [isProcessingStatus, setIsProcessingStatus] = useState(false);
-
-  const [isAccessDialogOpen, setIsAccessDialogOpen] = useState(false);
-  const [employeeForAccessChange, setEmployeeForAccessChange] = useState<Employee | null>(null);
-  const [isProcessingAccess, setIsProcessingAccess] = useState(false);
 
   const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false);
 
@@ -258,34 +253,6 @@ export function EmployeeMasterPage() {
     }
   };
 
-  // Action: Confirm Login Access Change
-  const handlePromptToggleLoginAccess = (emp: Employee) => {
-    setEmployeeForAccessChange(emp);
-    setIsAccessDialogOpen(true);
-  };
-
-  const handleConfirmLoginAccessChange = async () => {
-    if (!employeeForAccessChange) return;
-    try {
-      setIsProcessingAccess(true);
-      const newAccess: LoginAccessStatus =
-        employeeForAccessChange.loginAccess === 'Enabled' ? 'Disabled' : 'Enabled';
-      const updated = await employeeService.changeLoginAccess(
-        employeeForAccessChange.id,
-        newAccess
-      );
-
-      setAllEmployees((prev) => upsertById(prev, updated));
-
-      setIsAccessDialogOpen(false);
-      setEmployeeForAccessChange(null);
-    } catch (err) {
-      console.error('Failed to change login access:', err);
-    } finally {
-      setIsProcessingAccess(false);
-    }
-  };
-
   // Action: Export CSV — derived locally from the already-loaded full set,
   // matching the current filters, with no extra network call.
   const handleExportCsv = () => {
@@ -365,7 +332,6 @@ export function EmployeeMasterPage() {
           handleOpenEditModal(emp);
         }}
         onToggleStatus={handlePromptToggleStatus}
-        onToggleLoginAccess={handlePromptToggleLoginAccess}
         onDelete={handlePromptDelete}
       />
 
@@ -389,18 +355,6 @@ export function EmployeeMasterPage() {
         }}
         onConfirm={handleConfirmStatusChange}
         isProcessing={isProcessingStatus}
-      />
-
-      {/* 8. Login Access Confirm Dialog */}
-      <EmployeeAccessConfirmDialog
-        employee={employeeForAccessChange}
-        isOpen={isAccessDialogOpen}
-        onClose={() => {
-          setIsAccessDialogOpen(false);
-          setEmployeeForAccessChange(null);
-        }}
-        onConfirm={handleConfirmLoginAccessChange}
-        isProcessing={isProcessingAccess}
       />
 
       <MasterDeleteConfirmDialog

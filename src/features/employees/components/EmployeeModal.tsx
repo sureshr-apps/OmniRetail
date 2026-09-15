@@ -125,9 +125,11 @@ export function EmployeeModal({
       errs.dateOfBirth = 'Use a valid date in DD/MM/YYYY format.';
     }
 
-    if (!isEditing && allowLogin) {
+    const hasExistingLogin = Boolean(employeeToEdit?.username);
+    if (allowLogin) {
       if (!username.trim()) errs.username = 'Username is required when login access is enabled.';
-      if (initialPassword.length < 6) errs.initialPassword = 'Initial password must be at least 6 characters.';
+      if ((!isEditing || !hasExistingLogin) && initialPassword.length < 6) errs.initialPassword = 'Initial password must be at least 6 characters.';
+      if (initialPassword && initialPassword.length < 6) errs.initialPassword = 'Password must be at least 6 characters.';
     }
 
     if (assignmentScope === 'Specific Outlets' && selectedOutlets.length === 0) {
@@ -161,6 +163,8 @@ export function EmployeeModal({
           outletAssignment: assignmentScope === 'Entire Organization' ? ['Organization-wide (All Outlets)'] : selectedOutlets,
           username: username.trim() || undefined,
           permissionProfile,
+          allowLogin,
+          initialPassword: allowLogin ? initialPassword || undefined : undefined,
         });
       } else {
         await onSubmitCreate({
@@ -509,7 +513,6 @@ export function EmployeeModal({
           </div>
 
           {/* Section 3: Application Login */}
-          {!isEditing && (
             <div className="space-y-space-base">
               <div className="flex items-center gap-2 border-b border-outline-variant/20 pb-2">
                 <span className="material-symbols-outlined text-[18px] text-primary">security</span>
@@ -557,13 +560,17 @@ export function EmployeeModal({
                           ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}`
                           : 'rachel.green'
                       }
-                      className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
+                      className={`w-full h-9 px-3 rounded bg-surface-container-lowest border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
+                        errors.username ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
+                      }`}
                     />
+                    {errors.username && <p className="text-xs text-error mt-1">{errors.username}</p>}
                   </div>
 
                   <div>
                     <label className="block font-caption text-caption text-on-surface mb-1 font-medium">
-                      Initial Password <span className="text-error">*</span>
+                      {isEditing && employeeToEdit?.username ? 'New Password (optional)' : 'Initial Password'}{' '}
+                      {(!isEditing || !employeeToEdit?.username) && <span className="text-error">*</span>}
                     </label>
                     <input
                       type="password"
@@ -593,7 +600,6 @@ export function EmployeeModal({
                 </div>
               </div>
             </div>
-          )}
 
           {/* Modal Footer (Inside Form) */}
           <div className="px-space-xl py-space-base -mx-space-xl -mb-space-xl bg-surface-container-low border-t border-outline-variant/30 flex items-center justify-end gap-space-sm shrink-0">

@@ -46,7 +46,7 @@ interface EmployeeMutationResponse {
   loginAccess: string;
   createdAt: string;
   updatedAt: string;
-  user: { id: string; username: string; email: string } | null;
+  user: { id: string; username: string; email: string; employeeMemberships?: { role: { code: string } }[]; employeeTrustedMemberships?: { role: { code: string } }[] } | null;
   employeeOutlets_on_employee: { outlet: { id: string; outletCode: number; name: string } }[];
 }
 
@@ -86,7 +86,7 @@ export function deriveEmployeeView(all: Employee[], query: EmployeeQuery): Emplo
 
 class ProductionEmployeeService implements IEmployeeService {
   private async organizationId(): Promise<string> { const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
-  private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, dateOfBirth: row.dateOfBirth ?? undefined, dateOfJoining: row.dateOfJoining, address: row.address ?? undefined, notes: row.notes ?? undefined, createdAt: row.createdAt, updatedAt: row.updatedAt, recentActivity: [] }; }
+  private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); const memberships = row.user && ('employeeTrustedMemberships' in row.user ? row.user.employeeTrustedMemberships : row.user.employeeMemberships); const permissionProfile = memberships?.[0]?.role.code === 'organization.admin' ? 'Admin' : memberships?.[0]?.role.code === 'organization.employee' ? 'User' : undefined; return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, permissionProfile, dateOfBirth: row.dateOfBirth ?? undefined, dateOfJoining: row.dateOfJoining, address: row.address ?? undefined, notes: row.notes ?? undefined, createdAt: row.createdAt, updatedAt: row.updatedAt, recentActivity: [] }; }
 
   /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */
   public async getAllEmployees(): Promise<Employee[]> { const organizationId = await this.organizationId(); const result = await listTenantEmployees(getFirebaseClientServices().dataConnect, { organizationId }); return result.data.employees.map((row) => this.map(row)); }
@@ -138,7 +138,18 @@ class ProductionEmployeeService implements IEmployeeService {
       requestId: globalThis.crypto.randomUUID(),
     });
     const row = assertCallableEntity<EmployeeMutationResponse>(response.data, EMPLOYEE_MUTATION_RESPONSE_KEYS, 'updateEmployee');
-    return this.map(row);
+    if (typeof input.allowLogin !== 'boolean') return this.map(row);
+    const loginResponse = await httpsCallable(getFirebaseClientServices().functions, 'updateTenantEmployeeLogin')({
+      organizationId,
+      employeeId: id,
+      allowLogin: input.allowLogin,
+      username: input.username?.trim().toLowerCase() ?? '',
+      permissionProfile: input.permissionProfile,
+      initialPassword: input.initialPassword ?? '',
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const loginRow = assertCallableEntity<EmployeeMutationResponse>(loginResponse.data, EMPLOYEE_MUTATION_RESPONSE_KEYS, 'updateEmployeeLogin');
+    return this.map(loginRow);
   }
 
   public async changeEmployeeStatus(id: string, status: EmployeeStatus): Promise<Employee> {

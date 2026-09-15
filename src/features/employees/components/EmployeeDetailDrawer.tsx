@@ -9,7 +9,6 @@ interface EmployeeDetailDrawerProps {
   onClose: () => void;
   onEdit: (employee: Employee) => void;
   onToggleStatus: (employee: Employee) => void;
-  onToggleLoginAccess: (employee: Employee) => void;
   onDelete: (employee: Employee) => void;
 }
 
@@ -19,7 +18,6 @@ export function EmployeeDetailDrawer({
   onClose,
   onEdit,
   onToggleStatus,
-  onToggleLoginAccess,
   onDelete,
 }: EmployeeDetailDrawerProps) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -278,14 +276,6 @@ export function EmployeeDetailDrawer({
           </button>
 
           <div className="flex items-center gap-space-sm">
-            <button
-              type="button"
-              onClick={() => onToggleLoginAccess(employee)}
-              className="h-9 px-3 rounded border border-outline-variant/40 bg-surface-container-lowest hover:bg-surface-container font-body-medium text-body-medium text-on-surface transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[16px]">key</span>
-              <span>{isLoginEnabled ? 'Disable Access' : 'Enable Access'}</span>
-            </button>
             <button
               type="button"
               onClick={() => onEdit(employee)}

@@ -159,12 +159,15 @@ describe('tenant callable contract', () => {
 
   it('exposes employee lifecycle callables with Auth synchronization', () => {
     expect(source).toContain('export const updateTenantEmployee = onCall');
+    expect(source).toContain('export const updateTenantEmployeeLogin = onCall');
     expect(source).toContain('export const changeTenantEmployeeStatus = onCall');
     expect(source).toContain('export const changeTenantEmployeeLoginAccess = onCall');
     expect(source).toContain('resolveTenantEmployeeIdentityTrusted');
     expect(source).toContain('revokeRefreshTokens(targetUid)');
     expect(source).not.toContain("uid = typeof d.firebaseUid");
     expect(source).toContain('changeTenantEmployeeLoginAccessTrusted');
+    expect(source).toContain('provisionTenantEmployeeLoginTrusted');
+    expect(source).toContain('updateTenantEmployeeLoginTrusted');
     expect(source).toContain('export const createTenantEmployeeProfile = onCall');
   });
 

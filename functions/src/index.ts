@@ -39,7 +39,9 @@ import {
   getTenantOutletTrusted,
   deleteTenantEmployeeTrusted,
   provisionTenantEmployeeTrusted,
+  provisionTenantEmployeeLoginTrusted,
   updateTenantEmployeeTrusted,
+  updateTenantEmployeeLoginTrusted,
   changeTenantEmployeeStatusTrusted,
   changeTenantEmployeeLoginAccessTrusted,
   createTenantEmployeeProfileTrusted,
@@ -874,7 +876,7 @@ function mapTrustedEmployeeRow(row: {
   designation: string; department?: string | null; dateOfBirth?: string | null; dateOfJoining: string;
   address?: string | null; notes?: string | null; assignmentScope: string;
   employmentStatus: string; loginAccess: string; createdAt: string; updatedAt: string;
-  user?: { id: string; username: string; email: string } | null;
+  user?: { id: string; username: string; email: string; firebaseUid?: string; employeeTrustedMemberships?: { role: { code: string } }[] } | null;
   employeeOutlets_on_employee: { outlet: { id: string; outletCode: number; name: string } }[];
 }) {
   return {
@@ -884,9 +886,15 @@ function mapTrustedEmployeeRow(row: {
     address: row.address ?? null, notes: row.notes ?? null, assignmentScope: row.assignmentScope,
     employmentStatus: row.employmentStatus, loginAccess: row.loginAccess,
     createdAt: row.createdAt, updatedAt: row.updatedAt,
-    user: row.user ? { id: row.user.id, username: row.user.username, email: row.user.email } : null,
+    user: row.user ? { id: row.user.id, username: row.user.username, email: row.user.email, employeeTrustedMemberships: row.user.employeeTrustedMemberships ?? [] } : null,
     employeeOutlets_on_employee: row.employeeOutlets_on_employee.map((item) => ({ outlet: item.outlet })),
   };
+}
+
+function employeeRoleId(permissionProfile: unknown): string {
+  return permissionProfile === 'Admin'
+    ? '00000000-0000-4000-8000-000000000002'
+    : '00000000-0000-4000-8000-000000000003';
 }
 
 export const provisionTenantEmployee = onCall(callableOptions, async (request) => {
@@ -906,6 +914,82 @@ export const provisionTenantEmployee = onCall(callableOptions, async (request) =
     if (!row) throw new Error('employee not found after provisioning');
     return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
   } catch (error) { if (createdUid) await getAuth().deleteUser(createdUid).catch(() => undefined); logCallableFailure('provisionTenantEmployee', error); throw new HttpsError('permission-denied', 'Unable to provision the employee login.'); }
+});
+
+export const updateTenantEmployeeLogin = onCall(callableOptions, async (request) => {
+  let createdUid: string | undefined;
+  let targetUid = '';
+  let previousEmail: string | undefined;
+  let previousDisabled = false;
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'employees.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const employeeId = typeof d.employeeId === 'string' ? d.employeeId : '';
+    const allowLogin = d.allowLogin === true;
+    const requestedUsername = normalizeUsername(d.username);
+    const initialPassword = typeof d.initialPassword === 'string' ? d.initialPassword : '';
+    const requestedProfile = d.permissionProfile === 'Admin' || d.permissionProfile === 'User' ? d.permissionProfile : undefined;
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !employeeId || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationAdmin(actor, organizationId);
+
+    const current = (await getTenantEmployeeTrusted({ organizationId, id: employeeId })).data.employees[0];
+    if (!current) throw new Error('employee not found');
+    const currentUser = current.user;
+    const currentUsername = currentUser?.username ?? '';
+    const currentEmail = currentUser?.email ?? '';
+    const currentProfile = currentUser?.employeeTrustedMemberships?.[0]?.role.code === 'organization.admin' ? 'Admin' : 'User';
+    const permissionProfile = requestedProfile ?? currentProfile;
+
+    if (!allowLogin && !currentUser?.firebaseUid) {
+      if (current.loginAccess !== 'DISABLED') throw new Error('employee identity not found');
+      return { success: true, organizationId, ...mapTrustedEmployeeRow(current) };
+    }
+
+    const username = requestedUsername || currentUsername;
+    if (allowLogin && !username) throw new Error('username');
+    if (allowLogin && !currentUser?.firebaseUid && (initialPassword.length < 6 || initialPassword.length > 4096)) throw new Error('password');
+    if (initialPassword && (initialPassword.length < 6 || initialPassword.length > 4096)) throw new Error('password');
+    const email = username ? employeeAuthEmail(username) : currentEmail;
+    if (!email || !currentUser?.firebaseUid) {
+      if (!allowLogin) throw new Error('employee identity not found');
+      const resolved = (await resolveUsernameLogin({ username })).data.appUsers[0];
+      if (resolved) throw new Error('username');
+      try { await getAuth().getUserByEmail(email); throw new Error('email'); } catch (error: any) { if (error?.message === 'email') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
+      const created = await getAuth().createUser({ email, password: initialPassword, displayName: current.fullName, emailVerified: false, disabled: false });
+      createdUid = created.uid;
+      await provisionTenantEmployeeLoginTrusted({ organizationId, employeeId, userId: randomUUID(), firebaseUid: created.uid, username, email, displayName: current.fullName, phone: current.phone || null, roleId: employeeRoleId(permissionProfile), auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    } else {
+      targetUid = currentUser.firebaseUid;
+      const authUser = await getAuth().getUser(targetUid);
+      previousEmail = authUser.email;
+      previousDisabled = authUser.disabled;
+      const usernameChanged = username !== currentUsername;
+      if (usernameChanged) {
+        const resolved = (await resolveUsernameLogin({ username })).data.appUsers[0];
+        if (resolved && resolved.id !== currentUser.id) throw new Error('username');
+        try {
+          const authOwner = await getAuth().getUserByEmail(email);
+          if (authOwner.uid !== targetUid) throw new Error('email');
+        } catch (error: any) { if (error?.message === 'email') throw error; if (error?.code !== 'auth/user-not-found') throw error; }
+      }
+      await getAuth().updateUser(targetUid, { ...(usernameChanged ? { email } : {}), disabled: !allowLogin });
+      if (!allowLogin) await getAuth().revokeRefreshTokens(targetUid);
+      if (initialPassword) await getAuth().updateUser(targetUid, { password: initialPassword });
+      await updateTenantEmployeeLoginTrusted({ organizationId, employeeId, userId: currentUser.id, username: username || currentUsername, email: email || currentEmail, roleId: employeeRoleId(permissionProfile), loginAccess: allowLogin ? LoginAccessStatus.ENABLED : LoginAccessStatus.DISABLED, auditId: randomUUID(), requestId, actorFirebaseUid: actor });
+    }
+    const row = (await getTenantEmployeeTrusted({ organizationId, id: employeeId })).data.employees[0];
+    if (!row) throw new Error('employee not found after login update');
+    return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };
+  } catch (error) {
+    if (createdUid) await getAuth().deleteUser(createdUid).catch(() => undefined);
+    if (targetUid) await getAuth().updateUser(targetUid, { ...(previousEmail ? { email: previousEmail } : {}), disabled: previousDisabled }).catch(() => undefined);
+    logCallableFailure('updateTenantEmployeeLogin', error);
+    throw new HttpsError('permission-denied', 'Unable to update employee login settings.');
+  }
 });
 
 export const createTenantEmployeeProfile = onCall(callableOptions, async (request) => {

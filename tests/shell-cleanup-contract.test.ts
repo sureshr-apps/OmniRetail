@@ -113,9 +113,14 @@ describe('requested shell cleanup', () => {
     expect(modal).not.toContain("setState('Texas')");
     expect(modal).toContain('Initial Password');
     expect(modal).toContain('initialPassword');
+    expect(modal).toContain('allowLogin');
+    expect(modal).toContain('allowLogin,');
     expect(modal).toContain('<option value="User">User</option>');
     expect(modal).toContain('<option value="Admin">Admin</option>');
     expect(modal).not.toContain('Cashier / Standard POS');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('onToggleLoginAccess');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Enable Access');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Disable Access');
   });
 
   it('keeps employee role fields editable with suggestions and outlet selection as a dropdown', () => {

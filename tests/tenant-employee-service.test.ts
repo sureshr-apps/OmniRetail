@@ -123,6 +123,32 @@ describe('employeeService mutations return the canonical entity directly', () =>
     expect(mocks.listTenantEmployees).toHaveBeenCalledTimes(1);
   });
 
+  it('updates employee login settings after saving the employee profile', async () => {
+    const profileCallable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ user: null, loginAccess: 'DISABLED' }) },
+    });
+    const loginCallable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ username: 'jordan.lee', loginAccess: 'ENABLED' }) },
+    });
+    mocks.httpsCallable.mockImplementation((_functions: unknown, name: string) => name === 'updateTenantEmployee' ? profileCallable : loginCallable);
+
+    const updated = await employeeService.updateEmployee('employee-1', {
+      allowLogin: true,
+      username: 'Jordan.Lee',
+      permissionProfile: 'User',
+      initialPassword: 'initial-secret',
+    });
+
+    expect(updated.loginAccess).toBe('Enabled');
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'updateTenantEmployeeLogin');
+    expect(loginCallable).toHaveBeenCalledWith(expect.objectContaining({
+      employeeId: 'employee-1',
+      allowLogin: true,
+      username: 'jordan.lee',
+      initialPassword: 'initial-secret',
+    }));
+  });
+
   it('changeEmployeeStatus returns the enriched entity from the callable, with no follow-up list query', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...employeeRow({ employmentStatus: 'INACTIVE' }) },

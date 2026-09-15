@@ -949,6 +949,20 @@ function provisionTenantEmployeeTrusted(dcOrVarsOrOptions, varsOrOptions, option
 }
 exports.provisionTenantEmployeeTrusted = provisionTenantEmployeeTrusted;
 
+function provisionTenantEmployeeLoginTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ProvisionTenantEmployeeLoginTrusted', inputVars, inputOpts);
+}
+exports.provisionTenantEmployeeLoginTrusted = provisionTenantEmployeeLoginTrusted;
+
+function updateTenantEmployeeLoginTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('UpdateTenantEmployeeLoginTrusted', inputVars, inputOpts);
+}
+exports.updateTenantEmployeeLoginTrusted = updateTenantEmployeeLoginTrusted;
+
 function updateTenantEmployeeTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

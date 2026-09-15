@@ -87,6 +87,10 @@ jobs:
           npx --no-install firebase-tools experiments:disable fdcapimigration
           npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
 
+      - name: Bootstrap RBAC reference data
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: npx --no-install firebase-tools dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --no-debug-details
+
       - name: Remove retired Service Person and Product columns
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-service-person-skills.mjs

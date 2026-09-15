@@ -1,5 +1,5 @@
 # Explicit, idempotent reference-data bootstrap. This file contains no users or
-# credentials and is never executed automatically by deployment.
+# credentials and is executed automatically after every Data Connect migration.
 mutation BootstrapPlatformRbac @auth(level: NO_ACCESS) @transaction {
   masterAdmin: role_upsert(data: { id: "00000000-0000-4000-8000-000000000001", code: "platform.master_admin", name: "Master Admin", description: "Platform-wide OmniRetail administration", scope: PLATFORM })
   organizationAdmin: role_upsert(data: { id: "00000000-0000-4000-8000-000000000002", code: "organization.admin", name: "Organization Administrator", description: "Organization-scoped administration", scope: ORGANIZATION })

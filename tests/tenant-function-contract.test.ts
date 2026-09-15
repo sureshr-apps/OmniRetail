@@ -36,6 +36,8 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-service-person-skills|migrate-product-taxonomy)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
+    expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac');
+    expect(deploymentSource.indexOf('dataconnect:sql:migrate')).toBeLessThan(deploymentSource.indexOf('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac'));
     expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('--service omniretail-platform --location asia-south1');
     expect(deploymentSource).toContain('Remove retired Service Person and Product columns');

@@ -16,11 +16,8 @@
     "firebase:sdk": "firebase dataconnect:sdk:generate --project demo-omniretail"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@omniretail/sql-connect": "file:src/generated/sql-connect",
     "@tailwindcss/vite": "^4.1.14",
-    "@tanstack-query-firebase/react": "^2.1.1",
-    "@tanstack/react-query": "^5.102.8",
     "@vitejs/plugin-react": "^5.0.4",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
@@ -33,7 +30,6 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@google-cloud/cloud-sql-connector": "^1.12.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^22.14.0",
@@ -41,7 +37,6 @@
     "esbuild": "^0.25.0",
     "firebase-tools": "15.30.0",
     "jsdom": "^26.1.0",
-    "pg": "^8.23.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

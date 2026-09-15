@@ -79,14 +79,15 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum ProductStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
     expect(schema).toMatch(/type Category @table[\s\S]*organization: Organization![\s\S]*value: String!/);
     expect(schema).toMatch(/type Subcategory @table[\s\S]*category: Category![\s\S]*value: String!/);
-    expect(schema).toMatch(/type Product @table[\s\S]*organization: Organization![\s\S]*sku: String! @unique/);
+    expect(schema).toContain('type Product @table @unique(fields: ["organization", "sku"]) @unique(fields: ["organization", "barcode"])');
+    expect(schema).toMatch(/type Product @table[\s\S]*organization: Organization![\s\S]*sku: String!/);
     expect(schema).toMatch(/type Product @table[\s\S]*category: Category![\s\S]*subcategory: Subcategory/);
     expect(schema).toMatch(/type InventoryStock @table\(key: \["organization", "outlet", "product"\]\)/);
     expect(schema).toMatch(/type InventoryStock[\s\S]*outlet: Outlet![\s\S]*product: Product!/);
   });
 
   it('removes the retired supplier part-code field from Product storage and connectors', () => {
-    const product = schema.match(/type Product @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    const product = schema.match(/type Product @table[^\{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const productOperations = connector.match(/(?:query|mutation) (?:ListTenantProducts|CreateTenantProduct|UpdateTenantProduct|GetTenantProductTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
 
@@ -98,17 +99,19 @@ describe('tenant Data Connect foundation schema', () => {
   });
 
   it('does not keep denormalized category values on Product', () => {
-    const product = schema.match(/type Product @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    const product = schema.match(/type Product @table[^\{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     expect(product).not.toMatch(/categoryId:|categoryName:|subcategory: String/);
   });
 
-  it('removes retired Product timestamps and image storage from schema and connectors', () => {
-    const product = schema.match(/type Product @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+  it('removes retired Product timestamps and image storage', () => {
+    const product = schema.match(/type Product @table[^\{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const productOperations = connector.match(/(?:query|mutation) (?:ListTenantProducts|CreateTenantProduct|UpdateTenantProduct|ChangeTenantProductStatus|GetTenantProductTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
-    for (const removedField of ['imageUrl:', 'createdAt:', 'updatedAt:']) expect(product).not.toContain(removedField);
+    expect(product).not.toContain('imageUrl:');
+    expect(product).not.toContain('createdAt:');
     expect(productOperations.length).toBe(5);
-    for (const operation of productOperations) expect(operation).not.toMatch(/\bimageUrl\b|\$imageUrl\b|\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
+    for (const operation of productOperations) expect(operation).not.toMatch(/\bimageUrl\b|\$imageUrl\b|\bupdatedAt\b|updatedAt_expr/);
+    for (const operation of productOperations) expect(operation).not.toContain('createdAt');
   });
 
   it('defines an organization-scoped customer master', () => {
@@ -172,13 +175,14 @@ describe('tenant Data Connect foundation schema', () => {
   });
 
   it('defines an organization-scoped expense ledger', () => {
-    expect(schema).toMatch(/type Expense @table[\s\S]*organization: Organization![\s\S]*expenseNumber: String! @unique/);
+    expect(schema).toMatch(/type Expense @table @unique\(fields: \["organization", "expenseNumber"\]\)/);
     expect(schema).toContain('enum ExpenseApprovalStatus');
   });
 
   it('defines tenant sales transactions and line items', () => {
-    expect(schema).toMatch(/type Sale @table[\s\S]*organization: Organization![\s\S]*receiptNumber: String! @unique/);
-    expect(schema).toMatch(/type SaleLine @table[\s\S]*sale: Sale![\s\S]*product: Product!/);
+    expect(schema).toMatch(/type Sale @table @unique\(fields: \["organization", "receiptNumber"\]\)/);
+    expect(schema).toMatch(/type SaleLine @table[\s\S]*sale: Sale![\s\S]*product: Product/);
+    expect(schema).toContain('itemName: String');
   });
 
   it('defines connector operations for tenant-scoped master reads and outlet writes', () => {
@@ -199,6 +203,13 @@ describe('tenant Data Connect foundation schema', () => {
     expect(connector).not.toContain('lifecycleIdempotency');
     expect(connector).not.toContain('ProvisioningReconciliation');
     expect(connector).not.toContain('auditEvent_');
+  });
+
+  it('uses a targeted level query for plan uniqueness validation', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(connector).toContain('query IsLicensePlanLevelTaken($level: Int!)');
+    expect(connector).toContain('licensePlans(where: { level: { eq: $level } }, limit: 100) { id }');
+    expect(readFileSync(new URL('../src/features/plans/services/LicensePlanService.ts', import.meta.url), 'utf8')).toContain('isLicensePlanLevelTaken');
   });
 
   it('includes employee profile fields in reads and trusted write operations', () => {

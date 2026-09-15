@@ -186,7 +186,7 @@ export function ExpensesPage() {
     }
   };
 
-  // Mock manager approval action
+  // Manager approval action
   const handleApproveExpense = async (expense: Expense) => {
     try {
       const approved = await expenseService.approveExpense(expense.id, 'Sarah Jenkins (Store Mgr #04)');
@@ -198,7 +198,7 @@ export function ExpensesPage() {
     }
   };
 
-  // Mock manager rejection action
+  // Manager rejection action
   const handleRejectExpense = async (expense: Expense) => {
     try {
       const rejected = await expenseService.rejectExpense(

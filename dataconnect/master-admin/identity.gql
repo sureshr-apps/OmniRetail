@@ -15,7 +15,7 @@ query GetCurrentUserAuthorization @auth(level: USER) {
     displayName
     phone
     status
-    employees_on_user { employmentStatus loginAccess }
+    employees_on_user { employmentStatus loginAccess employeeOutlets_on_employee { outlet { id status } } }
     userRoles_on_user {
       role {
         code
@@ -75,6 +75,9 @@ mutation UpdateAppUserProfile(
   $displayName: String!
   $phone: String
   ) @auth(level: USER) @transaction {
+  query @redact {
+    appUsers(where: { id: { eq: $userId }, firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0", message: "You can only update your own profile.") { id }
+  }
   appUser_update(id: $userId, data: {
     displayName: $displayName
     phone: $phone
@@ -148,7 +151,7 @@ query GetAppUserByFirebaseUid($firebaseUid: String!) @auth(level: NO_ACCESS) {
 # the trusted plan adapter/functions.
 query ListLicensePlans @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
-  licensePlans(orderBy: [{ level: ASC }]) {
+  licensePlans(orderBy: [{ level: ASC }], limit: 1000) {
     id
     planCode
     name
@@ -170,6 +173,11 @@ query ListOrganizationLicensePlanAssignments @auth(level: USER) {
   organizationLicenses {
     plan { id }
   }
+}
+
+query IsLicensePlanLevelTaken($level: Int!) @auth(level: USER) {
+  appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'plans.read'))", message: "Plan access is not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
+  licensePlans(where: { level: { eq: $level } }, limit: 100) { id }
 }
 
 query GetLicensePlan($id: UUID!) @auth(level: USER) {
@@ -272,7 +280,7 @@ query ListOrganizations @auth(level: USER) {
   appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @redact @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organizations.read'))", message: "Organization access is not available.") {
     userRoles_on_user { role { rolePermissions_on_role { permission { code } } } }
   }
-  organizations(orderBy: [{ createdAt: DESC }, { id: ASC }]) {
+  organizations(orderBy: [{ createdAt: DESC }, { id: ASC }], limit: 1000) {
     id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt
   }
 }
@@ -403,7 +411,7 @@ query GetOrganizationLicenseHistoryPublic($organizationId: UUID!) @auth(level: U
 }
 
 query ListOrganizationsTrusted @auth(level: NO_ACCESS) {
-  organizations(orderBy: [{ createdAt: DESC }, { id: ASC }]) { id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt }
+  organizations(orderBy: [{ createdAt: DESC }, { id: ASC }], limit: 1000) { id organizationCode businessName legalEntityName taxId primaryContactName email phone address city state postalCode timezone currency status createdAt updatedAt organizationLicense_on_organization { id startDate expiryDate negotiatedPrice currency createdAt updatedAt plan { id planCode name level maxStores maxUsers status } } }
 }
 
 query ListOrganizationUsersForDeletionTrusted($organizationId: UUID!) @auth(level: NO_ACCESS) {
@@ -470,14 +478,14 @@ mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!) @aut
 # capability. The organizationId is therefore always checked against auth.uid.
 query ListTenantOutlets($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'outlets.read'))", message: "Outlet access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
-  outlets(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+  outlets(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } outletCode name contactPerson email phone address status
   }
 }
 
 query ListTenantEmployees($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'employees.read'))", message: "Employee access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
-  employees(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
+  employees(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } user { id username email employeeMemberships: organizationMemberships_on_user(where: { organization: { id: { eq: $organizationId } }, status: { eq: ACTIVE } }, limit: 1) { role { code } } } employeeCode fullName email phone designation department gender dateOfBirth dateOfJoining address notes assignmentScope employmentStatus loginAccess
     employeeOutlets_on_employee { outlet { id outletCode name } }
   }
@@ -485,7 +493,7 @@ query ListTenantEmployees($organizationId: UUID!) @auth(level: USER) {
 
 query ListTenantServicePersons($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'service_persons.read'))", message: "Service person access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
-  servicePeople(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
+  servicePeople(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } servicePersonCode fullName email phone address specialization yearsOfExperience assignmentScope status notes
     servicePersonOutlets_on_servicePerson { outlet { id outletCode name } }
   }
@@ -493,29 +501,30 @@ query ListTenantServicePersons($organizationId: UUID!) @auth(level: USER) {
 
 query ListTenantCategories($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'products.read'))", message: "Product access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  categories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ value: ASC }, { id: ASC }]) {
+  categories(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ value: ASC }, { id: ASC }], limit: 1000) {
     id value subcategories_on_category { id value }
   }
 }
 
 query ListTenantProducts($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'products.read'))", message: "Product access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  products(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+  products(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description
   }
 }
 
 query ListTenantInventory($organizationId: UUID!, $outletId: UUID) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'inventory.read'))", message: "Inventory access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } } }, orderBy: [{ updatedAt: DESC }]) {
+  inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } } }, orderBy: [{ updatedAt: DESC }], limit: 1000) {
     _id organization { id } outlet { id outletCode name } product { id productCode name sku barcode category { value } brand primarySupplier sellingPrice cost } binRack onHandQty reorderLevel overstockThreshold incomingPurchaseOrder updatedAt
   }
 }
 
 query ListTenantCustomers($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'customers.read'))", message: "Customer access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  customers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+  customers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } customerCode type name phone email taxId documentType documentValue address creditLimit preferredContact dateOfBirth gender status notes
+    customerSales: sales_on_customer(where: { organization: { id: { eq: $organizationId } } }, limit: 1000) { totalNet status }
   }
 }
 
@@ -528,14 +537,15 @@ query ListTenantCustomerPurchaseHistory($organizationId: UUID!, $customerId: UUI
 
 query ListTenantSuppliers($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'suppliers.read'))", message: "Supplier access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  suppliers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
+  suppliers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } supplierCode name contactPerson phone email taxId address category paymentTerms creditLimit status notes
+    supplierPurchases: purchases_on_supplier(where: { organization: { id: { eq: $organizationId } } }, limit: 1000) { totalAmount outstandingAmount receiptStatus status }
   }
 }
 
 query ListTenantPurchases($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'purchases.read'))", message: "Purchase access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  purchases(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ purchaseDate: DESC }, { id: DESC }]) {
+  purchases(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ purchaseDate: DESC }, { id: DESC }], limit: 1000) {
     id organization { id } purchaseNumber purchaseOrderNumber invoiceNumber purchaseDate supplier { id supplierCode name taxId } outlet { id outletCode name } scope paymentTerms subtotal shippingFee handlingFee tax totalAmount amountPaid outstandingAmount paymentStatus receiptStatus status receivingNotes batchNumber mfgDate expiryDate createdBy createdAt updatedAt
     purchaseLines_on_purchase { id product { id productCode name sku } quantityOrdered quantityReceived unitCost discountPercent taxRate taxAmount lineTotal }
   }
@@ -543,7 +553,7 @@ query ListTenantPurchases($organizationId: UUID!) @auth(level: USER) {
 
 query ListTenantExpenses($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'expenses.read'))", message: "Expense access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  expenses(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ expenseDate: DESC }, { id: DESC }]) {
+  expenses(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ expenseDate: DESC }, { id: DESC }], limit: 1000) {
     id organization { id } expenseNumber expenseDate category description reference vendorName outlet { id outletCode name } scope baseAmount taxAmount amount paymentMethod paidByEmployee settlementDate status approvalStatus submittedBy notes createdAt updatedAt
   }
 }
@@ -569,9 +579,9 @@ mutation VoidTenantExpense($organizationId: UUID!, $id: UUID!, $reason: String!)
 
 query ListTenantSales($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'sales.read'))", message: "Sales access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
-  sales(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ saleTimestamp: DESC }, { id: DESC }]) {
+  sales(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ saleTimestamp: DESC }, { id: DESC }], limit: 1000) {
     id organization { id } outlet { id outletCode name } receiptNumber saleTimestamp customer { id customerCode name phone email } customerName staffName channel terminalId tenderType tax discount subtotal totalNet status createdAt
-    saleLines_on_sale { id product { id productCode name sku } quantity unitPrice subtotal }
+    saleLines_on_sale { id itemName product { id productCode name sku } quantity unitPrice subtotal }
   }
 }
 

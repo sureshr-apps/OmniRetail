@@ -901,6 +901,12 @@ export interface GetCurrentUserAuthorizationData {
     employees_on_user: ({
       employmentStatus: EmploymentStatus;
       loginAccess: LoginAccessStatus;
+      employeeOutlets_on_employee: ({
+        outlet: {
+          id: UUIDString;
+          status: OutletStatus;
+        } & Outlet_Key;
+      })[];
     })[];
     userRoles_on_user: ({
       role: {
@@ -1524,6 +1530,16 @@ export interface InventoryStock_Key {
   __typename?: 'InventoryStock_Key';
 }
 
+export interface IsLicensePlanLevelTakenData {
+  licensePlans: ({
+    id: UUIDString;
+  } & LicensePlan_Key)[];
+}
+
+export interface IsLicensePlanLevelTakenVariables {
+  level: number;
+}
+
 export interface LicenseHistory_Key {
   id: UUIDString;
   __typename?: 'LicenseHistory_Key';
@@ -1630,6 +1646,24 @@ export interface ListOrganizationsTrustedData {
     status: OrganizationStatus;
     createdAt: TimestampString;
     updatedAt: TimestampString;
+    organizationLicense_on_organization?: {
+      id: UUIDString;
+      startDate: DateString;
+      expiryDate: DateString;
+      negotiatedPrice: number;
+      currency: string;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      plan: {
+        id: UUIDString;
+        planCode: string;
+        name: string;
+        level: number;
+        maxStores: number;
+        maxUsers: number;
+        status: LicensePlanStatus;
+      } & LicensePlan_Key;
+    } & OrganizationLicense_Key;
   } & Organization_Key)[];
 }
 
@@ -1733,6 +1767,10 @@ export interface ListTenantCustomersData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
+    customerSales: ({
+      totalNet: number;
+      status: SaleStatus;
+    })[];
   } & Customer_Key)[];
 }
 
@@ -2093,7 +2131,8 @@ export interface ListTenantSalesData {
     createdAt: TimestampString;
     saleLines_on_sale: ({
       id: UUIDString;
-      product: {
+      itemName?: string | null;
+      product?: {
         id: UUIDString;
         productCode: number;
         name: string;
@@ -2181,6 +2220,12 @@ export interface ListTenantSuppliersData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
+    supplierPurchases: ({
+      totalAmount: number;
+      outstandingAmount: number;
+      receiptStatus: PurchaseReceiptStatus;
+      status: PurchaseStatus;
+    })[];
   } & Supplier_Key)[];
 }
 
@@ -2843,6 +2888,18 @@ export const listOrganizationLicensePlanAssignmentsRef: ListOrganizationLicenseP
 
 export function listOrganizationLicensePlanAssignments(options?: ExecuteQueryOptions): QueryPromise<ListOrganizationLicensePlanAssignmentsData, undefined>;
 export function listOrganizationLicensePlanAssignments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationLicensePlanAssignmentsData, undefined>;
+
+interface IsLicensePlanLevelTakenRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: IsLicensePlanLevelTakenVariables): QueryRef<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: IsLicensePlanLevelTakenVariables): QueryRef<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+  operationName: string;
+}
+export const isLicensePlanLevelTakenRef: IsLicensePlanLevelTakenRef;
+
+export function isLicensePlanLevelTaken(vars: IsLicensePlanLevelTakenVariables, options?: ExecuteQueryOptions): QueryPromise<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+export function isLicensePlanLevelTaken(dc: DataConnect, vars: IsLicensePlanLevelTakenVariables, options?: ExecuteQueryOptions): QueryPromise<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
 
 interface GetLicensePlanRef {
   /* Allow users to create refs without passing in DataConnect */

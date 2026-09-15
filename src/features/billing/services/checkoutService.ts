@@ -9,18 +9,15 @@ export async function completeTenantCheckout(input: { orderNumber: string; items
   const membership = authorization.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
   if (!membership) throw new Error('No active organization membership.');
   const outlets = await listTenantOutlets(services.dataConnect, { organizationId: membership.organization.id });
-  const outlet = outlets.data.outlets.find((item) => item.status === 'ACTIVE');
+  const activeOutlets = outlets.data.outlets.filter((item) => item.status === 'ACTIVE');
+  const assignedOutletIds = new Set((authorization.data.appUsers[0]?.employees_on_user ?? []).flatMap((employee) => employee.employeeOutlets_on_employee.map((assignment) => assignment.outlet.id)));
+  const configuredOutletId = typeof window !== 'undefined' ? window.sessionStorage.getItem('omniretail.activeOutletId') : null;
+  const outlet = activeOutlets.find((item) => item.id === configuredOutletId)
+    ?? (assignedOutletIds.size === 1 ? activeOutlets.find((item) => assignedOutletIds.has(item.id)) : undefined)
+    ?? (activeOutlets.length === 1 ? activeOutlets[0] : undefined);
   if (!outlet) throw new Error('No active outlet is available for checkout.');
   const receiptNumber = input.orderNumber.replace(/^#/, '');
-  const sale = await httpsCallable(services.functions, 'completeTenantSale')({ organizationId: membership.organization.id, outletId: outlet.id, customerId: undefined, receiptNumber, customerName: input.customer.name, staffName: 'Current cashier', channel: 'POS', terminalId: 'POS-01', tenderType: input.paymentMethod === 'cash' || input.paymentMethod === 'fast_cash' ? 'CASH' : input.paymentMethod === 'card' ? 'VISA' : input.paymentMethod === 'digital' ? 'NONE' : 'SPLIT', tax: input.totals.tax, discount: input.totals.memberDiscount, subtotal: input.totals.subtotal, totalNet: input.totals.totalPayable, requestId: globalThis.crypto.randomUUID() });
-  const saleId = (sale.data as { saleId?: string }).saleId;
-  if (!saleId) throw new Error('Sale was created without an identifier.');
-  try {
-    for (const item of input.items) {
-      await httpsCallable(services.functions, 'addTenantSaleLineRecord')({ organizationId: membership.organization.id, saleId, outletId: outlet.id, productId: item.product.id, quantity: item.quantity, unitPrice: item.effectiveRate, subtotal: item.quantity * item.effectiveRate, requestId: globalThis.crypto.randomUUID() });
-    }
-  } catch (error) {
-    await httpsCallable(services.functions, 'voidTenantSaleRecord')({ organizationId: membership.organization.id, saleId, reason: 'Checkout line persistence failed', requestId: globalThis.crypto.randomUUID() }).catch(() => undefined);
-    throw error;
-  }
+  const staffName = authorization.data.appUsers[0]?.displayName || authorization.data.appUsers[0]?.username || 'Current cashier';
+  const terminalId = typeof window !== 'undefined' ? window.sessionStorage.getItem('omniretail.activeTerminalId')?.trim() || 'POS-01' : 'POS-01';
+  await httpsCallable(services.functions, 'completeTenantCheckout')({ organizationId: membership.organization.id, outletId: outlet.id, customerId: input.customer.id || null, receiptNumber, customerName: input.customer.name, staffName, channel: 'POS', terminalId, tenderType: input.paymentMethod === 'cash' || input.paymentMethod === 'fast_cash' ? 'CASH' : input.paymentMethod === 'card' ? 'VISA' : input.paymentMethod === 'digital' ? 'NONE' : 'SPLIT', tax: input.totals.tax, discount: input.totals.memberDiscount, subtotal: input.totals.subtotal, totalNet: input.totals.totalPayable, lines: input.items.map((item) => ({ productId: item.isCustom ? null : item.product.id, itemName: item.product.name, quantity: item.quantity, unitPrice: item.effectiveRate, subtotal: item.quantity * item.effectiveRate })), requestId: globalThis.crypto.randomUUID() });
 }

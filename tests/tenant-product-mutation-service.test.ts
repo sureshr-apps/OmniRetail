@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   getCurrentUserAuthorization: vi.fn(),
   listTenantCategories: vi.fn(),
   listTenantProducts: vi.fn(),
+  listTenantInventory: vi.fn(),
   httpsCallable: vi.fn(),
 }));
 
@@ -14,6 +15,7 @@ vi.mock('@omniretail/sql-connect', () => ({
   getCurrentUserAuthorization: mocks.getCurrentUserAuthorization,
   listTenantCategories: mocks.listTenantCategories,
   listTenantProducts: mocks.listTenantProducts,
+  listTenantInventory: mocks.listTenantInventory,
 }));
 vi.mock('@/infrastructure/firebase/client', () => ({
   getFirebaseClientServices: () => ({ dataConnect: mocks.dataConnect, functions: mocks.functions }),
@@ -66,6 +68,7 @@ beforeEach(() => {
     data: { appUsers: [{ organizationMemberships_on_user: [{ status: 'ACTIVE', organization: { id: 'org-1' } }] }] },
   });
   mocks.listTenantProducts.mockResolvedValue({ data: { products: [productRow()] } });
+  mocks.listTenantInventory.mockResolvedValue({ data: { inventoryStocks: [] } });
   mocks.listTenantCategories.mockResolvedValue({ data: { categories: [{ id: 'category-1', value: 'Apparel', subcategories_on_category: [{ id: 'subcategory-1', value: 'Tees' }] }] } });
 });
 

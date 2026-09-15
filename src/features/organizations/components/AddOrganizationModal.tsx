@@ -24,6 +24,7 @@ interface FormState {
   address: string;
   city: string;
   state: string;
+  postalCode: string;
   timezone: string;
   currency: string;
 }
@@ -45,6 +46,7 @@ const INITIAL_FORM: FormState = {
   address: '',
   city: '',
   state: '',
+  postalCode: '',
   timezone: 'Asia/Kolkata (IST)',
   currency: 'INR (₹)',
 };
@@ -128,6 +130,7 @@ export function AddOrganizationModal({ isOpen, onClose, onSuccess }: AddOrganiza
         address: form.address.trim() || undefined,
         city: form.city.trim() || undefined,
         state: form.state.trim() || undefined,
+        postalCode: form.postalCode.trim() || undefined,
         timezone: form.timezone,
         currency: form.currency,
       };
@@ -306,6 +309,17 @@ export function AddOrganizationModal({ isOpen, onClose, onSuccess }: AddOrganiza
                 value={form.state}
                 onChange={(e) => updateField('state', e.target.value)}
                 placeholder="e.g., Karnataka"
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="postal-code">Postal Code / PIN</Label>
+              <Input
+                id="postal-code"
+                value={form.postalCode}
+                onChange={(e) => updateField('postalCode', e.target.value)}
+                placeholder="e.g., 560001"
                 disabled={isSubmitting}
               />
             </div>

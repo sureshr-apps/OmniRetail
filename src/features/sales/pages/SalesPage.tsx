@@ -28,18 +28,18 @@ const DEFAULT_COLUMNS: ColumnVisibility = {
 };
 
 const DEFAULT_KPIS: SalesKpiSummary = {
-  filteredSalesTotal: 12480.5,
-  recordedSalesCount: 184,
-  vsYesterdayPct: 8.4,
-  cashDrawerBalance: 3840.0,
-  cashVolumePct: 30.7,
-  cardAndDigitalTender: 8210.5,
-  cardCount: 128,
-  contactlessCount: 14,
-  cardVolumePct: 65.8,
-  totalReturnsAndVoids: -430.0,
-  refundEventsCount: 3,
-  returnRatePct: 3.4,
+  filteredSalesTotal: 0,
+  recordedSalesCount: 0,
+  vsYesterdayPct: 0,
+  cashDrawerBalance: 0,
+  cashVolumePct: 0,
+  cardAndDigitalTender: 0,
+  cardCount: 0,
+  contactlessCount: 0,
+  cardVolumePct: 0,
+  totalReturnsAndVoids: 0,
+  refundEventsCount: 0,
+  returnRatePct: 0,
 };
 
 export function SalesPage() {

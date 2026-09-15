@@ -219,6 +219,13 @@ function listOrganizationLicensePlanAssignments(dcOrOptions, options) {
 }
 exports.listOrganizationLicensePlanAssignments = listOrganizationLicensePlanAssignments;
 
+function isLicensePlanLevelTaken(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('IsLicensePlanLevelTaken', inputVars, inputOpts);
+}
+exports.isLicensePlanLevelTaken = isLicensePlanLevelTaken;
+
 function getLicensePlan(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

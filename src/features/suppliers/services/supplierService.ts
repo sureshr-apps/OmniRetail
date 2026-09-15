@@ -48,7 +48,8 @@ const SUPPLIER_MUTATION_RESPONSE_KEYS: (keyof SupplierMutationResponse)[] = [
 ];
 
 function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): Supplier {
-  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, address: row.address ?? undefined, category: row.category, paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, outstandingBalance: 0, pendingDeliveriesCount: 0, totalOrdersCount: 0 };
+  const purchases = 'supplierPurchases' in row ? row.supplierPurchases : [];
+  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, address: row.address ?? undefined, category: row.category, paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, outstandingBalance: purchases.reduce((sum, purchase) => sum + purchase.outstandingAmount, 0), pendingDeliveriesCount: purchases.filter((purchase) => purchase.receiptStatus !== 'RECEIVED' && purchase.status !== 'CANCELLED').length, totalOrdersCount: purchases.length };
 }
 
 /**
@@ -56,6 +57,7 @@ function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): S
  * by pages that recompute a view locally after a mutation without refetching.
  */
 export function deriveSupplierView(all: Supplier[], query: SupplierQuery = {}): SupplierQueryResult {
+  const totalCount = all.length;
   let suppliers = [...all];
   const search = query.search?.trim().toLowerCase() ?? '';
   suppliers = suppliers.filter((s) => (!search || `${formatSupplierCode(s.supplierCode)} ${s.name} ${s.contactPerson} ${s.phone} ${s.email} ${s.taxId ?? ''} ${s.address ?? ''}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || s.status === query.status) && (!query.category || s.category === query.category));
@@ -64,9 +66,11 @@ export function deriveSupplierView(all: Supplier[], query: SupplierQuery = {}): 
   const totalPages = Math.max(1, Math.ceil(suppliers.length / pageSize));
   const validPage = Math.min(page, totalPages);
   const active = suppliers.filter((s) => s.status === 'Active').length;
+  const outstandingBalance = suppliers.reduce((sum, supplier) => sum + supplier.outstandingBalance, 0);
+  const pendingDeliveries = suppliers.reduce((sum, supplier) => sum + supplier.pendingDeliveriesCount, 0);
   return {
     items: suppliers.slice((validPage - 1) * pageSize, validPage * pageSize),
-    totalCount: suppliers.length,
+    totalCount,
     filteredCount: suppliers.length,
     page: validPage,
     pageSize,
@@ -76,10 +80,10 @@ export function deriveSupplierView(all: Supplier[], query: SupplierQuery = {}): 
       totalSuppliersChangeText: '',
       activePartnerships: active,
       activePercentageText: suppliers.length ? `${Math.round((active / suppliers.length) * 100)}%` : '0%',
-      outstandingBalance: 0,
-      outstandingDueText: '',
-      pendingDeliveries: 0,
-      pendingDeliveriesSubtext: '',
+      outstandingBalance,
+      outstandingDueText: outstandingBalance ? 'Across supplier accounts' : 'No outstanding balance',
+      pendingDeliveries,
+      pendingDeliveriesSubtext: pendingDeliveries ? 'Awaiting receipt' : 'No pending deliveries',
     },
   };
 }

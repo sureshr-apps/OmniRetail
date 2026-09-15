@@ -25,6 +25,7 @@ interface FormState {
   address: string;
   city: string;
   state: string;
+  postalCode: string;
   timezone: string;
   currency: string;
 }
@@ -65,6 +66,7 @@ export function EditOrganizationModal({
     address: organization.contactInfo.address || '',
     city: organization.contactInfo.city || '',
     state: organization.contactInfo.state || '',
+    postalCode: organization.contactInfo.pincode || '',
     timezone: organization.timezone || 'Asia/Kolkata (IST)',
     currency: 'INR (₹)',
   });
@@ -85,6 +87,7 @@ export function EditOrganizationModal({
         address: organization.contactInfo.address || '',
         city: organization.contactInfo.city || '',
         state: organization.contactInfo.state || '',
+        postalCode: organization.contactInfo.pincode || '',
         timezone: organization.timezone || 'Asia/Kolkata (IST)',
       currency: 'INR (₹)',
       });
@@ -140,6 +143,7 @@ export function EditOrganizationModal({
         address: form.address.trim() || undefined,
         city: form.city.trim() || undefined,
         state: form.state.trim() || undefined,
+        postalCode: form.postalCode.trim() || undefined,
         timezone: form.timezone,
         currency: form.currency,
       };
@@ -321,6 +325,16 @@ export function EditOrganizationModal({
                 id="edit-state"
                 value={form.state}
                 onChange={(e) => updateField('state', e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-postal-code">Postal Code / PIN</Label>
+              <Input
+                id="edit-postal-code"
+                value={form.postalCode}
+                onChange={(e) => updateField('postalCode', e.target.value)}
                 disabled={isSubmitting}
               />
             </div>

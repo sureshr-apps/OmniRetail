@@ -13,6 +13,7 @@ const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop
 const taxonomyIndexRemovalSource = readFileSync(new URL('../scripts/drop-product-taxonomy-helper-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
+const functionsPackageSource = readFileSync(new URL('../functions/package.json', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -36,6 +37,11 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('cache: npm');
     expect(deploymentSource).toContain('functions/package-lock.json');
     expect(deploymentSource).toContain('cancel-in-progress: true');
+  });
+
+  it('keeps the functions package independent from the workspace root', () => {
+    const functionsPackage = JSON.parse(functionsPackageSource) as { dependencies?: Record<string, string> };
+    expect(functionsPackage.dependencies).not.toHaveProperty('react-example');
   });
 
   it('uses compatible schema validation for production Data Connect migrations', () => {

@@ -33,6 +33,7 @@ export function BillingPage() {
     setSearchQuery,
     totals,
     filteredProducts,
+    categories,
     addToCart,
     incrementQuantity,
     decrementQuantity,
@@ -255,6 +256,7 @@ export function BillingPage() {
           onSearchChange={setSearchQuery}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
+          categories={categories}
           filteredProducts={filteredProducts}
           onAddProduct={addToCart}
           onOpenPriceCheck={() => setIsPriceCheckModalOpen(true)}
@@ -349,10 +351,14 @@ export function BillingPage() {
         totals={totals}
         customer={selectedCustomer}
         orderNumber={orderNumber}
-        onCompleteSale={() => {
-          void completeTenantCheckout({ orderNumber, items: cartItems, customer: selectedCustomer, totals, paymentMethod: paymentModalState.method })
-            .then(() => startNewOrder())
-            .catch((error: unknown) => showDrawerAlert(error instanceof Error ? error.message : 'Unable to complete the sale.'));
+        onCompleteSale={async () => {
+          try {
+            await completeTenantCheckout({ orderNumber, items: cartItems, customer: selectedCustomer, totals, paymentMethod: paymentModalState.method });
+            startNewOrder();
+          } catch (error: unknown) {
+            showDrawerAlert(error instanceof Error ? error.message : 'Unable to complete the sale.');
+            throw error;
+          }
         }}
       />
     </div>

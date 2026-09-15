@@ -6,23 +6,18 @@ interface ProductSearchAreaProps {
   onSearchChange: (query: string) => void;
   selectedCategory: string;
   onCategorySelect: (category: string) => void;
+  categories: Array<{ id: string; label: string }>;
   filteredProducts: Product[];
   onAddProduct: (product: Product) => void;
   onOpenPriceCheck: () => void;
 }
 
-const CATEGORIES = [
-  { id: 'all', label: 'All Items', count: 142 },
-  { id: 'beverages', label: 'Beverages', count: 38 },
-  { id: 'bakery', label: 'Bakery & Fresh', count: 24 },
-  { id: 'specialty', label: 'Specialty Food', count: 51 },
-  { id: 'apparel', label: 'Apparel & Goods', count: 19 },
-  { id: 'promos', label: 'Promos', count: 6, isPromo: true },
-];
-
 export function ProductSearchArea({
   searchQuery,
   onSearchChange,
+  selectedCategory,
+  onCategorySelect,
+  categories,
   filteredProducts,
   onAddProduct,
   onOpenPriceCheck,
@@ -174,7 +169,13 @@ export function ProductSearchArea({
         )}
       </div>
 
-      <div className="flex items-center gap-space-xs overflow-x-auto pb-0.5 select-none scrollbar-none" />
+      <div className="flex items-center gap-space-xs overflow-x-auto pb-0.5 select-none scrollbar-none">
+        {[{ id: 'all', label: 'All Items' }, ...categories].map((category) => (
+          <button key={category.id} type="button" onClick={() => onCategorySelect(category.id)} className={`px-3 py-1.5 rounded-full text-caption font-semibold whitespace-nowrap ${selectedCategory === category.id ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}>
+            {category.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

@@ -76,4 +76,15 @@ describe('deriveProductView', () => {
     expect(view.items).toHaveLength(1);
     expect(view.items[0].name).toBe('Updated');
   });
+
+  it('uses loaded inventory summaries for stock health KPIs', () => {
+    const view = deriveProductView([
+      product({ id: 'p1', stockSummary: { onHandTotal: 0, reorderLevel: 2, status: 'OUT_OF_STOCK' } }),
+      product({ id: 'p2', productCode: 1002, sku: 'AP-TEE-002', stockSummary: { onHandTotal: 4, reorderLevel: 2, status: 'IN_STOCK' } }),
+      product({ id: 'p3', productCode: 1003, sku: 'AP-TEE-003', stockSummary: { onHandTotal: 1, reorderLevel: 2, status: 'LOW_STOCK' } }),
+    ], { page: 1, pageSize: 10 });
+    expect(view.kpis.inStockCount).toBe(1);
+    expect(view.kpis.lowStockCount).toBe(1);
+    expect(view.kpis.outOfStockCount).toBe(1);
+  });
 });

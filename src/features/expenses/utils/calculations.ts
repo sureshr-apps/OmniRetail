@@ -15,28 +15,27 @@ export function formatCurrency(amount: number): string {
 /**
  * Calculates central KPI metrics dynamically from the expense dataset.
  */
-export function calculateExpenseKPIs(expenses: Expense[], _selectedPeriod?: ExpensePeriod): ExpenseKPIs {
+export function calculateExpenseKPIs(expenses: Expense[], _selectedPeriod?: ExpensePeriod, now = new Date()): ExpenseKPIs {
   // Only consider non-voided expenses for financial metrics
   const activeExpenses = expenses.filter((e) => e.status === 'Active');
 
-  // October 2024 reference timeline matching the Stitch design
-  const refYear = 2024;
-  const refMonth = 9; // 0-indexed: 9 is October
+  const refYear = now.getFullYear();
+  const refMonth = now.getMonth();
 
-  // 1. Total Expenses (YTD) - All active expenses for 2024
+  // 1. Total Expenses (YTD) - all active expenses in the current calendar year
   const ytdExpenses = activeExpenses.filter((e) => {
     const d = new Date(e.timestamp);
     return d.getFullYear() === refYear;
   });
   const totalExpensesYtd = ytdExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  // 2. This Month (October 2024)
+  // 2. This Month
   const thisMonthExpenses = activeExpenses.filter((e) => {
     const d = new Date(e.timestamp);
     return d.getFullYear() === refYear && d.getMonth() === refMonth;
   });
   const thisMonthTotal = thisMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const thisMonthCount = thisMonthExpenses.filter((e) => e.approvalStatus === 'Approved').length;
+  const thisMonthCount = thisMonthExpenses.length;
 
   // 3. Pending Approval
   const pendingExpenses = activeExpenses.filter((e) => e.approvalStatus === 'Pending Approval');
@@ -49,7 +48,7 @@ export function calculateExpenseKPIs(expenses: Expense[], _selectedPeriod?: Expe
     categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
   }
 
-  let largestCategoryName = 'Utilities';
+  let largestCategoryName = '—';
   let largestCategoryAmount = 0;
   for (const [category, sum] of Object.entries(categoryTotals)) {
     if (sum > largestCategoryAmount) {
@@ -58,24 +57,24 @@ export function calculateExpenseKPIs(expenses: Expense[], _selectedPeriod?: Expe
     }
   }
 
-  const allActiveTotal = activeExpenses.reduce((sum, e) => sum + e.amount, 0) || 1;
+  const allActiveTotal = activeExpenses.reduce((sum, e) => sum + e.amount, 0);
   const largestCategorySharePercent = Math.min(
     100,
-    Math.round((largestCategoryAmount / allActiveTotal) * 100)
+    allActiveTotal ? Math.round((largestCategoryAmount / allActiveTotal) * 100) : 0
   );
 
   return {
     totalExpensesYtd,
-    ytdGrowthPercent: 4.2,
+    ytdGrowthPercent: 0,
     thisMonthTotal,
-    thisMonthCount: thisMonthCount || 34,
-    targetPercent: 84,
+    thisMonthCount,
+    targetPercent: 0,
     pendingApprovalCount,
     pendingApprovalAmount,
-    queueCode: 'QUEUE #3',
-    largestCategoryName: largestCategoryName === 'Utilities' ? 'Store Utilities' : largestCategoryName,
+    queueCode: pendingApprovalCount ? `QUEUE #${pendingApprovalCount}` : 'QUEUE CLEAR',
+    largestCategoryName,
     largestCategoryAmount,
-    largestCategorySharePercent: largestCategorySharePercent || 34,
+    largestCategorySharePercent,
   };
 }
 

@@ -1,4 +1,4 @@
-import { changeLicensePlanStatus, createLicensePlan, getLicensePlan, listLicensePlans, listOrganizationLicensePlanAssignments, updateLicensePlan, LicensePlanStatus } from '@omniretail/sql-connect';
+import { changeLicensePlanStatus, createLicensePlan, getLicensePlan, isLicensePlanLevelTaken, listLicensePlans, listOrganizationLicensePlanAssignments, updateLicensePlan, LicensePlanStatus } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { LicensePlan, CreatePlanInput, UpdatePlanInput, PlanQuery, PlanStatus } from '../types';
@@ -50,12 +50,8 @@ class SqlLicensePlanService implements ILicensePlanService {
   async getActivePlans(): Promise<LicensePlan[]> { return this.getPlans({ status: 'active' }); }
   async getPlan(id: string): Promise<LicensePlan | null> { try { const result = await getLicensePlan(getFirebaseClientServices().dataConnect, { id }); return result.data.licensePlan ? mapRow(result.data.licensePlan as Row) : null; } catch (error) { throw safeError(error, 'Unable to load the plan.'); } }
   async isLevelTaken(level: number, excludePlanId?: string): Promise<boolean> {
-    const matches = (await this.rows()).some((plan) => plan.level === level && plan.id !== excludePlanId);
-    if (!matches) return false;
-    // Data Connect reads may briefly lag a just-completed deletion; re-check
-    // before rejecting a newly reusable level.
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    return (await this.rows()).some((plan) => plan.level === level && plan.id !== excludePlanId);
+    const result = await isLicensePlanLevelTaken(getFirebaseClientServices().dataConnect, { level });
+    return result.data.licensePlans.some((plan) => plan.id !== excludePlanId);
   }
   async createPlan(input: CreatePlanInput): Promise<LicensePlan> { validate(input); try { const code = planCode(input.name); const result = await createLicensePlan(getFirebaseClientServices().dataConnect, { planCode: code, name: input.name.trim(), description: input.description?.trim() || null, level: input.level, maxStores: input.maxStores, maxUsers: input.maxUsers }); const created = await this.getPlan(result.data.licensePlan_insert.id); if (created) return created; throw new Error('created plan not found'); } catch (error) { throw safeError(error, 'Unable to create the plan.'); } }
   async updatePlan(id: string, input: UpdatePlanInput): Promise<LicensePlan> { validate(input); try { await updateLicensePlan(getFirebaseClientServices().dataConnect, { id, name: input.name.trim(), description: input.description?.trim() || null, level: input.level, maxStores: input.maxStores, maxUsers: input.maxUsers }); const updated = await this.getPlan(id); if (!updated) throw new Error('not found'); return { ...updated, name: input.name.trim(), description: input.description?.trim() || '', level: input.level, maxStores: input.maxStores, maxUsers: input.maxUsers }; } catch (error) { throw safeError(error, 'Unable to update the plan.'); } }

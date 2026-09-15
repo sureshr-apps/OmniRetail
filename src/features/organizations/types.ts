@@ -53,6 +53,7 @@ export interface CreateOrganizationInput {
   address?: string;
   city?: string;
   state?: string;
+  postalCode?: string;
   currency?: string;
   timezone?: string;
 }
@@ -67,6 +68,7 @@ export interface UpdateOrganizationInput {
   address?: string;
   city?: string;
   state?: string;
+  postalCode?: string;
   currency?: string;
   timezone?: string;
 }

@@ -198,7 +198,7 @@ type Subcategory @table @unique(fields: ["category", "value"]) {
   value: String!
 }
 
-type Product @table {
+type Product @table @unique(fields: ["organization", "sku"]) @unique(fields: ["organization", "barcode"]) {
   organization: Organization!
   productCode: Int! @col(dataType: "serial") @unique
   name: String!
@@ -206,8 +206,8 @@ type Product @table {
   category: Category!
   subcategory: Subcategory
   type: ProductType!
-  sku: String! @unique
-  barcode: String @unique
+  sku: String!
+  barcode: String
   hsnCode: String
   unitOfMeasure: String
   sellingPrice: Float! @col(dataType: "numeric(19,2)")
@@ -285,9 +285,9 @@ type Supplier @table {
   notes: String
 }
 
-type Purchase @table {
+type Purchase @table @unique(fields: ["organization", "purchaseNumber"]) {
   organization: Organization!
-  purchaseNumber: String! @unique
+  purchaseNumber: String!
   purchaseOrderNumber: String
   invoiceNumber: String
   purchaseDate: Date!
@@ -326,9 +326,9 @@ type PurchaseLine @table {
   lineTotal: Float! @col(dataType: "numeric(19,2)")
 }
 
-type Expense @table {
+type Expense @table @unique(fields: ["organization", "expenseNumber"]) {
   organization: Organization!
-  expenseNumber: String! @unique
+  expenseNumber: String!
   expenseDate: Date!
   category: String!
   description: String!
@@ -350,10 +350,10 @@ type Expense @table {
   updatedAt: Timestamp! @default(expr: "request.time")
 }
 
-type Sale @table {
+type Sale @table @unique(fields: ["organization", "receiptNumber"]) {
   organization: Organization!
   outlet: Outlet!
-  receiptNumber: String! @unique
+  receiptNumber: String!
   saleTimestamp: Timestamp!
   customer: Customer
   customerName: String!
@@ -371,7 +371,8 @@ type Sale @table {
 
 type SaleLine @table {
   sale: Sale!
-  product: Product!
+  product: Product
+  itemName: String
   quantity: Float!
   unitPrice: Float! @col(dataType: "numeric(19,2)")
   subtotal: Float! @col(dataType: "numeric(19,2)")

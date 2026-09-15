@@ -9,7 +9,7 @@ interface PaymentModalProps {
   customer: Customer;
   orderNumber: string;
   fastCashAmount?: number;
-  onCompleteSale: () => void;
+  onCompleteSale: () => Promise<void>;
 }
 
 export function PaymentModal({
@@ -23,6 +23,7 @@ export function PaymentModal({
   onCompleteSale,
 }: PaymentModalProps) {
   const [stage, setStage] = useState<'tender' | 'processing' | 'success'>('tender');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [cashTendered, setCashTendered] = useState<string>(
     fastCashAmount ? fastCashAmount.toFixed(2) : totals.totalPayable.toFixed(2)
   );
@@ -35,6 +36,7 @@ export function PaymentModal({
         setCashTendered(totals.totalPayable.toFixed(2));
       }
       setStage('tender');
+      setIsSubmitting(false);
     }
   }, [isOpen, fastCashAmount, totals.totalPayable]);
 
@@ -43,15 +45,21 @@ export function PaymentModal({
   const tenderedNum = parseFloat(cashTendered) || 0;
   const changeDue = Math.max(0, tenderedNum - totals.totalPayable);
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     setStage('processing');
-    setTimeout(() => {
+    try {
+      await onCompleteSale();
       setStage('success');
-    }, 600);
+    } catch {
+      setStage('tender');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDone = () => {
-    onCompleteSale();
     onClose();
   };
 
@@ -159,7 +167,7 @@ export function PaymentModal({
                       Ready for Terminal Tap / Chip Insert
                     </p>
                     <p className="font-caption text-caption text-on-surface-variant mt-0.5">
-                      Present customer card on terminal REG-01 or press Authorize to complete mock transaction.
+                      Present customer card on terminal REG-01 or press Authorize to complete the transaction.
                     </p>
                   </div>
                 </div>
@@ -257,7 +265,7 @@ export function PaymentModal({
                   </div>
                 )}
                 <div className="flex justify-between text-on-surface-variant">
-                  <span>Sales Tax (8.25%):</span>
+                  <span>GST:</span>
                   <span>₹{totals.tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-on-surface pt-1 border-t border-outline-variant/20">

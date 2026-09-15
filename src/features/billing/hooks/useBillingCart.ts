@@ -2,11 +2,12 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { CartItem, Customer, HeldOrder, OrderTotals, PaymentMethod, Product } from '../types';
 import { productService } from '@/features/products/services/productService';
 import { createHeldOrder, deleteHeldOrder, listHeldOrders } from '../services/heldOrderService';
+import { calculateGstTax } from '../utils/tax';
 
-const TAX_RATE = 0.0825; // 8.25% State Tax
+const newOrderNumber = () => `#ORD-${globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`;
 
 export function useBillingCart() {
-  const [orderNumber, setOrderNumber] = useState<string>('#ORD-9843');
+  const [orderNumber, setOrderNumber] = useState<string>(newOrderNumber);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>({ id: '', name: 'Walk-in Customer', tier: 'Standard', points: 0, memberDiscount: 0 });
@@ -21,7 +22,7 @@ export function useBillingCart() {
     let active = true;
     productService.getProducts({ page: 1, pageSize: 1000 }).then(({ items }) => {
       if (!active) return;
-      setCatalogProducts(items.map((p) => ({ id: p.id, sku: p.sku, name: p.name, category: 'all', categoryLabel: p.categoryName, stock: p.stockSummary?.onHandTotal ?? 0, mrp: p.mrp ?? p.sellingPrice, discount: 0, rate: p.sellingPrice, barcode: p.barcode ?? '' })));
+      setCatalogProducts(items.map((p) => ({ id: p.id, sku: p.sku, name: p.name, category: p.categoryName.trim().toLowerCase(), categoryLabel: p.categoryName, stock: p.stockSummary?.onHandTotal ?? 0, mrp: p.mrp ?? p.sellingPrice, discount: 0, rate: p.sellingPrice, barcode: p.barcode ?? '', taxCategory: p.taxCategory })));
       setCartItems([]);
       setSelectedItemId(null);
     }).catch(() => undefined);
@@ -48,7 +49,7 @@ export function useBillingCart() {
 
     const discountAmount = Math.max(0, promoDiscount);
     const discountedBase = Math.max(0, subtotal - discountAmount);
-    const tax = Math.round(discountedBase * TAX_RATE * 100) / 100;
+    const tax = calculateGstTax(cartItems.map((item) => ({ quantity: item.quantity, effectiveRate: item.effectiveRate, taxCategory: item.product.taxCategory })), discountAmount);
     const totalPayable = Math.round((discountedBase + tax) * 100) / 100;
 
     return {
@@ -137,11 +138,12 @@ export function useBillingCart() {
         );
       }
       const newItem: CartItem = {
-        id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        id: `cart-${globalThis.crypto.randomUUID()}`,
         product,
         quantity,
         unitDiscount: product.discount,
         effectiveRate: product.rate,
+        isCustom: product.id.startsWith('custom-'),
       };
       setSelectedItemId(newItem.id);
       return [...prev, newItem];
@@ -150,15 +152,16 @@ export function useBillingCart() {
 
   const addCustomItem = useCallback((name: string, rate: number, quantity = 1) => {
     const customProd: Product = {
-      id: `custom-${Date.now()}`,
-      sku: `CUST-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: `custom-${globalThis.crypto.randomUUID()}`,
+      sku: `CUST-${globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`,
       name: name || 'Custom Item',
       category: 'specialty',
       stock: 99,
       mrp: rate,
       discount: 0,
       rate,
-      barcode: `${Date.now()}`,
+      barcode: '',
+      taxCategory: 'GST 0%',
     };
     addToCart(customProd, quantity);
   }, [addToCart]);
@@ -235,8 +238,7 @@ export function useBillingCart() {
 
     setHeldOrders(prev => [newHeld, ...prev]);
     // Generate new order number
-    const nextNum = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-    setOrderNumber(nextNum);
+    setOrderNumber(newOrderNumber());
     setCartItems([]);
     setSelectedItemId(null);
     setPromoDiscount(0);
@@ -254,8 +256,7 @@ export function useBillingCart() {
   }, []);
 
   const startNewOrder = useCallback(() => {
-    const nextNum = `#ORD-${Math.floor(1000 + Math.random() * 9000)}`;
-    setOrderNumber(nextNum);
+    setOrderNumber(newOrderNumber());
     setCartItems([]);
     setSelectedItemId(null);
     setPromoDiscount(0);
@@ -281,6 +282,8 @@ export function useBillingCart() {
     return list;
   }, [catalogProducts, selectedCategory, searchQuery]);
 
+  const categories = useMemo(() => Array.from(new Map(catalogProducts.map((product) => [product.category, { id: product.category, label: product.categoryLabel ?? product.category }])).values()), [catalogProducts]);
+
   return {
     orderNumber,
     cartItems,
@@ -302,6 +305,7 @@ export function useBillingCart() {
     totals,
     fastCashOptions,
     filteredProducts,
+    categories,
     // Actions
     addToCart,
     incrementQuantity,

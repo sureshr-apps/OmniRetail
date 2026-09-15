@@ -38,15 +38,19 @@ try {
   await client.query(`CREATE INDEX IF NOT EXISTS ${quoteIdentifier('subcategory_categoryId_idx')} ON ${schema}.${quoteIdentifier('subcategory')} (${quoteIdentifier('category_id')})`);
   await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS ${quoteIdentifier('subcategory_categoryId_value_uidx')} ON ${schema}.${quoteIdentifier('subcategory')} (${quoteIdentifier('category_id')}, ${quoteIdentifier('value')})`);
 
-  const hasLegacyCategorySources = await hasColumn('product', 'category_name') || await hasColumn('product', 'subcategory');
-  if (hasLegacyCategorySources && await hasColumn('product', 'category_id') && !(await hasColumn('product', 'legacy_category_id'))) {
-    await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('product')} RENAME COLUMN ${quoteIdentifier('category_id')} TO ${quoteIdentifier('legacy_category_id')}`);
-  }
   if (await hasColumn('product', 'category_name') && !(await hasColumn('product', 'legacy_category_name'))) {
     await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('product')} RENAME COLUMN ${quoteIdentifier('category_name')} TO ${quoteIdentifier('legacy_category_name')}`);
   }
   if (await hasColumn('product', 'subcategory') && !(await hasColumn('product', 'legacy_subcategory'))) {
     await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('product')} RENAME COLUMN ${quoteIdentifier('subcategory')} TO ${quoteIdentifier('legacy_subcategory')}`);
+  }
+
+  // Only rename the legacy category-id column when a legacy source column is
+  // present. On a second run all legacy columns have been removed, so the
+  // canonical category_id column must be left untouched.
+  const hasLegacyCategorySources = await hasColumn('product', 'legacy_category_name') || await hasColumn('product', 'legacy_subcategory');
+  if (hasLegacyCategorySources && await hasColumn('product', 'category_id') && !(await hasColumn('product', 'legacy_category_id'))) {
+    await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('product')} RENAME COLUMN ${quoteIdentifier('category_id')} TO ${quoteIdentifier('legacy_category_id')}`);
   }
 
   if (!(await hasColumn('product', 'category_id'))) {

@@ -45,7 +45,9 @@ interface CustomerMutationResponse {
 }
 
 function mapTenantCustomer(row: TenantCustomerRow | CustomerMutationResponse): Customer {
-  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email ?? undefined, taxId: row.taxId ?? undefined, documentType: row.documentType ?? undefined, documentValue: row.documentValue ?? undefined, address: row.address ?? undefined, creditLimit: row.creditLimit ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: 0, completedOrdersCount: 0, balance: 0 };
+  const sales = 'customerSales' in row ? row.customerSales : [];
+  const completedSales = sales.filter((sale) => sale.status === 'COMPLETED');
+  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email ?? undefined, taxId: row.taxId ?? undefined, documentType: row.documentType ?? undefined, documentValue: row.documentValue ?? undefined, address: row.address ?? undefined, creditLimit: row.creditLimit ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: completedSales.reduce((sum, sale) => sum + sale.totalNet, 0), completedOrdersCount: completedSales.length, balance: 0 };
 }
 
 const CUSTOMER_MUTATION_RESPONSE_KEYS: (keyof CustomerMutationResponse)[] = [
@@ -63,7 +65,7 @@ export function deriveCustomerView(all: Customer[], query: CustomerQuery): Custo
   const pageSize = Math.max(1, query.pageSize);
   const totalPages = Math.max(1, Math.ceil(customers.length / pageSize));
   const validPage = Math.min(page, totalPages);
-  return { items: customers.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: customers.length, filteredCount: customers.length, page: validPage, pageSize, totalPages };
+  return { items: customers.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: all.length, filteredCount: customers.length, page: validPage, pageSize, totalPages };
 }
 
 class ProductionCustomerService implements ICustomerService {

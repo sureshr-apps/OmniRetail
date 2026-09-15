@@ -23,8 +23,8 @@ export function OrganizationOverviewTab({
   organization,
   adminCount,
 }: OrganizationOverviewTabProps) {
-  const city = organization.contactInfo.city || 'Bengaluru';
-  const state = organization.contactInfo.state || 'Karnataka';
+  const city = organization.contactInfo.city;
+  const state = organization.contactInfo.state;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -93,8 +93,7 @@ export function OrganizationOverviewTab({
                 <div className="flex items-start gap-1.5 text-text-primary font-medium">
                   <MapPin className="w-3.5 h-3.5 text-text-muted shrink-0 mt-0.5" />
                   <span>
-                    {organization.contactInfo.address || 'Central Commercial Plaza'}, {city},{' '}
-                    {state} - {organization.contactInfo.pincode || '400001'}
+                    {[organization.contactInfo.address, city, state, organization.contactInfo.pincode].filter(Boolean).join(', ') || '—'}
                   </span>
                 </div>
               </div>

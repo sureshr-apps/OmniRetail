@@ -95,7 +95,17 @@ function validateAuthorizationResponse(value: unknown): AuthorizedUserResponse {
 }
 
 export class FirebaseAuthService implements IAuthService {
+  private readonly bootstrapRequests = new Map<string, Promise<User>>();
+
   private async bootstrap(firebaseUser: FirebaseUser): Promise<User> {
+    const existing = this.bootstrapRequests.get(firebaseUser.uid);
+    if (existing) return existing;
+    const request = this.bootstrapUser(firebaseUser).finally(() => this.bootstrapRequests.delete(firebaseUser.uid));
+    this.bootstrapRequests.set(firebaseUser.uid, request);
+    return request;
+  }
+
+  private async bootstrapUser(firebaseUser: FirebaseUser): Promise<User> {
     const { functions } = getFirebaseClientServices();
     const bootstrapUser = httpsCallable<Record<string, never>, AuthorizedUserResponse>(
       functions,

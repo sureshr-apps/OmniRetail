@@ -77,9 +77,10 @@ export function deriveServicePersonView(all: ServicePerson[], query: ServicePers
   if (search) {
     rows = rows.filter((row) => `${formatServicePersonCode(row.servicePersonCode)} ${row.displayName} ${row.phone} ${row.specialization}`.toLowerCase().includes(search));
   }
-  if (query.status && query.status !== 'All') rows = rows.filter((row) => row.status === query.status);
   if (query.assignmentScope && query.assignmentScope !== 'All') rows = rows.filter((row) => row.assignmentScope === query.assignmentScope);
   if (query.specialization && query.specialization !== 'All') rows = rows.filter((row) => row.specialization === query.specialization);
+  const countsSource = rows;
+  if (query.status && query.status !== 'All') rows = rows.filter((row) => row.status === query.status);
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.max(1, query.pageSize ?? 10);
   const total = rows.length;
@@ -89,7 +90,7 @@ export function deriveServicePersonView(all: ServicePerson[], query: ServicePers
     page,
     pageSize,
     totalPages: Math.max(1, Math.ceil(total / pageSize)),
-    activeCount: rows.filter((row) => row.status === 'Active').length,
+    activeCount: countsSource.filter((row) => row.status === 'Active').length,
   };
 }
 

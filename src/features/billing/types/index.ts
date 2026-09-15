@@ -2,13 +2,14 @@ export interface Product {
   id: string;
   sku: string;
   name: string;
-  category: 'all' | 'beverages' | 'bakery' | 'specialty' | 'apparel' | 'promos';
+  category: string;
   categoryLabel?: string;
   stock: number;
   mrp: number;
   discount: number;
   rate: number;
   barcode: string;
+  taxCategory?: string;
   isPromo?: boolean;
 }
 
@@ -21,6 +22,7 @@ export interface CartItem {
   customRetail?: number;
   customSalePrice?: number;
   customDiscount?: number;
+  isCustom?: boolean;
 }
 
 export interface Customer {

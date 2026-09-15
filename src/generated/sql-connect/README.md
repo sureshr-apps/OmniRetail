@@ -18,6 +18,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*GetAppUserByFirebaseUid*](#getappuserbyfirebaseuid)
   - [*ListLicensePlans*](#listlicenseplans)
   - [*ListOrganizationLicensePlanAssignments*](#listorganizationlicenseplanassignments)
+  - [*IsLicensePlanLevelTaken*](#islicenseplanleveltaken)
   - [*GetLicensePlan*](#getlicenseplan)
   - [*GetLicensePlanTrusted*](#getlicenseplantrusted)
   - [*GetLicensePlanReferencesTrusted*](#getlicenseplanreferencestrusted)
@@ -141,7 +142,7 @@ You can use this generated SDK by importing from the package `@omniretail/sql-co
 
 You can also follow the instructions from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#set-client).
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '@omniretail/sql-connect';
 
@@ -154,7 +155,7 @@ By default, the connector will connect to the production service.
 To connect to the emulator, you can use the following code.
 You can also follow the emulator instructions from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#instrument-clients).
 
-```typescript
+```typescrip
 import { connectDataConnectEmulator, getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '@omniretail/sql-connect';
 
@@ -181,7 +182,7 @@ Below are examples of how to use the `master-admin` connector's generated functi
 
 ## GetCurrentUserAuthorization
 You can execute the `GetCurrentUserAuthorization` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getCurrentUserAuthorization(options?: ExecuteQueryOptions): QueryPromise<GetCurrentUserAuthorizationData, undefined>;
 
 interface GetCurrentUserAuthorizationRef {
@@ -192,7 +193,7 @@ interface GetCurrentUserAuthorizationRef {
 export const getCurrentUserAuthorizationRef: GetCurrentUserAuthorizationRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getCurrentUserAuthorization(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetCurrentUserAuthorizationData, undefined>;
 
 interface GetCurrentUserAuthorizationRef {
@@ -203,7 +204,7 @@ export const getCurrentUserAuthorizationRef: GetCurrentUserAuthorizationRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getCurrentUserAuthorizationRef:
-```typescript
+```typescrip
 const name = getCurrentUserAuthorizationRef.operationName;
 console.log(name);
 ```
@@ -214,7 +215,7 @@ The `GetCurrentUserAuthorization` query has no variables.
 Recall that executing the `GetCurrentUserAuthorization` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetCurrentUserAuthorizationData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetCurrentUserAuthorizationData {
   appUsers: ({
     id: UUIDString;
@@ -227,6 +228,12 @@ export interface GetCurrentUserAuthorizationData {
     employees_on_user: ({
       employmentStatus: EmploymentStatus;
       loginAccess: LoginAccessStatus;
+      employeeOutlets_on_employee: ({
+        outlet: {
+          id: UUIDString;
+          status: OutletStatus;
+        } & Outlet_Key;
+      })[];
     })[];
     userRoles_on_user: ({
       role: {
@@ -261,7 +268,7 @@ export interface GetCurrentUserAuthorizationData {
 ```
 ### Using `GetCurrentUserAuthorization`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getCurrentUserAuthorization } from '@omniretail/sql-connect';
 
@@ -285,7 +292,7 @@ getCurrentUserAuthorization().then((response) => {
 
 ### Using `GetCurrentUserAuthorization`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getCurrentUserAuthorizationRef } from '@omniretail/sql-connect';
 
@@ -312,7 +319,7 @@ executeQuery(ref).then((response) => {
 
 ## GetUserAuthorizationByFirebaseUid
 You can execute the `GetUserAuthorizationByFirebaseUid` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getUserAuthorizationByFirebaseUid(vars: GetUserAuthorizationByFirebaseUidVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserAuthorizationByFirebaseUidData, GetUserAuthorizationByFirebaseUidVariables>;
 
 interface GetUserAuthorizationByFirebaseUidRef {
@@ -323,7 +330,7 @@ interface GetUserAuthorizationByFirebaseUidRef {
 export const getUserAuthorizationByFirebaseUidRef: GetUserAuthorizationByFirebaseUidRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getUserAuthorizationByFirebaseUid(dc: DataConnect, vars: GetUserAuthorizationByFirebaseUidVariables, options?: ExecuteQueryOptions): QueryPromise<GetUserAuthorizationByFirebaseUidData, GetUserAuthorizationByFirebaseUidVariables>;
 
 interface GetUserAuthorizationByFirebaseUidRef {
@@ -334,7 +341,7 @@ export const getUserAuthorizationByFirebaseUidRef: GetUserAuthorizationByFirebas
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getUserAuthorizationByFirebaseUidRef:
-```typescript
+```typescrip
 const name = getUserAuthorizationByFirebaseUidRef.operationName;
 console.log(name);
 ```
@@ -342,7 +349,7 @@ console.log(name);
 ### Variables
 The `GetUserAuthorizationByFirebaseUid` query requires an argument of type `GetUserAuthorizationByFirebaseUidVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetUserAuthorizationByFirebaseUidVariables {
   firebaseUid: string;
 }
@@ -351,7 +358,7 @@ export interface GetUserAuthorizationByFirebaseUidVariables {
 Recall that executing the `GetUserAuthorizationByFirebaseUid` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetUserAuthorizationByFirebaseUidData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetUserAuthorizationByFirebaseUidData {
   appUsers: ({
     id: UUIDString;
@@ -398,13 +405,13 @@ export interface GetUserAuthorizationByFirebaseUidData {
 ```
 ### Using `GetUserAuthorizationByFirebaseUid`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getUserAuthorizationByFirebaseUid, GetUserAuthorizationByFirebaseUidVariables } from '@omniretail/sql-connect';
 
 // The `GetUserAuthorizationByFirebaseUid` query requires an argument of type `GetUserAuthorizationByFirebaseUidVariables`:
 const getUserAuthorizationByFirebaseUidVars: GetUserAuthorizationByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getUserAuthorizationByFirebaseUid()` function to execute the query.
@@ -428,13 +435,13 @@ getUserAuthorizationByFirebaseUid(getUserAuthorizationByFirebaseUidVars).then((r
 
 ### Using `GetUserAuthorizationByFirebaseUid`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getUserAuthorizationByFirebaseUidRef, GetUserAuthorizationByFirebaseUidVariables } from '@omniretail/sql-connect';
 
 // The `GetUserAuthorizationByFirebaseUid` query requires an argument of type `GetUserAuthorizationByFirebaseUidVariables`:
 const getUserAuthorizationByFirebaseUidVars: GetUserAuthorizationByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getUserAuthorizationByFirebaseUidRef()` function to get a reference to the query.
@@ -461,7 +468,7 @@ executeQuery(ref).then((response) => {
 
 ## ResolveUsernameLogin
 You can execute the `ResolveUsernameLogin` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 resolveUsernameLogin(vars: ResolveUsernameLoginVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveUsernameLoginData, ResolveUsernameLoginVariables>;
 
 interface ResolveUsernameLoginRef {
@@ -472,7 +479,7 @@ interface ResolveUsernameLoginRef {
 export const resolveUsernameLoginRef: ResolveUsernameLoginRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 resolveUsernameLogin(dc: DataConnect, vars: ResolveUsernameLoginVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveUsernameLoginData, ResolveUsernameLoginVariables>;
 
 interface ResolveUsernameLoginRef {
@@ -483,7 +490,7 @@ export const resolveUsernameLoginRef: ResolveUsernameLoginRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the resolveUsernameLoginRef:
-```typescript
+```typescrip
 const name = resolveUsernameLoginRef.operationName;
 console.log(name);
 ```
@@ -491,7 +498,7 @@ console.log(name);
 ### Variables
 The `ResolveUsernameLogin` query requires an argument of type `ResolveUsernameLoginVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ResolveUsernameLoginVariables {
   username: string;
 }
@@ -500,7 +507,7 @@ export interface ResolveUsernameLoginVariables {
 Recall that executing the `ResolveUsernameLogin` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ResolveUsernameLoginData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ResolveUsernameLoginData {
   appUsers: ({
     id: UUIDString;
@@ -516,13 +523,13 @@ export interface ResolveUsernameLoginData {
 ```
 ### Using `ResolveUsernameLogin`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, resolveUsernameLogin, ResolveUsernameLoginVariables } from '@omniretail/sql-connect';
 
 // The `ResolveUsernameLogin` query requires an argument of type `ResolveUsernameLoginVariables`:
 const resolveUsernameLoginVars: ResolveUsernameLoginVariables = {
-  username: ..., 
+  username: ...,
 };
 
 // Call the `resolveUsernameLogin()` function to execute the query.
@@ -546,13 +553,13 @@ resolveUsernameLogin(resolveUsernameLoginVars).then((response) => {
 
 ### Using `ResolveUsernameLogin`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, resolveUsernameLoginRef, ResolveUsernameLoginVariables } from '@omniretail/sql-connect';
 
 // The `ResolveUsernameLogin` query requires an argument of type `ResolveUsernameLoginVariables`:
 const resolveUsernameLoginVars: ResolveUsernameLoginVariables = {
-  username: ..., 
+  username: ...,
 };
 
 // Call the `resolveUsernameLoginRef()` function to get a reference to the query.
@@ -579,7 +586,7 @@ executeQuery(ref).then((response) => {
 
 ## GetAppUserForBootstrap
 You can execute the `GetAppUserForBootstrap` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getAppUserForBootstrap(vars: GetAppUserForBootstrapVariables, options?: ExecuteQueryOptions): QueryPromise<GetAppUserForBootstrapData, GetAppUserForBootstrapVariables>;
 
 interface GetAppUserForBootstrapRef {
@@ -590,7 +597,7 @@ interface GetAppUserForBootstrapRef {
 export const getAppUserForBootstrapRef: GetAppUserForBootstrapRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getAppUserForBootstrap(dc: DataConnect, vars: GetAppUserForBootstrapVariables, options?: ExecuteQueryOptions): QueryPromise<GetAppUserForBootstrapData, GetAppUserForBootstrapVariables>;
 
 interface GetAppUserForBootstrapRef {
@@ -601,7 +608,7 @@ export const getAppUserForBootstrapRef: GetAppUserForBootstrapRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getAppUserForBootstrapRef:
-```typescript
+```typescrip
 const name = getAppUserForBootstrapRef.operationName;
 console.log(name);
 ```
@@ -609,7 +616,7 @@ console.log(name);
 ### Variables
 The `GetAppUserForBootstrap` query requires an argument of type `GetAppUserForBootstrapVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetAppUserForBootstrapVariables {
   firebaseUid: string;
 }
@@ -618,7 +625,7 @@ export interface GetAppUserForBootstrapVariables {
 Recall that executing the `GetAppUserForBootstrap` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetAppUserForBootstrapData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetAppUserForBootstrapData {
   appUsers: ({
     id: UUIDString;
@@ -633,13 +640,13 @@ export interface GetAppUserForBootstrapData {
 ```
 ### Using `GetAppUserForBootstrap`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getAppUserForBootstrap, GetAppUserForBootstrapVariables } from '@omniretail/sql-connect';
 
 // The `GetAppUserForBootstrap` query requires an argument of type `GetAppUserForBootstrapVariables`:
 const getAppUserForBootstrapVars: GetAppUserForBootstrapVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserForBootstrap()` function to execute the query.
@@ -663,13 +670,13 @@ getAppUserForBootstrap(getAppUserForBootstrapVars).then((response) => {
 
 ### Using `GetAppUserForBootstrap`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getAppUserForBootstrapRef, GetAppUserForBootstrapVariables } from '@omniretail/sql-connect';
 
 // The `GetAppUserForBootstrap` query requires an argument of type `GetAppUserForBootstrapVariables`:
 const getAppUserForBootstrapVars: GetAppUserForBootstrapVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserForBootstrapRef()` function to get a reference to the query.
@@ -696,7 +703,7 @@ executeQuery(ref).then((response) => {
 
 ## GetCurrentAppUser
 You can execute the `GetCurrentAppUser` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getCurrentAppUser(options?: ExecuteQueryOptions): QueryPromise<GetCurrentAppUserData, undefined>;
 
 interface GetCurrentAppUserRef {
@@ -707,7 +714,7 @@ interface GetCurrentAppUserRef {
 export const getCurrentAppUserRef: GetCurrentAppUserRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getCurrentAppUser(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetCurrentAppUserData, undefined>;
 
 interface GetCurrentAppUserRef {
@@ -718,7 +725,7 @@ export const getCurrentAppUserRef: GetCurrentAppUserRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getCurrentAppUserRef:
-```typescript
+```typescrip
 const name = getCurrentAppUserRef.operationName;
 console.log(name);
 ```
@@ -729,7 +736,7 @@ The `GetCurrentAppUser` query has no variables.
 Recall that executing the `GetCurrentAppUser` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetCurrentAppUserData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetCurrentAppUserData {
   appUsers: ({
     id: UUIDString;
@@ -744,7 +751,7 @@ export interface GetCurrentAppUserData {
 ```
 ### Using `GetCurrentAppUser`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getCurrentAppUser } from '@omniretail/sql-connect';
 
@@ -768,7 +775,7 @@ getCurrentAppUser().then((response) => {
 
 ### Using `GetCurrentAppUser`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getCurrentAppUserRef } from '@omniretail/sql-connect';
 
@@ -795,7 +802,7 @@ executeQuery(ref).then((response) => {
 
 ## GetAppUserByFirebaseUid
 You can execute the `GetAppUserByFirebaseUid` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getAppUserByFirebaseUid(vars: GetAppUserByFirebaseUidVariables, options?: ExecuteQueryOptions): QueryPromise<GetAppUserByFirebaseUidData, GetAppUserByFirebaseUidVariables>;
 
 interface GetAppUserByFirebaseUidRef {
@@ -806,7 +813,7 @@ interface GetAppUserByFirebaseUidRef {
 export const getAppUserByFirebaseUidRef: GetAppUserByFirebaseUidRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getAppUserByFirebaseUid(dc: DataConnect, vars: GetAppUserByFirebaseUidVariables, options?: ExecuteQueryOptions): QueryPromise<GetAppUserByFirebaseUidData, GetAppUserByFirebaseUidVariables>;
 
 interface GetAppUserByFirebaseUidRef {
@@ -817,7 +824,7 @@ export const getAppUserByFirebaseUidRef: GetAppUserByFirebaseUidRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getAppUserByFirebaseUidRef:
-```typescript
+```typescrip
 const name = getAppUserByFirebaseUidRef.operationName;
 console.log(name);
 ```
@@ -825,7 +832,7 @@ console.log(name);
 ### Variables
 The `GetAppUserByFirebaseUid` query requires an argument of type `GetAppUserByFirebaseUidVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetAppUserByFirebaseUidVariables {
   firebaseUid: string;
 }
@@ -834,7 +841,7 @@ export interface GetAppUserByFirebaseUidVariables {
 Recall that executing the `GetAppUserByFirebaseUid` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetAppUserByFirebaseUidData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetAppUserByFirebaseUidData {
   appUsers: ({
     id: UUIDString;
@@ -849,13 +856,13 @@ export interface GetAppUserByFirebaseUidData {
 ```
 ### Using `GetAppUserByFirebaseUid`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getAppUserByFirebaseUid, GetAppUserByFirebaseUidVariables } from '@omniretail/sql-connect';
 
 // The `GetAppUserByFirebaseUid` query requires an argument of type `GetAppUserByFirebaseUidVariables`:
 const getAppUserByFirebaseUidVars: GetAppUserByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserByFirebaseUid()` function to execute the query.
@@ -879,13 +886,13 @@ getAppUserByFirebaseUid(getAppUserByFirebaseUidVars).then((response) => {
 
 ### Using `GetAppUserByFirebaseUid`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getAppUserByFirebaseUidRef, GetAppUserByFirebaseUidVariables } from '@omniretail/sql-connect';
 
 // The `GetAppUserByFirebaseUid` query requires an argument of type `GetAppUserByFirebaseUidVariables`:
 const getAppUserByFirebaseUidVars: GetAppUserByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserByFirebaseUidRef()` function to get a reference to the query.
@@ -912,7 +919,7 @@ executeQuery(ref).then((response) => {
 
 ## ListLicensePlans
 You can execute the `ListLicensePlans` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listLicensePlans(options?: ExecuteQueryOptions): QueryPromise<ListLicensePlansData, undefined>;
 
 interface ListLicensePlansRef {
@@ -923,7 +930,7 @@ interface ListLicensePlansRef {
 export const listLicensePlansRef: ListLicensePlansRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listLicensePlans(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListLicensePlansData, undefined>;
 
 interface ListLicensePlansRef {
@@ -934,7 +941,7 @@ export const listLicensePlansRef: ListLicensePlansRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listLicensePlansRef:
-```typescript
+```typescrip
 const name = listLicensePlansRef.operationName;
 console.log(name);
 ```
@@ -945,7 +952,7 @@ The `ListLicensePlans` query has no variables.
 Recall that executing the `ListLicensePlans` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListLicensePlansData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListLicensePlansData {
   licensePlans: ({
     id: UUIDString;
@@ -963,7 +970,7 @@ export interface ListLicensePlansData {
 ```
 ### Using `ListLicensePlans`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listLicensePlans } from '@omniretail/sql-connect';
 
@@ -987,7 +994,7 @@ listLicensePlans().then((response) => {
 
 ### Using `ListLicensePlans`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listLicensePlansRef } from '@omniretail/sql-connect';
 
@@ -1014,7 +1021,7 @@ executeQuery(ref).then((response) => {
 
 ## ListOrganizationLicensePlanAssignments
 You can execute the `ListOrganizationLicensePlanAssignments` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listOrganizationLicensePlanAssignments(options?: ExecuteQueryOptions): QueryPromise<ListOrganizationLicensePlanAssignmentsData, undefined>;
 
 interface ListOrganizationLicensePlanAssignmentsRef {
@@ -1025,7 +1032,7 @@ interface ListOrganizationLicensePlanAssignmentsRef {
 export const listOrganizationLicensePlanAssignmentsRef: ListOrganizationLicensePlanAssignmentsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listOrganizationLicensePlanAssignments(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationLicensePlanAssignmentsData, undefined>;
 
 interface ListOrganizationLicensePlanAssignmentsRef {
@@ -1036,7 +1043,7 @@ export const listOrganizationLicensePlanAssignmentsRef: ListOrganizationLicenseP
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listOrganizationLicensePlanAssignmentsRef:
-```typescript
+```typescrip
 const name = listOrganizationLicensePlanAssignmentsRef.operationName;
 console.log(name);
 ```
@@ -1047,7 +1054,7 @@ The `ListOrganizationLicensePlanAssignments` query has no variables.
 Recall that executing the `ListOrganizationLicensePlanAssignments` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListOrganizationLicensePlanAssignmentsData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListOrganizationLicensePlanAssignmentsData {
   organizationLicenses: ({
     plan: {
@@ -1058,7 +1065,7 @@ export interface ListOrganizationLicensePlanAssignmentsData {
 ```
 ### Using `ListOrganizationLicensePlanAssignments`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationLicensePlanAssignments } from '@omniretail/sql-connect';
 
@@ -1082,7 +1089,7 @@ listOrganizationLicensePlanAssignments().then((response) => {
 
 ### Using `ListOrganizationLicensePlanAssignments`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationLicensePlanAssignmentsRef } from '@omniretail/sql-connect';
 
@@ -1107,9 +1114,120 @@ executeQuery(ref).then((response) => {
 });
 ```
 
+## IsLicensePlanLevelTaken
+You can execute the `IsLicensePlanLevelTaken` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescrip
+isLicensePlanLevelTaken(vars: IsLicensePlanLevelTakenVariables, options?: ExecuteQueryOptions): QueryPromise<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+
+interface IsLicensePlanLevelTakenRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: IsLicensePlanLevelTakenVariables): QueryRef<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+}
+export const isLicensePlanLevelTakenRef: IsLicensePlanLevelTakenRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescrip
+isLicensePlanLevelTaken(dc: DataConnect, vars: IsLicensePlanLevelTakenVariables, options?: ExecuteQueryOptions): QueryPromise<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+
+interface IsLicensePlanLevelTakenRef {
+  ...
+  (dc: DataConnect, vars: IsLicensePlanLevelTakenVariables): QueryRef<IsLicensePlanLevelTakenData, IsLicensePlanLevelTakenVariables>;
+}
+export const isLicensePlanLevelTakenRef: IsLicensePlanLevelTakenRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the isLicensePlanLevelTakenRef:
+```typescrip
+const name = isLicensePlanLevelTakenRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `IsLicensePlanLevelTaken` query requires an argument of type `IsLicensePlanLevelTakenVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescrip
+export interface IsLicensePlanLevelTakenVariables {
+  level: number;
+}
+```
+### Return Type
+Recall that executing the `IsLicensePlanLevelTaken` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `IsLicensePlanLevelTakenData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescrip
+export interface IsLicensePlanLevelTakenData {
+  licensePlans: ({
+    id: UUIDString;
+  } & LicensePlan_Key)[];
+}
+```
+### Using `IsLicensePlanLevelTaken`'s action shortcut function
+
+```typescrip
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, isLicensePlanLevelTaken, IsLicensePlanLevelTakenVariables } from '@omniretail/sql-connect';
+
+// The `IsLicensePlanLevelTaken` query requires an argument of type `IsLicensePlanLevelTakenVariables`:
+const isLicensePlanLevelTakenVars: IsLicensePlanLevelTakenVariables = {
+  level: ...,
+};
+
+// Call the `isLicensePlanLevelTaken()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await isLicensePlanLevelTaken(isLicensePlanLevelTakenVars);
+// Variables can be defined inline as well.
+const { data } = await isLicensePlanLevelTaken({ level: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await isLicensePlanLevelTaken(dataConnect, isLicensePlanLevelTakenVars);
+
+console.log(data.licensePlans);
+
+// Or, you can use the `Promise` API.
+isLicensePlanLevelTaken(isLicensePlanLevelTakenVars).then((response) => {
+  const data = response.data;
+  console.log(data.licensePlans);
+});
+```
+
+### Using `IsLicensePlanLevelTaken`'s `QueryRef` function
+
+```typescrip
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, isLicensePlanLevelTakenRef, IsLicensePlanLevelTakenVariables } from '@omniretail/sql-connect';
+
+// The `IsLicensePlanLevelTaken` query requires an argument of type `IsLicensePlanLevelTakenVariables`:
+const isLicensePlanLevelTakenVars: IsLicensePlanLevelTakenVariables = {
+  level: ...,
+};
+
+// Call the `isLicensePlanLevelTakenRef()` function to get a reference to the query.
+const ref = isLicensePlanLevelTakenRef(isLicensePlanLevelTakenVars);
+// Variables can be defined inline as well.
+const ref = isLicensePlanLevelTakenRef({ level: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = isLicensePlanLevelTakenRef(dataConnect, isLicensePlanLevelTakenVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.licensePlans);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.licensePlans);
+});
+```
+
 ## GetLicensePlan
 You can execute the `GetLicensePlan` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getLicensePlan(vars: GetLicensePlanVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanData, GetLicensePlanVariables>;
 
 interface GetLicensePlanRef {
@@ -1120,7 +1238,7 @@ interface GetLicensePlanRef {
 export const getLicensePlanRef: GetLicensePlanRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getLicensePlan(dc: DataConnect, vars: GetLicensePlanVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanData, GetLicensePlanVariables>;
 
 interface GetLicensePlanRef {
@@ -1131,7 +1249,7 @@ export const getLicensePlanRef: GetLicensePlanRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getLicensePlanRef:
-```typescript
+```typescrip
 const name = getLicensePlanRef.operationName;
 console.log(name);
 ```
@@ -1139,7 +1257,7 @@ console.log(name);
 ### Variables
 The `GetLicensePlan` query requires an argument of type `GetLicensePlanVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetLicensePlanVariables {
   id: UUIDString;
 }
@@ -1148,7 +1266,7 @@ export interface GetLicensePlanVariables {
 Recall that executing the `GetLicensePlan` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetLicensePlanData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetLicensePlanData {
   licensePlan?: {
     id: UUIDString;
@@ -1166,13 +1284,13 @@ export interface GetLicensePlanData {
 ```
 ### Using `GetLicensePlan`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getLicensePlan, GetLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `GetLicensePlan` query requires an argument of type `GetLicensePlanVariables`:
 const getLicensePlanVars: GetLicensePlanVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlan()` function to execute the query.
@@ -1196,13 +1314,13 @@ getLicensePlan(getLicensePlanVars).then((response) => {
 
 ### Using `GetLicensePlan`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getLicensePlanRef, GetLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `GetLicensePlan` query requires an argument of type `GetLicensePlanVariables`:
 const getLicensePlanVars: GetLicensePlanVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanRef()` function to get a reference to the query.
@@ -1229,7 +1347,7 @@ executeQuery(ref).then((response) => {
 
 ## GetLicensePlanTrusted
 You can execute the `GetLicensePlanTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getLicensePlanTrusted(vars: GetLicensePlanTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanTrustedData, GetLicensePlanTrustedVariables>;
 
 interface GetLicensePlanTrustedRef {
@@ -1240,7 +1358,7 @@ interface GetLicensePlanTrustedRef {
 export const getLicensePlanTrustedRef: GetLicensePlanTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getLicensePlanTrusted(dc: DataConnect, vars: GetLicensePlanTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanTrustedData, GetLicensePlanTrustedVariables>;
 
 interface GetLicensePlanTrustedRef {
@@ -1251,7 +1369,7 @@ export const getLicensePlanTrustedRef: GetLicensePlanTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getLicensePlanTrustedRef:
-```typescript
+```typescrip
 const name = getLicensePlanTrustedRef.operationName;
 console.log(name);
 ```
@@ -1259,7 +1377,7 @@ console.log(name);
 ### Variables
 The `GetLicensePlanTrusted` query requires an argument of type `GetLicensePlanTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetLicensePlanTrustedVariables {
   id: UUIDString;
 }
@@ -1268,7 +1386,7 @@ export interface GetLicensePlanTrustedVariables {
 Recall that executing the `GetLicensePlanTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetLicensePlanTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetLicensePlanTrustedData {
   licensePlan?: {
     id: UUIDString;
@@ -1286,13 +1404,13 @@ export interface GetLicensePlanTrustedData {
 ```
 ### Using `GetLicensePlanTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getLicensePlanTrusted, GetLicensePlanTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetLicensePlanTrusted` query requires an argument of type `GetLicensePlanTrustedVariables`:
 const getLicensePlanTrustedVars: GetLicensePlanTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanTrusted()` function to execute the query.
@@ -1316,13 +1434,13 @@ getLicensePlanTrusted(getLicensePlanTrustedVars).then((response) => {
 
 ### Using `GetLicensePlanTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getLicensePlanTrustedRef, GetLicensePlanTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetLicensePlanTrusted` query requires an argument of type `GetLicensePlanTrustedVariables`:
 const getLicensePlanTrustedVars: GetLicensePlanTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanTrustedRef()` function to get a reference to the query.
@@ -1349,7 +1467,7 @@ executeQuery(ref).then((response) => {
 
 ## GetLicensePlanReferencesTrusted
 You can execute the `GetLicensePlanReferencesTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getLicensePlanReferencesTrusted(vars: GetLicensePlanReferencesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
 
 interface GetLicensePlanReferencesTrustedRef {
@@ -1360,7 +1478,7 @@ interface GetLicensePlanReferencesTrustedRef {
 export const getLicensePlanReferencesTrustedRef: GetLicensePlanReferencesTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getLicensePlanReferencesTrusted(dc: DataConnect, vars: GetLicensePlanReferencesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetLicensePlanReferencesTrustedData, GetLicensePlanReferencesTrustedVariables>;
 
 interface GetLicensePlanReferencesTrustedRef {
@@ -1371,7 +1489,7 @@ export const getLicensePlanReferencesTrustedRef: GetLicensePlanReferencesTrusted
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getLicensePlanReferencesTrustedRef:
-```typescript
+```typescrip
 const name = getLicensePlanReferencesTrustedRef.operationName;
 console.log(name);
 ```
@@ -1379,7 +1497,7 @@ console.log(name);
 ### Variables
 The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetLicensePlanReferencesTrustedVariables {
   id: UUIDString;
 }
@@ -1388,7 +1506,7 @@ export interface GetLicensePlanReferencesTrustedVariables {
 Recall that executing the `GetLicensePlanReferencesTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetLicensePlanReferencesTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetLicensePlanReferencesTrustedData {
   organizationLicenses: ({
     id: UUIDString;
@@ -1400,13 +1518,13 @@ export interface GetLicensePlanReferencesTrustedData {
 ```
 ### Using `GetLicensePlanReferencesTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getLicensePlanReferencesTrusted, GetLicensePlanReferencesTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
 const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanReferencesTrusted()` function to execute the query.
@@ -1432,13 +1550,13 @@ getLicensePlanReferencesTrusted(getLicensePlanReferencesTrustedVars).then((respo
 
 ### Using `GetLicensePlanReferencesTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getLicensePlanReferencesTrustedRef, GetLicensePlanReferencesTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
 const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanReferencesTrustedRef()` function to get a reference to the query.
@@ -1467,7 +1585,7 @@ executeQuery(ref).then((response) => {
 
 ## ListOrganizations
 You can execute the `ListOrganizations` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listOrganizations(options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsData, undefined>;
 
 interface ListOrganizationsRef {
@@ -1478,7 +1596,7 @@ interface ListOrganizationsRef {
 export const listOrganizationsRef: ListOrganizationsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listOrganizations(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsData, undefined>;
 
 interface ListOrganizationsRef {
@@ -1489,7 +1607,7 @@ export const listOrganizationsRef: ListOrganizationsRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listOrganizationsRef:
-```typescript
+```typescrip
 const name = listOrganizationsRef.operationName;
 console.log(name);
 ```
@@ -1500,7 +1618,7 @@ The `ListOrganizations` query has no variables.
 Recall that executing the `ListOrganizations` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListOrganizationsData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListOrganizationsData {
   organizations: ({
     id: UUIDString;
@@ -1525,7 +1643,7 @@ export interface ListOrganizationsData {
 ```
 ### Using `ListOrganizations`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listOrganizations } from '@omniretail/sql-connect';
 
@@ -1549,7 +1667,7 @@ listOrganizations().then((response) => {
 
 ### Using `ListOrganizations`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationsRef } from '@omniretail/sql-connect';
 
@@ -1576,7 +1694,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganization
 You can execute the `GetOrganization` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganization(vars: GetOrganizationVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationData, GetOrganizationVariables>;
 
 interface GetOrganizationRef {
@@ -1587,7 +1705,7 @@ interface GetOrganizationRef {
 export const getOrganizationRef: GetOrganizationRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganization(dc: DataConnect, vars: GetOrganizationVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationData, GetOrganizationVariables>;
 
 interface GetOrganizationRef {
@@ -1598,7 +1716,7 @@ export const getOrganizationRef: GetOrganizationRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationRef:
-```typescript
+```typescrip
 const name = getOrganizationRef.operationName;
 console.log(name);
 ```
@@ -1606,7 +1724,7 @@ console.log(name);
 ### Variables
 The `GetOrganization` query requires an argument of type `GetOrganizationVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationVariables {
   id: UUIDString;
 }
@@ -1615,7 +1733,7 @@ export interface GetOrganizationVariables {
 Recall that executing the `GetOrganization` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationData {
   organization?: {
     id: UUIDString;
@@ -1640,13 +1758,13 @@ export interface GetOrganizationData {
 ```
 ### Using `GetOrganization`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganization, GetOrganizationVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganization` query requires an argument of type `GetOrganizationVariables`:
 const getOrganizationVars: GetOrganizationVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganization()` function to execute the query.
@@ -1670,13 +1788,13 @@ getOrganization(getOrganizationVars).then((response) => {
 
 ### Using `GetOrganization`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationRef, GetOrganizationVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganization` query requires an argument of type `GetOrganizationVariables`:
 const getOrganizationVars: GetOrganizationVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganizationRef()` function to get a reference to the query.
@@ -1703,7 +1821,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationTrusted
 You can execute the `GetOrganizationTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationTrusted(vars: GetOrganizationTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationTrustedData, GetOrganizationTrustedVariables>;
 
 interface GetOrganizationTrustedRef {
@@ -1714,7 +1832,7 @@ interface GetOrganizationTrustedRef {
 export const getOrganizationTrustedRef: GetOrganizationTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationTrusted(dc: DataConnect, vars: GetOrganizationTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationTrustedData, GetOrganizationTrustedVariables>;
 
 interface GetOrganizationTrustedRef {
@@ -1725,7 +1843,7 @@ export const getOrganizationTrustedRef: GetOrganizationTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationTrustedRef:
-```typescript
+```typescrip
 const name = getOrganizationTrustedRef.operationName;
 console.log(name);
 ```
@@ -1733,7 +1851,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationTrusted` query requires an argument of type `GetOrganizationTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationTrustedVariables {
   id: UUIDString;
 }
@@ -1742,7 +1860,7 @@ export interface GetOrganizationTrustedVariables {
 Recall that executing the `GetOrganizationTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationTrustedData {
   organization?: {
     id: UUIDString;
@@ -1767,13 +1885,13 @@ export interface GetOrganizationTrustedData {
 ```
 ### Using `GetOrganizationTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationTrusted, GetOrganizationTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationTrusted` query requires an argument of type `GetOrganizationTrustedVariables`:
 const getOrganizationTrustedVars: GetOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganizationTrusted()` function to execute the query.
@@ -1797,13 +1915,13 @@ getOrganizationTrusted(getOrganizationTrustedVars).then((response) => {
 
 ### Using `GetOrganizationTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationTrustedRef, GetOrganizationTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationTrusted` query requires an argument of type `GetOrganizationTrustedVariables`:
 const getOrganizationTrustedVars: GetOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganizationTrustedRef()` function to get a reference to the query.
@@ -1830,7 +1948,7 @@ executeQuery(ref).then((response) => {
 
 ## ListOrganizationAdministrators
 You can execute the `ListOrganizationAdministrators` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listOrganizationAdministrators(vars: ListOrganizationAdministratorsVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationAdministratorsData, ListOrganizationAdministratorsVariables>;
 
 interface ListOrganizationAdministratorsRef {
@@ -1841,7 +1959,7 @@ interface ListOrganizationAdministratorsRef {
 export const listOrganizationAdministratorsRef: ListOrganizationAdministratorsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listOrganizationAdministrators(dc: DataConnect, vars: ListOrganizationAdministratorsVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationAdministratorsData, ListOrganizationAdministratorsVariables>;
 
 interface ListOrganizationAdministratorsRef {
@@ -1852,7 +1970,7 @@ export const listOrganizationAdministratorsRef: ListOrganizationAdministratorsRe
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listOrganizationAdministratorsRef:
-```typescript
+```typescrip
 const name = listOrganizationAdministratorsRef.operationName;
 console.log(name);
 ```
@@ -1860,7 +1978,7 @@ console.log(name);
 ### Variables
 The `ListOrganizationAdministrators` query requires an argument of type `ListOrganizationAdministratorsVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListOrganizationAdministratorsVariables {
   organizationId: UUIDString;
 }
@@ -1869,7 +1987,7 @@ export interface ListOrganizationAdministratorsVariables {
 Recall that executing the `ListOrganizationAdministrators` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListOrganizationAdministratorsData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListOrganizationAdministratorsData {
   organizationMemberships: ({
     createdAt: TimestampString;
@@ -1887,13 +2005,13 @@ export interface ListOrganizationAdministratorsData {
 ```
 ### Using `ListOrganizationAdministrators`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationAdministrators, ListOrganizationAdministratorsVariables } from '@omniretail/sql-connect';
 
 // The `ListOrganizationAdministrators` query requires an argument of type `ListOrganizationAdministratorsVariables`:
 const listOrganizationAdministratorsVars: ListOrganizationAdministratorsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationAdministrators()` function to execute the query.
@@ -1917,13 +2035,13 @@ listOrganizationAdministrators(listOrganizationAdministratorsVars).then((respons
 
 ### Using `ListOrganizationAdministrators`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationAdministratorsRef, ListOrganizationAdministratorsVariables } from '@omniretail/sql-connect';
 
 // The `ListOrganizationAdministrators` query requires an argument of type `ListOrganizationAdministratorsVariables`:
 const listOrganizationAdministratorsVars: ListOrganizationAdministratorsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationAdministratorsRef()` function to get a reference to the query.
@@ -1950,7 +2068,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationAdministrator
 You can execute the `GetOrganizationAdministrator` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationAdministrator(vars: GetOrganizationAdministratorVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationAdministratorData, GetOrganizationAdministratorVariables>;
 
 interface GetOrganizationAdministratorRef {
@@ -1961,7 +2079,7 @@ interface GetOrganizationAdministratorRef {
 export const getOrganizationAdministratorRef: GetOrganizationAdministratorRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationAdministrator(dc: DataConnect, vars: GetOrganizationAdministratorVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationAdministratorData, GetOrganizationAdministratorVariables>;
 
 interface GetOrganizationAdministratorRef {
@@ -1972,7 +2090,7 @@ export const getOrganizationAdministratorRef: GetOrganizationAdministratorRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationAdministratorRef:
-```typescript
+```typescrip
 const name = getOrganizationAdministratorRef.operationName;
 console.log(name);
 ```
@@ -1980,7 +2098,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationAdministrator` query requires an argument of type `GetOrganizationAdministratorVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationAdministratorVariables {
   organizationId: UUIDString;
   userId: UUIDString;
@@ -1990,7 +2108,7 @@ export interface GetOrganizationAdministratorVariables {
 Recall that executing the `GetOrganizationAdministrator` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationAdministratorData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationAdministratorData {
   organizationMemberships: ({
     createdAt: TimestampString;
@@ -2008,14 +2126,14 @@ export interface GetOrganizationAdministratorData {
 ```
 ### Using `GetOrganizationAdministrator`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationAdministrator, GetOrganizationAdministratorVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationAdministrator` query requires an argument of type `GetOrganizationAdministratorVariables`:
 const getOrganizationAdministratorVars: GetOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministrator()` function to execute the query.
@@ -2039,14 +2157,14 @@ getOrganizationAdministrator(getOrganizationAdministratorVars).then((response) =
 
 ### Using `GetOrganizationAdministrator`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationAdministratorRef, GetOrganizationAdministratorVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationAdministrator` query requires an argument of type `GetOrganizationAdministratorVariables`:
 const getOrganizationAdministratorVars: GetOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministratorRef()` function to get a reference to the query.
@@ -2073,7 +2191,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationAdministratorTrusted
 You can execute the `GetOrganizationAdministratorTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationAdministratorTrusted(vars: GetOrganizationAdministratorTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
 
 interface GetOrganizationAdministratorTrustedRef {
@@ -2084,7 +2202,7 @@ interface GetOrganizationAdministratorTrustedRef {
 export const getOrganizationAdministratorTrustedRef: GetOrganizationAdministratorTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationAdministratorTrusted(dc: DataConnect, vars: GetOrganizationAdministratorTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationAdministratorTrustedData, GetOrganizationAdministratorTrustedVariables>;
 
 interface GetOrganizationAdministratorTrustedRef {
@@ -2095,7 +2213,7 @@ export const getOrganizationAdministratorTrustedRef: GetOrganizationAdministrato
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationAdministratorTrustedRef:
-```typescript
+```typescrip
 const name = getOrganizationAdministratorTrustedRef.operationName;
 console.log(name);
 ```
@@ -2103,7 +2221,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationAdministratorTrusted` query requires an argument of type `GetOrganizationAdministratorTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationAdministratorTrustedVariables {
   organizationId: UUIDString;
   userId: UUIDString;
@@ -2113,7 +2231,7 @@ export interface GetOrganizationAdministratorTrustedVariables {
 Recall that executing the `GetOrganizationAdministratorTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationAdministratorTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationAdministratorTrustedData {
   organizationMemberships: ({
     createdAt: TimestampString;
@@ -2131,14 +2249,14 @@ export interface GetOrganizationAdministratorTrustedData {
 ```
 ### Using `GetOrganizationAdministratorTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationAdministratorTrusted, GetOrganizationAdministratorTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationAdministratorTrusted` query requires an argument of type `GetOrganizationAdministratorTrustedVariables`:
 const getOrganizationAdministratorTrustedVars: GetOrganizationAdministratorTrustedVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministratorTrusted()` function to execute the query.
@@ -2162,14 +2280,14 @@ getOrganizationAdministratorTrusted(getOrganizationAdministratorTrustedVars).the
 
 ### Using `GetOrganizationAdministratorTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationAdministratorTrustedRef, GetOrganizationAdministratorTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationAdministratorTrusted` query requires an argument of type `GetOrganizationAdministratorTrustedVariables`:
 const getOrganizationAdministratorTrustedVars: GetOrganizationAdministratorTrustedVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministratorTrustedRef()` function to get a reference to the query.
@@ -2196,7 +2314,7 @@ executeQuery(ref).then((response) => {
 
 ## ResolveOrganizationAdministratorIdentity
 You can execute the `ResolveOrganizationAdministratorIdentity` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 resolveOrganizationAdministratorIdentity(vars: ResolveOrganizationAdministratorIdentityVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveOrganizationAdministratorIdentityData, ResolveOrganizationAdministratorIdentityVariables>;
 
 interface ResolveOrganizationAdministratorIdentityRef {
@@ -2207,7 +2325,7 @@ interface ResolveOrganizationAdministratorIdentityRef {
 export const resolveOrganizationAdministratorIdentityRef: ResolveOrganizationAdministratorIdentityRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 resolveOrganizationAdministratorIdentity(dc: DataConnect, vars: ResolveOrganizationAdministratorIdentityVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveOrganizationAdministratorIdentityData, ResolveOrganizationAdministratorIdentityVariables>;
 
 interface ResolveOrganizationAdministratorIdentityRef {
@@ -2218,7 +2336,7 @@ export const resolveOrganizationAdministratorIdentityRef: ResolveOrganizationAdm
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the resolveOrganizationAdministratorIdentityRef:
-```typescript
+```typescrip
 const name = resolveOrganizationAdministratorIdentityRef.operationName;
 console.log(name);
 ```
@@ -2226,7 +2344,7 @@ console.log(name);
 ### Variables
 The `ResolveOrganizationAdministratorIdentity` query requires an argument of type `ResolveOrganizationAdministratorIdentityVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ResolveOrganizationAdministratorIdentityVariables {
   organizationId: UUIDString;
   appUserId: UUIDString;
@@ -2236,7 +2354,7 @@ export interface ResolveOrganizationAdministratorIdentityVariables {
 Recall that executing the `ResolveOrganizationAdministratorIdentity` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ResolveOrganizationAdministratorIdentityData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ResolveOrganizationAdministratorIdentityData {
   organizationMembership?: {
     organizationId: UUIDString;
@@ -2253,14 +2371,14 @@ export interface ResolveOrganizationAdministratorIdentityData {
 ```
 ### Using `ResolveOrganizationAdministratorIdentity`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, resolveOrganizationAdministratorIdentity, ResolveOrganizationAdministratorIdentityVariables } from '@omniretail/sql-connect';
 
 // The `ResolveOrganizationAdministratorIdentity` query requires an argument of type `ResolveOrganizationAdministratorIdentityVariables`:
 const resolveOrganizationAdministratorIdentityVars: ResolveOrganizationAdministratorIdentityVariables = {
-  organizationId: ..., 
-  appUserId: ..., 
+  organizationId: ...,
+  appUserId: ...,
 };
 
 // Call the `resolveOrganizationAdministratorIdentity()` function to execute the query.
@@ -2284,14 +2402,14 @@ resolveOrganizationAdministratorIdentity(resolveOrganizationAdministratorIdentit
 
 ### Using `ResolveOrganizationAdministratorIdentity`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, resolveOrganizationAdministratorIdentityRef, ResolveOrganizationAdministratorIdentityVariables } from '@omniretail/sql-connect';
 
 // The `ResolveOrganizationAdministratorIdentity` query requires an argument of type `ResolveOrganizationAdministratorIdentityVariables`:
 const resolveOrganizationAdministratorIdentityVars: ResolveOrganizationAdministratorIdentityVariables = {
-  organizationId: ..., 
-  appUserId: ..., 
+  organizationId: ...,
+  appUserId: ...,
 };
 
 // Call the `resolveOrganizationAdministratorIdentityRef()` function to get a reference to the query.
@@ -2318,7 +2436,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationLicense
 You can execute the `GetOrganizationLicense` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationLicense(vars: GetOrganizationLicenseVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseData, GetOrganizationLicenseVariables>;
 
 interface GetOrganizationLicenseRef {
@@ -2329,7 +2447,7 @@ interface GetOrganizationLicenseRef {
 export const getOrganizationLicenseRef: GetOrganizationLicenseRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationLicense(dc: DataConnect, vars: GetOrganizationLicenseVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseData, GetOrganizationLicenseVariables>;
 
 interface GetOrganizationLicenseRef {
@@ -2340,7 +2458,7 @@ export const getOrganizationLicenseRef: GetOrganizationLicenseRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationLicenseRef:
-```typescript
+```typescrip
 const name = getOrganizationLicenseRef.operationName;
 console.log(name);
 ```
@@ -2348,7 +2466,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationLicense` query requires an argument of type `GetOrganizationLicenseVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationLicenseVariables {
   organizationId: UUIDString;
 }
@@ -2357,7 +2475,7 @@ export interface GetOrganizationLicenseVariables {
 Recall that executing the `GetOrganizationLicense` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationLicenseData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationLicenseData {
   organizationLicenses: ({
     id: UUIDString;
@@ -2384,13 +2502,13 @@ export interface GetOrganizationLicenseData {
 ```
 ### Using `GetOrganizationLicense`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicense, GetOrganizationLicenseVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicense` query requires an argument of type `GetOrganizationLicenseVariables`:
 const getOrganizationLicenseVars: GetOrganizationLicenseVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicense()` function to execute the query.
@@ -2414,13 +2532,13 @@ getOrganizationLicense(getOrganizationLicenseVars).then((response) => {
 
 ### Using `GetOrganizationLicense`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseRef, GetOrganizationLicenseVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicense` query requires an argument of type `GetOrganizationLicenseVariables`:
 const getOrganizationLicenseVars: GetOrganizationLicenseVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseRef()` function to get a reference to the query.
@@ -2447,7 +2565,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationLicenseTrusted
 You can execute the `GetOrganizationLicenseTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationLicenseTrusted(vars: GetOrganizationLicenseTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
 
 interface GetOrganizationLicenseTrustedRef {
@@ -2458,7 +2576,7 @@ interface GetOrganizationLicenseTrustedRef {
 export const getOrganizationLicenseTrustedRef: GetOrganizationLicenseTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationLicenseTrusted(dc: DataConnect, vars: GetOrganizationLicenseTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseTrustedData, GetOrganizationLicenseTrustedVariables>;
 
 interface GetOrganizationLicenseTrustedRef {
@@ -2469,7 +2587,7 @@ export const getOrganizationLicenseTrustedRef: GetOrganizationLicenseTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationLicenseTrustedRef:
-```typescript
+```typescrip
 const name = getOrganizationLicenseTrustedRef.operationName;
 console.log(name);
 ```
@@ -2477,7 +2595,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationLicenseTrustedVariables {
   organizationId: UUIDString;
 }
@@ -2486,7 +2604,7 @@ export interface GetOrganizationLicenseTrustedVariables {
 Recall that executing the `GetOrganizationLicenseTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationLicenseTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationLicenseTrustedData {
   organizationLicenses: ({
     id: UUIDString;
@@ -2513,13 +2631,13 @@ export interface GetOrganizationLicenseTrustedData {
 ```
 ### Using `GetOrganizationLicenseTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseTrusted, GetOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`:
 const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseTrusted()` function to execute the query.
@@ -2543,13 +2661,13 @@ getOrganizationLicenseTrusted(getOrganizationLicenseTrustedVars).then((response)
 
 ### Using `GetOrganizationLicenseTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseTrustedRef, GetOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`:
 const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseTrustedRef()` function to get a reference to the query.
@@ -2576,7 +2694,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationLicenseHistory
 You can execute the `GetOrganizationLicenseHistory` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationLicenseHistory(vars: GetOrganizationLicenseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryData, GetOrganizationLicenseHistoryVariables>;
 
 interface GetOrganizationLicenseHistoryRef {
@@ -2587,7 +2705,7 @@ interface GetOrganizationLicenseHistoryRef {
 export const getOrganizationLicenseHistoryRef: GetOrganizationLicenseHistoryRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationLicenseHistory(dc: DataConnect, vars: GetOrganizationLicenseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryData, GetOrganizationLicenseHistoryVariables>;
 
 interface GetOrganizationLicenseHistoryRef {
@@ -2598,7 +2716,7 @@ export const getOrganizationLicenseHistoryRef: GetOrganizationLicenseHistoryRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationLicenseHistoryRef:
-```typescript
+```typescrip
 const name = getOrganizationLicenseHistoryRef.operationName;
 console.log(name);
 ```
@@ -2606,7 +2724,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationLicenseHistory` query requires an argument of type `GetOrganizationLicenseHistoryVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationLicenseHistoryVariables {
   organizationId: UUIDString;
 }
@@ -2615,7 +2733,7 @@ export interface GetOrganizationLicenseHistoryVariables {
 Recall that executing the `GetOrganizationLicenseHistory` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationLicenseHistoryData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationLicenseHistoryData {
   licenseHistories: ({
     id: UUIDString;
@@ -2650,13 +2768,13 @@ export interface GetOrganizationLicenseHistoryData {
 ```
 ### Using `GetOrganizationLicenseHistory`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseHistory, GetOrganizationLicenseHistoryVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicenseHistory` query requires an argument of type `GetOrganizationLicenseHistoryVariables`:
 const getOrganizationLicenseHistoryVars: GetOrganizationLicenseHistoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistory()` function to execute the query.
@@ -2680,13 +2798,13 @@ getOrganizationLicenseHistory(getOrganizationLicenseHistoryVars).then((response)
 
 ### Using `GetOrganizationLicenseHistory`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseHistoryRef, GetOrganizationLicenseHistoryVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicenseHistory` query requires an argument of type `GetOrganizationLicenseHistoryVariables`:
 const getOrganizationLicenseHistoryVars: GetOrganizationLicenseHistoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistoryRef()` function to get a reference to the query.
@@ -2713,7 +2831,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationLicensePublic
 You can execute the `GetOrganizationLicensePublic` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationLicensePublic(vars: GetOrganizationLicensePublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
 
 interface GetOrganizationLicensePublicRef {
@@ -2724,7 +2842,7 @@ interface GetOrganizationLicensePublicRef {
 export const getOrganizationLicensePublicRef: GetOrganizationLicensePublicRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationLicensePublic(dc: DataConnect, vars: GetOrganizationLicensePublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicensePublicData, GetOrganizationLicensePublicVariables>;
 
 interface GetOrganizationLicensePublicRef {
@@ -2735,7 +2853,7 @@ export const getOrganizationLicensePublicRef: GetOrganizationLicensePublicRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationLicensePublicRef:
-```typescript
+```typescrip
 const name = getOrganizationLicensePublicRef.operationName;
 console.log(name);
 ```
@@ -2743,7 +2861,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationLicensePublic` query requires an argument of type `GetOrganizationLicensePublicVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationLicensePublicVariables {
   organizationId: UUIDString;
 }
@@ -2752,7 +2870,7 @@ export interface GetOrganizationLicensePublicVariables {
 Recall that executing the `GetOrganizationLicensePublic` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationLicensePublicData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationLicensePublicData {
   organizationLicenses: ({
     id: UUIDString;
@@ -2779,13 +2897,13 @@ export interface GetOrganizationLicensePublicData {
 ```
 ### Using `GetOrganizationLicensePublic`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicensePublic, GetOrganizationLicensePublicVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicensePublic` query requires an argument of type `GetOrganizationLicensePublicVariables`:
 const getOrganizationLicensePublicVars: GetOrganizationLicensePublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicensePublic()` function to execute the query.
@@ -2809,13 +2927,13 @@ getOrganizationLicensePublic(getOrganizationLicensePublicVars).then((response) =
 
 ### Using `GetOrganizationLicensePublic`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicensePublicRef, GetOrganizationLicensePublicVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicensePublic` query requires an argument of type `GetOrganizationLicensePublicVariables`:
 const getOrganizationLicensePublicVars: GetOrganizationLicensePublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicensePublicRef()` function to get a reference to the query.
@@ -2842,7 +2960,7 @@ executeQuery(ref).then((response) => {
 
 ## GetOrganizationLicenseHistoryPublic
 You can execute the `GetOrganizationLicenseHistoryPublic` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getOrganizationLicenseHistoryPublic(vars: GetOrganizationLicenseHistoryPublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
 
 interface GetOrganizationLicenseHistoryPublicRef {
@@ -2853,7 +2971,7 @@ interface GetOrganizationLicenseHistoryPublicRef {
 export const getOrganizationLicenseHistoryPublicRef: GetOrganizationLicenseHistoryPublicRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getOrganizationLicenseHistoryPublic(dc: DataConnect, vars: GetOrganizationLicenseHistoryPublicVariables, options?: ExecuteQueryOptions): QueryPromise<GetOrganizationLicenseHistoryPublicData, GetOrganizationLicenseHistoryPublicVariables>;
 
 interface GetOrganizationLicenseHistoryPublicRef {
@@ -2864,7 +2982,7 @@ export const getOrganizationLicenseHistoryPublicRef: GetOrganizationLicenseHisto
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getOrganizationLicenseHistoryPublicRef:
-```typescript
+```typescrip
 const name = getOrganizationLicenseHistoryPublicRef.operationName;
 console.log(name);
 ```
@@ -2872,7 +2990,7 @@ console.log(name);
 ### Variables
 The `GetOrganizationLicenseHistoryPublic` query requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetOrganizationLicenseHistoryPublicVariables {
   organizationId: UUIDString;
 }
@@ -2881,7 +2999,7 @@ export interface GetOrganizationLicenseHistoryPublicVariables {
 Recall that executing the `GetOrganizationLicenseHistoryPublic` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetOrganizationLicenseHistoryPublicData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetOrganizationLicenseHistoryPublicData {
   licenseHistories: ({
     id: UUIDString;
@@ -2916,13 +3034,13 @@ export interface GetOrganizationLicenseHistoryPublicData {
 ```
 ### Using `GetOrganizationLicenseHistoryPublic`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseHistoryPublic, GetOrganizationLicenseHistoryPublicVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicenseHistoryPublic` query requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`:
 const getOrganizationLicenseHistoryPublicVars: GetOrganizationLicenseHistoryPublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistoryPublic()` function to execute the query.
@@ -2946,13 +3064,13 @@ getOrganizationLicenseHistoryPublic(getOrganizationLicenseHistoryPublicVars).the
 
 ### Using `GetOrganizationLicenseHistoryPublic`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getOrganizationLicenseHistoryPublicRef, GetOrganizationLicenseHistoryPublicVariables } from '@omniretail/sql-connect';
 
 // The `GetOrganizationLicenseHistoryPublic` query requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`:
 const getOrganizationLicenseHistoryPublicVars: GetOrganizationLicenseHistoryPublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistoryPublicRef()` function to get a reference to the query.
@@ -2979,7 +3097,7 @@ executeQuery(ref).then((response) => {
 
 ## ListOrganizationsTrusted
 You can execute the `ListOrganizationsTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listOrganizationsTrusted(options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsTrustedData, undefined>;
 
 interface ListOrganizationsTrustedRef {
@@ -2990,7 +3108,7 @@ interface ListOrganizationsTrustedRef {
 export const listOrganizationsTrustedRef: ListOrganizationsTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listOrganizationsTrusted(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsTrustedData, undefined>;
 
 interface ListOrganizationsTrustedRef {
@@ -3001,7 +3119,7 @@ export const listOrganizationsTrustedRef: ListOrganizationsTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listOrganizationsTrustedRef:
-```typescript
+```typescrip
 const name = listOrganizationsTrustedRef.operationName;
 console.log(name);
 ```
@@ -3012,7 +3130,7 @@ The `ListOrganizationsTrusted` query has no variables.
 Recall that executing the `ListOrganizationsTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListOrganizationsTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListOrganizationsTrustedData {
   organizations: ({
     id: UUIDString;
@@ -3032,12 +3150,30 @@ export interface ListOrganizationsTrustedData {
     status: OrganizationStatus;
     createdAt: TimestampString;
     updatedAt: TimestampString;
+    organizationLicense_on_organization?: {
+      id: UUIDString;
+      startDate: DateString;
+      expiryDate: DateString;
+      negotiatedPrice: number;
+      currency: string;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      plan: {
+        id: UUIDString;
+        planCode: string;
+        name: string;
+        level: number;
+        maxStores: number;
+        maxUsers: number;
+        status: LicensePlanStatus;
+      } & LicensePlan_Key;
+    } & OrganizationLicense_Key;
   } & Organization_Key)[];
 }
 ```
 ### Using `ListOrganizationsTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationsTrusted } from '@omniretail/sql-connect';
 
@@ -3061,7 +3197,7 @@ listOrganizationsTrusted().then((response) => {
 
 ### Using `ListOrganizationsTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationsTrustedRef } from '@omniretail/sql-connect';
 
@@ -3088,7 +3224,7 @@ executeQuery(ref).then((response) => {
 
 ## ListOrganizationUsersForDeletionTrusted
 You can execute the `ListOrganizationUsersForDeletionTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listOrganizationUsersForDeletionTrusted(vars: ListOrganizationUsersForDeletionTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationUsersForDeletionTrustedData, ListOrganizationUsersForDeletionTrustedVariables>;
 
 interface ListOrganizationUsersForDeletionTrustedRef {
@@ -3099,7 +3235,7 @@ interface ListOrganizationUsersForDeletionTrustedRef {
 export const listOrganizationUsersForDeletionTrustedRef: ListOrganizationUsersForDeletionTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listOrganizationUsersForDeletionTrusted(dc: DataConnect, vars: ListOrganizationUsersForDeletionTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationUsersForDeletionTrustedData, ListOrganizationUsersForDeletionTrustedVariables>;
 
 interface ListOrganizationUsersForDeletionTrustedRef {
@@ -3110,7 +3246,7 @@ export const listOrganizationUsersForDeletionTrustedRef: ListOrganizationUsersFo
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listOrganizationUsersForDeletionTrustedRef:
-```typescript
+```typescrip
 const name = listOrganizationUsersForDeletionTrustedRef.operationName;
 console.log(name);
 ```
@@ -3118,7 +3254,7 @@ console.log(name);
 ### Variables
 The `ListOrganizationUsersForDeletionTrusted` query requires an argument of type `ListOrganizationUsersForDeletionTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListOrganizationUsersForDeletionTrustedVariables {
   organizationId: UUIDString;
 }
@@ -3127,7 +3263,7 @@ export interface ListOrganizationUsersForDeletionTrustedVariables {
 Recall that executing the `ListOrganizationUsersForDeletionTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListOrganizationUsersForDeletionTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListOrganizationUsersForDeletionTrustedData {
   organizationMemberships: ({
     user: {
@@ -3139,13 +3275,13 @@ export interface ListOrganizationUsersForDeletionTrustedData {
 ```
 ### Using `ListOrganizationUsersForDeletionTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationUsersForDeletionTrusted, ListOrganizationUsersForDeletionTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ListOrganizationUsersForDeletionTrusted` query requires an argument of type `ListOrganizationUsersForDeletionTrustedVariables`:
 const listOrganizationUsersForDeletionTrustedVars: ListOrganizationUsersForDeletionTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationUsersForDeletionTrusted()` function to execute the query.
@@ -3169,13 +3305,13 @@ listOrganizationUsersForDeletionTrusted(listOrganizationUsersForDeletionTrustedV
 
 ### Using `ListOrganizationUsersForDeletionTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listOrganizationUsersForDeletionTrustedRef, ListOrganizationUsersForDeletionTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ListOrganizationUsersForDeletionTrusted` query requires an argument of type `ListOrganizationUsersForDeletionTrustedVariables`:
 const listOrganizationUsersForDeletionTrustedVars: ListOrganizationUsersForDeletionTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationUsersForDeletionTrustedRef()` function to get a reference to the query.
@@ -3202,7 +3338,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantOutlets
 You can execute the `ListTenantOutlets` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantOutlets(vars: ListTenantOutletsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletsData, ListTenantOutletsVariables>;
 
 interface ListTenantOutletsRef {
@@ -3213,7 +3349,7 @@ interface ListTenantOutletsRef {
 export const listTenantOutletsRef: ListTenantOutletsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantOutlets(dc: DataConnect, vars: ListTenantOutletsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantOutletsData, ListTenantOutletsVariables>;
 
 interface ListTenantOutletsRef {
@@ -3224,7 +3360,7 @@ export const listTenantOutletsRef: ListTenantOutletsRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantOutletsRef:
-```typescript
+```typescrip
 const name = listTenantOutletsRef.operationName;
 console.log(name);
 ```
@@ -3232,7 +3368,7 @@ console.log(name);
 ### Variables
 The `ListTenantOutlets` query requires an argument of type `ListTenantOutletsVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantOutletsVariables {
   organizationId: UUIDString;
 }
@@ -3241,7 +3377,7 @@ export interface ListTenantOutletsVariables {
 Recall that executing the `ListTenantOutlets` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantOutletsData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantOutletsData {
   organizationMemberships: ({
     organization: {
@@ -3273,13 +3409,13 @@ export interface ListTenantOutletsData {
 ```
 ### Using `ListTenantOutlets`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantOutlets, ListTenantOutletsVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantOutlets` query requires an argument of type `ListTenantOutletsVariables`:
 const listTenantOutletsVars: ListTenantOutletsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantOutlets()` function to execute the query.
@@ -3305,13 +3441,13 @@ listTenantOutlets(listTenantOutletsVars).then((response) => {
 
 ### Using `ListTenantOutlets`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantOutletsRef, ListTenantOutletsVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantOutlets` query requires an argument of type `ListTenantOutletsVariables`:
 const listTenantOutletsVars: ListTenantOutletsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantOutletsRef()` function to get a reference to the query.
@@ -3340,7 +3476,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantEmployees
 You can execute the `ListTenantEmployees` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantEmployees(vars: ListTenantEmployeesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantEmployeesData, ListTenantEmployeesVariables>;
 
 interface ListTenantEmployeesRef {
@@ -3351,7 +3487,7 @@ interface ListTenantEmployeesRef {
 export const listTenantEmployeesRef: ListTenantEmployeesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantEmployees(dc: DataConnect, vars: ListTenantEmployeesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantEmployeesData, ListTenantEmployeesVariables>;
 
 interface ListTenantEmployeesRef {
@@ -3362,7 +3498,7 @@ export const listTenantEmployeesRef: ListTenantEmployeesRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantEmployeesRef:
-```typescript
+```typescrip
 const name = listTenantEmployeesRef.operationName;
 console.log(name);
 ```
@@ -3370,7 +3506,7 @@ console.log(name);
 ### Variables
 The `ListTenantEmployees` query requires an argument of type `ListTenantEmployeesVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantEmployeesVariables {
   organizationId: UUIDString;
 }
@@ -3379,7 +3515,7 @@ export interface ListTenantEmployeesVariables {
 Recall that executing the `ListTenantEmployees` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantEmployeesData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantEmployeesData {
   organizationMemberships: ({
     organization: {
@@ -3435,13 +3571,13 @@ export interface ListTenantEmployeesData {
 ```
 ### Using `ListTenantEmployees`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantEmployees, ListTenantEmployeesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantEmployees` query requires an argument of type `ListTenantEmployeesVariables`:
 const listTenantEmployeesVars: ListTenantEmployeesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantEmployees()` function to execute the query.
@@ -3467,13 +3603,13 @@ listTenantEmployees(listTenantEmployeesVars).then((response) => {
 
 ### Using `ListTenantEmployees`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantEmployeesRef, ListTenantEmployeesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantEmployees` query requires an argument of type `ListTenantEmployeesVariables`:
 const listTenantEmployeesVars: ListTenantEmployeesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantEmployeesRef()` function to get a reference to the query.
@@ -3502,7 +3638,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantServicePersons
 You can execute the `ListTenantServicePersons` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantServicePersons(vars: ListTenantServicePersonsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantServicePersonsData, ListTenantServicePersonsVariables>;
 
 interface ListTenantServicePersonsRef {
@@ -3513,7 +3649,7 @@ interface ListTenantServicePersonsRef {
 export const listTenantServicePersonsRef: ListTenantServicePersonsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantServicePersons(dc: DataConnect, vars: ListTenantServicePersonsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantServicePersonsData, ListTenantServicePersonsVariables>;
 
 interface ListTenantServicePersonsRef {
@@ -3524,7 +3660,7 @@ export const listTenantServicePersonsRef: ListTenantServicePersonsRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantServicePersonsRef:
-```typescript
+```typescrip
 const name = listTenantServicePersonsRef.operationName;
 console.log(name);
 ```
@@ -3532,7 +3668,7 @@ console.log(name);
 ### Variables
 The `ListTenantServicePersons` query requires an argument of type `ListTenantServicePersonsVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantServicePersonsVariables {
   organizationId: UUIDString;
 }
@@ -3541,7 +3677,7 @@ export interface ListTenantServicePersonsVariables {
 Recall that executing the `ListTenantServicePersons` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantServicePersonsData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantServicePersonsData {
   organizationMemberships: ({
     organization: {
@@ -3583,13 +3719,13 @@ export interface ListTenantServicePersonsData {
 ```
 ### Using `ListTenantServicePersons`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantServicePersons, ListTenantServicePersonsVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantServicePersons` query requires an argument of type `ListTenantServicePersonsVariables`:
 const listTenantServicePersonsVars: ListTenantServicePersonsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantServicePersons()` function to execute the query.
@@ -3615,13 +3751,13 @@ listTenantServicePersons(listTenantServicePersonsVars).then((response) => {
 
 ### Using `ListTenantServicePersons`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantServicePersonsRef, ListTenantServicePersonsVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantServicePersons` query requires an argument of type `ListTenantServicePersonsVariables`:
 const listTenantServicePersonsVars: ListTenantServicePersonsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantServicePersonsRef()` function to get a reference to the query.
@@ -3650,7 +3786,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantCategories
 You can execute the `ListTenantCategories` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantCategories(vars: ListTenantCategoriesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesData, ListTenantCategoriesVariables>;
 
 interface ListTenantCategoriesRef {
@@ -3661,7 +3797,7 @@ interface ListTenantCategoriesRef {
 export const listTenantCategoriesRef: ListTenantCategoriesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantCategories(dc: DataConnect, vars: ListTenantCategoriesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesData, ListTenantCategoriesVariables>;
 
 interface ListTenantCategoriesRef {
@@ -3672,7 +3808,7 @@ export const listTenantCategoriesRef: ListTenantCategoriesRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCategoriesRef:
-```typescript
+```typescrip
 const name = listTenantCategoriesRef.operationName;
 console.log(name);
 ```
@@ -3680,7 +3816,7 @@ console.log(name);
 ### Variables
 The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantCategoriesVariables {
   organizationId: UUIDString;
 }
@@ -3689,7 +3825,7 @@ export interface ListTenantCategoriesVariables {
 Recall that executing the `ListTenantCategories` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantCategoriesData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantCategoriesData {
   organizationMemberships: ({
     role: {
@@ -3713,13 +3849,13 @@ export interface ListTenantCategoriesData {
 ```
 ### Using `ListTenantCategories`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantCategories, ListTenantCategoriesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`:
 const listTenantCategoriesVars: ListTenantCategoriesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategories()` function to execute the query.
@@ -3745,13 +3881,13 @@ listTenantCategories(listTenantCategoriesVars).then((response) => {
 
 ### Using `ListTenantCategories`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantCategoriesRef, ListTenantCategoriesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`:
 const listTenantCategoriesVars: ListTenantCategoriesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategoriesRef()` function to get a reference to the query.
@@ -3780,7 +3916,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantProducts
 You can execute the `ListTenantProducts` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantProducts(vars: ListTenantProductsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantProductsData, ListTenantProductsVariables>;
 
 interface ListTenantProductsRef {
@@ -3791,7 +3927,7 @@ interface ListTenantProductsRef {
 export const listTenantProductsRef: ListTenantProductsRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantProducts(dc: DataConnect, vars: ListTenantProductsVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantProductsData, ListTenantProductsVariables>;
 
 interface ListTenantProductsRef {
@@ -3802,7 +3938,7 @@ export const listTenantProductsRef: ListTenantProductsRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantProductsRef:
-```typescript
+```typescrip
 const name = listTenantProductsRef.operationName;
 console.log(name);
 ```
@@ -3810,7 +3946,7 @@ console.log(name);
 ### Variables
 The `ListTenantProducts` query requires an argument of type `ListTenantProductsVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantProductsVariables {
   organizationId: UUIDString;
 }
@@ -3819,7 +3955,7 @@ export interface ListTenantProductsVariables {
 Recall that executing the `ListTenantProducts` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantProductsData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantProductsData {
   organizationMemberships: ({
     role: {
@@ -3868,13 +4004,13 @@ export interface ListTenantProductsData {
 ```
 ### Using `ListTenantProducts`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantProducts, ListTenantProductsVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantProducts` query requires an argument of type `ListTenantProductsVariables`:
 const listTenantProductsVars: ListTenantProductsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantProducts()` function to execute the query.
@@ -3900,13 +4036,13 @@ listTenantProducts(listTenantProductsVars).then((response) => {
 
 ### Using `ListTenantProducts`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantProductsRef, ListTenantProductsVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantProducts` query requires an argument of type `ListTenantProductsVariables`:
 const listTenantProductsVars: ListTenantProductsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantProductsRef()` function to get a reference to the query.
@@ -3935,7 +4071,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantInventory
 You can execute the `ListTenantInventory` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantInventory(vars: ListTenantInventoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantInventoryData, ListTenantInventoryVariables>;
 
 interface ListTenantInventoryRef {
@@ -3946,7 +4082,7 @@ interface ListTenantInventoryRef {
 export const listTenantInventoryRef: ListTenantInventoryRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantInventory(dc: DataConnect, vars: ListTenantInventoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantInventoryData, ListTenantInventoryVariables>;
 
 interface ListTenantInventoryRef {
@@ -3957,7 +4093,7 @@ export const listTenantInventoryRef: ListTenantInventoryRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantInventoryRef:
-```typescript
+```typescrip
 const name = listTenantInventoryRef.operationName;
 console.log(name);
 ```
@@ -3965,7 +4101,7 @@ console.log(name);
 ### Variables
 The `ListTenantInventory` query requires an argument of type `ListTenantInventoryVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantInventoryVariables {
   organizationId: UUIDString;
   outletId?: UUIDString | null;
@@ -3975,7 +4111,7 @@ export interface ListTenantInventoryVariables {
 Recall that executing the `ListTenantInventory` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantInventoryData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantInventoryData {
   organizationMemberships: ({
     role: {
@@ -4023,13 +4159,13 @@ export interface ListTenantInventoryData {
 ```
 ### Using `ListTenantInventory`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantInventory, ListTenantInventoryVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantInventory` query requires an argument of type `ListTenantInventoryVariables`:
 const listTenantInventoryVars: ListTenantInventoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
   outletId: ..., // optional
 };
 
@@ -4056,13 +4192,13 @@ listTenantInventory(listTenantInventoryVars).then((response) => {
 
 ### Using `ListTenantInventory`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantInventoryRef, ListTenantInventoryVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantInventory` query requires an argument of type `ListTenantInventoryVariables`:
 const listTenantInventoryVars: ListTenantInventoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
   outletId: ..., // optional
 };
 
@@ -4092,7 +4228,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantCustomers
 You can execute the `ListTenantCustomers` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantCustomers(vars: ListTenantCustomersVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomersData, ListTenantCustomersVariables>;
 
 interface ListTenantCustomersRef {
@@ -4103,7 +4239,7 @@ interface ListTenantCustomersRef {
 export const listTenantCustomersRef: ListTenantCustomersRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantCustomers(dc: DataConnect, vars: ListTenantCustomersVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomersData, ListTenantCustomersVariables>;
 
 interface ListTenantCustomersRef {
@@ -4114,7 +4250,7 @@ export const listTenantCustomersRef: ListTenantCustomersRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCustomersRef:
-```typescript
+```typescrip
 const name = listTenantCustomersRef.operationName;
 console.log(name);
 ```
@@ -4122,7 +4258,7 @@ console.log(name);
 ### Variables
 The `ListTenantCustomers` query requires an argument of type `ListTenantCustomersVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantCustomersVariables {
   organizationId: UUIDString;
 }
@@ -4131,7 +4267,7 @@ export interface ListTenantCustomersVariables {
 Recall that executing the `ListTenantCustomers` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantCustomersData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantCustomersData {
   organizationMemberships: ({
     role: {
@@ -4163,18 +4299,22 @@ export interface ListTenantCustomersData {
     gender?: string | null;
     status: CustomerStatus;
     notes?: string | null;
+    customerSales: ({
+      totalNet: number;
+      status: SaleStatus;
+    })[];
   } & Customer_Key)[];
 }
 ```
 ### Using `ListTenantCustomers`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantCustomers, ListTenantCustomersVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCustomers` query requires an argument of type `ListTenantCustomersVariables`:
 const listTenantCustomersVars: ListTenantCustomersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCustomers()` function to execute the query.
@@ -4200,13 +4340,13 @@ listTenantCustomers(listTenantCustomersVars).then((response) => {
 
 ### Using `ListTenantCustomers`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantCustomersRef, ListTenantCustomersVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCustomers` query requires an argument of type `ListTenantCustomersVariables`:
 const listTenantCustomersVars: ListTenantCustomersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCustomersRef()` function to get a reference to the query.
@@ -4235,7 +4375,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantCustomerPurchaseHistory
 You can execute the `ListTenantCustomerPurchaseHistory` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantCustomerPurchaseHistory(vars: ListTenantCustomerPurchaseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
 
 interface ListTenantCustomerPurchaseHistoryRef {
@@ -4246,7 +4386,7 @@ interface ListTenantCustomerPurchaseHistoryRef {
 export const listTenantCustomerPurchaseHistoryRef: ListTenantCustomerPurchaseHistoryRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantCustomerPurchaseHistory(dc: DataConnect, vars: ListTenantCustomerPurchaseHistoryVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCustomerPurchaseHistoryData, ListTenantCustomerPurchaseHistoryVariables>;
 
 interface ListTenantCustomerPurchaseHistoryRef {
@@ -4257,7 +4397,7 @@ export const listTenantCustomerPurchaseHistoryRef: ListTenantCustomerPurchaseHis
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCustomerPurchaseHistoryRef:
-```typescript
+```typescrip
 const name = listTenantCustomerPurchaseHistoryRef.operationName;
 console.log(name);
 ```
@@ -4265,7 +4405,7 @@ console.log(name);
 ### Variables
 The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantCustomerPurchaseHistoryVariables {
   organizationId: UUIDString;
   customerId: UUIDString;
@@ -4275,7 +4415,7 @@ export interface ListTenantCustomerPurchaseHistoryVariables {
 Recall that executing the `ListTenantCustomerPurchaseHistory` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantCustomerPurchaseHistoryData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantCustomerPurchaseHistoryData {
   organizationMemberships: ({
     role: {
@@ -4299,14 +4439,14 @@ export interface ListTenantCustomerPurchaseHistoryData {
 ```
 ### Using `ListTenantCustomerPurchaseHistory`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantCustomerPurchaseHistory, ListTenantCustomerPurchaseHistoryVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
 const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
-  organizationId: ..., 
-  customerId: ..., 
+  organizationId: ...,
+  customerId: ...,
 };
 
 // Call the `listTenantCustomerPurchaseHistory()` function to execute the query.
@@ -4332,14 +4472,14 @@ listTenantCustomerPurchaseHistory(listTenantCustomerPurchaseHistoryVars).then((r
 
 ### Using `ListTenantCustomerPurchaseHistory`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantCustomerPurchaseHistoryRef, ListTenantCustomerPurchaseHistoryVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
 const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
-  organizationId: ..., 
-  customerId: ..., 
+  organizationId: ...,
+  customerId: ...,
 };
 
 // Call the `listTenantCustomerPurchaseHistoryRef()` function to get a reference to the query.
@@ -4368,7 +4508,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantSuppliers
 You can execute the `ListTenantSuppliers` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantSuppliers(vars: ListTenantSuppliersVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantSuppliersData, ListTenantSuppliersVariables>;
 
 interface ListTenantSuppliersRef {
@@ -4379,7 +4519,7 @@ interface ListTenantSuppliersRef {
 export const listTenantSuppliersRef: ListTenantSuppliersRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantSuppliers(dc: DataConnect, vars: ListTenantSuppliersVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantSuppliersData, ListTenantSuppliersVariables>;
 
 interface ListTenantSuppliersRef {
@@ -4390,7 +4530,7 @@ export const listTenantSuppliersRef: ListTenantSuppliersRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantSuppliersRef:
-```typescript
+```typescrip
 const name = listTenantSuppliersRef.operationName;
 console.log(name);
 ```
@@ -4398,7 +4538,7 @@ console.log(name);
 ### Variables
 The `ListTenantSuppliers` query requires an argument of type `ListTenantSuppliersVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantSuppliersVariables {
   organizationId: UUIDString;
 }
@@ -4407,7 +4547,7 @@ export interface ListTenantSuppliersVariables {
 Recall that executing the `ListTenantSuppliers` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantSuppliersData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantSuppliersData {
   organizationMemberships: ({
     role: {
@@ -4436,18 +4576,24 @@ export interface ListTenantSuppliersData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
+    supplierPurchases: ({
+      totalAmount: number;
+      outstandingAmount: number;
+      receiptStatus: PurchaseReceiptStatus;
+      status: PurchaseStatus;
+    })[];
   } & Supplier_Key)[];
 }
 ```
 ### Using `ListTenantSuppliers`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantSuppliers, ListTenantSuppliersVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantSuppliers` query requires an argument of type `ListTenantSuppliersVariables`:
 const listTenantSuppliersVars: ListTenantSuppliersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSuppliers()` function to execute the query.
@@ -4473,13 +4619,13 @@ listTenantSuppliers(listTenantSuppliersVars).then((response) => {
 
 ### Using `ListTenantSuppliers`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantSuppliersRef, ListTenantSuppliersVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantSuppliers` query requires an argument of type `ListTenantSuppliersVariables`:
 const listTenantSuppliersVars: ListTenantSuppliersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSuppliersRef()` function to get a reference to the query.
@@ -4508,7 +4654,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantPurchases
 You can execute the `ListTenantPurchases` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantPurchases(vars: ListTenantPurchasesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantPurchasesData, ListTenantPurchasesVariables>;
 
 interface ListTenantPurchasesRef {
@@ -4519,7 +4665,7 @@ interface ListTenantPurchasesRef {
 export const listTenantPurchasesRef: ListTenantPurchasesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantPurchases(dc: DataConnect, vars: ListTenantPurchasesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantPurchasesData, ListTenantPurchasesVariables>;
 
 interface ListTenantPurchasesRef {
@@ -4530,7 +4676,7 @@ export const listTenantPurchasesRef: ListTenantPurchasesRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantPurchasesRef:
-```typescript
+```typescrip
 const name = listTenantPurchasesRef.operationName;
 console.log(name);
 ```
@@ -4538,7 +4684,7 @@ console.log(name);
 ### Variables
 The `ListTenantPurchases` query requires an argument of type `ListTenantPurchasesVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantPurchasesVariables {
   organizationId: UUIDString;
 }
@@ -4547,7 +4693,7 @@ export interface ListTenantPurchasesVariables {
 Recall that executing the `ListTenantPurchases` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantPurchasesData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantPurchasesData {
   organizationMemberships: ({
     role: {
@@ -4619,13 +4765,13 @@ export interface ListTenantPurchasesData {
 ```
 ### Using `ListTenantPurchases`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantPurchases, ListTenantPurchasesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantPurchases` query requires an argument of type `ListTenantPurchasesVariables`:
 const listTenantPurchasesVars: ListTenantPurchasesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantPurchases()` function to execute the query.
@@ -4651,13 +4797,13 @@ listTenantPurchases(listTenantPurchasesVars).then((response) => {
 
 ### Using `ListTenantPurchases`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantPurchasesRef, ListTenantPurchasesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantPurchases` query requires an argument of type `ListTenantPurchasesVariables`:
 const listTenantPurchasesVars: ListTenantPurchasesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantPurchasesRef()` function to get a reference to the query.
@@ -4686,7 +4832,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantExpenses
 You can execute the `ListTenantExpenses` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantExpenses(vars: ListTenantExpensesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantExpensesData, ListTenantExpensesVariables>;
 
 interface ListTenantExpensesRef {
@@ -4697,7 +4843,7 @@ interface ListTenantExpensesRef {
 export const listTenantExpensesRef: ListTenantExpensesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantExpenses(dc: DataConnect, vars: ListTenantExpensesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantExpensesData, ListTenantExpensesVariables>;
 
 interface ListTenantExpensesRef {
@@ -4708,7 +4854,7 @@ export const listTenantExpensesRef: ListTenantExpensesRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantExpensesRef:
-```typescript
+```typescrip
 const name = listTenantExpensesRef.operationName;
 console.log(name);
 ```
@@ -4716,7 +4862,7 @@ console.log(name);
 ### Variables
 The `ListTenantExpenses` query requires an argument of type `ListTenantExpensesVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantExpensesVariables {
   organizationId: UUIDString;
 }
@@ -4725,7 +4871,7 @@ export interface ListTenantExpensesVariables {
 Recall that executing the `ListTenantExpenses` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantExpensesData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantExpensesData {
   organizationMemberships: ({
     role: {
@@ -4771,13 +4917,13 @@ export interface ListTenantExpensesData {
 ```
 ### Using `ListTenantExpenses`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantExpenses, ListTenantExpensesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantExpenses` query requires an argument of type `ListTenantExpensesVariables`:
 const listTenantExpensesVars: ListTenantExpensesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantExpenses()` function to execute the query.
@@ -4803,13 +4949,13 @@ listTenantExpenses(listTenantExpensesVars).then((response) => {
 
 ### Using `ListTenantExpenses`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantExpensesRef, ListTenantExpensesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantExpenses` query requires an argument of type `ListTenantExpensesVariables`:
 const listTenantExpensesVars: ListTenantExpensesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantExpensesRef()` function to get a reference to the query.
@@ -4838,7 +4984,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantSales
 You can execute the `ListTenantSales` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantSales(vars: ListTenantSalesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantSalesData, ListTenantSalesVariables>;
 
 interface ListTenantSalesRef {
@@ -4849,7 +4995,7 @@ interface ListTenantSalesRef {
 export const listTenantSalesRef: ListTenantSalesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantSales(dc: DataConnect, vars: ListTenantSalesVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantSalesData, ListTenantSalesVariables>;
 
 interface ListTenantSalesRef {
@@ -4860,7 +5006,7 @@ export const listTenantSalesRef: ListTenantSalesRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantSalesRef:
-```typescript
+```typescrip
 const name = listTenantSalesRef.operationName;
 console.log(name);
 ```
@@ -4868,7 +5014,7 @@ console.log(name);
 ### Variables
 The `ListTenantSales` query requires an argument of type `ListTenantSalesVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantSalesVariables {
   organizationId: UUIDString;
 }
@@ -4877,7 +5023,7 @@ export interface ListTenantSalesVariables {
 Recall that executing the `ListTenantSales` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantSalesData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantSalesData {
   organizationMemberships: ({
     role: {
@@ -4921,7 +5067,8 @@ export interface ListTenantSalesData {
     createdAt: TimestampString;
     saleLines_on_sale: ({
       id: UUIDString;
-      product: {
+      itemName?: string | null;
+      product?: {
         id: UUIDString;
         productCode: number;
         name: string;
@@ -4936,13 +5083,13 @@ export interface ListTenantSalesData {
 ```
 ### Using `ListTenantSales`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantSales, ListTenantSalesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantSales` query requires an argument of type `ListTenantSalesVariables`:
 const listTenantSalesVars: ListTenantSalesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSales()` function to execute the query.
@@ -4968,13 +5115,13 @@ listTenantSales(listTenantSalesVars).then((response) => {
 
 ### Using `ListTenantSales`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantSalesRef, ListTenantSalesVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantSales` query requires an argument of type `ListTenantSalesVariables`:
 const listTenantSalesVars: ListTenantSalesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSalesRef()` function to get a reference to the query.
@@ -5003,7 +5150,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantInventoryStockTrusted
 You can execute the `GetTenantInventoryStockTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantInventoryStockTrusted(vars: GetTenantInventoryStockTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantInventoryStockTrustedData, GetTenantInventoryStockTrustedVariables>;
 
 interface GetTenantInventoryStockTrustedRef {
@@ -5014,7 +5161,7 @@ interface GetTenantInventoryStockTrustedRef {
 export const getTenantInventoryStockTrustedRef: GetTenantInventoryStockTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantInventoryStockTrusted(dc: DataConnect, vars: GetTenantInventoryStockTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantInventoryStockTrustedData, GetTenantInventoryStockTrustedVariables>;
 
 interface GetTenantInventoryStockTrustedRef {
@@ -5025,7 +5172,7 @@ export const getTenantInventoryStockTrustedRef: GetTenantInventoryStockTrustedRe
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantInventoryStockTrustedRef:
-```typescript
+```typescrip
 const name = getTenantInventoryStockTrustedRef.operationName;
 console.log(name);
 ```
@@ -5033,7 +5180,7 @@ console.log(name);
 ### Variables
 The `GetTenantInventoryStockTrusted` query requires an argument of type `GetTenantInventoryStockTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantInventoryStockTrustedVariables {
   organizationId: UUIDString;
   outletId: UUIDString;
@@ -5044,7 +5191,7 @@ export interface GetTenantInventoryStockTrustedVariables {
 Recall that executing the `GetTenantInventoryStockTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantInventoryStockTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantInventoryStockTrustedData {
   inventoryStocks: ({
     onHandQty: number;
@@ -5053,15 +5200,15 @@ export interface GetTenantInventoryStockTrustedData {
 ```
 ### Using `GetTenantInventoryStockTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantInventoryStockTrusted, GetTenantInventoryStockTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantInventoryStockTrusted` query requires an argument of type `GetTenantInventoryStockTrustedVariables`:
 const getTenantInventoryStockTrustedVars: GetTenantInventoryStockTrustedVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
 };
 
 // Call the `getTenantInventoryStockTrusted()` function to execute the query.
@@ -5085,15 +5232,15 @@ getTenantInventoryStockTrusted(getTenantInventoryStockTrustedVars).then((respons
 
 ### Using `GetTenantInventoryStockTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantInventoryStockTrustedRef, GetTenantInventoryStockTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantInventoryStockTrusted` query requires an argument of type `GetTenantInventoryStockTrustedVariables`:
 const getTenantInventoryStockTrustedVars: GetTenantInventoryStockTrustedVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
 };
 
 // Call the `getTenantInventoryStockTrustedRef()` function to get a reference to the query.
@@ -5120,7 +5267,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantSupplierTrusted
 You can execute the `GetTenantSupplierTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantSupplierTrusted(vars: GetTenantSupplierTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
 
 interface GetTenantSupplierTrustedRef {
@@ -5131,7 +5278,7 @@ interface GetTenantSupplierTrustedRef {
 export const getTenantSupplierTrustedRef: GetTenantSupplierTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantSupplierTrusted(dc: DataConnect, vars: GetTenantSupplierTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantSupplierTrustedData, GetTenantSupplierTrustedVariables>;
 
 interface GetTenantSupplierTrustedRef {
@@ -5142,7 +5289,7 @@ export const getTenantSupplierTrustedRef: GetTenantSupplierTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantSupplierTrustedRef:
-```typescript
+```typescrip
 const name = getTenantSupplierTrustedRef.operationName;
 console.log(name);
 ```
@@ -5150,7 +5297,7 @@ console.log(name);
 ### Variables
 The `GetTenantSupplierTrusted` query requires an argument of type `GetTenantSupplierTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantSupplierTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -5160,7 +5307,7 @@ export interface GetTenantSupplierTrustedVariables {
 Recall that executing the `GetTenantSupplierTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantSupplierTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantSupplierTrustedData {
   suppliers: ({
     id: UUIDString;
@@ -5184,14 +5331,14 @@ export interface GetTenantSupplierTrustedData {
 ```
 ### Using `GetTenantSupplierTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantSupplierTrusted, GetTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantSupplierTrusted` query requires an argument of type `GetTenantSupplierTrustedVariables`:
 const getTenantSupplierTrustedVars: GetTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantSupplierTrusted()` function to execute the query.
@@ -5215,14 +5362,14 @@ getTenantSupplierTrusted(getTenantSupplierTrustedVars).then((response) => {
 
 ### Using `GetTenantSupplierTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantSupplierTrustedRef, GetTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantSupplierTrusted` query requires an argument of type `GetTenantSupplierTrustedVariables`:
 const getTenantSupplierTrustedVars: GetTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantSupplierTrustedRef()` function to get a reference to the query.
@@ -5249,7 +5396,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantCustomerTrusted
 You can execute the `GetTenantCustomerTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantCustomerTrusted(vars: GetTenantCustomerTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
 
 interface GetTenantCustomerTrustedRef {
@@ -5260,7 +5407,7 @@ interface GetTenantCustomerTrustedRef {
 export const getTenantCustomerTrustedRef: GetTenantCustomerTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantCustomerTrusted(dc: DataConnect, vars: GetTenantCustomerTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantCustomerTrustedData, GetTenantCustomerTrustedVariables>;
 
 interface GetTenantCustomerTrustedRef {
@@ -5271,7 +5418,7 @@ export const getTenantCustomerTrustedRef: GetTenantCustomerTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantCustomerTrustedRef:
-```typescript
+```typescrip
 const name = getTenantCustomerTrustedRef.operationName;
 console.log(name);
 ```
@@ -5279,7 +5426,7 @@ console.log(name);
 ### Variables
 The `GetTenantCustomerTrusted` query requires an argument of type `GetTenantCustomerTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantCustomerTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -5289,7 +5436,7 @@ export interface GetTenantCustomerTrustedVariables {
 Recall that executing the `GetTenantCustomerTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantCustomerTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantCustomerTrustedData {
   customers: ({
     id: UUIDString;
@@ -5316,14 +5463,14 @@ export interface GetTenantCustomerTrustedData {
 ```
 ### Using `GetTenantCustomerTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantCustomerTrusted, GetTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantCustomerTrusted` query requires an argument of type `GetTenantCustomerTrustedVariables`:
 const getTenantCustomerTrustedVars: GetTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantCustomerTrusted()` function to execute the query.
@@ -5347,14 +5494,14 @@ getTenantCustomerTrusted(getTenantCustomerTrustedVars).then((response) => {
 
 ### Using `GetTenantCustomerTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantCustomerTrustedRef, GetTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantCustomerTrusted` query requires an argument of type `GetTenantCustomerTrustedVariables`:
 const getTenantCustomerTrustedVars: GetTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantCustomerTrustedRef()` function to get a reference to the query.
@@ -5381,7 +5528,7 @@ executeQuery(ref).then((response) => {
 
 ## ListTenantCategoriesTrusted
 You can execute the `ListTenantCategoriesTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 listTenantCategoriesTrusted(vars: ListTenantCategoriesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
 
 interface ListTenantCategoriesTrustedRef {
@@ -5392,7 +5539,7 @@ interface ListTenantCategoriesTrustedRef {
 export const listTenantCategoriesTrustedRef: ListTenantCategoriesTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 listTenantCategoriesTrusted(dc: DataConnect, vars: ListTenantCategoriesTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantCategoriesTrustedData, ListTenantCategoriesTrustedVariables>;
 
 interface ListTenantCategoriesTrustedRef {
@@ -5403,7 +5550,7 @@ export const listTenantCategoriesTrustedRef: ListTenantCategoriesTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantCategoriesTrustedRef:
-```typescript
+```typescrip
 const name = listTenantCategoriesTrustedRef.operationName;
 console.log(name);
 ```
@@ -5411,7 +5558,7 @@ console.log(name);
 ### Variables
 The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ListTenantCategoriesTrustedVariables {
   organizationId: UUIDString;
 }
@@ -5420,7 +5567,7 @@ export interface ListTenantCategoriesTrustedVariables {
 Recall that executing the `ListTenantCategoriesTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ListTenantCategoriesTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ListTenantCategoriesTrustedData {
   categories: ({
     id: UUIDString;
@@ -5437,13 +5584,13 @@ export interface ListTenantCategoriesTrustedData {
 ```
 ### Using `ListTenantCategoriesTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, listTenantCategoriesTrusted, ListTenantCategoriesTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`:
 const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategoriesTrusted()` function to execute the query.
@@ -5467,13 +5614,13 @@ listTenantCategoriesTrusted(listTenantCategoriesTrustedVars).then((response) => 
 
 ### Using `ListTenantCategoriesTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, listTenantCategoriesTrustedRef, ListTenantCategoriesTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`:
 const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategoriesTrustedRef()` function to get a reference to the query.
@@ -5500,7 +5647,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantProductTrusted
 You can execute the `GetTenantProductTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantProductTrusted(vars: GetTenantProductTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
 
 interface GetTenantProductTrustedRef {
@@ -5511,7 +5658,7 @@ interface GetTenantProductTrustedRef {
 export const getTenantProductTrustedRef: GetTenantProductTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantProductTrusted(dc: DataConnect, vars: GetTenantProductTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantProductTrustedData, GetTenantProductTrustedVariables>;
 
 interface GetTenantProductTrustedRef {
@@ -5522,7 +5669,7 @@ export const getTenantProductTrustedRef: GetTenantProductTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantProductTrustedRef:
-```typescript
+```typescrip
 const name = getTenantProductTrustedRef.operationName;
 console.log(name);
 ```
@@ -5530,7 +5677,7 @@ console.log(name);
 ### Variables
 The `GetTenantProductTrusted` query requires an argument of type `GetTenantProductTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantProductTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -5540,7 +5687,7 @@ export interface GetTenantProductTrustedVariables {
 Recall that executing the `GetTenantProductTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantProductTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantProductTrustedData {
   products: ({
     id: UUIDString;
@@ -5579,14 +5726,14 @@ export interface GetTenantProductTrustedData {
 ```
 ### Using `GetTenantProductTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantProductTrusted, GetTenantProductTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantProductTrusted` query requires an argument of type `GetTenantProductTrustedVariables`:
 const getTenantProductTrustedVars: GetTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantProductTrusted()` function to execute the query.
@@ -5610,14 +5757,14 @@ getTenantProductTrusted(getTenantProductTrustedVars).then((response) => {
 
 ### Using `GetTenantProductTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantProductTrustedRef, GetTenantProductTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantProductTrusted` query requires an argument of type `GetTenantProductTrustedVariables`:
 const getTenantProductTrustedVars: GetTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantProductTrustedRef()` function to get a reference to the query.
@@ -5644,7 +5791,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantMembershipTrusted
 You can execute the `GetTenantMembershipTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantMembershipTrusted(vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
 
 interface GetTenantMembershipTrustedRef {
@@ -5655,7 +5802,7 @@ interface GetTenantMembershipTrustedRef {
 export const getTenantMembershipTrustedRef: GetTenantMembershipTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantMembershipTrusted(dc: DataConnect, vars: GetTenantMembershipTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantMembershipTrustedData, GetTenantMembershipTrustedVariables>;
 
 interface GetTenantMembershipTrustedRef {
@@ -5666,7 +5813,7 @@ export const getTenantMembershipTrustedRef: GetTenantMembershipTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantMembershipTrustedRef:
-```typescript
+```typescrip
 const name = getTenantMembershipTrustedRef.operationName;
 console.log(name);
 ```
@@ -5674,7 +5821,7 @@ console.log(name);
 ### Variables
 The `GetTenantMembershipTrusted` query requires an argument of type `GetTenantMembershipTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantMembershipTrustedVariables {
   organizationId: UUIDString;
   firebaseUid: string;
@@ -5684,7 +5831,7 @@ export interface GetTenantMembershipTrustedVariables {
 Recall that executing the `GetTenantMembershipTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantMembershipTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantMembershipTrustedData {
   organizationMemberships: ({
     organization: {
@@ -5708,14 +5855,14 @@ export interface GetTenantMembershipTrustedData {
 ```
 ### Using `GetTenantMembershipTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantMembershipTrusted, GetTenantMembershipTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantMembershipTrusted` query requires an argument of type `GetTenantMembershipTrustedVariables`:
 const getTenantMembershipTrustedVars: GetTenantMembershipTrustedVariables = {
-  organizationId: ..., 
-  firebaseUid: ..., 
+  organizationId: ...,
+  firebaseUid: ...,
 };
 
 // Call the `getTenantMembershipTrusted()` function to execute the query.
@@ -5739,14 +5886,14 @@ getTenantMembershipTrusted(getTenantMembershipTrustedVars).then((response) => {
 
 ### Using `GetTenantMembershipTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantMembershipTrustedRef, GetTenantMembershipTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantMembershipTrusted` query requires an argument of type `GetTenantMembershipTrustedVariables`:
 const getTenantMembershipTrustedVars: GetTenantMembershipTrustedVariables = {
-  organizationId: ..., 
-  firebaseUid: ..., 
+  organizationId: ...,
+  firebaseUid: ...,
 };
 
 // Call the `getTenantMembershipTrustedRef()` function to get a reference to the query.
@@ -5773,7 +5920,7 @@ executeQuery(ref).then((response) => {
 
 ## ResolveTenantEmployeeIdentityTrusted
 You can execute the `ResolveTenantEmployeeIdentityTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 resolveTenantEmployeeIdentityTrusted(vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
 
 interface ResolveTenantEmployeeIdentityTrustedRef {
@@ -5784,7 +5931,7 @@ interface ResolveTenantEmployeeIdentityTrustedRef {
 export const resolveTenantEmployeeIdentityTrustedRef: ResolveTenantEmployeeIdentityTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 resolveTenantEmployeeIdentityTrusted(dc: DataConnect, vars: ResolveTenantEmployeeIdentityTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveTenantEmployeeIdentityTrustedData, ResolveTenantEmployeeIdentityTrustedVariables>;
 
 interface ResolveTenantEmployeeIdentityTrustedRef {
@@ -5795,7 +5942,7 @@ export const resolveTenantEmployeeIdentityTrustedRef: ResolveTenantEmployeeIdent
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the resolveTenantEmployeeIdentityTrustedRef:
-```typescript
+```typescrip
 const name = resolveTenantEmployeeIdentityTrustedRef.operationName;
 console.log(name);
 ```
@@ -5803,7 +5950,7 @@ console.log(name);
 ### Variables
 The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ResolveTenantEmployeeIdentityTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
@@ -5813,7 +5960,7 @@ export interface ResolveTenantEmployeeIdentityTrustedVariables {
 Recall that executing the `ResolveTenantEmployeeIdentityTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ResolveTenantEmployeeIdentityTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ResolveTenantEmployeeIdentityTrustedData {
   employees: ({
     id: UUIDString;
@@ -5827,14 +5974,14 @@ export interface ResolveTenantEmployeeIdentityTrustedData {
 ```
 ### Using `ResolveTenantEmployeeIdentityTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, resolveTenantEmployeeIdentityTrusted, ResolveTenantEmployeeIdentityTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
 const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
+  organizationId: ...,
+  employeeId: ...,
 };
 
 // Call the `resolveTenantEmployeeIdentityTrusted()` function to execute the query.
@@ -5858,14 +6005,14 @@ resolveTenantEmployeeIdentityTrusted(resolveTenantEmployeeIdentityTrustedVars).t
 
 ### Using `ResolveTenantEmployeeIdentityTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, resolveTenantEmployeeIdentityTrustedRef, ResolveTenantEmployeeIdentityTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
 const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
+  organizationId: ...,
+  employeeId: ...,
 };
 
 // Call the `resolveTenantEmployeeIdentityTrustedRef()` function to get a reference to the query.
@@ -5892,7 +6039,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantOutletTrusted
 You can execute the `GetTenantOutletTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantOutletTrusted(vars: GetTenantOutletTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
 
 interface GetTenantOutletTrustedRef {
@@ -5903,7 +6050,7 @@ interface GetTenantOutletTrustedRef {
 export const getTenantOutletTrustedRef: GetTenantOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantOutletTrusted(dc: DataConnect, vars: GetTenantOutletTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantOutletTrustedData, GetTenantOutletTrustedVariables>;
 
 interface GetTenantOutletTrustedRef {
@@ -5914,7 +6061,7 @@ export const getTenantOutletTrustedRef: GetTenantOutletTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantOutletTrustedRef:
-```typescript
+```typescrip
 const name = getTenantOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -5922,7 +6069,7 @@ console.log(name);
 ### Variables
 The `GetTenantOutletTrusted` query requires an argument of type `GetTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantOutletTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -5932,7 +6079,7 @@ export interface GetTenantOutletTrustedVariables {
 Recall that executing the `GetTenantOutletTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantOutletTrustedData {
   outlets: ({
     id: UUIDString;
@@ -5951,14 +6098,14 @@ export interface GetTenantOutletTrustedData {
 ```
 ### Using `GetTenantOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantOutletTrusted, GetTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantOutletTrusted` query requires an argument of type `GetTenantOutletTrustedVariables`:
 const getTenantOutletTrustedVars: GetTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantOutletTrusted()` function to execute the query.
@@ -5982,14 +6129,14 @@ getTenantOutletTrusted(getTenantOutletTrustedVars).then((response) => {
 
 ### Using `GetTenantOutletTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantOutletTrustedRef, GetTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantOutletTrusted` query requires an argument of type `GetTenantOutletTrustedVariables`:
 const getTenantOutletTrustedVars: GetTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantOutletTrustedRef()` function to get a reference to the query.
@@ -6016,7 +6163,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantEmployeeTrusted
 You can execute the `GetTenantEmployeeTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantEmployeeTrusted(vars: GetTenantEmployeeTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
 
 interface GetTenantEmployeeTrustedRef {
@@ -6027,7 +6174,7 @@ interface GetTenantEmployeeTrustedRef {
 export const getTenantEmployeeTrustedRef: GetTenantEmployeeTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantEmployeeTrusted(dc: DataConnect, vars: GetTenantEmployeeTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantEmployeeTrustedData, GetTenantEmployeeTrustedVariables>;
 
 interface GetTenantEmployeeTrustedRef {
@@ -6038,7 +6185,7 @@ export const getTenantEmployeeTrustedRef: GetTenantEmployeeTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantEmployeeTrustedRef:
-```typescript
+```typescrip
 const name = getTenantEmployeeTrustedRef.operationName;
 console.log(name);
 ```
@@ -6046,7 +6193,7 @@ console.log(name);
 ### Variables
 The `GetTenantEmployeeTrusted` query requires an argument of type `GetTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantEmployeeTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -6056,7 +6203,7 @@ export interface GetTenantEmployeeTrustedVariables {
 Recall that executing the `GetTenantEmployeeTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantEmployeeTrustedData {
   employees: ({
     id: UUIDString;
@@ -6100,14 +6247,14 @@ export interface GetTenantEmployeeTrustedData {
 ```
 ### Using `GetTenantEmployeeTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantEmployeeTrusted, GetTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantEmployeeTrusted` query requires an argument of type `GetTenantEmployeeTrustedVariables`:
 const getTenantEmployeeTrustedVars: GetTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantEmployeeTrusted()` function to execute the query.
@@ -6131,14 +6278,14 @@ getTenantEmployeeTrusted(getTenantEmployeeTrustedVars).then((response) => {
 
 ### Using `GetTenantEmployeeTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantEmployeeTrustedRef, GetTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantEmployeeTrusted` query requires an argument of type `GetTenantEmployeeTrustedVariables`:
 const getTenantEmployeeTrustedVars: GetTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantEmployeeTrustedRef()` function to get a reference to the query.
@@ -6165,7 +6312,7 @@ executeQuery(ref).then((response) => {
 
 ## GetTenantServicePersonTrusted
 You can execute the `GetTenantServicePersonTrusted` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 getTenantServicePersonTrusted(vars: GetTenantServicePersonTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
 
 interface GetTenantServicePersonTrustedRef {
@@ -6176,7 +6323,7 @@ interface GetTenantServicePersonTrustedRef {
 export const getTenantServicePersonTrustedRef: GetTenantServicePersonTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
+```typescrip
 getTenantServicePersonTrusted(dc: DataConnect, vars: GetTenantServicePersonTrustedVariables, options?: ExecuteQueryOptions): QueryPromise<GetTenantServicePersonTrustedData, GetTenantServicePersonTrustedVariables>;
 
 interface GetTenantServicePersonTrustedRef {
@@ -6187,7 +6334,7 @@ export const getTenantServicePersonTrustedRef: GetTenantServicePersonTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getTenantServicePersonTrustedRef:
-```typescript
+```typescrip
 const name = getTenantServicePersonTrustedRef.operationName;
 console.log(name);
 ```
@@ -6195,7 +6342,7 @@ console.log(name);
 ### Variables
 The `GetTenantServicePersonTrusted` query requires an argument of type `GetTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface GetTenantServicePersonTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -6205,7 +6352,7 @@ export interface GetTenantServicePersonTrustedVariables {
 Recall that executing the `GetTenantServicePersonTrusted` query returns a `QueryPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `GetTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface GetTenantServicePersonTrustedData {
   servicePeople: ({
     id: UUIDString;
@@ -6234,14 +6381,14 @@ export interface GetTenantServicePersonTrustedData {
 ```
 ### Using `GetTenantServicePersonTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, getTenantServicePersonTrusted, GetTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantServicePersonTrusted` query requires an argument of type `GetTenantServicePersonTrustedVariables`:
 const getTenantServicePersonTrustedVars: GetTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantServicePersonTrusted()` function to execute the query.
@@ -6265,14 +6412,14 @@ getTenantServicePersonTrusted(getTenantServicePersonTrustedVars).then((response)
 
 ### Using `GetTenantServicePersonTrusted`'s `QueryRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeQuery } from 'firebase/data-connect';
 import { connectorConfig, getTenantServicePersonTrustedRef, GetTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `GetTenantServicePersonTrusted` query requires an argument of type `GetTenantServicePersonTrustedVariables`:
 const getTenantServicePersonTrustedVars: GetTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantServicePersonTrustedRef()` function to get a reference to the query.
@@ -6314,7 +6461,7 @@ Below are examples of how to use the `master-admin` connector's generated functi
 
 ## UpdateAppUserProfile
 You can execute the `UpdateAppUserProfile` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateAppUserProfile(vars: UpdateAppUserProfileVariables): MutationPromise<UpdateAppUserProfileData, UpdateAppUserProfileVariables>;
 
 interface UpdateAppUserProfileRef {
@@ -6325,7 +6472,7 @@ interface UpdateAppUserProfileRef {
 export const updateAppUserProfileRef: UpdateAppUserProfileRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateAppUserProfile(dc: DataConnect, vars: UpdateAppUserProfileVariables): MutationPromise<UpdateAppUserProfileData, UpdateAppUserProfileVariables>;
 
 interface UpdateAppUserProfileRef {
@@ -6336,7 +6483,7 @@ export const updateAppUserProfileRef: UpdateAppUserProfileRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateAppUserProfileRef:
-```typescript
+```typescrip
 const name = updateAppUserProfileRef.operationName;
 console.log(name);
 ```
@@ -6344,7 +6491,7 @@ console.log(name);
 ### Variables
 The `UpdateAppUserProfile` mutation requires an argument of type `UpdateAppUserProfileVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateAppUserProfileVariables {
   userId: UUIDString;
   displayName: string;
@@ -6355,21 +6502,21 @@ export interface UpdateAppUserProfileVariables {
 Recall that executing the `UpdateAppUserProfile` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateAppUserProfileData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateAppUserProfileData {
   appUser_update?: AppUser_Key | null;
 }
 ```
 ### Using `UpdateAppUserProfile`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateAppUserProfile, UpdateAppUserProfileVariables } from '@omniretail/sql-connect';
 
 // The `UpdateAppUserProfile` mutation requires an argument of type `UpdateAppUserProfileVariables`:
 const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
-  userId: ..., 
-  displayName: ..., 
+  userId: ...,
+  displayName: ...,
   phone: ..., // optional
 };
 
@@ -6394,14 +6541,14 @@ updateAppUserProfile(updateAppUserProfileVars).then((response) => {
 
 ### Using `UpdateAppUserProfile`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateAppUserProfileRef, UpdateAppUserProfileVariables } from '@omniretail/sql-connect';
 
 // The `UpdateAppUserProfile` mutation requires an argument of type `UpdateAppUserProfileVariables`:
 const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
-  userId: ..., 
-  displayName: ..., 
+  userId: ...,
+  displayName: ...,
   phone: ..., // optional
 };
 
@@ -6429,7 +6576,7 @@ executeMutation(ref).then((response) => {
 
 ## BootstrapMasterAdmin
 You can execute the `BootstrapMasterAdmin` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 bootstrapMasterAdmin(vars: BootstrapMasterAdminVariables): MutationPromise<BootstrapMasterAdminData, BootstrapMasterAdminVariables>;
 
 interface BootstrapMasterAdminRef {
@@ -6440,7 +6587,7 @@ interface BootstrapMasterAdminRef {
 export const bootstrapMasterAdminRef: BootstrapMasterAdminRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 bootstrapMasterAdmin(dc: DataConnect, vars: BootstrapMasterAdminVariables): MutationPromise<BootstrapMasterAdminData, BootstrapMasterAdminVariables>;
 
 interface BootstrapMasterAdminRef {
@@ -6451,7 +6598,7 @@ export const bootstrapMasterAdminRef: BootstrapMasterAdminRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the bootstrapMasterAdminRef:
-```typescript
+```typescrip
 const name = bootstrapMasterAdminRef.operationName;
 console.log(name);
 ```
@@ -6459,7 +6606,7 @@ console.log(name);
 ### Variables
 The `BootstrapMasterAdmin` mutation requires an argument of type `BootstrapMasterAdminVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface BootstrapMasterAdminVariables {
   userId: UUIDString;
   firebaseUid: string;
@@ -6474,7 +6621,7 @@ export interface BootstrapMasterAdminVariables {
 Recall that executing the `BootstrapMasterAdmin` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `BootstrapMasterAdminData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface BootstrapMasterAdminData {
   appUser_upsert: AppUser_Key;
   userRole_upsert: UserRole_Key;
@@ -6482,19 +6629,19 @@ export interface BootstrapMasterAdminData {
 ```
 ### Using `BootstrapMasterAdmin`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, bootstrapMasterAdmin, BootstrapMasterAdminVariables } from '@omniretail/sql-connect';
 
 // The `BootstrapMasterAdmin` mutation requires an argument of type `BootstrapMasterAdminVariables`:
 const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
+  roleId: ...,
 };
 
 // Call the `bootstrapMasterAdmin()` function to execute the mutation.
@@ -6520,19 +6667,19 @@ bootstrapMasterAdmin(bootstrapMasterAdminVars).then((response) => {
 
 ### Using `BootstrapMasterAdmin`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, bootstrapMasterAdminRef, BootstrapMasterAdminVariables } from '@omniretail/sql-connect';
 
 // The `BootstrapMasterAdmin` mutation requires an argument of type `BootstrapMasterAdminVariables`:
 const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
+  roleId: ...,
 };
 
 // Call the `bootstrapMasterAdminRef()` function to get a reference to the mutation.
@@ -6561,7 +6708,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateLicensePlan
 You can execute the `CreateLicensePlan` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createLicensePlan(vars: CreateLicensePlanVariables): MutationPromise<CreateLicensePlanData, CreateLicensePlanVariables>;
 
 interface CreateLicensePlanRef {
@@ -6572,7 +6719,7 @@ interface CreateLicensePlanRef {
 export const createLicensePlanRef: CreateLicensePlanRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createLicensePlan(dc: DataConnect, vars: CreateLicensePlanVariables): MutationPromise<CreateLicensePlanData, CreateLicensePlanVariables>;
 
 interface CreateLicensePlanRef {
@@ -6583,7 +6730,7 @@ export const createLicensePlanRef: CreateLicensePlanRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createLicensePlanRef:
-```typescript
+```typescrip
 const name = createLicensePlanRef.operationName;
 console.log(name);
 ```
@@ -6591,7 +6738,7 @@ console.log(name);
 ### Variables
 The `CreateLicensePlan` mutation requires an argument of type `CreateLicensePlanVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateLicensePlanVariables {
   planCode: string;
   name: string;
@@ -6605,25 +6752,25 @@ export interface CreateLicensePlanVariables {
 Recall that executing the `CreateLicensePlan` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateLicensePlanData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateLicensePlanData {
   licensePlan_insert: LicensePlan_Key;
 }
 ```
 ### Using `CreateLicensePlan`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createLicensePlan, CreateLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `CreateLicensePlan` mutation requires an argument of type `CreateLicensePlanVariables`:
 const createLicensePlanVars: CreateLicensePlanVariables = {
-  planCode: ..., 
-  name: ..., 
+  planCode: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
 };
 
 // Call the `createLicensePlan()` function to execute the mutation.
@@ -6647,18 +6794,18 @@ createLicensePlan(createLicensePlanVars).then((response) => {
 
 ### Using `CreateLicensePlan`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createLicensePlanRef, CreateLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `CreateLicensePlan` mutation requires an argument of type `CreateLicensePlanVariables`:
 const createLicensePlanVars: CreateLicensePlanVariables = {
-  planCode: ..., 
-  name: ..., 
+  planCode: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
 };
 
 // Call the `createLicensePlanRef()` function to get a reference to the mutation.
@@ -6685,7 +6832,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateLicensePlan
 You can execute the `UpdateLicensePlan` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateLicensePlan(vars: UpdateLicensePlanVariables): MutationPromise<UpdateLicensePlanData, UpdateLicensePlanVariables>;
 
 interface UpdateLicensePlanRef {
@@ -6696,7 +6843,7 @@ interface UpdateLicensePlanRef {
 export const updateLicensePlanRef: UpdateLicensePlanRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateLicensePlan(dc: DataConnect, vars: UpdateLicensePlanVariables): MutationPromise<UpdateLicensePlanData, UpdateLicensePlanVariables>;
 
 interface UpdateLicensePlanRef {
@@ -6707,7 +6854,7 @@ export const updateLicensePlanRef: UpdateLicensePlanRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateLicensePlanRef:
-```typescript
+```typescrip
 const name = updateLicensePlanRef.operationName;
 console.log(name);
 ```
@@ -6715,7 +6862,7 @@ console.log(name);
 ### Variables
 The `UpdateLicensePlan` mutation requires an argument of type `UpdateLicensePlanVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateLicensePlanVariables {
   id: UUIDString;
   name: string;
@@ -6729,25 +6876,25 @@ export interface UpdateLicensePlanVariables {
 Recall that executing the `UpdateLicensePlan` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateLicensePlanData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateLicensePlanData {
   licensePlan_update?: LicensePlan_Key | null;
 }
 ```
 ### Using `UpdateLicensePlan`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateLicensePlan, UpdateLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `UpdateLicensePlan` mutation requires an argument of type `UpdateLicensePlanVariables`:
 const updateLicensePlanVars: UpdateLicensePlanVariables = {
-  id: ..., 
-  name: ..., 
+  id: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
 };
 
 // Call the `updateLicensePlan()` function to execute the mutation.
@@ -6771,18 +6918,18 @@ updateLicensePlan(updateLicensePlanVars).then((response) => {
 
 ### Using `UpdateLicensePlan`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateLicensePlanRef, UpdateLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `UpdateLicensePlan` mutation requires an argument of type `UpdateLicensePlanVariables`:
 const updateLicensePlanVars: UpdateLicensePlanVariables = {
-  id: ..., 
-  name: ..., 
+  id: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
 };
 
 // Call the `updateLicensePlanRef()` function to get a reference to the mutation.
@@ -6809,7 +6956,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeLicensePlanStatus
 You can execute the `ChangeLicensePlanStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeLicensePlanStatus(vars: ChangeLicensePlanStatusVariables): MutationPromise<ChangeLicensePlanStatusData, ChangeLicensePlanStatusVariables>;
 
 interface ChangeLicensePlanStatusRef {
@@ -6820,7 +6967,7 @@ interface ChangeLicensePlanStatusRef {
 export const changeLicensePlanStatusRef: ChangeLicensePlanStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeLicensePlanStatus(dc: DataConnect, vars: ChangeLicensePlanStatusVariables): MutationPromise<ChangeLicensePlanStatusData, ChangeLicensePlanStatusVariables>;
 
 interface ChangeLicensePlanStatusRef {
@@ -6831,7 +6978,7 @@ export const changeLicensePlanStatusRef: ChangeLicensePlanStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeLicensePlanStatusRef:
-```typescript
+```typescrip
 const name = changeLicensePlanStatusRef.operationName;
 console.log(name);
 ```
@@ -6839,7 +6986,7 @@ console.log(name);
 ### Variables
 The `ChangeLicensePlanStatus` mutation requires an argument of type `ChangeLicensePlanStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeLicensePlanStatusVariables {
   id: UUIDString;
   status: LicensePlanStatus;
@@ -6849,21 +6996,21 @@ export interface ChangeLicensePlanStatusVariables {
 Recall that executing the `ChangeLicensePlanStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeLicensePlanStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeLicensePlanStatusData {
   licensePlan_update?: LicensePlan_Key | null;
 }
 ```
 ### Using `ChangeLicensePlanStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeLicensePlanStatus, ChangeLicensePlanStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeLicensePlanStatus` mutation requires an argument of type `ChangeLicensePlanStatusVariables`:
 const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
-  id: ..., 
-  status: ..., 
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeLicensePlanStatus()` function to execute the mutation.
@@ -6887,14 +7034,14 @@ changeLicensePlanStatus(changeLicensePlanStatusVars).then((response) => {
 
 ### Using `ChangeLicensePlanStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeLicensePlanStatusRef, ChangeLicensePlanStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeLicensePlanStatus` mutation requires an argument of type `ChangeLicensePlanStatusVariables`:
 const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
-  id: ..., 
-  status: ..., 
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeLicensePlanStatusRef()` function to get a reference to the mutation.
@@ -6921,7 +7068,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteLicensePlan
 You can execute the `DeleteLicensePlan` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteLicensePlan(vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
 
 interface DeleteLicensePlanRef {
@@ -6932,7 +7079,7 @@ interface DeleteLicensePlanRef {
 export const deleteLicensePlanRef: DeleteLicensePlanRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteLicensePlan(dc: DataConnect, vars: DeleteLicensePlanVariables): MutationPromise<DeleteLicensePlanData, DeleteLicensePlanVariables>;
 
 interface DeleteLicensePlanRef {
@@ -6943,7 +7090,7 @@ export const deleteLicensePlanRef: DeleteLicensePlanRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteLicensePlanRef:
-```typescript
+```typescrip
 const name = deleteLicensePlanRef.operationName;
 console.log(name);
 ```
@@ -6951,7 +7098,7 @@ console.log(name);
 ### Variables
 The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteLicensePlanVariables {
   id: UUIDString;
 }
@@ -6960,20 +7107,20 @@ export interface DeleteLicensePlanVariables {
 Recall that executing the `DeleteLicensePlan` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteLicensePlanData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteLicensePlanData {
   licensePlan_delete?: LicensePlan_Key | null;
 }
 ```
 ### Using `DeleteLicensePlan`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteLicensePlan, DeleteLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
 const deleteLicensePlanVars: DeleteLicensePlanVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteLicensePlan()` function to execute the mutation.
@@ -6997,13 +7144,13 @@ deleteLicensePlan(deleteLicensePlanVars).then((response) => {
 
 ### Using `DeleteLicensePlan`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteLicensePlanRef, DeleteLicensePlanVariables } from '@omniretail/sql-connect';
 
 // The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
 const deleteLicensePlanVars: DeleteLicensePlanVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteLicensePlanRef()` function to get a reference to the mutation.
@@ -7030,7 +7177,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteLicensePlanTrusted
 You can execute the `DeleteLicensePlanTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteLicensePlanTrusted(vars: DeleteLicensePlanTrustedVariables): MutationPromise<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
 
 interface DeleteLicensePlanTrustedRef {
@@ -7041,7 +7188,7 @@ interface DeleteLicensePlanTrustedRef {
 export const deleteLicensePlanTrustedRef: DeleteLicensePlanTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteLicensePlanTrusted(dc: DataConnect, vars: DeleteLicensePlanTrustedVariables): MutationPromise<DeleteLicensePlanTrustedData, DeleteLicensePlanTrustedVariables>;
 
 interface DeleteLicensePlanTrustedRef {
@@ -7052,7 +7199,7 @@ export const deleteLicensePlanTrustedRef: DeleteLicensePlanTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteLicensePlanTrustedRef:
-```typescript
+```typescrip
 const name = deleteLicensePlanTrustedRef.operationName;
 console.log(name);
 ```
@@ -7060,7 +7207,7 @@ console.log(name);
 ### Variables
 The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteLicensePlanTrustedVariables {
   id: UUIDString;
 }
@@ -7069,20 +7216,20 @@ export interface DeleteLicensePlanTrustedVariables {
 Recall that executing the `DeleteLicensePlanTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteLicensePlanTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteLicensePlanTrustedData {
   licensePlan_delete?: LicensePlan_Key | null;
 }
 ```
 ### Using `DeleteLicensePlanTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteLicensePlanTrusted, DeleteLicensePlanTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
 const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteLicensePlanTrusted()` function to execute the mutation.
@@ -7106,13 +7253,13 @@ deleteLicensePlanTrusted(deleteLicensePlanTrustedVars).then((response) => {
 
 ### Using `DeleteLicensePlanTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteLicensePlanTrustedRef, DeleteLicensePlanTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
 const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteLicensePlanTrustedRef()` function to get a reference to the mutation.
@@ -7139,7 +7286,7 @@ executeMutation(ref).then((response) => {
 
 ## ProvisionOrganizationAdministrator
 You can execute the `ProvisionOrganizationAdministrator` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 provisionOrganizationAdministrator(vars: ProvisionOrganizationAdministratorVariables): MutationPromise<ProvisionOrganizationAdministratorData, ProvisionOrganizationAdministratorVariables>;
 
 interface ProvisionOrganizationAdministratorRef {
@@ -7150,7 +7297,7 @@ interface ProvisionOrganizationAdministratorRef {
 export const provisionOrganizationAdministratorRef: ProvisionOrganizationAdministratorRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 provisionOrganizationAdministrator(dc: DataConnect, vars: ProvisionOrganizationAdministratorVariables): MutationPromise<ProvisionOrganizationAdministratorData, ProvisionOrganizationAdministratorVariables>;
 
 interface ProvisionOrganizationAdministratorRef {
@@ -7161,7 +7308,7 @@ export const provisionOrganizationAdministratorRef: ProvisionOrganizationAdminis
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the provisionOrganizationAdministratorRef:
-```typescript
+```typescrip
 const name = provisionOrganizationAdministratorRef.operationName;
 console.log(name);
 ```
@@ -7169,7 +7316,7 @@ console.log(name);
 ### Variables
 The `ProvisionOrganizationAdministrator` mutation requires an argument of type `ProvisionOrganizationAdministratorVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ProvisionOrganizationAdministratorVariables {
   userId: UUIDString;
   firebaseUid: string;
@@ -7185,7 +7332,7 @@ export interface ProvisionOrganizationAdministratorVariables {
 Recall that executing the `ProvisionOrganizationAdministrator` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ProvisionOrganizationAdministratorData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ProvisionOrganizationAdministratorData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
@@ -7194,20 +7341,20 @@ export interface ProvisionOrganizationAdministratorData {
 ```
 ### Using `ProvisionOrganizationAdministrator`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, provisionOrganizationAdministrator, ProvisionOrganizationAdministratorVariables } from '@omniretail/sql-connect';
 
 // The `ProvisionOrganizationAdministrator` mutation requires an argument of type `ProvisionOrganizationAdministratorVariables`:
 const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministratorVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
-  phone: ..., 
-  organizationId: ..., 
-  roleId: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
+  phone: ...,
+  organizationId: ...,
+  roleId: ...,
 };
 
 // Call the `provisionOrganizationAdministrator()` function to execute the mutation.
@@ -7235,20 +7382,20 @@ provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then(
 
 ### Using `ProvisionOrganizationAdministrator`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, provisionOrganizationAdministratorRef, ProvisionOrganizationAdministratorVariables } from '@omniretail/sql-connect';
 
 // The `ProvisionOrganizationAdministrator` mutation requires an argument of type `ProvisionOrganizationAdministratorVariables`:
 const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministratorVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
-  phone: ..., 
-  organizationId: ..., 
-  roleId: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
+  phone: ...,
+  organizationId: ...,
+  roleId: ...,
 };
 
 // Call the `provisionOrganizationAdministratorRef()` function to get a reference to the mutation.
@@ -7279,7 +7426,7 @@ executeMutation(ref).then((response) => {
 
 ## EnsureAppUserRoleTrusted
 You can execute the `EnsureAppUserRoleTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 ensureAppUserRoleTrusted(vars: EnsureAppUserRoleTrustedVariables): MutationPromise<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
 
 interface EnsureAppUserRoleTrustedRef {
@@ -7290,7 +7437,7 @@ interface EnsureAppUserRoleTrustedRef {
 export const ensureAppUserRoleTrustedRef: EnsureAppUserRoleTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 ensureAppUserRoleTrusted(dc: DataConnect, vars: EnsureAppUserRoleTrustedVariables): MutationPromise<EnsureAppUserRoleTrustedData, EnsureAppUserRoleTrustedVariables>;
 
 interface EnsureAppUserRoleTrustedRef {
@@ -7301,7 +7448,7 @@ export const ensureAppUserRoleTrustedRef: EnsureAppUserRoleTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the ensureAppUserRoleTrustedRef:
-```typescript
+```typescrip
 const name = ensureAppUserRoleTrustedRef.operationName;
 console.log(name);
 ```
@@ -7309,7 +7456,7 @@ console.log(name);
 ### Variables
 The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface EnsureAppUserRoleTrustedVariables {
   userId: UUIDString;
   roleId: UUIDString;
@@ -7319,21 +7466,21 @@ export interface EnsureAppUserRoleTrustedVariables {
 Recall that executing the `EnsureAppUserRoleTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `EnsureAppUserRoleTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface EnsureAppUserRoleTrustedData {
   userRole_upsert: UserRole_Key;
 }
 ```
 ### Using `EnsureAppUserRoleTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, ensureAppUserRoleTrusted, EnsureAppUserRoleTrustedVariables } from '@omniretail/sql-connect';
 
 // The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
 const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
-  userId: ..., 
-  roleId: ..., 
+  userId: ...,
+  roleId: ...,
 };
 
 // Call the `ensureAppUserRoleTrusted()` function to execute the mutation.
@@ -7357,14 +7504,14 @@ ensureAppUserRoleTrusted(ensureAppUserRoleTrustedVars).then((response) => {
 
 ### Using `EnsureAppUserRoleTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, ensureAppUserRoleTrustedRef, EnsureAppUserRoleTrustedVariables } from '@omniretail/sql-connect';
 
 // The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
 const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
-  userId: ..., 
-  roleId: ..., 
+  userId: ...,
+  roleId: ...,
 };
 
 // Call the `ensureAppUserRoleTrustedRef()` function to get a reference to the mutation.
@@ -7391,7 +7538,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateOrganizationAdministrator
 You can execute the `UpdateOrganizationAdministrator` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateOrganizationAdministrator(vars: UpdateOrganizationAdministratorVariables): MutationPromise<UpdateOrganizationAdministratorData, UpdateOrganizationAdministratorVariables>;
 
 interface UpdateOrganizationAdministratorRef {
@@ -7402,7 +7549,7 @@ interface UpdateOrganizationAdministratorRef {
 export const updateOrganizationAdministratorRef: UpdateOrganizationAdministratorRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateOrganizationAdministrator(dc: DataConnect, vars: UpdateOrganizationAdministratorVariables): MutationPromise<UpdateOrganizationAdministratorData, UpdateOrganizationAdministratorVariables>;
 
 interface UpdateOrganizationAdministratorRef {
@@ -7413,7 +7560,7 @@ export const updateOrganizationAdministratorRef: UpdateOrganizationAdministrator
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateOrganizationAdministratorRef:
-```typescript
+```typescrip
 const name = updateOrganizationAdministratorRef.operationName;
 console.log(name);
 ```
@@ -7421,7 +7568,7 @@ console.log(name);
 ### Variables
 The `UpdateOrganizationAdministrator` mutation requires an argument of type `UpdateOrganizationAdministratorVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateOrganizationAdministratorVariables {
   organizationId: UUIDString;
   userId: UUIDString;
@@ -7433,23 +7580,23 @@ export interface UpdateOrganizationAdministratorVariables {
 Recall that executing the `UpdateOrganizationAdministrator` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateOrganizationAdministratorData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateOrganizationAdministratorData {
   appUser_update?: AppUser_Key | null;
 }
 ```
 ### Using `UpdateOrganizationAdministrator`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateOrganizationAdministrator, UpdateOrganizationAdministratorVariables } from '@omniretail/sql-connect';
 
 // The `UpdateOrganizationAdministrator` mutation requires an argument of type `UpdateOrganizationAdministratorVariables`:
 const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  displayName: ..., 
-  phone: ..., 
+  organizationId: ...,
+  userId: ...,
+  displayName: ...,
+  phone: ...,
 };
 
 // Call the `updateOrganizationAdministrator()` function to execute the mutation.
@@ -7473,16 +7620,16 @@ updateOrganizationAdministrator(updateOrganizationAdministratorVars).then((respo
 
 ### Using `UpdateOrganizationAdministrator`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateOrganizationAdministratorRef, UpdateOrganizationAdministratorVariables } from '@omniretail/sql-connect';
 
 // The `UpdateOrganizationAdministrator` mutation requires an argument of type `UpdateOrganizationAdministratorVariables`:
 const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  displayName: ..., 
-  phone: ..., 
+  organizationId: ...,
+  userId: ...,
+  displayName: ...,
+  phone: ...,
 };
 
 // Call the `updateOrganizationAdministratorRef()` function to get a reference to the mutation.
@@ -7509,7 +7656,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeOrganizationAdministratorStatus
 You can execute the `ChangeOrganizationAdministratorStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeOrganizationAdministratorStatus(vars: ChangeOrganizationAdministratorStatusVariables): MutationPromise<ChangeOrganizationAdministratorStatusData, ChangeOrganizationAdministratorStatusVariables>;
 
 interface ChangeOrganizationAdministratorStatusRef {
@@ -7520,7 +7667,7 @@ interface ChangeOrganizationAdministratorStatusRef {
 export const changeOrganizationAdministratorStatusRef: ChangeOrganizationAdministratorStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeOrganizationAdministratorStatus(dc: DataConnect, vars: ChangeOrganizationAdministratorStatusVariables): MutationPromise<ChangeOrganizationAdministratorStatusData, ChangeOrganizationAdministratorStatusVariables>;
 
 interface ChangeOrganizationAdministratorStatusRef {
@@ -7531,7 +7678,7 @@ export const changeOrganizationAdministratorStatusRef: ChangeOrganizationAdminis
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeOrganizationAdministratorStatusRef:
-```typescript
+```typescrip
 const name = changeOrganizationAdministratorStatusRef.operationName;
 console.log(name);
 ```
@@ -7539,7 +7686,7 @@ console.log(name);
 ### Variables
 The `ChangeOrganizationAdministratorStatus` mutation requires an argument of type `ChangeOrganizationAdministratorStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeOrganizationAdministratorStatusVariables {
   organizationId: UUIDString;
   userId: UUIDString;
@@ -7551,7 +7698,7 @@ export interface ChangeOrganizationAdministratorStatusVariables {
 Recall that executing the `ChangeOrganizationAdministratorStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeOrganizationAdministratorStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeOrganizationAdministratorStatusData {
   appUser_update?: AppUser_Key | null;
   organizationMembership_update?: OrganizationMembership_Key | null;
@@ -7559,16 +7706,16 @@ export interface ChangeOrganizationAdministratorStatusData {
 ```
 ### Using `ChangeOrganizationAdministratorStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeOrganizationAdministratorStatus, ChangeOrganizationAdministratorStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeOrganizationAdministratorStatus` mutation requires an argument of type `ChangeOrganizationAdministratorStatusVariables`:
 const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministratorStatusVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  status: ..., 
-  membershipStatus: ..., 
+  organizationId: ...,
+  userId: ...,
+  status: ...,
+  membershipStatus: ...,
 };
 
 // Call the `changeOrganizationAdministratorStatus()` function to execute the mutation.
@@ -7594,16 +7741,16 @@ changeOrganizationAdministratorStatus(changeOrganizationAdministratorStatusVars)
 
 ### Using `ChangeOrganizationAdministratorStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeOrganizationAdministratorStatusRef, ChangeOrganizationAdministratorStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeOrganizationAdministratorStatus` mutation requires an argument of type `ChangeOrganizationAdministratorStatusVariables`:
 const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministratorStatusVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  status: ..., 
-  membershipStatus: ..., 
+  organizationId: ...,
+  userId: ...,
+  status: ...,
+  membershipStatus: ...,
 };
 
 // Call the `changeOrganizationAdministratorStatusRef()` function to get a reference to the mutation.
@@ -7632,7 +7779,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteOrganizationTrusted
 You can execute the `DeleteOrganizationTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteOrganizationTrusted(vars: DeleteOrganizationTrustedVariables): MutationPromise<DeleteOrganizationTrustedData, DeleteOrganizationTrustedVariables>;
 
 interface DeleteOrganizationTrustedRef {
@@ -7643,7 +7790,7 @@ interface DeleteOrganizationTrustedRef {
 export const deleteOrganizationTrustedRef: DeleteOrganizationTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteOrganizationTrusted(dc: DataConnect, vars: DeleteOrganizationTrustedVariables): MutationPromise<DeleteOrganizationTrustedData, DeleteOrganizationTrustedVariables>;
 
 interface DeleteOrganizationTrustedRef {
@@ -7654,7 +7801,7 @@ export const deleteOrganizationTrustedRef: DeleteOrganizationTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteOrganizationTrustedRef:
-```typescript
+```typescrip
 const name = deleteOrganizationTrustedRef.operationName;
 console.log(name);
 ```
@@ -7662,7 +7809,7 @@ console.log(name);
 ### Variables
 The `DeleteOrganizationTrusted` mutation requires an argument of type `DeleteOrganizationTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteOrganizationTrustedVariables {
   id: UUIDString;
 }
@@ -7671,20 +7818,20 @@ export interface DeleteOrganizationTrustedVariables {
 Recall that executing the `DeleteOrganizationTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteOrganizationTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteOrganizationTrustedData {
   organization_delete?: Organization_Key | null;
 }
 ```
 ### Using `DeleteOrganizationTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteOrganizationTrusted, DeleteOrganizationTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteOrganizationTrusted` mutation requires an argument of type `DeleteOrganizationTrustedVariables`:
 const deleteOrganizationTrustedVars: DeleteOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteOrganizationTrusted()` function to execute the mutation.
@@ -7708,13 +7855,13 @@ deleteOrganizationTrusted(deleteOrganizationTrustedVars).then((response) => {
 
 ### Using `DeleteOrganizationTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteOrganizationTrustedRef, DeleteOrganizationTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteOrganizationTrusted` mutation requires an argument of type `DeleteOrganizationTrustedVariables`:
 const deleteOrganizationTrustedVars: DeleteOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteOrganizationTrustedRef()` function to get a reference to the mutation.
@@ -7741,7 +7888,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteAppUserTrusted
 You can execute the `DeleteAppUserTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteAppUserTrusted(vars: DeleteAppUserTrustedVariables): MutationPromise<DeleteAppUserTrustedData, DeleteAppUserTrustedVariables>;
 
 interface DeleteAppUserTrustedRef {
@@ -7752,7 +7899,7 @@ interface DeleteAppUserTrustedRef {
 export const deleteAppUserTrustedRef: DeleteAppUserTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteAppUserTrusted(dc: DataConnect, vars: DeleteAppUserTrustedVariables): MutationPromise<DeleteAppUserTrustedData, DeleteAppUserTrustedVariables>;
 
 interface DeleteAppUserTrustedRef {
@@ -7763,7 +7910,7 @@ export const deleteAppUserTrustedRef: DeleteAppUserTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteAppUserTrustedRef:
-```typescript
+```typescrip
 const name = deleteAppUserTrustedRef.operationName;
 console.log(name);
 ```
@@ -7771,7 +7918,7 @@ console.log(name);
 ### Variables
 The `DeleteAppUserTrusted` mutation requires an argument of type `DeleteAppUserTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteAppUserTrustedVariables {
   id: UUIDString;
 }
@@ -7780,20 +7927,20 @@ export interface DeleteAppUserTrustedVariables {
 Recall that executing the `DeleteAppUserTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteAppUserTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteAppUserTrustedData {
   appUser_delete?: AppUser_Key | null;
 }
 ```
 ### Using `DeleteAppUserTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteAppUserTrusted, DeleteAppUserTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteAppUserTrusted` mutation requires an argument of type `DeleteAppUserTrustedVariables`:
 const deleteAppUserTrustedVars: DeleteAppUserTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteAppUserTrusted()` function to execute the mutation.
@@ -7817,13 +7964,13 @@ deleteAppUserTrusted(deleteAppUserTrustedVars).then((response) => {
 
 ### Using `DeleteAppUserTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteAppUserTrustedRef, DeleteAppUserTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteAppUserTrusted` mutation requires an argument of type `DeleteAppUserTrustedVariables`:
 const deleteAppUserTrustedVars: DeleteAppUserTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteAppUserTrustedRef()` function to get a reference to the mutation.
@@ -7850,7 +7997,7 @@ executeMutation(ref).then((response) => {
 
 ## AssignOrganizationLicenseTrusted
 You can execute the `AssignOrganizationLicenseTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 assignOrganizationLicenseTrusted(vars: AssignOrganizationLicenseTrustedVariables): MutationPromise<AssignOrganizationLicenseTrustedData, AssignOrganizationLicenseTrustedVariables>;
 
 interface AssignOrganizationLicenseTrustedRef {
@@ -7861,7 +8008,7 @@ interface AssignOrganizationLicenseTrustedRef {
 export const assignOrganizationLicenseTrustedRef: AssignOrganizationLicenseTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 assignOrganizationLicenseTrusted(dc: DataConnect, vars: AssignOrganizationLicenseTrustedVariables): MutationPromise<AssignOrganizationLicenseTrustedData, AssignOrganizationLicenseTrustedVariables>;
 
 interface AssignOrganizationLicenseTrustedRef {
@@ -7872,7 +8019,7 @@ export const assignOrganizationLicenseTrustedRef: AssignOrganizationLicenseTrust
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the assignOrganizationLicenseTrustedRef:
-```typescript
+```typescrip
 const name = assignOrganizationLicenseTrustedRef.operationName;
 console.log(name);
 ```
@@ -7880,7 +8027,7 @@ console.log(name);
 ### Variables
 The `AssignOrganizationLicenseTrusted` mutation requires an argument of type `AssignOrganizationLicenseTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface AssignOrganizationLicenseTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -7901,7 +8048,7 @@ export interface AssignOrganizationLicenseTrustedVariables {
 Recall that executing the `AssignOrganizationLicenseTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `AssignOrganizationLicenseTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface AssignOrganizationLicenseTrustedData {
   organizationLicense_insert: OrganizationLicense_Key;
   licenseHistory_insert: LicenseHistory_Key;
@@ -7909,25 +8056,25 @@ export interface AssignOrganizationLicenseTrustedData {
 ```
 ### Using `AssignOrganizationLicenseTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, assignOrganizationLicenseTrusted, AssignOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
 
 // The `AssignOrganizationLicenseTrusted` mutation requires an argument of type `AssignOrganizationLicenseTrustedVariables`:
 const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
 };
 
 // Call the `assignOrganizationLicenseTrusted()` function to execute the mutation.
@@ -7953,25 +8100,25 @@ assignOrganizationLicenseTrusted(assignOrganizationLicenseTrustedVars).then((res
 
 ### Using `AssignOrganizationLicenseTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, assignOrganizationLicenseTrustedRef, AssignOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
 
 // The `AssignOrganizationLicenseTrusted` mutation requires an argument of type `AssignOrganizationLicenseTrustedVariables`:
 const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
 };
 
 // Call the `assignOrganizationLicenseTrustedRef()` function to get a reference to the mutation.
@@ -8000,7 +8147,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeOrganizationLicensePlanTrusted
 You can execute the `ChangeOrganizationLicensePlanTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeOrganizationLicensePlanTrusted(vars: ChangeOrganizationLicensePlanTrustedVariables): MutationPromise<ChangeOrganizationLicensePlanTrustedData, ChangeOrganizationLicensePlanTrustedVariables>;
 
 interface ChangeOrganizationLicensePlanTrustedRef {
@@ -8011,7 +8158,7 @@ interface ChangeOrganizationLicensePlanTrustedRef {
 export const changeOrganizationLicensePlanTrustedRef: ChangeOrganizationLicensePlanTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeOrganizationLicensePlanTrusted(dc: DataConnect, vars: ChangeOrganizationLicensePlanTrustedVariables): MutationPromise<ChangeOrganizationLicensePlanTrustedData, ChangeOrganizationLicensePlanTrustedVariables>;
 
 interface ChangeOrganizationLicensePlanTrustedRef {
@@ -8022,7 +8169,7 @@ export const changeOrganizationLicensePlanTrustedRef: ChangeOrganizationLicenseP
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeOrganizationLicensePlanTrustedRef:
-```typescript
+```typescrip
 const name = changeOrganizationLicensePlanTrustedRef.operationName;
 console.log(name);
 ```
@@ -8030,7 +8177,7 @@ console.log(name);
 ### Variables
 The `ChangeOrganizationLicensePlanTrusted` mutation requires an argument of type `ChangeOrganizationLicensePlanTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeOrganizationLicensePlanTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -8052,7 +8199,7 @@ export interface ChangeOrganizationLicensePlanTrustedVariables {
 Recall that executing the `ChangeOrganizationLicensePlanTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeOrganizationLicensePlanTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeOrganizationLicensePlanTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
@@ -8060,25 +8207,25 @@ export interface ChangeOrganizationLicensePlanTrustedData {
 ```
 ### Using `ChangeOrganizationLicensePlanTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeOrganizationLicensePlanTrusted, ChangeOrganizationLicensePlanTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeOrganizationLicensePlanTrusted` mutation requires an argument of type `ChangeOrganizationLicensePlanTrustedVariables`:
 const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
   changes: ..., // optional
 };
 
@@ -8105,25 +8252,25 @@ changeOrganizationLicensePlanTrusted(changeOrganizationLicensePlanTrustedVars).t
 
 ### Using `ChangeOrganizationLicensePlanTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeOrganizationLicensePlanTrustedRef, ChangeOrganizationLicensePlanTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeOrganizationLicensePlanTrusted` mutation requires an argument of type `ChangeOrganizationLicensePlanTrustedVariables`:
 const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
   changes: ..., // optional
 };
 
@@ -8153,7 +8300,7 @@ executeMutation(ref).then((response) => {
 
 ## ModifyOrganizationCommercialTermsTrusted
 You can execute the `ModifyOrganizationCommercialTermsTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 modifyOrganizationCommercialTermsTrusted(vars: ModifyOrganizationCommercialTermsTrustedVariables): MutationPromise<ModifyOrganizationCommercialTermsTrustedData, ModifyOrganizationCommercialTermsTrustedVariables>;
 
 interface ModifyOrganizationCommercialTermsTrustedRef {
@@ -8164,7 +8311,7 @@ interface ModifyOrganizationCommercialTermsTrustedRef {
 export const modifyOrganizationCommercialTermsTrustedRef: ModifyOrganizationCommercialTermsTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 modifyOrganizationCommercialTermsTrusted(dc: DataConnect, vars: ModifyOrganizationCommercialTermsTrustedVariables): MutationPromise<ModifyOrganizationCommercialTermsTrustedData, ModifyOrganizationCommercialTermsTrustedVariables>;
 
 interface ModifyOrganizationCommercialTermsTrustedRef {
@@ -8175,7 +8322,7 @@ export const modifyOrganizationCommercialTermsTrustedRef: ModifyOrganizationComm
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the modifyOrganizationCommercialTermsTrustedRef:
-```typescript
+```typescrip
 const name = modifyOrganizationCommercialTermsTrustedRef.operationName;
 console.log(name);
 ```
@@ -8183,7 +8330,7 @@ console.log(name);
 ### Variables
 The `ModifyOrganizationCommercialTermsTrusted` mutation requires an argument of type `ModifyOrganizationCommercialTermsTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ModifyOrganizationCommercialTermsTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -8205,7 +8352,7 @@ export interface ModifyOrganizationCommercialTermsTrustedVariables {
 Recall that executing the `ModifyOrganizationCommercialTermsTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ModifyOrganizationCommercialTermsTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ModifyOrganizationCommercialTermsTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
@@ -8213,25 +8360,25 @@ export interface ModifyOrganizationCommercialTermsTrustedData {
 ```
 ### Using `ModifyOrganizationCommercialTermsTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, modifyOrganizationCommercialTermsTrusted, ModifyOrganizationCommercialTermsTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ModifyOrganizationCommercialTermsTrusted` mutation requires an argument of type `ModifyOrganizationCommercialTermsTrustedVariables`:
 const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercialTermsTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
   changes: ..., // optional
 };
 
@@ -8258,25 +8405,25 @@ modifyOrganizationCommercialTermsTrusted(modifyOrganizationCommercialTermsTruste
 
 ### Using `ModifyOrganizationCommercialTermsTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, modifyOrganizationCommercialTermsTrustedRef, ModifyOrganizationCommercialTermsTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ModifyOrganizationCommercialTermsTrusted` mutation requires an argument of type `ModifyOrganizationCommercialTermsTrustedVariables`:
 const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercialTermsTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
   changes: ..., // optional
 };
 
@@ -8306,7 +8453,7 @@ executeMutation(ref).then((response) => {
 
 ## RenewOrganizationLicenseTrusted
 You can execute the `RenewOrganizationLicenseTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 renewOrganizationLicenseTrusted(vars: RenewOrganizationLicenseTrustedVariables): MutationPromise<RenewOrganizationLicenseTrustedData, RenewOrganizationLicenseTrustedVariables>;
 
 interface RenewOrganizationLicenseTrustedRef {
@@ -8317,7 +8464,7 @@ interface RenewOrganizationLicenseTrustedRef {
 export const renewOrganizationLicenseTrustedRef: RenewOrganizationLicenseTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 renewOrganizationLicenseTrusted(dc: DataConnect, vars: RenewOrganizationLicenseTrustedVariables): MutationPromise<RenewOrganizationLicenseTrustedData, RenewOrganizationLicenseTrustedVariables>;
 
 interface RenewOrganizationLicenseTrustedRef {
@@ -8328,7 +8475,7 @@ export const renewOrganizationLicenseTrustedRef: RenewOrganizationLicenseTrusted
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the renewOrganizationLicenseTrustedRef:
-```typescript
+```typescrip
 const name = renewOrganizationLicenseTrustedRef.operationName;
 console.log(name);
 ```
@@ -8336,7 +8483,7 @@ console.log(name);
 ### Variables
 The `RenewOrganizationLicenseTrusted` mutation requires an argument of type `RenewOrganizationLicenseTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface RenewOrganizationLicenseTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -8358,7 +8505,7 @@ export interface RenewOrganizationLicenseTrustedVariables {
 Recall that executing the `RenewOrganizationLicenseTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `RenewOrganizationLicenseTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface RenewOrganizationLicenseTrustedData {
   organizationLicense_update?: OrganizationLicense_Key | null;
   licenseHistory_insert: LicenseHistory_Key;
@@ -8366,25 +8513,25 @@ export interface RenewOrganizationLicenseTrustedData {
 ```
 ### Using `RenewOrganizationLicenseTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, renewOrganizationLicenseTrusted, RenewOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
 
 // The `RenewOrganizationLicenseTrusted` mutation requires an argument of type `RenewOrganizationLicenseTrustedVariables`:
 const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
   changes: ..., // optional
 };
 
@@ -8411,25 +8558,25 @@ renewOrganizationLicenseTrusted(renewOrganizationLicenseTrustedVars).then((respo
 
 ### Using `RenewOrganizationLicenseTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, renewOrganizationLicenseTrustedRef, RenewOrganizationLicenseTrustedVariables } from '@omniretail/sql-connect';
 
 // The `RenewOrganizationLicenseTrusted` mutation requires an argument of type `RenewOrganizationLicenseTrustedVariables`:
 const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
   changes: ..., // optional
 };
 
@@ -8459,7 +8606,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateOrganization
 You can execute the `CreateOrganization` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createOrganization(vars: CreateOrganizationVariables): MutationPromise<CreateOrganizationData, CreateOrganizationVariables>;
 
 interface CreateOrganizationRef {
@@ -8470,7 +8617,7 @@ interface CreateOrganizationRef {
 export const createOrganizationRef: CreateOrganizationRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createOrganization(dc: DataConnect, vars: CreateOrganizationVariables): MutationPromise<CreateOrganizationData, CreateOrganizationVariables>;
 
 interface CreateOrganizationRef {
@@ -8481,7 +8628,7 @@ export const createOrganizationRef: CreateOrganizationRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createOrganizationRef:
-```typescript
+```typescrip
 const name = createOrganizationRef.operationName;
 console.log(name);
 ```
@@ -8489,7 +8636,7 @@ console.log(name);
 ### Variables
 The `CreateOrganization` mutation requires an argument of type `CreateOrganizationVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateOrganizationVariables {
   id: UUIDString;
   organizationCode: string;
@@ -8511,33 +8658,33 @@ export interface CreateOrganizationVariables {
 Recall that executing the `CreateOrganization` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateOrganizationData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateOrganizationData {
   organization_insert: Organization_Key;
 }
 ```
 ### Using `CreateOrganization`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createOrganization, CreateOrganizationVariables } from '@omniretail/sql-connect';
 
 // The `CreateOrganization` mutation requires an argument of type `CreateOrganizationVariables`:
 const createOrganizationVars: CreateOrganizationVariables = {
-  id: ..., 
-  organizationCode: ..., 
-  businessName: ..., 
+  id: ...,
+  organizationCode: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
+  timezone: ...,
+  currency: ...,
 };
 
 // Call the `createOrganization()` function to execute the mutation.
@@ -8561,26 +8708,26 @@ createOrganization(createOrganizationVars).then((response) => {
 
 ### Using `CreateOrganization`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createOrganizationRef, CreateOrganizationVariables } from '@omniretail/sql-connect';
 
 // The `CreateOrganization` mutation requires an argument of type `CreateOrganizationVariables`:
 const createOrganizationVars: CreateOrganizationVariables = {
-  id: ..., 
-  organizationCode: ..., 
-  businessName: ..., 
+  id: ...,
+  organizationCode: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
+  timezone: ...,
+  currency: ...,
 };
 
 // Call the `createOrganizationRef()` function to get a reference to the mutation.
@@ -8607,7 +8754,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateOrganization
 You can execute the `UpdateOrganization` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateOrganization(vars: UpdateOrganizationVariables): MutationPromise<UpdateOrganizationData, UpdateOrganizationVariables>;
 
 interface UpdateOrganizationRef {
@@ -8618,7 +8765,7 @@ interface UpdateOrganizationRef {
 export const updateOrganizationRef: UpdateOrganizationRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateOrganization(dc: DataConnect, vars: UpdateOrganizationVariables): MutationPromise<UpdateOrganizationData, UpdateOrganizationVariables>;
 
 interface UpdateOrganizationRef {
@@ -8629,7 +8776,7 @@ export const updateOrganizationRef: UpdateOrganizationRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateOrganizationRef:
-```typescript
+```typescrip
 const name = updateOrganizationRef.operationName;
 console.log(name);
 ```
@@ -8637,7 +8784,7 @@ console.log(name);
 ### Variables
 The `UpdateOrganization` mutation requires an argument of type `UpdateOrganizationVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateOrganizationVariables {
   id: UUIDString;
   businessName: string;
@@ -8658,32 +8805,32 @@ export interface UpdateOrganizationVariables {
 Recall that executing the `UpdateOrganization` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateOrganizationData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateOrganizationData {
   organization_update?: Organization_Key | null;
 }
 ```
 ### Using `UpdateOrganization`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateOrganization, UpdateOrganizationVariables } from '@omniretail/sql-connect';
 
 // The `UpdateOrganization` mutation requires an argument of type `UpdateOrganizationVariables`:
 const updateOrganizationVars: UpdateOrganizationVariables = {
-  id: ..., 
-  businessName: ..., 
+  id: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
+  timezone: ...,
+  currency: ...,
 };
 
 // Call the `updateOrganization()` function to execute the mutation.
@@ -8707,25 +8854,25 @@ updateOrganization(updateOrganizationVars).then((response) => {
 
 ### Using `UpdateOrganization`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateOrganizationRef, UpdateOrganizationVariables } from '@omniretail/sql-connect';
 
 // The `UpdateOrganization` mutation requires an argument of type `UpdateOrganizationVariables`:
 const updateOrganizationVars: UpdateOrganizationVariables = {
-  id: ..., 
-  businessName: ..., 
+  id: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
+  timezone: ...,
+  currency: ...,
 };
 
 // Call the `updateOrganizationRef()` function to get a reference to the mutation.
@@ -8752,7 +8899,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeOrganizationStatus
 You can execute the `ChangeOrganizationStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeOrganizationStatus(vars: ChangeOrganizationStatusVariables): MutationPromise<ChangeOrganizationStatusData, ChangeOrganizationStatusVariables>;
 
 interface ChangeOrganizationStatusRef {
@@ -8763,7 +8910,7 @@ interface ChangeOrganizationStatusRef {
 export const changeOrganizationStatusRef: ChangeOrganizationStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeOrganizationStatus(dc: DataConnect, vars: ChangeOrganizationStatusVariables): MutationPromise<ChangeOrganizationStatusData, ChangeOrganizationStatusVariables>;
 
 interface ChangeOrganizationStatusRef {
@@ -8774,7 +8921,7 @@ export const changeOrganizationStatusRef: ChangeOrganizationStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeOrganizationStatusRef:
-```typescript
+```typescrip
 const name = changeOrganizationStatusRef.operationName;
 console.log(name);
 ```
@@ -8782,7 +8929,7 @@ console.log(name);
 ### Variables
 The `ChangeOrganizationStatus` mutation requires an argument of type `ChangeOrganizationStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeOrganizationStatusVariables {
   id: UUIDString;
   status: OrganizationStatus;
@@ -8792,21 +8939,21 @@ export interface ChangeOrganizationStatusVariables {
 Recall that executing the `ChangeOrganizationStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeOrganizationStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeOrganizationStatusData {
   organization_update?: Organization_Key | null;
 }
 ```
 ### Using `ChangeOrganizationStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeOrganizationStatus, ChangeOrganizationStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeOrganizationStatus` mutation requires an argument of type `ChangeOrganizationStatusVariables`:
 const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
-  id: ..., 
-  status: ..., 
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeOrganizationStatus()` function to execute the mutation.
@@ -8830,14 +8977,14 @@ changeOrganizationStatus(changeOrganizationStatusVars).then((response) => {
 
 ### Using `ChangeOrganizationStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeOrganizationStatusRef, ChangeOrganizationStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeOrganizationStatus` mutation requires an argument of type `ChangeOrganizationStatusVariables`:
 const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
-  id: ..., 
-  status: ..., 
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeOrganizationStatusRef()` function to get a reference to the mutation.
@@ -8864,7 +9011,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantExpense
 You can execute the `CreateTenantExpense` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantExpense(vars: CreateTenantExpenseVariables): MutationPromise<CreateTenantExpenseData, CreateTenantExpenseVariables>;
 
 interface CreateTenantExpenseRef {
@@ -8875,7 +9022,7 @@ interface CreateTenantExpenseRef {
 export const createTenantExpenseRef: CreateTenantExpenseRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantExpense(dc: DataConnect, vars: CreateTenantExpenseVariables): MutationPromise<CreateTenantExpenseData, CreateTenantExpenseVariables>;
 
 interface CreateTenantExpenseRef {
@@ -8886,7 +9033,7 @@ export const createTenantExpenseRef: CreateTenantExpenseRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantExpenseRef:
-```typescript
+```typescrip
 const name = createTenantExpenseRef.operationName;
 console.log(name);
 ```
@@ -8894,7 +9041,7 @@ console.log(name);
 ### Variables
 The `CreateTenantExpense` mutation requires an argument of type `CreateTenantExpenseVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantExpenseVariables {
   organizationId: UUIDString;
   expenseNumber: string;
@@ -8918,34 +9065,34 @@ export interface CreateTenantExpenseVariables {
 Recall that executing the `CreateTenantExpense` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantExpenseData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantExpenseData {
   expense_insert: Expense_Key;
 }
 ```
 ### Using `CreateTenantExpense`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantExpense, CreateTenantExpenseVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantExpense` mutation requires an argument of type `CreateTenantExpenseVariables`:
 const createTenantExpenseVars: CreateTenantExpenseVariables = {
-  organizationId: ..., 
-  expenseNumber: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  expenseNumber: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
   outletId: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
-  submittedBy: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
+  submittedBy: ...,
   notes: ..., // optional
 };
 
@@ -8970,27 +9117,27 @@ createTenantExpense(createTenantExpenseVars).then((response) => {
 
 ### Using `CreateTenantExpense`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantExpenseRef, CreateTenantExpenseVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantExpense` mutation requires an argument of type `CreateTenantExpenseVariables`:
 const createTenantExpenseVars: CreateTenantExpenseVariables = {
-  organizationId: ..., 
-  expenseNumber: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  expenseNumber: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
   outletId: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
-  submittedBy: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
+  submittedBy: ...,
   notes: ..., // optional
 };
 
@@ -9018,7 +9165,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantExpense
 You can execute the `UpdateTenantExpense` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantExpense(vars: UpdateTenantExpenseVariables): MutationPromise<UpdateTenantExpenseData, UpdateTenantExpenseVariables>;
 
 interface UpdateTenantExpenseRef {
@@ -9029,7 +9176,7 @@ interface UpdateTenantExpenseRef {
 export const updateTenantExpenseRef: UpdateTenantExpenseRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantExpense(dc: DataConnect, vars: UpdateTenantExpenseVariables): MutationPromise<UpdateTenantExpenseData, UpdateTenantExpenseVariables>;
 
 interface UpdateTenantExpenseRef {
@@ -9040,7 +9187,7 @@ export const updateTenantExpenseRef: UpdateTenantExpenseRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantExpenseRef:
-```typescript
+```typescrip
 const name = updateTenantExpenseRef.operationName;
 console.log(name);
 ```
@@ -9048,7 +9195,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantExpense` mutation requires an argument of type `UpdateTenantExpenseVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantExpenseVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -9070,32 +9217,32 @@ export interface UpdateTenantExpenseVariables {
 Recall that executing the `UpdateTenantExpense` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantExpenseData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantExpenseData {
   expense_update?: Expense_Key | null;
 }
 ```
 ### Using `UpdateTenantExpense`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantExpense, UpdateTenantExpenseVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantExpense` mutation requires an argument of type `UpdateTenantExpenseVariables`:
 const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  id: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
   notes: ..., // optional
 };
 
@@ -9120,25 +9267,25 @@ updateTenantExpense(updateTenantExpenseVars).then((response) => {
 
 ### Using `UpdateTenantExpense`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantExpenseRef, UpdateTenantExpenseVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantExpense` mutation requires an argument of type `UpdateTenantExpenseVariables`:
 const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  id: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
   notes: ..., // optional
 };
 
@@ -9166,7 +9313,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantExpenseApproval
 You can execute the `ChangeTenantExpenseApproval` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantExpenseApproval(vars: ChangeTenantExpenseApprovalVariables): MutationPromise<ChangeTenantExpenseApprovalData, ChangeTenantExpenseApprovalVariables>;
 
 interface ChangeTenantExpenseApprovalRef {
@@ -9177,7 +9324,7 @@ interface ChangeTenantExpenseApprovalRef {
 export const changeTenantExpenseApprovalRef: ChangeTenantExpenseApprovalRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantExpenseApproval(dc: DataConnect, vars: ChangeTenantExpenseApprovalVariables): MutationPromise<ChangeTenantExpenseApprovalData, ChangeTenantExpenseApprovalVariables>;
 
 interface ChangeTenantExpenseApprovalRef {
@@ -9188,7 +9335,7 @@ export const changeTenantExpenseApprovalRef: ChangeTenantExpenseApprovalRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantExpenseApprovalRef:
-```typescript
+```typescrip
 const name = changeTenantExpenseApprovalRef.operationName;
 console.log(name);
 ```
@@ -9196,7 +9343,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantExpenseApproval` mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantExpenseApprovalVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -9208,22 +9355,22 @@ export interface ChangeTenantExpenseApprovalVariables {
 Recall that executing the `ChangeTenantExpenseApproval` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantExpenseApprovalData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantExpenseApprovalData {
   expense_update?: Expense_Key | null;
 }
 ```
 ### Using `ChangeTenantExpenseApproval`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantExpenseApproval, ChangeTenantExpenseApprovalVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantExpenseApproval` mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`:
 const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
-  organizationId: ..., 
-  id: ..., 
-  approvalStatus: ..., 
+  organizationId: ...,
+  id: ...,
+  approvalStatus: ...,
   reason: ..., // optional
 };
 
@@ -9248,15 +9395,15 @@ changeTenantExpenseApproval(changeTenantExpenseApprovalVars).then((response) => 
 
 ### Using `ChangeTenantExpenseApproval`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantExpenseApprovalRef, ChangeTenantExpenseApprovalVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantExpenseApproval` mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`:
 const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
-  organizationId: ..., 
-  id: ..., 
-  approvalStatus: ..., 
+  organizationId: ...,
+  id: ...,
+  approvalStatus: ...,
   reason: ..., // optional
 };
 
@@ -9284,7 +9431,7 @@ executeMutation(ref).then((response) => {
 
 ## VoidTenantExpense
 You can execute the `VoidTenantExpense` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 voidTenantExpense(vars: VoidTenantExpenseVariables): MutationPromise<VoidTenantExpenseData, VoidTenantExpenseVariables>;
 
 interface VoidTenantExpenseRef {
@@ -9295,7 +9442,7 @@ interface VoidTenantExpenseRef {
 export const voidTenantExpenseRef: VoidTenantExpenseRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 voidTenantExpense(dc: DataConnect, vars: VoidTenantExpenseVariables): MutationPromise<VoidTenantExpenseData, VoidTenantExpenseVariables>;
 
 interface VoidTenantExpenseRef {
@@ -9306,7 +9453,7 @@ export const voidTenantExpenseRef: VoidTenantExpenseRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the voidTenantExpenseRef:
-```typescript
+```typescrip
 const name = voidTenantExpenseRef.operationName;
 console.log(name);
 ```
@@ -9314,7 +9461,7 @@ console.log(name);
 ### Variables
 The `VoidTenantExpense` mutation requires an argument of type `VoidTenantExpenseVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface VoidTenantExpenseVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -9325,22 +9472,22 @@ export interface VoidTenantExpenseVariables {
 Recall that executing the `VoidTenantExpense` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `VoidTenantExpenseData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface VoidTenantExpenseData {
   expense_update?: Expense_Key | null;
 }
 ```
 ### Using `VoidTenantExpense`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, voidTenantExpense, VoidTenantExpenseVariables } from '@omniretail/sql-connect';
 
 // The `VoidTenantExpense` mutation requires an argument of type `VoidTenantExpenseVariables`:
 const voidTenantExpenseVars: VoidTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  reason: ..., 
+  organizationId: ...,
+  id: ...,
+  reason: ...,
 };
 
 // Call the `voidTenantExpense()` function to execute the mutation.
@@ -9364,15 +9511,15 @@ voidTenantExpense(voidTenantExpenseVars).then((response) => {
 
 ### Using `VoidTenantExpense`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, voidTenantExpenseRef, VoidTenantExpenseVariables } from '@omniretail/sql-connect';
 
 // The `VoidTenantExpense` mutation requires an argument of type `VoidTenantExpenseVariables`:
 const voidTenantExpenseVars: VoidTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  reason: ..., 
+  organizationId: ...,
+  id: ...,
+  reason: ...,
 };
 
 // Call the `voidTenantExpenseRef()` function to get a reference to the mutation.
@@ -9399,7 +9546,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantSale
 You can execute the `CreateTenantSale` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantSale(vars: CreateTenantSaleVariables): MutationPromise<CreateTenantSaleData, CreateTenantSaleVariables>;
 
 interface CreateTenantSaleRef {
@@ -9410,7 +9557,7 @@ interface CreateTenantSaleRef {
 export const createTenantSaleRef: CreateTenantSaleRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantSale(dc: DataConnect, vars: CreateTenantSaleVariables): MutationPromise<CreateTenantSaleData, CreateTenantSaleVariables>;
 
 interface CreateTenantSaleRef {
@@ -9421,7 +9568,7 @@ export const createTenantSaleRef: CreateTenantSaleRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantSaleRef:
-```typescript
+```typescrip
 const name = createTenantSaleRef.operationName;
 console.log(name);
 ```
@@ -9429,7 +9576,7 @@ console.log(name);
 ### Variables
 The `CreateTenantSale` mutation requires an argument of type `CreateTenantSaleVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantSaleVariables {
   organizationId: UUIDString;
   outletId: UUIDString;
@@ -9451,33 +9598,33 @@ export interface CreateTenantSaleVariables {
 Recall that executing the `CreateTenantSale` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantSaleData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantSaleData {
   sale_insert: Sale_Key;
 }
 ```
 ### Using `CreateTenantSale`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantSale, CreateTenantSaleVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantSale` mutation requires an argument of type `CreateTenantSaleVariables`:
 const createTenantSaleVars: CreateTenantSaleVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  receiptNumber: ..., 
-  saleTimestamp: ..., 
+  organizationId: ...,
+  outletId: ...,
+  receiptNumber: ...,
+  saleTimestamp: ...,
   customerId: ..., // optional
-  customerName: ..., 
-  staffName: ..., 
+  customerName: ...,
+  staffName: ...,
   channel: ..., // optional
-  terminalId: ..., 
-  tenderType: ..., 
-  tax: ..., 
-  discount: ..., 
-  subtotal: ..., 
-  totalNet: ..., 
+  terminalId: ...,
+  tenderType: ...,
+  tax: ...,
+  discount: ...,
+  subtotal: ...,
+  totalNet: ...,
 };
 
 // Call the `createTenantSale()` function to execute the mutation.
@@ -9501,26 +9648,26 @@ createTenantSale(createTenantSaleVars).then((response) => {
 
 ### Using `CreateTenantSale`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantSaleRef, CreateTenantSaleVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantSale` mutation requires an argument of type `CreateTenantSaleVariables`:
 const createTenantSaleVars: CreateTenantSaleVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  receiptNumber: ..., 
-  saleTimestamp: ..., 
+  organizationId: ...,
+  outletId: ...,
+  receiptNumber: ...,
+  saleTimestamp: ...,
   customerId: ..., // optional
-  customerName: ..., 
-  staffName: ..., 
+  customerName: ...,
+  staffName: ...,
   channel: ..., // optional
-  terminalId: ..., 
-  tenderType: ..., 
-  tax: ..., 
-  discount: ..., 
-  subtotal: ..., 
-  totalNet: ..., 
+  terminalId: ...,
+  tenderType: ...,
+  tax: ...,
+  discount: ...,
+  subtotal: ...,
+  totalNet: ...,
 };
 
 // Call the `createTenantSaleRef()` function to get a reference to the mutation.
@@ -9547,7 +9694,7 @@ executeMutation(ref).then((response) => {
 
 ## AddTenantSaleLine
 You can execute the `AddTenantSaleLine` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 addTenantSaleLine(vars: AddTenantSaleLineVariables): MutationPromise<AddTenantSaleLineData, AddTenantSaleLineVariables>;
 
 interface AddTenantSaleLineRef {
@@ -9558,7 +9705,7 @@ interface AddTenantSaleLineRef {
 export const addTenantSaleLineRef: AddTenantSaleLineRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 addTenantSaleLine(dc: DataConnect, vars: AddTenantSaleLineVariables): MutationPromise<AddTenantSaleLineData, AddTenantSaleLineVariables>;
 
 interface AddTenantSaleLineRef {
@@ -9569,7 +9716,7 @@ export const addTenantSaleLineRef: AddTenantSaleLineRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the addTenantSaleLineRef:
-```typescript
+```typescrip
 const name = addTenantSaleLineRef.operationName;
 console.log(name);
 ```
@@ -9577,7 +9724,7 @@ console.log(name);
 ### Variables
 The `AddTenantSaleLine` mutation requires an argument of type `AddTenantSaleLineVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface AddTenantSaleLineVariables {
   organizationId: UUIDString;
   saleId: UUIDString;
@@ -9593,7 +9740,7 @@ export interface AddTenantSaleLineVariables {
 Recall that executing the `AddTenantSaleLine` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `AddTenantSaleLineData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface AddTenantSaleLineData {
   saleLine_insert: SaleLine_Key;
   inventoryStock_update?: InventoryStock_Key | null;
@@ -9601,20 +9748,20 @@ export interface AddTenantSaleLineData {
 ```
 ### Using `AddTenantSaleLine`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, addTenantSaleLine, AddTenantSaleLineVariables } from '@omniretail/sql-connect';
 
 // The `AddTenantSaleLine` mutation requires an argument of type `AddTenantSaleLineVariables`:
 const addTenantSaleLineVars: AddTenantSaleLineVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantity: ..., 
-  newStockQty: ..., 
-  unitPrice: ..., 
-  subtotal: ..., 
+  organizationId: ...,
+  saleId: ...,
+  outletId: ...,
+  productId: ...,
+  quantity: ...,
+  newStockQty: ...,
+  unitPrice: ...,
+  subtotal: ...,
 };
 
 // Call the `addTenantSaleLine()` function to execute the mutation.
@@ -9640,20 +9787,20 @@ addTenantSaleLine(addTenantSaleLineVars).then((response) => {
 
 ### Using `AddTenantSaleLine`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, addTenantSaleLineRef, AddTenantSaleLineVariables } from '@omniretail/sql-connect';
 
 // The `AddTenantSaleLine` mutation requires an argument of type `AddTenantSaleLineVariables`:
 const addTenantSaleLineVars: AddTenantSaleLineVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantity: ..., 
-  newStockQty: ..., 
-  unitPrice: ..., 
-  subtotal: ..., 
+  organizationId: ...,
+  saleId: ...,
+  outletId: ...,
+  productId: ...,
+  quantity: ...,
+  newStockQty: ...,
+  unitPrice: ...,
+  subtotal: ...,
 };
 
 // Call the `addTenantSaleLineRef()` function to get a reference to the mutation.
@@ -9682,7 +9829,7 @@ executeMutation(ref).then((response) => {
 
 ## VoidTenantSale
 You can execute the `VoidTenantSale` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 voidTenantSale(vars: VoidTenantSaleVariables): MutationPromise<VoidTenantSaleData, VoidTenantSaleVariables>;
 
 interface VoidTenantSaleRef {
@@ -9693,7 +9840,7 @@ interface VoidTenantSaleRef {
 export const voidTenantSaleRef: VoidTenantSaleRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 voidTenantSale(dc: DataConnect, vars: VoidTenantSaleVariables): MutationPromise<VoidTenantSaleData, VoidTenantSaleVariables>;
 
 interface VoidTenantSaleRef {
@@ -9704,7 +9851,7 @@ export const voidTenantSaleRef: VoidTenantSaleRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the voidTenantSaleRef:
-```typescript
+```typescrip
 const name = voidTenantSaleRef.operationName;
 console.log(name);
 ```
@@ -9712,7 +9859,7 @@ console.log(name);
 ### Variables
 The `VoidTenantSale` mutation requires an argument of type `VoidTenantSaleVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface VoidTenantSaleVariables {
   organizationId: UUIDString;
   saleId: UUIDString;
@@ -9723,22 +9870,22 @@ export interface VoidTenantSaleVariables {
 Recall that executing the `VoidTenantSale` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `VoidTenantSaleData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface VoidTenantSaleData {
   sale_update?: Sale_Key | null;
 }
 ```
 ### Using `VoidTenantSale`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, voidTenantSale, VoidTenantSaleVariables } from '@omniretail/sql-connect';
 
 // The `VoidTenantSale` mutation requires an argument of type `VoidTenantSaleVariables`:
 const voidTenantSaleVars: VoidTenantSaleVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  reason: ..., 
+  organizationId: ...,
+  saleId: ...,
+  reason: ...,
 };
 
 // Call the `voidTenantSale()` function to execute the mutation.
@@ -9762,15 +9909,15 @@ voidTenantSale(voidTenantSaleVars).then((response) => {
 
 ### Using `VoidTenantSale`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, voidTenantSaleRef, VoidTenantSaleVariables } from '@omniretail/sql-connect';
 
 // The `VoidTenantSale` mutation requires an argument of type `VoidTenantSaleVariables`:
 const voidTenantSaleVars: VoidTenantSaleVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  reason: ..., 
+  organizationId: ...,
+  saleId: ...,
+  reason: ...,
 };
 
 // Call the `voidTenantSaleRef()` function to get a reference to the mutation.
@@ -9797,7 +9944,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantPurchase
 You can execute the `CreateTenantPurchase` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantPurchase(vars: CreateTenantPurchaseVariables): MutationPromise<CreateTenantPurchaseData, CreateTenantPurchaseVariables>;
 
 interface CreateTenantPurchaseRef {
@@ -9808,7 +9955,7 @@ interface CreateTenantPurchaseRef {
 export const createTenantPurchaseRef: CreateTenantPurchaseRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantPurchase(dc: DataConnect, vars: CreateTenantPurchaseVariables): MutationPromise<CreateTenantPurchaseData, CreateTenantPurchaseVariables>;
 
 interface CreateTenantPurchaseRef {
@@ -9819,7 +9966,7 @@ export const createTenantPurchaseRef: CreateTenantPurchaseRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantPurchaseRef:
-```typescript
+```typescrip
 const name = createTenantPurchaseRef.operationName;
 console.log(name);
 ```
@@ -9827,7 +9974,7 @@ console.log(name);
 ### Variables
 The `CreateTenantPurchase` mutation requires an argument of type `CreateTenantPurchaseVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantPurchaseVariables {
   organizationId: UUIDString;
   purchaseNumber: string;
@@ -9853,37 +10000,37 @@ export interface CreateTenantPurchaseVariables {
 Recall that executing the `CreateTenantPurchase` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantPurchaseData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantPurchaseData {
   purchase_insert: Purchase_Key;
 }
 ```
 ### Using `CreateTenantPurchase`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantPurchase, CreateTenantPurchaseVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantPurchase` mutation requires an argument of type `CreateTenantPurchaseVariables`:
 const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
-  organizationId: ..., 
-  purchaseNumber: ..., 
-  purchaseDate: ..., 
-  supplierId: ..., 
+  organizationId: ...,
+  purchaseNumber: ...,
+  purchaseDate: ...,
+  supplierId: ...,
   outletId: ..., // optional
-  scope: ..., 
+  scope: ...,
   paymentTerms: ..., // optional
-  subtotal: ..., 
-  shippingFee: ..., 
-  handlingFee: ..., 
-  tax: ..., 
-  totalAmount: ..., 
-  amountPaid: ..., 
-  outstandingAmount: ..., 
-  paymentStatus: ..., 
-  receiptStatus: ..., 
-  status: ..., 
-  createdBy: ..., 
+  subtotal: ...,
+  shippingFee: ...,
+  handlingFee: ...,
+  tax: ...,
+  totalAmount: ...,
+  amountPaid: ...,
+  outstandingAmount: ...,
+  paymentStatus: ...,
+  receiptStatus: ...,
+  status: ...,
+  createdBy: ...,
 };
 
 // Call the `createTenantPurchase()` function to execute the mutation.
@@ -9907,30 +10054,30 @@ createTenantPurchase(createTenantPurchaseVars).then((response) => {
 
 ### Using `CreateTenantPurchase`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantPurchaseRef, CreateTenantPurchaseVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantPurchase` mutation requires an argument of type `CreateTenantPurchaseVariables`:
 const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
-  organizationId: ..., 
-  purchaseNumber: ..., 
-  purchaseDate: ..., 
-  supplierId: ..., 
+  organizationId: ...,
+  purchaseNumber: ...,
+  purchaseDate: ...,
+  supplierId: ...,
   outletId: ..., // optional
-  scope: ..., 
+  scope: ...,
   paymentTerms: ..., // optional
-  subtotal: ..., 
-  shippingFee: ..., 
-  handlingFee: ..., 
-  tax: ..., 
-  totalAmount: ..., 
-  amountPaid: ..., 
-  outstandingAmount: ..., 
-  paymentStatus: ..., 
-  receiptStatus: ..., 
-  status: ..., 
-  createdBy: ..., 
+  subtotal: ...,
+  shippingFee: ...,
+  handlingFee: ...,
+  tax: ...,
+  totalAmount: ...,
+  amountPaid: ...,
+  outstandingAmount: ...,
+  paymentStatus: ...,
+  receiptStatus: ...,
+  status: ...,
+  createdBy: ...,
 };
 
 // Call the `createTenantPurchaseRef()` function to get a reference to the mutation.
@@ -9957,7 +10104,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantPurchaseLine
 You can execute the `CreateTenantPurchaseLine` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantPurchaseLine(vars: CreateTenantPurchaseLineVariables): MutationPromise<CreateTenantPurchaseLineData, CreateTenantPurchaseLineVariables>;
 
 interface CreateTenantPurchaseLineRef {
@@ -9968,7 +10115,7 @@ interface CreateTenantPurchaseLineRef {
 export const createTenantPurchaseLineRef: CreateTenantPurchaseLineRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantPurchaseLine(dc: DataConnect, vars: CreateTenantPurchaseLineVariables): MutationPromise<CreateTenantPurchaseLineData, CreateTenantPurchaseLineVariables>;
 
 interface CreateTenantPurchaseLineRef {
@@ -9979,7 +10126,7 @@ export const createTenantPurchaseLineRef: CreateTenantPurchaseLineRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantPurchaseLineRef:
-```typescript
+```typescrip
 const name = createTenantPurchaseLineRef.operationName;
 console.log(name);
 ```
@@ -9987,7 +10134,7 @@ console.log(name);
 ### Variables
 The `CreateTenantPurchaseLine` mutation requires an argument of type `CreateTenantPurchaseLineVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantPurchaseLineVariables {
   organizationId: UUIDString;
   purchaseId: UUIDString;
@@ -10004,28 +10151,28 @@ export interface CreateTenantPurchaseLineVariables {
 Recall that executing the `CreateTenantPurchaseLine` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantPurchaseLineData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantPurchaseLineData {
   purchaseLine_insert: PurchaseLine_Key;
 }
 ```
 ### Using `CreateTenantPurchaseLine`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantPurchaseLine, CreateTenantPurchaseLineVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantPurchaseLine` mutation requires an argument of type `CreateTenantPurchaseLineVariables`:
 const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  productId: ..., 
-  quantityOrdered: ..., 
-  unitCost: ..., 
-  discountPercent: ..., 
-  taxRate: ..., 
-  taxAmount: ..., 
-  lineTotal: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  productId: ...,
+  quantityOrdered: ...,
+  unitCost: ...,
+  discountPercent: ...,
+  taxRate: ...,
+  taxAmount: ...,
+  lineTotal: ...,
 };
 
 // Call the `createTenantPurchaseLine()` function to execute the mutation.
@@ -10049,21 +10196,21 @@ createTenantPurchaseLine(createTenantPurchaseLineVars).then((response) => {
 
 ### Using `CreateTenantPurchaseLine`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantPurchaseLineRef, CreateTenantPurchaseLineVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantPurchaseLine` mutation requires an argument of type `CreateTenantPurchaseLineVariables`:
 const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  productId: ..., 
-  quantityOrdered: ..., 
-  unitCost: ..., 
-  discountPercent: ..., 
-  taxRate: ..., 
-  taxAmount: ..., 
-  lineTotal: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  productId: ...,
+  quantityOrdered: ...,
+  unitCost: ...,
+  discountPercent: ...,
+  taxRate: ...,
+  taxAmount: ...,
+  lineTotal: ...,
 };
 
 // Call the `createTenantPurchaseLineRef()` function to get a reference to the mutation.
@@ -10090,7 +10237,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantPurchaseStatus
 You can execute the `ChangeTenantPurchaseStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantPurchaseStatus(vars: ChangeTenantPurchaseStatusVariables): MutationPromise<ChangeTenantPurchaseStatusData, ChangeTenantPurchaseStatusVariables>;
 
 interface ChangeTenantPurchaseStatusRef {
@@ -10101,7 +10248,7 @@ interface ChangeTenantPurchaseStatusRef {
 export const changeTenantPurchaseStatusRef: ChangeTenantPurchaseStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantPurchaseStatus(dc: DataConnect, vars: ChangeTenantPurchaseStatusVariables): MutationPromise<ChangeTenantPurchaseStatusData, ChangeTenantPurchaseStatusVariables>;
 
 interface ChangeTenantPurchaseStatusRef {
@@ -10112,7 +10259,7 @@ export const changeTenantPurchaseStatusRef: ChangeTenantPurchaseStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantPurchaseStatusRef:
-```typescript
+```typescrip
 const name = changeTenantPurchaseStatusRef.operationName;
 console.log(name);
 ```
@@ -10120,7 +10267,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantPurchaseStatus` mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantPurchaseStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -10132,22 +10279,22 @@ export interface ChangeTenantPurchaseStatusVariables {
 Recall that executing the `ChangeTenantPurchaseStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantPurchaseStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantPurchaseStatusData {
   purchase_update?: Purchase_Key | null;
 }
 ```
 ### Using `ChangeTenantPurchaseStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantPurchaseStatus, ChangeTenantPurchaseStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantPurchaseStatus` mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`:
 const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
   reason: ..., // optional
 };
 
@@ -10172,15 +10319,15 @@ changeTenantPurchaseStatus(changeTenantPurchaseStatusVars).then((response) => {
 
 ### Using `ChangeTenantPurchaseStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantPurchaseStatusRef, ChangeTenantPurchaseStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantPurchaseStatus` mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`:
 const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
   reason: ..., // optional
 };
 
@@ -10208,7 +10355,7 @@ executeMutation(ref).then((response) => {
 
 ## ReceiveTenantPurchaseLine
 You can execute the `ReceiveTenantPurchaseLine` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 receiveTenantPurchaseLine(vars: ReceiveTenantPurchaseLineVariables): MutationPromise<ReceiveTenantPurchaseLineData, ReceiveTenantPurchaseLineVariables>;
 
 interface ReceiveTenantPurchaseLineRef {
@@ -10219,7 +10366,7 @@ interface ReceiveTenantPurchaseLineRef {
 export const receiveTenantPurchaseLineRef: ReceiveTenantPurchaseLineRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 receiveTenantPurchaseLine(dc: DataConnect, vars: ReceiveTenantPurchaseLineVariables): MutationPromise<ReceiveTenantPurchaseLineData, ReceiveTenantPurchaseLineVariables>;
 
 interface ReceiveTenantPurchaseLineRef {
@@ -10230,7 +10377,7 @@ export const receiveTenantPurchaseLineRef: ReceiveTenantPurchaseLineRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the receiveTenantPurchaseLineRef:
-```typescript
+```typescrip
 const name = receiveTenantPurchaseLineRef.operationName;
 console.log(name);
 ```
@@ -10238,7 +10385,7 @@ console.log(name);
 ### Variables
 The `ReceiveTenantPurchaseLine` mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ReceiveTenantPurchaseLineVariables {
   organizationId: UUIDString;
   purchaseId: UUIDString;
@@ -10257,7 +10404,7 @@ export interface ReceiveTenantPurchaseLineVariables {
 Recall that executing the `ReceiveTenantPurchaseLine` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ReceiveTenantPurchaseLineData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ReceiveTenantPurchaseLineData {
   purchaseLine_update?: PurchaseLine_Key | null;
   purchase_update?: Purchase_Key | null;
@@ -10266,20 +10413,20 @@ export interface ReceiveTenantPurchaseLineData {
 ```
 ### Using `ReceiveTenantPurchaseLine`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, receiveTenantPurchaseLine, ReceiveTenantPurchaseLineVariables } from '@omniretail/sql-connect';
 
 // The `ReceiveTenantPurchaseLine` mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`:
 const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  lineId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantityReceived: ..., 
-  newStockQty: ..., 
-  receiptStatus: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  lineId: ...,
+  outletId: ...,
+  productId: ...,
+  quantityReceived: ...,
+  newStockQty: ...,
+  receiptStatus: ...,
   batchNumber: ..., // optional
   mfgDate: ..., // optional
   expiryDate: ..., // optional
@@ -10310,20 +10457,20 @@ receiveTenantPurchaseLine(receiveTenantPurchaseLineVars).then((response) => {
 
 ### Using `ReceiveTenantPurchaseLine`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, receiveTenantPurchaseLineRef, ReceiveTenantPurchaseLineVariables } from '@omniretail/sql-connect';
 
 // The `ReceiveTenantPurchaseLine` mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`:
 const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  lineId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantityReceived: ..., 
-  newStockQty: ..., 
-  receiptStatus: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  lineId: ...,
+  outletId: ...,
+  productId: ...,
+  quantityReceived: ...,
+  newStockQty: ...,
+  receiptStatus: ...,
   batchNumber: ..., // optional
   mfgDate: ..., // optional
   expiryDate: ..., // optional
@@ -10357,7 +10504,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantSupplier
 You can execute the `CreateTenantSupplier` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantSupplier(vars: CreateTenantSupplierVariables): MutationPromise<CreateTenantSupplierData, CreateTenantSupplierVariables>;
 
 interface CreateTenantSupplierRef {
@@ -10368,7 +10515,7 @@ interface CreateTenantSupplierRef {
 export const createTenantSupplierRef: CreateTenantSupplierRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantSupplier(dc: DataConnect, vars: CreateTenantSupplierVariables): MutationPromise<CreateTenantSupplierData, CreateTenantSupplierVariables>;
 
 interface CreateTenantSupplierRef {
@@ -10379,7 +10526,7 @@ export const createTenantSupplierRef: CreateTenantSupplierRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantSupplierRef:
-```typescript
+```typescrip
 const name = createTenantSupplierRef.operationName;
 console.log(name);
 ```
@@ -10387,7 +10534,7 @@ console.log(name);
 ### Variables
 The `CreateTenantSupplier` mutation requires an argument of type `CreateTenantSupplierVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantSupplierVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -10407,30 +10554,30 @@ export interface CreateTenantSupplierVariables {
 Recall that executing the `CreateTenantSupplier` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantSupplierData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantSupplierData {
   supplier_insert: Supplier_Key;
 }
 ```
 ### Using `CreateTenantSupplier`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantSupplier, CreateTenantSupplierVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantSupplier` mutation requires an argument of type `CreateTenantSupplierVariables`:
 const createTenantSupplierVars: CreateTenantSupplierVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   address: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
 };
 
@@ -10455,23 +10602,23 @@ createTenantSupplier(createTenantSupplierVars).then((response) => {
 
 ### Using `CreateTenantSupplier`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantSupplierRef, CreateTenantSupplierVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantSupplier` mutation requires an argument of type `CreateTenantSupplierVariables`:
 const createTenantSupplierVars: CreateTenantSupplierVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   address: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
 };
 
@@ -10499,7 +10646,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantSupplier
 You can execute the `UpdateTenantSupplier` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantSupplier(vars: UpdateTenantSupplierVariables): MutationPromise<UpdateTenantSupplierData, UpdateTenantSupplierVariables>;
 
 interface UpdateTenantSupplierRef {
@@ -10510,7 +10657,7 @@ interface UpdateTenantSupplierRef {
 export const updateTenantSupplierRef: UpdateTenantSupplierRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantSupplier(dc: DataConnect, vars: UpdateTenantSupplierVariables): MutationPromise<UpdateTenantSupplierData, UpdateTenantSupplierVariables>;
 
 interface UpdateTenantSupplierRef {
@@ -10521,7 +10668,7 @@ export const updateTenantSupplierRef: UpdateTenantSupplierRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantSupplierRef:
-```typescript
+```typescrip
 const name = updateTenantSupplierRef.operationName;
 console.log(name);
 ```
@@ -10529,7 +10676,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantSupplier` mutation requires an argument of type `UpdateTenantSupplierVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantSupplierVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -10549,30 +10696,30 @@ export interface UpdateTenantSupplierVariables {
 Recall that executing the `UpdateTenantSupplier` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantSupplierData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantSupplierData {
   supplier_update?: Supplier_Key | null;
 }
 ```
 ### Using `UpdateTenantSupplier`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantSupplier, UpdateTenantSupplierVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantSupplier` mutation requires an argument of type `UpdateTenantSupplierVariables`:
 const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   address: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
 };
 
@@ -10597,23 +10744,23 @@ updateTenantSupplier(updateTenantSupplierVars).then((response) => {
 
 ### Using `UpdateTenantSupplier`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantSupplierRef, UpdateTenantSupplierVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantSupplier` mutation requires an argument of type `UpdateTenantSupplierVariables`:
 const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   address: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
 };
 
@@ -10641,7 +10788,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantSupplierStatus
 You can execute the `ChangeTenantSupplierStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantSupplierStatus(vars: ChangeTenantSupplierStatusVariables): MutationPromise<ChangeTenantSupplierStatusData, ChangeTenantSupplierStatusVariables>;
 
 interface ChangeTenantSupplierStatusRef {
@@ -10652,7 +10799,7 @@ interface ChangeTenantSupplierStatusRef {
 export const changeTenantSupplierStatusRef: ChangeTenantSupplierStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantSupplierStatus(dc: DataConnect, vars: ChangeTenantSupplierStatusVariables): MutationPromise<ChangeTenantSupplierStatusData, ChangeTenantSupplierStatusVariables>;
 
 interface ChangeTenantSupplierStatusRef {
@@ -10663,7 +10810,7 @@ export const changeTenantSupplierStatusRef: ChangeTenantSupplierStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantSupplierStatusRef:
-```typescript
+```typescrip
 const name = changeTenantSupplierStatusRef.operationName;
 console.log(name);
 ```
@@ -10671,7 +10818,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantSupplierStatus` mutation requires an argument of type `ChangeTenantSupplierStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantSupplierStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -10682,22 +10829,22 @@ export interface ChangeTenantSupplierStatusVariables {
 Recall that executing the `ChangeTenantSupplierStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantSupplierStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantSupplierStatusData {
   supplier_update?: Supplier_Key | null;
 }
 ```
 ### Using `ChangeTenantSupplierStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantSupplierStatus, ChangeTenantSupplierStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantSupplierStatus` mutation requires an argument of type `ChangeTenantSupplierStatusVariables`:
 const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantSupplierStatus()` function to execute the mutation.
@@ -10721,15 +10868,15 @@ changeTenantSupplierStatus(changeTenantSupplierStatusVars).then((response) => {
 
 ### Using `ChangeTenantSupplierStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantSupplierStatusRef, ChangeTenantSupplierStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantSupplierStatus` mutation requires an argument of type `ChangeTenantSupplierStatusVariables`:
 const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantSupplierStatusRef()` function to get a reference to the mutation.
@@ -10756,7 +10903,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantCustomer
 You can execute the `CreateTenantCustomer` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantCustomer(vars: CreateTenantCustomerVariables): MutationPromise<CreateTenantCustomerData, CreateTenantCustomerVariables>;
 
 interface CreateTenantCustomerRef {
@@ -10767,7 +10914,7 @@ interface CreateTenantCustomerRef {
 export const createTenantCustomerRef: CreateTenantCustomerRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantCustomer(dc: DataConnect, vars: CreateTenantCustomerVariables): MutationPromise<CreateTenantCustomerData, CreateTenantCustomerVariables>;
 
 interface CreateTenantCustomerRef {
@@ -10778,7 +10925,7 @@ export const createTenantCustomerRef: CreateTenantCustomerRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantCustomerRef:
-```typescript
+```typescrip
 const name = createTenantCustomerRef.operationName;
 console.log(name);
 ```
@@ -10786,7 +10933,7 @@ console.log(name);
 ### Variables
 The `CreateTenantCustomer` mutation requires an argument of type `CreateTenantCustomerVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantCustomerVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -10809,24 +10956,24 @@ export interface CreateTenantCustomerVariables {
 Recall that executing the `CreateTenantCustomer` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantCustomerData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantCustomerData {
   customer_insert: Customer_Key;
 }
 ```
 ### Using `CreateTenantCustomer`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantCustomer, CreateTenantCustomerVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantCustomer` mutation requires an argument of type `CreateTenantCustomerVariables`:
 const createTenantCustomerVars: CreateTenantCustomerVariables = {
-  id: ..., 
-  organizationId: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
+  id: ...,
+  organizationId: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
   email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
@@ -10860,17 +11007,17 @@ createTenantCustomer(createTenantCustomerVars).then((response) => {
 
 ### Using `CreateTenantCustomer`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantCustomerRef, CreateTenantCustomerVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantCustomer` mutation requires an argument of type `CreateTenantCustomerVariables`:
 const createTenantCustomerVars: CreateTenantCustomerVariables = {
-  id: ..., 
-  organizationId: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
+  id: ...,
+  organizationId: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
   email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
@@ -10907,7 +11054,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantCustomer
 You can execute the `UpdateTenantCustomer` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantCustomer(vars: UpdateTenantCustomerVariables): MutationPromise<UpdateTenantCustomerData, UpdateTenantCustomerVariables>;
 
 interface UpdateTenantCustomerRef {
@@ -10918,7 +11065,7 @@ interface UpdateTenantCustomerRef {
 export const updateTenantCustomerRef: UpdateTenantCustomerRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantCustomer(dc: DataConnect, vars: UpdateTenantCustomerVariables): MutationPromise<UpdateTenantCustomerData, UpdateTenantCustomerVariables>;
 
 interface UpdateTenantCustomerRef {
@@ -10929,7 +11076,7 @@ export const updateTenantCustomerRef: UpdateTenantCustomerRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantCustomerRef:
-```typescript
+```typescrip
 const name = updateTenantCustomerRef.operationName;
 console.log(name);
 ```
@@ -10937,7 +11084,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantCustomer` mutation requires an argument of type `UpdateTenantCustomerVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantCustomerVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -10960,24 +11107,24 @@ export interface UpdateTenantCustomerVariables {
 Recall that executing the `UpdateTenantCustomer` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantCustomerData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantCustomerData {
   customer_update?: Customer_Key | null;
 }
 ```
 ### Using `UpdateTenantCustomer`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantCustomer, UpdateTenantCustomerVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantCustomer` mutation requires an argument of type `UpdateTenantCustomerVariables`:
 const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
-  organizationId: ..., 
-  id: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
+  organizationId: ...,
+  id: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
   email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
@@ -11011,17 +11158,17 @@ updateTenantCustomer(updateTenantCustomerVars).then((response) => {
 
 ### Using `UpdateTenantCustomer`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantCustomerRef, UpdateTenantCustomerVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantCustomer` mutation requires an argument of type `UpdateTenantCustomerVariables`:
 const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
-  organizationId: ..., 
-  id: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
+  organizationId: ...,
+  id: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
   email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
@@ -11058,7 +11205,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantCustomerStatus
 You can execute the `ChangeTenantCustomerStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantCustomerStatus(vars: ChangeTenantCustomerStatusVariables): MutationPromise<ChangeTenantCustomerStatusData, ChangeTenantCustomerStatusVariables>;
 
 interface ChangeTenantCustomerStatusRef {
@@ -11069,7 +11216,7 @@ interface ChangeTenantCustomerStatusRef {
 export const changeTenantCustomerStatusRef: ChangeTenantCustomerStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantCustomerStatus(dc: DataConnect, vars: ChangeTenantCustomerStatusVariables): MutationPromise<ChangeTenantCustomerStatusData, ChangeTenantCustomerStatusVariables>;
 
 interface ChangeTenantCustomerStatusRef {
@@ -11080,7 +11227,7 @@ export const changeTenantCustomerStatusRef: ChangeTenantCustomerStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantCustomerStatusRef:
-```typescript
+```typescrip
 const name = changeTenantCustomerStatusRef.operationName;
 console.log(name);
 ```
@@ -11088,7 +11235,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantCustomerStatus` mutation requires an argument of type `ChangeTenantCustomerStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantCustomerStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -11099,22 +11246,22 @@ export interface ChangeTenantCustomerStatusVariables {
 Recall that executing the `ChangeTenantCustomerStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantCustomerStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantCustomerStatusData {
   customer_update?: Customer_Key | null;
 }
 ```
 ### Using `ChangeTenantCustomerStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantCustomerStatus, ChangeTenantCustomerStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantCustomerStatus` mutation requires an argument of type `ChangeTenantCustomerStatusVariables`:
 const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantCustomerStatus()` function to execute the mutation.
@@ -11138,15 +11285,15 @@ changeTenantCustomerStatus(changeTenantCustomerStatusVars).then((response) => {
 
 ### Using `ChangeTenantCustomerStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantCustomerStatusRef, ChangeTenantCustomerStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantCustomerStatus` mutation requires an argument of type `ChangeTenantCustomerStatusVariables`:
 const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantCustomerStatusRef()` function to get a reference to the mutation.
@@ -11173,7 +11320,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantCategoryTrusted
 You can execute the `CreateTenantCategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantCategoryTrusted(vars: CreateTenantCategoryTrustedVariables): MutationPromise<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
 
 interface CreateTenantCategoryTrustedRef {
@@ -11184,7 +11331,7 @@ interface CreateTenantCategoryTrustedRef {
 export const createTenantCategoryTrustedRef: CreateTenantCategoryTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantCategoryTrusted(dc: DataConnect, vars: CreateTenantCategoryTrustedVariables): MutationPromise<CreateTenantCategoryTrustedData, CreateTenantCategoryTrustedVariables>;
 
 interface CreateTenantCategoryTrustedRef {
@@ -11195,7 +11342,7 @@ export const createTenantCategoryTrustedRef: CreateTenantCategoryTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantCategoryTrustedRef:
-```typescript
+```typescrip
 const name = createTenantCategoryTrustedRef.operationName;
 console.log(name);
 ```
@@ -11203,7 +11350,7 @@ console.log(name);
 ### Variables
 The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantCategoryTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -11214,22 +11361,22 @@ export interface CreateTenantCategoryTrustedVariables {
 Recall that executing the `CreateTenantCategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantCategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantCategoryTrustedData {
   category_insert: Category_Key;
 }
 ```
 ### Using `CreateTenantCategoryTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantCategoryTrusted, CreateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
 const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  value: ..., 
+  id: ...,
+  organizationId: ...,
+  value: ...,
 };
 
 // Call the `createTenantCategoryTrusted()` function to execute the mutation.
@@ -11253,15 +11400,15 @@ createTenantCategoryTrusted(createTenantCategoryTrustedVars).then((response) => 
 
 ### Using `CreateTenantCategoryTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantCategoryTrustedRef, CreateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
 const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  value: ..., 
+  id: ...,
+  organizationId: ...,
+  value: ...,
 };
 
 // Call the `createTenantCategoryTrustedRef()` function to get a reference to the mutation.
@@ -11288,7 +11435,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantSubcategoryTrusted
 You can execute the `CreateTenantSubcategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantSubcategoryTrusted(vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
 
 interface CreateTenantSubcategoryTrustedRef {
@@ -11299,7 +11446,7 @@ interface CreateTenantSubcategoryTrustedRef {
 export const createTenantSubcategoryTrustedRef: CreateTenantSubcategoryTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantSubcategoryTrusted(dc: DataConnect, vars: CreateTenantSubcategoryTrustedVariables): MutationPromise<CreateTenantSubcategoryTrustedData, CreateTenantSubcategoryTrustedVariables>;
 
 interface CreateTenantSubcategoryTrustedRef {
@@ -11310,7 +11457,7 @@ export const createTenantSubcategoryTrustedRef: CreateTenantSubcategoryTrustedRe
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantSubcategoryTrustedRef:
-```typescript
+```typescrip
 const name = createTenantSubcategoryTrustedRef.operationName;
 console.log(name);
 ```
@@ -11318,7 +11465,7 @@ console.log(name);
 ### Variables
 The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantSubcategoryTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -11330,23 +11477,23 @@ export interface CreateTenantSubcategoryTrustedVariables {
 Recall that executing the `CreateTenantSubcategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantSubcategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantSubcategoryTrustedData {
   subcategory_insert: Subcategory_Key;
 }
 ```
 ### Using `CreateTenantSubcategoryTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantSubcategoryTrusted, CreateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
 const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  categoryId: ..., 
-  value: ..., 
+  id: ...,
+  organizationId: ...,
+  categoryId: ...,
+  value: ...,
 };
 
 // Call the `createTenantSubcategoryTrusted()` function to execute the mutation.
@@ -11370,16 +11517,16 @@ createTenantSubcategoryTrusted(createTenantSubcategoryTrustedVars).then((respons
 
 ### Using `CreateTenantSubcategoryTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantSubcategoryTrustedRef, CreateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
 const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  categoryId: ..., 
-  value: ..., 
+  id: ...,
+  organizationId: ...,
+  categoryId: ...,
+  value: ...,
 };
 
 // Call the `createTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
@@ -11406,7 +11553,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantCategoryTrusted
 You can execute the `UpdateTenantCategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantCategoryTrusted(vars: UpdateTenantCategoryTrustedVariables): MutationPromise<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
 
 interface UpdateTenantCategoryTrustedRef {
@@ -11417,7 +11564,7 @@ interface UpdateTenantCategoryTrustedRef {
 export const updateTenantCategoryTrustedRef: UpdateTenantCategoryTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantCategoryTrusted(dc: DataConnect, vars: UpdateTenantCategoryTrustedVariables): MutationPromise<UpdateTenantCategoryTrustedData, UpdateTenantCategoryTrustedVariables>;
 
 interface UpdateTenantCategoryTrustedRef {
@@ -11428,7 +11575,7 @@ export const updateTenantCategoryTrustedRef: UpdateTenantCategoryTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantCategoryTrustedRef:
-```typescript
+```typescrip
 const name = updateTenantCategoryTrustedRef.operationName;
 console.log(name);
 ```
@@ -11436,7 +11583,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantCategoryTrusted` mutation requires an argument of type `UpdateTenantCategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantCategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -11447,22 +11594,22 @@ export interface UpdateTenantCategoryTrustedVariables {
 Recall that executing the `UpdateTenantCategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantCategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantCategoryTrustedData {
   category_update?: Category_Key | null;
 }
 ```
 ### Using `UpdateTenantCategoryTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantCategoryTrusted, UpdateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantCategoryTrusted` mutation requires an argument of type `UpdateTenantCategoryTrustedVariables`:
 const updateTenantCategoryTrustedVars: UpdateTenantCategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  value: ..., 
+  organizationId: ...,
+  id: ...,
+  value: ...,
 };
 
 // Call the `updateTenantCategoryTrusted()` function to execute the mutation.
@@ -11486,15 +11633,15 @@ updateTenantCategoryTrusted(updateTenantCategoryTrustedVars).then((response) => 
 
 ### Using `UpdateTenantCategoryTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantCategoryTrustedRef, UpdateTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantCategoryTrusted` mutation requires an argument of type `UpdateTenantCategoryTrustedVariables`:
 const updateTenantCategoryTrustedVars: UpdateTenantCategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  value: ..., 
+  organizationId: ...,
+  id: ...,
+  value: ...,
 };
 
 // Call the `updateTenantCategoryTrustedRef()` function to get a reference to the mutation.
@@ -11521,7 +11668,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantSubcategoryTrusted
 You can execute the `UpdateTenantSubcategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantSubcategoryTrusted(vars: UpdateTenantSubcategoryTrustedVariables): MutationPromise<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
 
 interface UpdateTenantSubcategoryTrustedRef {
@@ -11532,7 +11679,7 @@ interface UpdateTenantSubcategoryTrustedRef {
 export const updateTenantSubcategoryTrustedRef: UpdateTenantSubcategoryTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantSubcategoryTrusted(dc: DataConnect, vars: UpdateTenantSubcategoryTrustedVariables): MutationPromise<UpdateTenantSubcategoryTrustedData, UpdateTenantSubcategoryTrustedVariables>;
 
 interface UpdateTenantSubcategoryTrustedRef {
@@ -11543,7 +11690,7 @@ export const updateTenantSubcategoryTrustedRef: UpdateTenantSubcategoryTrustedRe
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantSubcategoryTrustedRef:
-```typescript
+```typescrip
 const name = updateTenantSubcategoryTrustedRef.operationName;
 console.log(name);
 ```
@@ -11551,7 +11698,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantSubcategoryTrusted` mutation requires an argument of type `UpdateTenantSubcategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -11562,22 +11709,22 @@ export interface UpdateTenantSubcategoryTrustedVariables {
 Recall that executing the `UpdateTenantSubcategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantSubcategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantSubcategoryTrustedData {
   subcategory_update?: Subcategory_Key | null;
 }
 ```
 ### Using `UpdateTenantSubcategoryTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantSubcategoryTrusted, UpdateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantSubcategoryTrusted` mutation requires an argument of type `UpdateTenantSubcategoryTrustedVariables`:
 const updateTenantSubcategoryTrustedVars: UpdateTenantSubcategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  value: ..., 
+  organizationId: ...,
+  id: ...,
+  value: ...,
 };
 
 // Call the `updateTenantSubcategoryTrusted()` function to execute the mutation.
@@ -11601,15 +11748,15 @@ updateTenantSubcategoryTrusted(updateTenantSubcategoryTrustedVars).then((respons
 
 ### Using `UpdateTenantSubcategoryTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantSubcategoryTrustedRef, UpdateTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantSubcategoryTrusted` mutation requires an argument of type `UpdateTenantSubcategoryTrustedVariables`:
 const updateTenantSubcategoryTrustedVars: UpdateTenantSubcategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  value: ..., 
+  organizationId: ...,
+  id: ...,
+  value: ...,
 };
 
 // Call the `updateTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
@@ -11634,9 +11781,9 @@ executeMutation(ref).then((response) => {
 });
 ```
 
-## CreateTenantProduct
+## CreateTenantProduc
 You can execute the `CreateTenantProduct` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantProduct(vars: CreateTenantProductVariables): MutationPromise<CreateTenantProductData, CreateTenantProductVariables>;
 
 interface CreateTenantProductRef {
@@ -11647,7 +11794,7 @@ interface CreateTenantProductRef {
 export const createTenantProductRef: CreateTenantProductRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantProduct(dc: DataConnect, vars: CreateTenantProductVariables): MutationPromise<CreateTenantProductData, CreateTenantProductVariables>;
 
 interface CreateTenantProductRef {
@@ -11658,7 +11805,7 @@ export const createTenantProductRef: CreateTenantProductRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantProductRef:
-```typescript
+```typescrip
 const name = createTenantProductRef.operationName;
 console.log(name);
 ```
@@ -11666,7 +11813,7 @@ console.log(name);
 ### Variables
 The `CreateTenantProduct` mutation requires an argument of type `CreateTenantProductVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantProductVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -11695,35 +11842,35 @@ export interface CreateTenantProductVariables {
 Recall that executing the `CreateTenantProduct` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantProductData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantProductData {
   product_insert: Product_Key;
 }
 ```
 ### Using `CreateTenantProduct`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantProduct, CreateTenantProductVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantProduct` mutation requires an argument of type `CreateTenantProductVariables`:
 const createTenantProductVars: CreateTenantProductVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
@@ -11752,28 +11899,28 @@ createTenantProduct(createTenantProductVars).then((response) => {
 
 ### Using `CreateTenantProduct`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantProductRef, CreateTenantProductVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantProduct` mutation requires an argument of type `CreateTenantProductVariables`:
 const createTenantProductVars: CreateTenantProductVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
@@ -11803,9 +11950,9 @@ executeMutation(ref).then((response) => {
 });
 ```
 
-## UpdateTenantProduct
+## UpdateTenantProduc
 You can execute the `UpdateTenantProduct` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantProduct(vars: UpdateTenantProductVariables): MutationPromise<UpdateTenantProductData, UpdateTenantProductVariables>;
 
 interface UpdateTenantProductRef {
@@ -11816,7 +11963,7 @@ interface UpdateTenantProductRef {
 export const updateTenantProductRef: UpdateTenantProductRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantProduct(dc: DataConnect, vars: UpdateTenantProductVariables): MutationPromise<UpdateTenantProductData, UpdateTenantProductVariables>;
 
 interface UpdateTenantProductRef {
@@ -11827,7 +11974,7 @@ export const updateTenantProductRef: UpdateTenantProductRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantProductRef:
-```typescript
+```typescrip
 const name = updateTenantProductRef.operationName;
 console.log(name);
 ```
@@ -11835,7 +11982,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantProduct` mutation requires an argument of type `UpdateTenantProductVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantProductVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -11864,35 +12011,35 @@ export interface UpdateTenantProductVariables {
 Recall that executing the `UpdateTenantProduct` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantProductData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantProductData {
   product_update?: Product_Key | null;
 }
 ```
 ### Using `UpdateTenantProduct`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantProduct, UpdateTenantProductVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantProduct` mutation requires an argument of type `UpdateTenantProductVariables`:
 const updateTenantProductVars: UpdateTenantProductVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
@@ -11921,28 +12068,28 @@ updateTenantProduct(updateTenantProductVars).then((response) => {
 
 ### Using `UpdateTenantProduct`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantProductRef, UpdateTenantProductVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantProduct` mutation requires an argument of type `UpdateTenantProductVariables`:
 const updateTenantProductVars: UpdateTenantProductVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
@@ -11974,7 +12121,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantProductStatus
 You can execute the `ChangeTenantProductStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantProductStatus(vars: ChangeTenantProductStatusVariables): MutationPromise<ChangeTenantProductStatusData, ChangeTenantProductStatusVariables>;
 
 interface ChangeTenantProductStatusRef {
@@ -11985,7 +12132,7 @@ interface ChangeTenantProductStatusRef {
 export const changeTenantProductStatusRef: ChangeTenantProductStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantProductStatus(dc: DataConnect, vars: ChangeTenantProductStatusVariables): MutationPromise<ChangeTenantProductStatusData, ChangeTenantProductStatusVariables>;
 
 interface ChangeTenantProductStatusRef {
@@ -11996,7 +12143,7 @@ export const changeTenantProductStatusRef: ChangeTenantProductStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantProductStatusRef:
-```typescript
+```typescrip
 const name = changeTenantProductStatusRef.operationName;
 console.log(name);
 ```
@@ -12004,7 +12151,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantProductStatus` mutation requires an argument of type `ChangeTenantProductStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantProductStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -12015,22 +12162,22 @@ export interface ChangeTenantProductStatusVariables {
 Recall that executing the `ChangeTenantProductStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantProductStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantProductStatusData {
   product_update?: Product_Key | null;
 }
 ```
 ### Using `ChangeTenantProductStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantProductStatus, ChangeTenantProductStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantProductStatus` mutation requires an argument of type `ChangeTenantProductStatusVariables`:
 const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantProductStatus()` function to execute the mutation.
@@ -12054,15 +12201,15 @@ changeTenantProductStatus(changeTenantProductStatusVars).then((response) => {
 
 ### Using `ChangeTenantProductStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantProductStatusRef, ChangeTenantProductStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantProductStatus` mutation requires an argument of type `ChangeTenantProductStatusVariables`:
 const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantProductStatusRef()` function to get a reference to the mutation.
@@ -12089,7 +12236,7 @@ executeMutation(ref).then((response) => {
 
 ## AdjustTenantInventory
 You can execute the `AdjustTenantInventory` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 adjustTenantInventory(vars: AdjustTenantInventoryVariables): MutationPromise<AdjustTenantInventoryData, AdjustTenantInventoryVariables>;
 
 interface AdjustTenantInventoryRef {
@@ -12100,7 +12247,7 @@ interface AdjustTenantInventoryRef {
 export const adjustTenantInventoryRef: AdjustTenantInventoryRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 adjustTenantInventory(dc: DataConnect, vars: AdjustTenantInventoryVariables): MutationPromise<AdjustTenantInventoryData, AdjustTenantInventoryVariables>;
 
 interface AdjustTenantInventoryRef {
@@ -12111,7 +12258,7 @@ export const adjustTenantInventoryRef: AdjustTenantInventoryRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the adjustTenantInventoryRef:
-```typescript
+```typescrip
 const name = adjustTenantInventoryRef.operationName;
 console.log(name);
 ```
@@ -12119,7 +12266,7 @@ console.log(name);
 ### Variables
 The `AdjustTenantInventory` mutation requires an argument of type `AdjustTenantInventoryVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface AdjustTenantInventoryVariables {
   organizationId: UUIDString;
   outletId: UUIDString;
@@ -12138,7 +12285,7 @@ export interface AdjustTenantInventoryVariables {
 Recall that executing the `AdjustTenantInventory` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `AdjustTenantInventoryData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface AdjustTenantInventoryData {
   inventoryStock_update?: InventoryStock_Key | null;
   inventoryMovement_insert: InventoryMovement_Key;
@@ -12146,23 +12293,23 @@ export interface AdjustTenantInventoryData {
 ```
 ### Using `AdjustTenantInventory`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, adjustTenantInventory, AdjustTenantInventoryVariables } from '@omniretail/sql-connect';
 
 // The `AdjustTenantInventory` mutation requires an argument of type `AdjustTenantInventoryVariables`:
 const adjustTenantInventoryVars: AdjustTenantInventoryVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  mode: ..., 
-  quantity: ..., 
-  previousQty: ..., 
-  newQty: ..., 
-  reasonCode: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  mode: ...,
+  quantity: ...,
+  previousQty: ...,
+  newQty: ...,
+  reasonCode: ...,
   auditNote: ..., // optional
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `adjustTenantInventory()` function to execute the mutation.
@@ -12188,23 +12335,23 @@ adjustTenantInventory(adjustTenantInventoryVars).then((response) => {
 
 ### Using `AdjustTenantInventory`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, adjustTenantInventoryRef, AdjustTenantInventoryVariables } from '@omniretail/sql-connect';
 
 // The `AdjustTenantInventory` mutation requires an argument of type `AdjustTenantInventoryVariables`:
 const adjustTenantInventoryVars: AdjustTenantInventoryVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  mode: ..., 
-  quantity: ..., 
-  previousQty: ..., 
-  newQty: ..., 
-  reasonCode: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  mode: ...,
+  quantity: ...,
+  previousQty: ...,
+  newQty: ...,
+  reasonCode: ...,
   auditNote: ..., // optional
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `adjustTenantInventoryRef()` function to get a reference to the mutation.
@@ -12233,7 +12380,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantInventoryStock
 You can execute the `CreateTenantInventoryStock` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantInventoryStock(vars: CreateTenantInventoryStockVariables): MutationPromise<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
 
 interface CreateTenantInventoryStockRef {
@@ -12244,7 +12391,7 @@ interface CreateTenantInventoryStockRef {
 export const createTenantInventoryStockRef: CreateTenantInventoryStockRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantInventoryStock(dc: DataConnect, vars: CreateTenantInventoryStockVariables): MutationPromise<CreateTenantInventoryStockData, CreateTenantInventoryStockVariables>;
 
 interface CreateTenantInventoryStockRef {
@@ -12255,7 +12402,7 @@ export const createTenantInventoryStockRef: CreateTenantInventoryStockRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantInventoryStockRef:
-```typescript
+```typescrip
 const name = createTenantInventoryStockRef.operationName;
 console.log(name);
 ```
@@ -12263,7 +12410,7 @@ console.log(name);
 ### Variables
 The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantInventoryStockVariables {
   organizationId: UUIDString;
   outletId: UUIDString;
@@ -12279,7 +12426,7 @@ export interface CreateTenantInventoryStockVariables {
 Recall that executing the `CreateTenantInventoryStock` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantInventoryStockData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantInventoryStockData {
   inventoryStock_upsert: InventoryStock_Key;
   inventoryMovement_insert: InventoryMovement_Key;
@@ -12287,20 +12434,20 @@ export interface CreateTenantInventoryStockData {
 ```
 ### Using `CreateTenantInventoryStock`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantInventoryStock, CreateTenantInventoryStockVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`:
 const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  onHandQty: ..., 
-  reorderLevel: ..., 
-  overstockThreshold: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  onHandQty: ...,
+  reorderLevel: ...,
+  overstockThreshold: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantInventoryStock()` function to execute the mutation.
@@ -12326,20 +12473,20 @@ createTenantInventoryStock(createTenantInventoryStockVars).then((response) => {
 
 ### Using `CreateTenantInventoryStock`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantInventoryStockRef, CreateTenantInventoryStockVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`:
 const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  onHandQty: ..., 
-  reorderLevel: ..., 
-  overstockThreshold: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  onHandQty: ...,
+  reorderLevel: ...,
+  overstockThreshold: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantInventoryStockRef()` function to get a reference to the mutation.
@@ -12366,9 +12513,9 @@ executeMutation(ref).then((response) => {
 });
 ```
 
-## CreateTenantOutlet
+## CreateTenantOutle
 You can execute the `CreateTenantOutlet` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantOutlet(vars: CreateTenantOutletVariables): MutationPromise<CreateTenantOutletData, CreateTenantOutletVariables>;
 
 interface CreateTenantOutletRef {
@@ -12379,7 +12526,7 @@ interface CreateTenantOutletRef {
 export const createTenantOutletRef: CreateTenantOutletRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantOutlet(dc: DataConnect, vars: CreateTenantOutletVariables): MutationPromise<CreateTenantOutletData, CreateTenantOutletVariables>;
 
 interface CreateTenantOutletRef {
@@ -12390,7 +12537,7 @@ export const createTenantOutletRef: CreateTenantOutletRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantOutletRef:
-```typescript
+```typescrip
 const name = createTenantOutletRef.operationName;
 console.log(name);
 ```
@@ -12398,7 +12545,7 @@ console.log(name);
 ### Variables
 The `CreateTenantOutlet` mutation requires an argument of type `CreateTenantOutletVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantOutletVariables {
   organizationId: UUIDString;
   name: string;
@@ -12412,25 +12559,25 @@ export interface CreateTenantOutletVariables {
 Recall that executing the `CreateTenantOutlet` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantOutletData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantOutletData {
   outlet_insert: Outlet_Key;
 }
 ```
 ### Using `CreateTenantOutlet`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantOutlet, CreateTenantOutletVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantOutlet` mutation requires an argument of type `CreateTenantOutletVariables`:
 const createTenantOutletVars: CreateTenantOutletVariables = {
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `createTenantOutlet()` function to execute the mutation.
@@ -12454,18 +12601,18 @@ createTenantOutlet(createTenantOutletVars).then((response) => {
 
 ### Using `CreateTenantOutlet`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantOutletRef, CreateTenantOutletVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantOutlet` mutation requires an argument of type `CreateTenantOutletVariables`:
 const createTenantOutletVars: CreateTenantOutletVariables = {
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `createTenantOutletRef()` function to get a reference to the mutation.
@@ -12490,9 +12637,9 @@ executeMutation(ref).then((response) => {
 });
 ```
 
-## UpdateTenantOutlet
+## UpdateTenantOutle
 You can execute the `UpdateTenantOutlet` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantOutlet(vars: UpdateTenantOutletVariables): MutationPromise<UpdateTenantOutletData, UpdateTenantOutletVariables>;
 
 interface UpdateTenantOutletRef {
@@ -12503,7 +12650,7 @@ interface UpdateTenantOutletRef {
 export const updateTenantOutletRef: UpdateTenantOutletRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantOutlet(dc: DataConnect, vars: UpdateTenantOutletVariables): MutationPromise<UpdateTenantOutletData, UpdateTenantOutletVariables>;
 
 interface UpdateTenantOutletRef {
@@ -12514,7 +12661,7 @@ export const updateTenantOutletRef: UpdateTenantOutletRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantOutletRef:
-```typescript
+```typescrip
 const name = updateTenantOutletRef.operationName;
 console.log(name);
 ```
@@ -12522,7 +12669,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantOutlet` mutation requires an argument of type `UpdateTenantOutletVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantOutletVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -12537,26 +12684,26 @@ export interface UpdateTenantOutletVariables {
 Recall that executing the `UpdateTenantOutlet` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantOutletData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantOutletData {
   outlet_update?: Outlet_Key | null;
 }
 ```
 ### Using `UpdateTenantOutlet`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantOutlet, UpdateTenantOutletVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantOutlet` mutation requires an argument of type `UpdateTenantOutletVariables`:
 const updateTenantOutletVars: UpdateTenantOutletVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `updateTenantOutlet()` function to execute the mutation.
@@ -12580,19 +12727,19 @@ updateTenantOutlet(updateTenantOutletVars).then((response) => {
 
 ### Using `UpdateTenantOutlet`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantOutletRef, UpdateTenantOutletVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantOutlet` mutation requires an argument of type `UpdateTenantOutletVariables`:
 const updateTenantOutletVars: UpdateTenantOutletVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `updateTenantOutletRef()` function to get a reference to the mutation.
@@ -12619,7 +12766,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantOutletStatus
 You can execute the `ChangeTenantOutletStatus` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantOutletStatus(vars: ChangeTenantOutletStatusVariables): MutationPromise<ChangeTenantOutletStatusData, ChangeTenantOutletStatusVariables>;
 
 interface ChangeTenantOutletStatusRef {
@@ -12630,7 +12777,7 @@ interface ChangeTenantOutletStatusRef {
 export const changeTenantOutletStatusRef: ChangeTenantOutletStatusRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantOutletStatus(dc: DataConnect, vars: ChangeTenantOutletStatusVariables): MutationPromise<ChangeTenantOutletStatusData, ChangeTenantOutletStatusVariables>;
 
 interface ChangeTenantOutletStatusRef {
@@ -12641,7 +12788,7 @@ export const changeTenantOutletStatusRef: ChangeTenantOutletStatusRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantOutletStatusRef:
-```typescript
+```typescrip
 const name = changeTenantOutletStatusRef.operationName;
 console.log(name);
 ```
@@ -12649,7 +12796,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantOutletStatus` mutation requires an argument of type `ChangeTenantOutletStatusVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantOutletStatusVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -12660,22 +12807,22 @@ export interface ChangeTenantOutletStatusVariables {
 Recall that executing the `ChangeTenantOutletStatus` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantOutletStatusData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantOutletStatusData {
   outlet_update?: Outlet_Key | null;
 }
 ```
 ### Using `ChangeTenantOutletStatus`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantOutletStatus, ChangeTenantOutletStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantOutletStatus` mutation requires an argument of type `ChangeTenantOutletStatusVariables`:
 const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantOutletStatus()` function to execute the mutation.
@@ -12699,15 +12846,15 @@ changeTenantOutletStatus(changeTenantOutletStatusVars).then((response) => {
 
 ### Using `ChangeTenantOutletStatus`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantOutletStatusRef, ChangeTenantOutletStatusVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantOutletStatus` mutation requires an argument of type `ChangeTenantOutletStatusVariables`:
 const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantOutletStatusRef()` function to get a reference to the mutation.
@@ -12734,7 +12881,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantOutletTrusted
 You can execute the `CreateTenantOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantOutletTrusted(vars: CreateTenantOutletTrustedVariables): MutationPromise<CreateTenantOutletTrustedData, CreateTenantOutletTrustedVariables>;
 
 interface CreateTenantOutletTrustedRef {
@@ -12745,7 +12892,7 @@ interface CreateTenantOutletTrustedRef {
 export const createTenantOutletTrustedRef: CreateTenantOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantOutletTrusted(dc: DataConnect, vars: CreateTenantOutletTrustedVariables): MutationPromise<CreateTenantOutletTrustedData, CreateTenantOutletTrustedVariables>;
 
 interface CreateTenantOutletTrustedRef {
@@ -12756,7 +12903,7 @@ export const createTenantOutletTrustedRef: CreateTenantOutletTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantOutletTrustedRef:
-```typescript
+```typescrip
 const name = createTenantOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -12764,7 +12911,7 @@ console.log(name);
 ### Variables
 The `CreateTenantOutletTrusted` mutation requires an argument of type `CreateTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantOutletTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -12779,26 +12926,26 @@ export interface CreateTenantOutletTrustedVariables {
 Recall that executing the `CreateTenantOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantOutletTrustedData {
   outlet_insert: Outlet_Key;
 }
 ```
 ### Using `CreateTenantOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantOutletTrusted, CreateTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantOutletTrusted` mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
 const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `createTenantOutletTrusted()` function to execute the mutation.
@@ -12822,19 +12969,19 @@ createTenantOutletTrusted(createTenantOutletTrustedVars).then((response) => {
 
 ### Using `CreateTenantOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantOutletTrustedRef, CreateTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantOutletTrusted` mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
 const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `createTenantOutletTrustedRef()` function to get a reference to the mutation.
@@ -12861,7 +13008,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantOutletTrusted
 You can execute the `UpdateTenantOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantOutletTrusted(vars: UpdateTenantOutletTrustedVariables): MutationPromise<UpdateTenantOutletTrustedData, UpdateTenantOutletTrustedVariables>;
 
 interface UpdateTenantOutletTrustedRef {
@@ -12872,7 +13019,7 @@ interface UpdateTenantOutletTrustedRef {
 export const updateTenantOutletTrustedRef: UpdateTenantOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantOutletTrusted(dc: DataConnect, vars: UpdateTenantOutletTrustedVariables): MutationPromise<UpdateTenantOutletTrustedData, UpdateTenantOutletTrustedVariables>;
 
 interface UpdateTenantOutletTrustedRef {
@@ -12883,7 +13030,7 @@ export const updateTenantOutletTrustedRef: UpdateTenantOutletTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantOutletTrustedRef:
-```typescript
+```typescrip
 const name = updateTenantOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -12891,7 +13038,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantOutletTrusted` mutation requires an argument of type `UpdateTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantOutletTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -12906,26 +13053,26 @@ export interface UpdateTenantOutletTrustedVariables {
 Recall that executing the `UpdateTenantOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantOutletTrustedData {
   outlet_update?: Outlet_Key | null;
 }
 ```
 ### Using `UpdateTenantOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantOutletTrusted, UpdateTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantOutletTrusted` mutation requires an argument of type `UpdateTenantOutletTrustedVariables`:
 const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `updateTenantOutletTrusted()` function to execute the mutation.
@@ -12949,19 +13096,19 @@ updateTenantOutletTrusted(updateTenantOutletTrustedVars).then((response) => {
 
 ### Using `UpdateTenantOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantOutletTrustedRef, UpdateTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantOutletTrusted` mutation requires an argument of type `UpdateTenantOutletTrustedVariables`:
 const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
+  phone: ...,
+  address: ...,
 };
 
 // Call the `updateTenantOutletTrustedRef()` function to get a reference to the mutation.
@@ -12988,7 +13135,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantOutletStatusTrusted
 You can execute the `ChangeTenantOutletStatusTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantOutletStatusTrusted(vars: ChangeTenantOutletStatusTrustedVariables): MutationPromise<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
 
 interface ChangeTenantOutletStatusTrustedRef {
@@ -12999,7 +13146,7 @@ interface ChangeTenantOutletStatusTrustedRef {
 export const changeTenantOutletStatusTrustedRef: ChangeTenantOutletStatusTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantOutletStatusTrusted(dc: DataConnect, vars: ChangeTenantOutletStatusTrustedVariables): MutationPromise<ChangeTenantOutletStatusTrustedData, ChangeTenantOutletStatusTrustedVariables>;
 
 interface ChangeTenantOutletStatusTrustedRef {
@@ -13010,7 +13157,7 @@ export const changeTenantOutletStatusTrustedRef: ChangeTenantOutletStatusTrusted
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantOutletStatusTrustedRef:
-```typescript
+```typescrip
 const name = changeTenantOutletStatusTrustedRef.operationName;
 console.log(name);
 ```
@@ -13018,7 +13165,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantOutletStatusTrusted` mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantOutletStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13029,22 +13176,22 @@ export interface ChangeTenantOutletStatusTrustedVariables {
 Recall that executing the `ChangeTenantOutletStatusTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantOutletStatusTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantOutletStatusTrustedData {
   outlet_update?: Outlet_Key | null;
 }
 ```
 ### Using `ChangeTenantOutletStatusTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantOutletStatusTrusted, ChangeTenantOutletStatusTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantOutletStatusTrusted` mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`:
 const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantOutletStatusTrusted()` function to execute the mutation.
@@ -13068,15 +13215,15 @@ changeTenantOutletStatusTrusted(changeTenantOutletStatusTrustedVars).then((respo
 
 ### Using `ChangeTenantOutletStatusTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantOutletStatusTrustedRef, ChangeTenantOutletStatusTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantOutletStatusTrusted` mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`:
 const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantOutletStatusTrustedRef()` function to get a reference to the mutation.
@@ -13103,7 +13250,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantOutletTrusted
 You can execute the `DeleteTenantOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantOutletTrusted(vars: DeleteTenantOutletTrustedVariables): MutationPromise<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
 
 interface DeleteTenantOutletTrustedRef {
@@ -13114,7 +13261,7 @@ interface DeleteTenantOutletTrustedRef {
 export const deleteTenantOutletTrustedRef: DeleteTenantOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantOutletTrusted(dc: DataConnect, vars: DeleteTenantOutletTrustedVariables): MutationPromise<DeleteTenantOutletTrustedData, DeleteTenantOutletTrustedVariables>;
 
 interface DeleteTenantOutletTrustedRef {
@@ -13125,7 +13272,7 @@ export const deleteTenantOutletTrustedRef: DeleteTenantOutletTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantOutletTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -13133,7 +13280,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantOutletTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13143,21 +13290,21 @@ export interface DeleteTenantOutletTrustedVariables {
 Recall that executing the `DeleteTenantOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantOutletTrustedData {
   outlet_delete?: Outlet_Key | null;
 }
 ```
 ### Using `DeleteTenantOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantOutletTrusted, DeleteTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
 const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantOutletTrusted()` function to execute the mutation.
@@ -13181,14 +13328,14 @@ deleteTenantOutletTrusted(deleteTenantOutletTrustedVars).then((response) => {
 
 ### Using `DeleteTenantOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantOutletTrustedRef, DeleteTenantOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
 const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantOutletTrustedRef()` function to get a reference to the mutation.
@@ -13215,7 +13362,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantEmployeeTrusted
 You can execute the `DeleteTenantEmployeeTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantEmployeeTrusted(vars: DeleteTenantEmployeeTrustedVariables): MutationPromise<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
 
 interface DeleteTenantEmployeeTrustedRef {
@@ -13226,7 +13373,7 @@ interface DeleteTenantEmployeeTrustedRef {
 export const deleteTenantEmployeeTrustedRef: DeleteTenantEmployeeTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantEmployeeTrusted(dc: DataConnect, vars: DeleteTenantEmployeeTrustedVariables): MutationPromise<DeleteTenantEmployeeTrustedData, DeleteTenantEmployeeTrustedVariables>;
 
 interface DeleteTenantEmployeeTrustedRef {
@@ -13237,7 +13384,7 @@ export const deleteTenantEmployeeTrustedRef: DeleteTenantEmployeeTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantEmployeeTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantEmployeeTrustedRef.operationName;
 console.log(name);
 ```
@@ -13245,7 +13392,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantEmployeeTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13255,21 +13402,21 @@ export interface DeleteTenantEmployeeTrustedVariables {
 Recall that executing the `DeleteTenantEmployeeTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantEmployeeTrustedData {
   employee_delete?: Employee_Key | null;
 }
 ```
 ### Using `DeleteTenantEmployeeTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantEmployeeTrusted, DeleteTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
 const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantEmployeeTrusted()` function to execute the mutation.
@@ -13293,14 +13440,14 @@ deleteTenantEmployeeTrusted(deleteTenantEmployeeTrustedVars).then((response) => 
 
 ### Using `DeleteTenantEmployeeTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantEmployeeTrustedRef, DeleteTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
 const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantEmployeeTrustedRef()` function to get a reference to the mutation.
@@ -13327,7 +13474,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantServicePersonTrusted
 You can execute the `DeleteTenantServicePersonTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantServicePersonTrusted(vars: DeleteTenantServicePersonTrustedVariables): MutationPromise<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
 
 interface DeleteTenantServicePersonTrustedRef {
@@ -13338,7 +13485,7 @@ interface DeleteTenantServicePersonTrustedRef {
 export const deleteTenantServicePersonTrustedRef: DeleteTenantServicePersonTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantServicePersonTrusted(dc: DataConnect, vars: DeleteTenantServicePersonTrustedVariables): MutationPromise<DeleteTenantServicePersonTrustedData, DeleteTenantServicePersonTrustedVariables>;
 
 interface DeleteTenantServicePersonTrustedRef {
@@ -13349,7 +13496,7 @@ export const deleteTenantServicePersonTrustedRef: DeleteTenantServicePersonTrust
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantServicePersonTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantServicePersonTrustedRef.operationName;
 console.log(name);
 ```
@@ -13357,7 +13504,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantServicePersonTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13367,21 +13514,21 @@ export interface DeleteTenantServicePersonTrustedVariables {
 Recall that executing the `DeleteTenantServicePersonTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantServicePersonTrustedData {
   servicePerson_delete?: ServicePerson_Key | null;
 }
 ```
 ### Using `DeleteTenantServicePersonTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantServicePersonTrusted, DeleteTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
 const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantServicePersonTrusted()` function to execute the mutation.
@@ -13405,14 +13552,14 @@ deleteTenantServicePersonTrusted(deleteTenantServicePersonTrustedVars).then((res
 
 ### Using `DeleteTenantServicePersonTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantServicePersonTrustedRef, DeleteTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
 const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantServicePersonTrustedRef()` function to get a reference to the mutation.
@@ -13439,7 +13586,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantServicePersonOutletTrusted
 You can execute the `DeleteTenantServicePersonOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantServicePersonOutletTrusted(vars: DeleteTenantServicePersonOutletTrustedVariables): MutationPromise<DeleteTenantServicePersonOutletTrustedData, DeleteTenantServicePersonOutletTrustedVariables>;
 
 interface DeleteTenantServicePersonOutletTrustedRef {
@@ -13450,7 +13597,7 @@ interface DeleteTenantServicePersonOutletTrustedRef {
 export const deleteTenantServicePersonOutletTrustedRef: DeleteTenantServicePersonOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantServicePersonOutletTrusted(dc: DataConnect, vars: DeleteTenantServicePersonOutletTrustedVariables): MutationPromise<DeleteTenantServicePersonOutletTrustedData, DeleteTenantServicePersonOutletTrustedVariables>;
 
 interface DeleteTenantServicePersonOutletTrustedRef {
@@ -13461,7 +13608,7 @@ export const deleteTenantServicePersonOutletTrustedRef: DeleteTenantServicePerso
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantServicePersonOutletTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantServicePersonOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -13469,7 +13616,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantServicePersonOutletTrusted` mutation requires an argument of type `DeleteTenantServicePersonOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
@@ -13480,22 +13627,22 @@ export interface DeleteTenantServicePersonOutletTrustedVariables {
 Recall that executing the `DeleteTenantServicePersonOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantServicePersonOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantServicePersonOutletTrustedData {
   servicePersonOutlet_delete?: ServicePersonOutlet_Key | null;
 }
 ```
 ### Using `DeleteTenantServicePersonOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantServicePersonOutletTrusted, DeleteTenantServicePersonOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantServicePersonOutletTrusted` mutation requires an argument of type `DeleteTenantServicePersonOutletTrustedVariables`:
 const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
 };
 
 // Call the `deleteTenantServicePersonOutletTrusted()` function to execute the mutation.
@@ -13519,15 +13666,15 @@ deleteTenantServicePersonOutletTrusted(deleteTenantServicePersonOutletTrustedVar
 
 ### Using `DeleteTenantServicePersonOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantServicePersonOutletTrustedRef, DeleteTenantServicePersonOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantServicePersonOutletTrusted` mutation requires an argument of type `DeleteTenantServicePersonOutletTrustedVariables`:
 const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
 };
 
 // Call the `deleteTenantServicePersonOutletTrustedRef()` function to get a reference to the mutation.
@@ -13554,7 +13701,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantCustomerTrusted
 You can execute the `DeleteTenantCustomerTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantCustomerTrusted(vars: DeleteTenantCustomerTrustedVariables): MutationPromise<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
 
 interface DeleteTenantCustomerTrustedRef {
@@ -13565,7 +13712,7 @@ interface DeleteTenantCustomerTrustedRef {
 export const deleteTenantCustomerTrustedRef: DeleteTenantCustomerTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantCustomerTrusted(dc: DataConnect, vars: DeleteTenantCustomerTrustedVariables): MutationPromise<DeleteTenantCustomerTrustedData, DeleteTenantCustomerTrustedVariables>;
 
 interface DeleteTenantCustomerTrustedRef {
@@ -13576,7 +13723,7 @@ export const deleteTenantCustomerTrustedRef: DeleteTenantCustomerTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantCustomerTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantCustomerTrustedRef.operationName;
 console.log(name);
 ```
@@ -13584,7 +13731,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantCustomerTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13594,21 +13741,21 @@ export interface DeleteTenantCustomerTrustedVariables {
 Recall that executing the `DeleteTenantCustomerTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantCustomerTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantCustomerTrustedData {
   customer_delete?: Customer_Key | null;
 }
 ```
 ### Using `DeleteTenantCustomerTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantCustomerTrusted, DeleteTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
 const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantCustomerTrusted()` function to execute the mutation.
@@ -13632,14 +13779,14 @@ deleteTenantCustomerTrusted(deleteTenantCustomerTrustedVars).then((response) => 
 
 ### Using `DeleteTenantCustomerTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantCustomerTrustedRef, DeleteTenantCustomerTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
 const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantCustomerTrustedRef()` function to get a reference to the mutation.
@@ -13666,7 +13813,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantSupplierTrusted
 You can execute the `DeleteTenantSupplierTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantSupplierTrusted(vars: DeleteTenantSupplierTrustedVariables): MutationPromise<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
 
 interface DeleteTenantSupplierTrustedRef {
@@ -13677,7 +13824,7 @@ interface DeleteTenantSupplierTrustedRef {
 export const deleteTenantSupplierTrustedRef: DeleteTenantSupplierTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantSupplierTrusted(dc: DataConnect, vars: DeleteTenantSupplierTrustedVariables): MutationPromise<DeleteTenantSupplierTrustedData, DeleteTenantSupplierTrustedVariables>;
 
 interface DeleteTenantSupplierTrustedRef {
@@ -13688,7 +13835,7 @@ export const deleteTenantSupplierTrustedRef: DeleteTenantSupplierTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantSupplierTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantSupplierTrustedRef.operationName;
 console.log(name);
 ```
@@ -13696,7 +13843,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantSupplierTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13706,21 +13853,21 @@ export interface DeleteTenantSupplierTrustedVariables {
 Recall that executing the `DeleteTenantSupplierTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantSupplierTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantSupplierTrustedData {
   supplier_delete?: Supplier_Key | null;
 }
 ```
 ### Using `DeleteTenantSupplierTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantSupplierTrusted, DeleteTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
 const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantSupplierTrusted()` function to execute the mutation.
@@ -13744,14 +13891,14 @@ deleteTenantSupplierTrusted(deleteTenantSupplierTrustedVars).then((response) => 
 
 ### Using `DeleteTenantSupplierTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantSupplierTrustedRef, DeleteTenantSupplierTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
 const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantSupplierTrustedRef()` function to get a reference to the mutation.
@@ -13778,7 +13925,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantProductTrusted
 You can execute the `DeleteTenantProductTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantProductTrusted(vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
 
 interface DeleteTenantProductTrustedRef {
@@ -13789,7 +13936,7 @@ interface DeleteTenantProductTrustedRef {
 export const deleteTenantProductTrustedRef: DeleteTenantProductTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantProductTrusted(dc: DataConnect, vars: DeleteTenantProductTrustedVariables): MutationPromise<DeleteTenantProductTrustedData, DeleteTenantProductTrustedVariables>;
 
 interface DeleteTenantProductTrustedRef {
@@ -13800,7 +13947,7 @@ export const deleteTenantProductTrustedRef: DeleteTenantProductTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantProductTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantProductTrustedRef.operationName;
 console.log(name);
 ```
@@ -13808,7 +13955,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantProductTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13818,21 +13965,21 @@ export interface DeleteTenantProductTrustedVariables {
 Recall that executing the `DeleteTenantProductTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantProductTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantProductTrustedData {
   product_delete?: Product_Key | null;
 }
 ```
 ### Using `DeleteTenantProductTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantProductTrusted, DeleteTenantProductTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
 const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantProductTrusted()` function to execute the mutation.
@@ -13856,14 +14003,14 @@ deleteTenantProductTrusted(deleteTenantProductTrustedVars).then((response) => {
 
 ### Using `DeleteTenantProductTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantProductTrustedRef, DeleteTenantProductTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
 const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantProductTrustedRef()` function to get a reference to the mutation.
@@ -13890,7 +14037,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantCategoryTrusted
 You can execute the `DeleteTenantCategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantCategoryTrusted(vars: DeleteTenantCategoryTrustedVariables): MutationPromise<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
 
 interface DeleteTenantCategoryTrustedRef {
@@ -13901,7 +14048,7 @@ interface DeleteTenantCategoryTrustedRef {
 export const deleteTenantCategoryTrustedRef: DeleteTenantCategoryTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantCategoryTrusted(dc: DataConnect, vars: DeleteTenantCategoryTrustedVariables): MutationPromise<DeleteTenantCategoryTrustedData, DeleteTenantCategoryTrustedVariables>;
 
 interface DeleteTenantCategoryTrustedRef {
@@ -13912,7 +14059,7 @@ export const deleteTenantCategoryTrustedRef: DeleteTenantCategoryTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantCategoryTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantCategoryTrustedRef.operationName;
 console.log(name);
 ```
@@ -13920,7 +14067,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantCategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -13930,21 +14077,21 @@ export interface DeleteTenantCategoryTrustedVariables {
 Recall that executing the `DeleteTenantCategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantCategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantCategoryTrustedData {
   category_delete?: Category_Key | null;
 }
 ```
 ### Using `DeleteTenantCategoryTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantCategoryTrusted, DeleteTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
 const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantCategoryTrusted()` function to execute the mutation.
@@ -13968,14 +14115,14 @@ deleteTenantCategoryTrusted(deleteTenantCategoryTrustedVars).then((response) => 
 
 ### Using `DeleteTenantCategoryTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantCategoryTrustedRef, DeleteTenantCategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
 const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantCategoryTrustedRef()` function to get a reference to the mutation.
@@ -14002,7 +14149,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantSubcategoryTrusted
 You can execute the `DeleteTenantSubcategoryTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantSubcategoryTrusted(vars: DeleteTenantSubcategoryTrustedVariables): MutationPromise<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
 
 interface DeleteTenantSubcategoryTrustedRef {
@@ -14013,7 +14160,7 @@ interface DeleteTenantSubcategoryTrustedRef {
 export const deleteTenantSubcategoryTrustedRef: DeleteTenantSubcategoryTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantSubcategoryTrusted(dc: DataConnect, vars: DeleteTenantSubcategoryTrustedVariables): MutationPromise<DeleteTenantSubcategoryTrustedData, DeleteTenantSubcategoryTrustedVariables>;
 
 interface DeleteTenantSubcategoryTrustedRef {
@@ -14024,7 +14171,7 @@ export const deleteTenantSubcategoryTrustedRef: DeleteTenantSubcategoryTrustedRe
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantSubcategoryTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantSubcategoryTrustedRef.operationName;
 console.log(name);
 ```
@@ -14032,7 +14179,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantSubcategoryTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -14042,21 +14189,21 @@ export interface DeleteTenantSubcategoryTrustedVariables {
 Recall that executing the `DeleteTenantSubcategoryTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantSubcategoryTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantSubcategoryTrustedData {
   subcategory_delete?: Subcategory_Key | null;
 }
 ```
 ### Using `DeleteTenantSubcategoryTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantSubcategoryTrusted, DeleteTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
 const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantSubcategoryTrusted()` function to execute the mutation.
@@ -14080,14 +14227,14 @@ deleteTenantSubcategoryTrusted(deleteTenantSubcategoryTrustedVars).then((respons
 
 ### Using `DeleteTenantSubcategoryTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantSubcategoryTrustedRef, DeleteTenantSubcategoryTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
 const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `deleteTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
@@ -14114,7 +14261,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantEmployeeProfileTrusted
 You can execute the `CreateTenantEmployeeProfileTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantEmployeeProfileTrusted(vars: CreateTenantEmployeeProfileTrustedVariables): MutationPromise<CreateTenantEmployeeProfileTrustedData, CreateTenantEmployeeProfileTrustedVariables>;
 
 interface CreateTenantEmployeeProfileTrustedRef {
@@ -14125,7 +14272,7 @@ interface CreateTenantEmployeeProfileTrustedRef {
 export const createTenantEmployeeProfileTrustedRef: CreateTenantEmployeeProfileTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantEmployeeProfileTrusted(dc: DataConnect, vars: CreateTenantEmployeeProfileTrustedVariables): MutationPromise<CreateTenantEmployeeProfileTrustedData, CreateTenantEmployeeProfileTrustedVariables>;
 
 interface CreateTenantEmployeeProfileTrustedRef {
@@ -14136,7 +14283,7 @@ export const createTenantEmployeeProfileTrustedRef: CreateTenantEmployeeProfileT
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantEmployeeProfileTrustedRef:
-```typescript
+```typescrip
 const name = createTenantEmployeeProfileTrustedRef.operationName;
 console.log(name);
 ```
@@ -14144,7 +14291,7 @@ console.log(name);
 ### Variables
 The `CreateTenantEmployeeProfileTrusted` mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantEmployeeProfileTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -14165,32 +14312,32 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
 Recall that executing the `CreateTenantEmployeeProfileTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantEmployeeProfileTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantEmployeeProfileTrustedData {
   employee_insert: Employee_Key;
 }
 ```
 ### Using `CreateTenantEmployeeProfileTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantEmployeeProfileTrusted, CreateTenantEmployeeProfileTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantEmployeeProfileTrusted` mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
 const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
 };
 
 // Call the `createTenantEmployeeProfileTrusted()` function to execute the mutation.
@@ -14214,25 +14361,25 @@ createTenantEmployeeProfileTrusted(createTenantEmployeeProfileTrustedVars).then(
 
 ### Using `CreateTenantEmployeeProfileTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantEmployeeProfileTrustedRef, CreateTenantEmployeeProfileTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantEmployeeProfileTrusted` mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
 const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
 };
 
 // Call the `createTenantEmployeeProfileTrustedRef()` function to get a reference to the mutation.
@@ -14259,7 +14406,7 @@ executeMutation(ref).then((response) => {
 
 ## ProvisionTenantEmployeeTrusted
 You can execute the `ProvisionTenantEmployeeTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 provisionTenantEmployeeTrusted(vars: ProvisionTenantEmployeeTrustedVariables): MutationPromise<ProvisionTenantEmployeeTrustedData, ProvisionTenantEmployeeTrustedVariables>;
 
 interface ProvisionTenantEmployeeTrustedRef {
@@ -14270,7 +14417,7 @@ interface ProvisionTenantEmployeeTrustedRef {
 export const provisionTenantEmployeeTrustedRef: ProvisionTenantEmployeeTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 provisionTenantEmployeeTrusted(dc: DataConnect, vars: ProvisionTenantEmployeeTrustedVariables): MutationPromise<ProvisionTenantEmployeeTrustedData, ProvisionTenantEmployeeTrustedVariables>;
 
 interface ProvisionTenantEmployeeTrustedRef {
@@ -14281,7 +14428,7 @@ export const provisionTenantEmployeeTrustedRef: ProvisionTenantEmployeeTrustedRe
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the provisionTenantEmployeeTrustedRef:
-```typescript
+```typescrip
 const name = provisionTenantEmployeeTrustedRef.operationName;
 console.log(name);
 ```
@@ -14289,7 +14436,7 @@ console.log(name);
 ### Variables
 The `ProvisionTenantEmployeeTrusted` mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ProvisionTenantEmployeeTrustedVariables {
   id: UUIDString;
   userId: UUIDString;
@@ -14314,7 +14461,7 @@ export interface ProvisionTenantEmployeeTrustedVariables {
 Recall that executing the `ProvisionTenantEmployeeTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ProvisionTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ProvisionTenantEmployeeTrustedData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
@@ -14324,29 +14471,29 @@ export interface ProvisionTenantEmployeeTrustedData {
 ```
 ### Using `ProvisionTenantEmployeeTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, provisionTenantEmployeeTrusted, ProvisionTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ProvisionTenantEmployeeTrusted` mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
 const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
-  id: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  organizationId: ..., 
-  fullName: ..., 
-  phone: ..., 
-  designation: ..., 
+  id: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  organizationId: ...,
+  fullName: ...,
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  roleId: ..., 
+  assignmentScope: ...,
+  roleId: ...,
 };
 
 // Call the `provisionTenantEmployeeTrusted()` function to execute the mutation.
@@ -14376,29 +14523,29 @@ provisionTenantEmployeeTrusted(provisionTenantEmployeeTrustedVars).then((respons
 
 ### Using `ProvisionTenantEmployeeTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, provisionTenantEmployeeTrustedRef, ProvisionTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ProvisionTenantEmployeeTrusted` mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
 const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
-  id: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  organizationId: ..., 
-  fullName: ..., 
-  phone: ..., 
-  designation: ..., 
+  id: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  organizationId: ...,
+  fullName: ...,
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  roleId: ..., 
+  assignmentScope: ...,
+  roleId: ...,
 };
 
 // Call the `provisionTenantEmployeeTrustedRef()` function to get a reference to the mutation.
@@ -14431,7 +14578,7 @@ executeMutation(ref).then((response) => {
 
 ## ProvisionTenantEmployeeLoginTrusted
 You can execute the `ProvisionTenantEmployeeLoginTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 provisionTenantEmployeeLoginTrusted(vars: ProvisionTenantEmployeeLoginTrustedVariables): MutationPromise<ProvisionTenantEmployeeLoginTrustedData, ProvisionTenantEmployeeLoginTrustedVariables>;
 
 interface ProvisionTenantEmployeeLoginTrustedRef {
@@ -14442,7 +14589,7 @@ interface ProvisionTenantEmployeeLoginTrustedRef {
 export const provisionTenantEmployeeLoginTrustedRef: ProvisionTenantEmployeeLoginTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 provisionTenantEmployeeLoginTrusted(dc: DataConnect, vars: ProvisionTenantEmployeeLoginTrustedVariables): MutationPromise<ProvisionTenantEmployeeLoginTrustedData, ProvisionTenantEmployeeLoginTrustedVariables>;
 
 interface ProvisionTenantEmployeeLoginTrustedRef {
@@ -14453,7 +14600,7 @@ export const provisionTenantEmployeeLoginTrustedRef: ProvisionTenantEmployeeLogi
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the provisionTenantEmployeeLoginTrustedRef:
-```typescript
+```typescrip
 const name = provisionTenantEmployeeLoginTrustedRef.operationName;
 console.log(name);
 ```
@@ -14461,7 +14608,7 @@ console.log(name);
 ### Variables
 The `ProvisionTenantEmployeeLoginTrusted` mutation requires an argument of type `ProvisionTenantEmployeeLoginTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ProvisionTenantEmployeeLoginTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
@@ -14478,7 +14625,7 @@ export interface ProvisionTenantEmployeeLoginTrustedVariables {
 Recall that executing the `ProvisionTenantEmployeeLoginTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ProvisionTenantEmployeeLoginTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ProvisionTenantEmployeeLoginTrustedData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
@@ -14488,21 +14635,21 @@ export interface ProvisionTenantEmployeeLoginTrustedData {
 ```
 ### Using `ProvisionTenantEmployeeLoginTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, provisionTenantEmployeeLoginTrusted, ProvisionTenantEmployeeLoginTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ProvisionTenantEmployeeLoginTrusted` mutation requires an argument of type `ProvisionTenantEmployeeLoginTrustedVariables`:
 const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
+  roleId: ...,
 };
 
 // Call the `provisionTenantEmployeeLoginTrusted()` function to execute the mutation.
@@ -14532,21 +14679,21 @@ provisionTenantEmployeeLoginTrusted(provisionTenantEmployeeLoginTrustedVars).the
 
 ### Using `ProvisionTenantEmployeeLoginTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, provisionTenantEmployeeLoginTrustedRef, ProvisionTenantEmployeeLoginTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ProvisionTenantEmployeeLoginTrusted` mutation requires an argument of type `ProvisionTenantEmployeeLoginTrustedVariables`:
 const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
+  roleId: ...,
 };
 
 // Call the `provisionTenantEmployeeLoginTrustedRef()` function to get a reference to the mutation.
@@ -14579,7 +14726,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantEmployeeLoginTrusted
 You can execute the `UpdateTenantEmployeeLoginTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantEmployeeLoginTrusted(vars: UpdateTenantEmployeeLoginTrustedVariables): MutationPromise<UpdateTenantEmployeeLoginTrustedData, UpdateTenantEmployeeLoginTrustedVariables>;
 
 interface UpdateTenantEmployeeLoginTrustedRef {
@@ -14590,7 +14737,7 @@ interface UpdateTenantEmployeeLoginTrustedRef {
 export const updateTenantEmployeeLoginTrustedRef: UpdateTenantEmployeeLoginTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantEmployeeLoginTrusted(dc: DataConnect, vars: UpdateTenantEmployeeLoginTrustedVariables): MutationPromise<UpdateTenantEmployeeLoginTrustedData, UpdateTenantEmployeeLoginTrustedVariables>;
 
 interface UpdateTenantEmployeeLoginTrustedRef {
@@ -14601,7 +14748,7 @@ export const updateTenantEmployeeLoginTrustedRef: UpdateTenantEmployeeLoginTrust
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantEmployeeLoginTrustedRef:
-```typescript
+```typescrip
 const name = updateTenantEmployeeLoginTrustedRef.operationName;
 console.log(name);
 ```
@@ -14609,7 +14756,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantEmployeeLoginTrusted` mutation requires an argument of type `UpdateTenantEmployeeLoginTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantEmployeeLoginTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
@@ -14624,7 +14771,7 @@ export interface UpdateTenantEmployeeLoginTrustedVariables {
 Recall that executing the `UpdateTenantEmployeeLoginTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantEmployeeLoginTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantEmployeeLoginTrustedData {
   appUser_update?: AppUser_Key | null;
   organizationMembership_update?: OrganizationMembership_Key | null;
@@ -14636,19 +14783,19 @@ export interface UpdateTenantEmployeeLoginTrustedData {
 ```
 ### Using `UpdateTenantEmployeeLoginTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantEmployeeLoginTrusted, UpdateTenantEmployeeLoginTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantEmployeeLoginTrusted` mutation requires an argument of type `UpdateTenantEmployeeLoginTrustedVariables`:
 const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  username: ..., 
-  email: ..., 
-  roleId: ..., 
-  loginAccess: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  username: ...,
+  email: ...,
+  roleId: ...,
+  loginAccess: ...,
 };
 
 // Call the `updateTenantEmployeeLoginTrusted()` function to execute the mutation.
@@ -14682,19 +14829,19 @@ updateTenantEmployeeLoginTrusted(updateTenantEmployeeLoginTrustedVars).then((res
 
 ### Using `UpdateTenantEmployeeLoginTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantEmployeeLoginTrustedRef, UpdateTenantEmployeeLoginTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantEmployeeLoginTrusted` mutation requires an argument of type `UpdateTenantEmployeeLoginTrustedVariables`:
 const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  username: ..., 
-  email: ..., 
-  roleId: ..., 
-  loginAccess: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  username: ...,
+  email: ...,
+  roleId: ...,
+  loginAccess: ...,
 };
 
 // Call the `updateTenantEmployeeLoginTrustedRef()` function to get a reference to the mutation.
@@ -14731,7 +14878,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantEmployeeTrusted
 You can execute the `UpdateTenantEmployeeTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantEmployeeTrusted(vars: UpdateTenantEmployeeTrustedVariables): MutationPromise<UpdateTenantEmployeeTrustedData, UpdateTenantEmployeeTrustedVariables>;
 
 interface UpdateTenantEmployeeTrustedRef {
@@ -14742,7 +14889,7 @@ interface UpdateTenantEmployeeTrustedRef {
 export const updateTenantEmployeeTrustedRef: UpdateTenantEmployeeTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantEmployeeTrusted(dc: DataConnect, vars: UpdateTenantEmployeeTrustedVariables): MutationPromise<UpdateTenantEmployeeTrustedData, UpdateTenantEmployeeTrustedVariables>;
 
 interface UpdateTenantEmployeeTrustedRef {
@@ -14753,7 +14900,7 @@ export const updateTenantEmployeeTrustedRef: UpdateTenantEmployeeTrustedRef;
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantEmployeeTrustedRef:
-```typescript
+```typescrip
 const name = updateTenantEmployeeTrustedRef.operationName;
 console.log(name);
 ```
@@ -14761,7 +14908,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantEmployeeTrusted` mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantEmployeeTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -14782,32 +14929,32 @@ export interface UpdateTenantEmployeeTrustedVariables {
 Recall that executing the `UpdateTenantEmployeeTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantEmployeeTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantEmployeeTrustedData {
   employee_update?: Employee_Key | null;
 }
 ```
 ### Using `UpdateTenantEmployeeTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantEmployeeTrusted, UpdateTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantEmployeeTrusted` mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`:
 const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
 };
 
 // Call the `updateTenantEmployeeTrusted()` function to execute the mutation.
@@ -14831,25 +14978,25 @@ updateTenantEmployeeTrusted(updateTenantEmployeeTrustedVars).then((response) => 
 
 ### Using `UpdateTenantEmployeeTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantEmployeeTrustedRef, UpdateTenantEmployeeTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantEmployeeTrusted` mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`:
 const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
 };
 
 // Call the `updateTenantEmployeeTrustedRef()` function to get a reference to the mutation.
@@ -14876,7 +15023,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantEmployeeStatusTrusted
 You can execute the `ChangeTenantEmployeeStatusTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantEmployeeStatusTrusted(vars: ChangeTenantEmployeeStatusTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusTrustedData, ChangeTenantEmployeeStatusTrustedVariables>;
 
 interface ChangeTenantEmployeeStatusTrustedRef {
@@ -14887,7 +15034,7 @@ interface ChangeTenantEmployeeStatusTrustedRef {
 export const changeTenantEmployeeStatusTrustedRef: ChangeTenantEmployeeStatusTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantEmployeeStatusTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusTrustedData, ChangeTenantEmployeeStatusTrustedVariables>;
 
 interface ChangeTenantEmployeeStatusTrustedRef {
@@ -14898,7 +15045,7 @@ export const changeTenantEmployeeStatusTrustedRef: ChangeTenantEmployeeStatusTru
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantEmployeeStatusTrustedRef:
-```typescript
+```typescrip
 const name = changeTenantEmployeeStatusTrustedRef.operationName;
 console.log(name);
 ```
@@ -14906,7 +15053,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantEmployeeStatusTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantEmployeeStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -14917,22 +15064,22 @@ export interface ChangeTenantEmployeeStatusTrustedVariables {
 Recall that executing the `ChangeTenantEmployeeStatusTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantEmployeeStatusTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantEmployeeStatusTrustedData {
   employee_update?: Employee_Key | null;
 }
 ```
 ### Using `ChangeTenantEmployeeStatusTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantEmployeeStatusTrusted, ChangeTenantEmployeeStatusTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantEmployeeStatusTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`:
 const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantEmployeeStatusTrusted()` function to execute the mutation.
@@ -14956,15 +15103,15 @@ changeTenantEmployeeStatusTrusted(changeTenantEmployeeStatusTrustedVars).then((r
 
 ### Using `ChangeTenantEmployeeStatusTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantEmployeeStatusTrustedRef, ChangeTenantEmployeeStatusTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantEmployeeStatusTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`:
 const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantEmployeeStatusTrustedRef()` function to get a reference to the mutation.
@@ -14991,7 +15138,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantEmployeeStatusWithLoginTrusted
 You can execute the `ChangeTenantEmployeeStatusWithLoginTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantEmployeeStatusWithLoginTrusted(vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
 
 interface ChangeTenantEmployeeStatusWithLoginTrustedRef {
@@ -15002,7 +15149,7 @@ interface ChangeTenantEmployeeStatusWithLoginTrustedRef {
 export const changeTenantEmployeeStatusWithLoginTrustedRef: ChangeTenantEmployeeStatusWithLoginTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantEmployeeStatusWithLoginTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
 
 interface ChangeTenantEmployeeStatusWithLoginTrustedRef {
@@ -15013,7 +15160,7 @@ export const changeTenantEmployeeStatusWithLoginTrustedRef: ChangeTenantEmployee
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantEmployeeStatusWithLoginTrustedRef:
-```typescript
+```typescrip
 const name = changeTenantEmployeeStatusWithLoginTrustedRef.operationName;
 console.log(name);
 ```
@@ -15021,7 +15168,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantEmployeeStatusWithLoginTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantEmployeeStatusWithLoginTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -15034,7 +15181,7 @@ export interface ChangeTenantEmployeeStatusWithLoginTrustedVariables {
 Recall that executing the `ChangeTenantEmployeeStatusWithLoginTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantEmployeeStatusWithLoginTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantEmployeeStatusWithLoginTrustedData {
   employee_update?: Employee_Key | null;
   appUser_update?: AppUser_Key | null;
@@ -15042,17 +15189,17 @@ export interface ChangeTenantEmployeeStatusWithLoginTrustedData {
 ```
 ### Using `ChangeTenantEmployeeStatusWithLoginTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantEmployeeStatusWithLoginTrusted, ChangeTenantEmployeeStatusWithLoginTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantEmployeeStatusWithLoginTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`:
 const changeTenantEmployeeStatusWithLoginTrustedVars: ChangeTenantEmployeeStatusWithLoginTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  userId: ..., 
-  status: ..., 
-  appUserStatus: ..., 
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  status: ...,
+  appUserStatus: ...,
 };
 
 // Call the `changeTenantEmployeeStatusWithLoginTrusted()` function to execute the mutation.
@@ -15078,17 +15225,17 @@ changeTenantEmployeeStatusWithLoginTrusted(changeTenantEmployeeStatusWithLoginTr
 
 ### Using `ChangeTenantEmployeeStatusWithLoginTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantEmployeeStatusWithLoginTrustedRef, ChangeTenantEmployeeStatusWithLoginTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantEmployeeStatusWithLoginTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`:
 const changeTenantEmployeeStatusWithLoginTrustedVars: ChangeTenantEmployeeStatusWithLoginTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  userId: ..., 
-  status: ..., 
-  appUserStatus: ..., 
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  status: ...,
+  appUserStatus: ...,
 };
 
 // Call the `changeTenantEmployeeStatusWithLoginTrustedRef()` function to get a reference to the mutation.
@@ -15117,7 +15264,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantEmployeeLoginAccessTrusted
 You can execute the `ChangeTenantEmployeeLoginAccessTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantEmployeeLoginAccessTrusted(vars: ChangeTenantEmployeeLoginAccessTrustedVariables): MutationPromise<ChangeTenantEmployeeLoginAccessTrustedData, ChangeTenantEmployeeLoginAccessTrustedVariables>;
 
 interface ChangeTenantEmployeeLoginAccessTrustedRef {
@@ -15128,7 +15275,7 @@ interface ChangeTenantEmployeeLoginAccessTrustedRef {
 export const changeTenantEmployeeLoginAccessTrustedRef: ChangeTenantEmployeeLoginAccessTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantEmployeeLoginAccessTrusted(dc: DataConnect, vars: ChangeTenantEmployeeLoginAccessTrustedVariables): MutationPromise<ChangeTenantEmployeeLoginAccessTrustedData, ChangeTenantEmployeeLoginAccessTrustedVariables>;
 
 interface ChangeTenantEmployeeLoginAccessTrustedRef {
@@ -15139,7 +15286,7 @@ export const changeTenantEmployeeLoginAccessTrustedRef: ChangeTenantEmployeeLogi
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantEmployeeLoginAccessTrustedRef:
-```typescript
+```typescrip
 const name = changeTenantEmployeeLoginAccessTrustedRef.operationName;
 console.log(name);
 ```
@@ -15147,7 +15294,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantEmployeeLoginAccessTrusted` mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -15159,7 +15306,7 @@ export interface ChangeTenantEmployeeLoginAccessTrustedVariables {
 Recall that executing the `ChangeTenantEmployeeLoginAccessTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantEmployeeLoginAccessTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantEmployeeLoginAccessTrustedData {
   employee_update?: Employee_Key | null;
   appUser_update?: AppUser_Key | null;
@@ -15167,16 +15314,16 @@ export interface ChangeTenantEmployeeLoginAccessTrustedData {
 ```
 ### Using `ChangeTenantEmployeeLoginAccessTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantEmployeeLoginAccessTrusted, ChangeTenantEmployeeLoginAccessTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantEmployeeLoginAccessTrusted` mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`:
 const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAccessTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  userId: ..., 
-  loginAccess: ..., 
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  loginAccess: ...,
 };
 
 // Call the `changeTenantEmployeeLoginAccessTrusted()` function to execute the mutation.
@@ -15202,16 +15349,16 @@ changeTenantEmployeeLoginAccessTrusted(changeTenantEmployeeLoginAccessTrustedVar
 
 ### Using `ChangeTenantEmployeeLoginAccessTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantEmployeeLoginAccessTrustedRef, ChangeTenantEmployeeLoginAccessTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantEmployeeLoginAccessTrusted` mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`:
 const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAccessTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  userId: ..., 
-  loginAccess: ..., 
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  loginAccess: ...,
 };
 
 // Call the `changeTenantEmployeeLoginAccessTrustedRef()` function to get a reference to the mutation.
@@ -15240,7 +15387,7 @@ executeMutation(ref).then((response) => {
 
 ## CreateTenantServicePersonTrusted
 You can execute the `CreateTenantServicePersonTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 createTenantServicePersonTrusted(vars: CreateTenantServicePersonTrustedVariables): MutationPromise<CreateTenantServicePersonTrustedData, CreateTenantServicePersonTrustedVariables>;
 
 interface CreateTenantServicePersonTrustedRef {
@@ -15251,7 +15398,7 @@ interface CreateTenantServicePersonTrustedRef {
 export const createTenantServicePersonTrustedRef: CreateTenantServicePersonTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 createTenantServicePersonTrusted(dc: DataConnect, vars: CreateTenantServicePersonTrustedVariables): MutationPromise<CreateTenantServicePersonTrustedData, CreateTenantServicePersonTrustedVariables>;
 
 interface CreateTenantServicePersonTrustedRef {
@@ -15262,7 +15409,7 @@ export const createTenantServicePersonTrustedRef: CreateTenantServicePersonTrust
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the createTenantServicePersonTrustedRef:
-```typescript
+```typescrip
 const name = createTenantServicePersonTrustedRef.operationName;
 console.log(name);
 ```
@@ -15270,7 +15417,7 @@ console.log(name);
 ### Variables
 The `CreateTenantServicePersonTrusted` mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface CreateTenantServicePersonTrustedVariables {
   id: UUIDString;
   organizationId: UUIDString;
@@ -15288,28 +15435,28 @@ export interface CreateTenantServicePersonTrustedVariables {
 Recall that executing the `CreateTenantServicePersonTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `CreateTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface CreateTenantServicePersonTrustedData {
   servicePerson_insert: ServicePerson_Key;
 }
 ```
 ### Using `CreateTenantServicePersonTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, createTenantServicePersonTrusted, CreateTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantServicePersonTrusted` mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
 const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
 };
 
@@ -15334,21 +15481,21 @@ createTenantServicePersonTrusted(createTenantServicePersonTrustedVars).then((res
 
 ### Using `CreateTenantServicePersonTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, createTenantServicePersonTrustedRef, CreateTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `CreateTenantServicePersonTrusted` mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
 const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
 };
 
@@ -15376,7 +15523,7 @@ executeMutation(ref).then((response) => {
 
 ## UpdateTenantServicePersonTrusted
 You can execute the `UpdateTenantServicePersonTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 updateTenantServicePersonTrusted(vars: UpdateTenantServicePersonTrustedVariables): MutationPromise<UpdateTenantServicePersonTrustedData, UpdateTenantServicePersonTrustedVariables>;
 
 interface UpdateTenantServicePersonTrustedRef {
@@ -15387,7 +15534,7 @@ interface UpdateTenantServicePersonTrustedRef {
 export const updateTenantServicePersonTrustedRef: UpdateTenantServicePersonTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 updateTenantServicePersonTrusted(dc: DataConnect, vars: UpdateTenantServicePersonTrustedVariables): MutationPromise<UpdateTenantServicePersonTrustedData, UpdateTenantServicePersonTrustedVariables>;
 
 interface UpdateTenantServicePersonTrustedRef {
@@ -15398,7 +15545,7 @@ export const updateTenantServicePersonTrustedRef: UpdateTenantServicePersonTrust
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateTenantServicePersonTrustedRef:
-```typescript
+```typescrip
 const name = updateTenantServicePersonTrustedRef.operationName;
 console.log(name);
 ```
@@ -15406,7 +15553,7 @@ console.log(name);
 ### Variables
 The `UpdateTenantServicePersonTrusted` mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface UpdateTenantServicePersonTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -15424,28 +15571,28 @@ export interface UpdateTenantServicePersonTrustedVariables {
 Recall that executing the `UpdateTenantServicePersonTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `UpdateTenantServicePersonTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface UpdateTenantServicePersonTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
 }
 ```
 ### Using `UpdateTenantServicePersonTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, updateTenantServicePersonTrusted, UpdateTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantServicePersonTrusted` mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`:
 const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
 };
 
@@ -15470,21 +15617,21 @@ updateTenantServicePersonTrusted(updateTenantServicePersonTrustedVars).then((res
 
 ### Using `UpdateTenantServicePersonTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, updateTenantServicePersonTrustedRef, UpdateTenantServicePersonTrustedVariables } from '@omniretail/sql-connect';
 
 // The `UpdateTenantServicePersonTrusted` mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`:
 const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
 };
 
@@ -15512,7 +15659,7 @@ executeMutation(ref).then((response) => {
 
 ## ChangeTenantServicePersonStatusTrusted
 You can execute the `ChangeTenantServicePersonStatusTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 changeTenantServicePersonStatusTrusted(vars: ChangeTenantServicePersonStatusTrustedVariables): MutationPromise<ChangeTenantServicePersonStatusTrustedData, ChangeTenantServicePersonStatusTrustedVariables>;
 
 interface ChangeTenantServicePersonStatusTrustedRef {
@@ -15523,7 +15670,7 @@ interface ChangeTenantServicePersonStatusTrustedRef {
 export const changeTenantServicePersonStatusTrustedRef: ChangeTenantServicePersonStatusTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 changeTenantServicePersonStatusTrusted(dc: DataConnect, vars: ChangeTenantServicePersonStatusTrustedVariables): MutationPromise<ChangeTenantServicePersonStatusTrustedData, ChangeTenantServicePersonStatusTrustedVariables>;
 
 interface ChangeTenantServicePersonStatusTrustedRef {
@@ -15534,7 +15681,7 @@ export const changeTenantServicePersonStatusTrustedRef: ChangeTenantServicePerso
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantServicePersonStatusTrustedRef:
-```typescript
+```typescrip
 const name = changeTenantServicePersonStatusTrustedRef.operationName;
 console.log(name);
 ```
@@ -15542,7 +15689,7 @@ console.log(name);
 ### Variables
 The `ChangeTenantServicePersonStatusTrusted` mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface ChangeTenantServicePersonStatusTrustedVariables {
   organizationId: UUIDString;
   id: UUIDString;
@@ -15553,22 +15700,22 @@ export interface ChangeTenantServicePersonStatusTrustedVariables {
 Recall that executing the `ChangeTenantServicePersonStatusTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `ChangeTenantServicePersonStatusTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface ChangeTenantServicePersonStatusTrustedData {
   servicePerson_update?: ServicePerson_Key | null;
 }
 ```
 ### Using `ChangeTenantServicePersonStatusTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, changeTenantServicePersonStatusTrusted, ChangeTenantServicePersonStatusTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantServicePersonStatusTrusted` mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`:
 const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantServicePersonStatusTrusted()` function to execute the mutation.
@@ -15592,15 +15739,15 @@ changeTenantServicePersonStatusTrusted(changeTenantServicePersonStatusTrustedVar
 
 ### Using `ChangeTenantServicePersonStatusTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, changeTenantServicePersonStatusTrustedRef, ChangeTenantServicePersonStatusTrustedVariables } from '@omniretail/sql-connect';
 
 // The `ChangeTenantServicePersonStatusTrusted` mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`:
 const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
 };
 
 // Call the `changeTenantServicePersonStatusTrustedRef()` function to get a reference to the mutation.
@@ -15627,7 +15774,7 @@ executeMutation(ref).then((response) => {
 
 ## AssignTenantEmployeeOutletTrusted
 You can execute the `AssignTenantEmployeeOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 assignTenantEmployeeOutletTrusted(vars: AssignTenantEmployeeOutletTrustedVariables): MutationPromise<AssignTenantEmployeeOutletTrustedData, AssignTenantEmployeeOutletTrustedVariables>;
 
 interface AssignTenantEmployeeOutletTrustedRef {
@@ -15638,7 +15785,7 @@ interface AssignTenantEmployeeOutletTrustedRef {
 export const assignTenantEmployeeOutletTrustedRef: AssignTenantEmployeeOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 assignTenantEmployeeOutletTrusted(dc: DataConnect, vars: AssignTenantEmployeeOutletTrustedVariables): MutationPromise<AssignTenantEmployeeOutletTrustedData, AssignTenantEmployeeOutletTrustedVariables>;
 
 interface AssignTenantEmployeeOutletTrustedRef {
@@ -15649,7 +15796,7 @@ export const assignTenantEmployeeOutletTrustedRef: AssignTenantEmployeeOutletTru
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the assignTenantEmployeeOutletTrustedRef:
-```typescript
+```typescrip
 const name = assignTenantEmployeeOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -15657,7 +15804,7 @@ console.log(name);
 ### Variables
 The `AssignTenantEmployeeOutletTrusted` mutation requires an argument of type `AssignTenantEmployeeOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface AssignTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
@@ -15668,22 +15815,22 @@ export interface AssignTenantEmployeeOutletTrustedVariables {
 Recall that executing the `AssignTenantEmployeeOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `AssignTenantEmployeeOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface AssignTenantEmployeeOutletTrustedData {
   employeeOutlet_upsert: EmployeeOutlet_Key;
 }
 ```
 ### Using `AssignTenantEmployeeOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, assignTenantEmployeeOutletTrusted, AssignTenantEmployeeOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `AssignTenantEmployeeOutletTrusted` mutation requires an argument of type `AssignTenantEmployeeOutletTrustedVariables`:
 const assignTenantEmployeeOutletTrustedVars: AssignTenantEmployeeOutletTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  outletId: ...,
 };
 
 // Call the `assignTenantEmployeeOutletTrusted()` function to execute the mutation.
@@ -15707,15 +15854,15 @@ assignTenantEmployeeOutletTrusted(assignTenantEmployeeOutletTrustedVars).then((r
 
 ### Using `AssignTenantEmployeeOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, assignTenantEmployeeOutletTrustedRef, AssignTenantEmployeeOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `AssignTenantEmployeeOutletTrusted` mutation requires an argument of type `AssignTenantEmployeeOutletTrustedVariables`:
 const assignTenantEmployeeOutletTrustedVars: AssignTenantEmployeeOutletTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  outletId: ...,
 };
 
 // Call the `assignTenantEmployeeOutletTrustedRef()` function to get a reference to the mutation.
@@ -15742,7 +15889,7 @@ executeMutation(ref).then((response) => {
 
 ## DeleteTenantEmployeeOutletTrusted
 You can execute the `DeleteTenantEmployeeOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 deleteTenantEmployeeOutletTrusted(vars: DeleteTenantEmployeeOutletTrustedVariables): MutationPromise<DeleteTenantEmployeeOutletTrustedData, DeleteTenantEmployeeOutletTrustedVariables>;
 
 interface DeleteTenantEmployeeOutletTrustedRef {
@@ -15753,7 +15900,7 @@ interface DeleteTenantEmployeeOutletTrustedRef {
 export const deleteTenantEmployeeOutletTrustedRef: DeleteTenantEmployeeOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 deleteTenantEmployeeOutletTrusted(dc: DataConnect, vars: DeleteTenantEmployeeOutletTrustedVariables): MutationPromise<DeleteTenantEmployeeOutletTrustedData, DeleteTenantEmployeeOutletTrustedVariables>;
 
 interface DeleteTenantEmployeeOutletTrustedRef {
@@ -15764,7 +15911,7 @@ export const deleteTenantEmployeeOutletTrustedRef: DeleteTenantEmployeeOutletTru
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteTenantEmployeeOutletTrustedRef:
-```typescript
+```typescrip
 const name = deleteTenantEmployeeOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -15772,7 +15919,7 @@ console.log(name);
 ### Variables
 The `DeleteTenantEmployeeOutletTrusted` mutation requires an argument of type `DeleteTenantEmployeeOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface DeleteTenantEmployeeOutletTrustedVariables {
   organizationId: UUIDString;
   employeeId: UUIDString;
@@ -15783,22 +15930,22 @@ export interface DeleteTenantEmployeeOutletTrustedVariables {
 Recall that executing the `DeleteTenantEmployeeOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `DeleteTenantEmployeeOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface DeleteTenantEmployeeOutletTrustedData {
   employeeOutlet_delete?: EmployeeOutlet_Key | null;
 }
 ```
 ### Using `DeleteTenantEmployeeOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantEmployeeOutletTrusted, DeleteTenantEmployeeOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantEmployeeOutletTrusted` mutation requires an argument of type `DeleteTenantEmployeeOutletTrustedVariables`:
 const deleteTenantEmployeeOutletTrustedVars: DeleteTenantEmployeeOutletTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  outletId: ...,
 };
 
 // Call the `deleteTenantEmployeeOutletTrusted()` function to execute the mutation.
@@ -15822,15 +15969,15 @@ deleteTenantEmployeeOutletTrusted(deleteTenantEmployeeOutletTrustedVars).then((r
 
 ### Using `DeleteTenantEmployeeOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, deleteTenantEmployeeOutletTrustedRef, DeleteTenantEmployeeOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `DeleteTenantEmployeeOutletTrusted` mutation requires an argument of type `DeleteTenantEmployeeOutletTrustedVariables`:
 const deleteTenantEmployeeOutletTrustedVars: DeleteTenantEmployeeOutletTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  outletId: ...,
 };
 
 // Call the `deleteTenantEmployeeOutletTrustedRef()` function to get a reference to the mutation.
@@ -15857,7 +16004,7 @@ executeMutation(ref).then((response) => {
 
 ## AssignTenantServicePersonOutletTrusted
 You can execute the `AssignTenantServicePersonOutletTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
+```typescrip
 assignTenantServicePersonOutletTrusted(vars: AssignTenantServicePersonOutletTrustedVariables): MutationPromise<AssignTenantServicePersonOutletTrustedData, AssignTenantServicePersonOutletTrustedVariables>;
 
 interface AssignTenantServicePersonOutletTrustedRef {
@@ -15868,7 +16015,7 @@ interface AssignTenantServicePersonOutletTrustedRef {
 export const assignTenantServicePersonOutletTrustedRef: AssignTenantServicePersonOutletTrustedRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
+```typescrip
 assignTenantServicePersonOutletTrusted(dc: DataConnect, vars: AssignTenantServicePersonOutletTrustedVariables): MutationPromise<AssignTenantServicePersonOutletTrustedData, AssignTenantServicePersonOutletTrustedVariables>;
 
 interface AssignTenantServicePersonOutletTrustedRef {
@@ -15879,7 +16026,7 @@ export const assignTenantServicePersonOutletTrustedRef: AssignTenantServicePerso
 ```
 
 If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the assignTenantServicePersonOutletTrustedRef:
-```typescript
+```typescrip
 const name = assignTenantServicePersonOutletTrustedRef.operationName;
 console.log(name);
 ```
@@ -15887,7 +16034,7 @@ console.log(name);
 ### Variables
 The `AssignTenantServicePersonOutletTrusted` mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
 
-```typescript
+```typescrip
 export interface AssignTenantServicePersonOutletTrustedVariables {
   organizationId: UUIDString;
   servicePersonId: UUIDString;
@@ -15898,22 +16045,22 @@ export interface AssignTenantServicePersonOutletTrustedVariables {
 Recall that executing the `AssignTenantServicePersonOutletTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
 
 The `data` property is an object of type `AssignTenantServicePersonOutletTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
+```typescrip
 export interface AssignTenantServicePersonOutletTrustedData {
   servicePersonOutlet_upsert: ServicePersonOutlet_Key;
 }
 ```
 ### Using `AssignTenantServicePersonOutletTrusted`'s action shortcut function
 
-```typescript
+```typescrip
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig, assignTenantServicePersonOutletTrusted, AssignTenantServicePersonOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `AssignTenantServicePersonOutletTrusted` mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`:
 const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
 };
 
 // Call the `assignTenantServicePersonOutletTrusted()` function to execute the mutation.
@@ -15937,15 +16084,15 @@ assignTenantServicePersonOutletTrusted(assignTenantServicePersonOutletTrustedVar
 
 ### Using `AssignTenantServicePersonOutletTrusted`'s `MutationRef` function
 
-```typescript
+```typescrip
 import { getDataConnect, executeMutation } from 'firebase/data-connect';
 import { connectorConfig, assignTenantServicePersonOutletTrustedRef, AssignTenantServicePersonOutletTrustedVariables } from '@omniretail/sql-connect';
 
 // The `AssignTenantServicePersonOutletTrusted` mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`:
 const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
 };
 
 // Call the `assignTenantServicePersonOutletTrustedRef()` function to get a reference to the mutation.

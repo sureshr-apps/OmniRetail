@@ -61,6 +61,7 @@ export function deriveOutletView(all: Outlet[], query: OutletQuery): OutletQuery
   let outlets = all;
   const search = query.search?.trim().toLowerCase() ?? '';
   if (search) outlets = outlets.filter((o) => `${formatOutletCode(o.outletCode)} ${o.name} ${o.phone} ${o.contactPerson}`.toLowerCase().includes(search));
+  const countsSource = outlets;
   if (query.status && query.status !== 'All') outlets = outlets.filter((o) => o.status === query.status);
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.max(1, query.pageSize ?? 10);
@@ -68,8 +69,8 @@ export function deriveOutletView(all: Outlet[], query: OutletQuery): OutletQuery
   return {
     outlets: outlets.slice((page - 1) * pageSize, page * pageSize),
     total,
-    activeCount: outlets.filter((o) => o.status === 'Active').length,
-    inactiveCount: outlets.filter((o) => o.status === 'Inactive').length,
+    activeCount: countsSource.filter((o) => o.status === 'Active').length,
+    inactiveCount: countsSource.filter((o) => o.status === 'Inactive').length,
     page,
     pageSize,
     totalPages: Math.max(1, Math.ceil(total / pageSize)),

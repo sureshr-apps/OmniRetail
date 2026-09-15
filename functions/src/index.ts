@@ -85,6 +85,7 @@ import {
   createTenantExpense, updateTenantExpense, changeTenantExpenseApproval, voidTenantExpense,
   changeTenantSupplierStatus as changeTenantSupplierStatusSql,
 } from '@omniretail/sql-connect-admin';
+import { persistCheckout } from './checkout.js';
 import {
   authenticateUsername,
   GENERIC_AUTH_ERROR,
@@ -526,8 +527,8 @@ export const listOrganizationsDirectory = onCall(callableOptions, async (request
   try {
     const uid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(uid); requireCapability(caller, 'organizations.read');
     const organizations = (await listOrganizationsTrusted()).data.organizations;
-    const rows = await Promise.all(organizations.map(async (o: any) => {
-      const license = (await getOrganizationLicenseTrusted({ organizationId: o.id })).data.organizationLicenses[0];
+    const rows = organizations.map((o: any) => {
+      const license = o.organizationLicense_on_organization;
       return {
         id: o.id,
         organizationCode: o.organizationCode,
@@ -544,7 +545,7 @@ export const listOrganizationsDirectory = onCall(callableOptions, async (request
         licenseExpiryDate: license?.expiryDate ?? null,
         licenseStatus: deriveLicenseStatus(license?.startDate, license?.expiryDate),
       };
-    }));
+    });
     return { organizations: rows };
   } catch { throw new HttpsError('permission-denied', 'Unable to load organizations.'); }
 });
@@ -553,14 +554,14 @@ export const getMasterAdminOverview = onCall(callableOptions, async (request) =>
   try {
     const uid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(uid); requireCapability(caller, 'overview.read');
     const orgs = (await listOrganizationsTrusted()).data.organizations as any[];
-    const rows = await Promise.all(orgs.map(async o => {
-      const license = (await getOrganizationLicenseTrusted({ organizationId: o.id })).data.organizationLicenses[0];
+    const rows = orgs.map(o => {
+      const license = o.organizationLicense_on_organization;
       return {
         ...o,
         license: license ?? null,
         licenseStatus: deriveLicenseStatus(license?.startDate, license?.expiryDate),
       };
-    }));
+    });
     const expiring = rows.filter(r => r.licenseStatus === 'expiring_soon'); const mapOrg = (r: any) => ({ id: r.id, organizationCode: r.organizationCode, name: r.businessName, legalEntityName: r.legalEntityName ?? '', taxId: r.taxId ?? '', primaryAdmin: undefined, licensePlan: r.license?.plan?.name ?? 'Unassigned', licenseStatus: r.licenseStatus, licenseExpiryDate: r.license?.expiryDate ?? '—', status: String(r.status).toLowerCase(), createdDate: String(r.createdAt).slice(0,10), contactInfo: { primaryContactName: r.primaryContactName, email: r.email, phone: r.phone }, timezone: r.timezone, currency: APPLICATION_CURRENCY });
     return { metrics: { totalOrganizations: rows.length, activeOrganizations: rows.filter(r=>r.status==='ACTIVE').length, suspendedOrganizations: rows.filter(r=>r.status==='SUSPENDED').length, licensesExpiringSoon: expiring.length }, recentlyAddedOrganizations: rows.sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()).slice(0,4).map(mapOrg), expiringLicenses: expiring.map(r=>({ license: { id:r.license.id, organizationId:r.id, planId:r.license.plan.id, startDate:r.license.startDate, expiryDate:r.license.expiryDate, negotiatedPrice:r.license.negotiatedPrice, currency:APPLICATION_CURRENCY, createdAt:r.license.createdAt, updatedAt:r.license.updatedAt }, organization: mapOrg(r), plan: r.license.plan, daysRemaining: Math.ceil((new Date(r.license.expiryDate).getTime()-Date.now())/86400000), formattedExpiryDate: r.license.expiryDate })), totalOrganizationsCount: rows.length };
   } catch { throw new HttpsError('permission-denied', 'Unable to load the overview.'); }
@@ -851,6 +852,10 @@ function taxonomyMutationFailure(entity: string, error: unknown): HttpsError {
   return new HttpsError('internal', `Unable to save the ${entity}.`);
 }
 
+function normalizeTaxonomyValue(value: string): string {
+  return value.trim().toLocaleLowerCase('en-US');
+}
+
 export const createTenantCategory = onCall(callableOptions, async (request) => {
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth);
@@ -858,12 +863,20 @@ export const createTenantCategory = onCall(callableOptions, async (request) => {
     requireCapability(caller, 'products.read');
     const d = request.data ?? {};
     const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
-    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     const id = randomUUID();
-    await createTenantCategoryTrusted({ id, organizationId, value });
+    const existing = (await listTenantCategoriesTrusted({ organizationId })).data.categories.find((category) => normalizeTaxonomyValue(category.value) === value);
+    if (existing) return { success: true, organizationId, id: existing.id, value: existing.value };
+    try {
+      await createTenantCategoryTrusted({ id, organizationId, value });
+    } catch (error) {
+      const winner = (await listTenantCategoriesTrusted({ organizationId })).data.categories.find((category) => normalizeTaxonomyValue(category.value) === value);
+      if (winner) return { success: true, organizationId, id: winner.id, value: winner.value };
+      throw error;
+    }
     return { success: true, organizationId, id, value };
   } catch (error) {
     logCallableFailure('createTenantCategory', error);
@@ -879,7 +892,7 @@ export const updateTenantCategory = onCall(callableOptions, async (request) => {
     const d = request.data ?? {};
     const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
     const id = typeof d.id === 'string' ? d.id : '';
-    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !id || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
@@ -899,12 +912,23 @@ export const createTenantSubcategory = onCall(callableOptions, async (request) =
     const d = request.data ?? {};
     const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
     const categoryId = typeof d.categoryId === 'string' ? d.categoryId : '';
-    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !categoryId || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     const id = randomUUID();
-    await createTenantSubcategoryTrusted({ id, organizationId, categoryId, value });
+    const categories = (await listTenantCategoriesTrusted({ organizationId })).data.categories;
+    const category = categories.find((candidate) => candidate.id === categoryId);
+    if (!category) throw new Error('category not found');
+    const existing = category.subcategories_on_category.find((subcategory) => normalizeTaxonomyValue(subcategory.value) === value);
+    if (existing) return { success: true, organizationId, id: existing.id, categoryId, value: existing.value };
+    try {
+      await createTenantSubcategoryTrusted({ id, organizationId, categoryId, value });
+    } catch (error) {
+      const winner = (await listTenantCategoriesTrusted({ organizationId })).data.categories.find((candidate) => candidate.id === categoryId)?.subcategories_on_category.find((subcategory) => normalizeTaxonomyValue(subcategory.value) === value);
+      if (winner) return { success: true, organizationId, id: winner.id, categoryId, value: winner.value };
+      throw error;
+    }
     return { success: true, organizationId, id, categoryId, value };
   } catch (error) {
     logCallableFailure('createTenantSubcategory', error);
@@ -920,7 +944,7 @@ export const updateTenantSubcategory = onCall(callableOptions, async (request) =
     const d = request.data ?? {};
     const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
     const id = typeof d.id === 'string' ? d.id : '';
-    const value = typeof d.value === 'string' ? d.value.trim() : '';
+    const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !id || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
@@ -1252,7 +1276,7 @@ async function resolveProductTaxonomy(organizationId: string, categoryName: stri
   if (!category) {
     let creationError: unknown;
     try {
-      await createTenantCategoryTrusted({ id: randomUUID(), organizationId, value: categoryName.trim() });
+      await createTenantCategoryTrusted({ id: randomUUID(), organizationId, value: normalizeTaxonomyValue(categoryName) });
     } catch (error) {
       creationError = error;
     }
@@ -1268,7 +1292,7 @@ async function resolveProductTaxonomy(organizationId: string, categoryName: stri
   if (normalizedSubcategory && !subcategory) {
     let creationError: unknown;
     try {
-      await createTenantSubcategoryTrusted({ id: randomUUID(), organizationId, categoryId: category.id, value: subcategoryName!.trim() });
+      await createTenantSubcategoryTrusted({ id: randomUUID(), organizationId, categoryId: category.id, value: normalizeTaxonomyValue(subcategoryName!) });
     } catch (error) {
       creationError = error;
     }
@@ -1348,6 +1372,42 @@ export const voidTenantExpenseRecord = onCall(callableOptions, async (request) =
 
 export const completeTenantSale = onCall(callableOptions, async (request) => {
   try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const receiptNumber = typeof d.receiptNumber === 'string' ? d.receiptNumber.trim() : ''; const customerName = typeof d.customerName === 'string' ? d.customerName.trim() : ''; const staffName = typeof d.staffName === 'string' ? d.staffName.trim() : ''; const terminalId = typeof d.terminalId === 'string' ? d.terminalId.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const tenderType = Object.values(SaleTenderType).includes(d.tenderType) ? d.tenderType as SaleTenderType : SaleTenderType.NONE; const n = (key: string) => Number(d[key]); if (!organizationId || !outletId || !receiptNumber || !customerName || !staffName || !terminalId || !Number.isFinite(n('totalNet')) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'sales.read'); const result = await createTenantSale({ organizationId, outletId, receiptNumber, saleTimestamp: typeof d.saleTimestamp === 'string' ? d.saleTimestamp : new Date().toISOString(), customerId: typeof d.customerId === 'string' ? d.customerId : null, customerName, staffName, channel: typeof d.channel === 'string' ? d.channel : null, terminalId, tenderType, tax: n('tax'), discount: n('discount'), subtotal: n('subtotal'), totalNet: n('totalNet') }); return { success: true, organizationId, outletId, receiptNumber, saleId: result.data.sale_insert.id }; } catch (error) { logCallableFailure('completeTenantSale', error); throw new HttpsError('permission-denied', 'Unable to complete the sale.'); }
+});
+
+export const completeTenantCheckout = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'sales.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const lines = Array.isArray(d.lines) ? d.lines : [];
+    const input = {
+      organizationId,
+      outletId,
+      customerId: typeof d.customerId === 'string' && d.customerId ? d.customerId : null,
+      receiptNumber: typeof d.receiptNumber === 'string' ? d.receiptNumber.trim() : '',
+      customerName: typeof d.customerName === 'string' ? d.customerName.trim() : '',
+      staffName: typeof d.staffName === 'string' ? d.staffName.trim() : '',
+      channel: typeof d.channel === 'string' ? d.channel.trim() : 'POS',
+      terminalId: typeof d.terminalId === 'string' ? d.terminalId.trim() : '',
+      tenderType: typeof d.tenderType === 'string' ? d.tenderType : 'NONE',
+      tax: Number(d.tax),
+      discount: Number(d.discount),
+      subtotal: Number(d.subtotal),
+      totalNet: Number(d.totalNet),
+      lines: lines.map((line: any) => ({ productId: typeof line?.productId === 'string' && line.productId ? line.productId : null, itemName: typeof line?.itemName === 'string' ? line.itemName.trim() : '', quantity: Number(line?.quantity), unitPrice: Number(line?.unitPrice), subtotal: Number(line?.subtotal) })),
+    };
+    if (typeof d.requestId !== 'string' || !/^[A-Za-z0-9._:-]{8,128}$/.test(d.requestId.trim())) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'sales.read');
+    const result = await persistCheckout(input);
+    return { success: true, organizationId, outletId, receiptNumber: input.receiptNumber, saleId: result.saleId };
+  } catch (error: any) {
+    logCallableFailure('completeTenantCheckout', error);
+    if (error?.code === '23505') throw new HttpsError('already-exists', 'A sale with this receipt number already exists.');
+    throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to complete the checkout.');
+  }
 });
 
 export const addTenantSaleLineRecord = onCall(callableOptions, async (request) => {

@@ -76,6 +76,8 @@ export interface SalesFilterQuery {
   paymentMethod: string;
   status: string;
   cashier: string;
+  minAmount?: number;
+  maxAmount?: number;
   searchQuery: string;
   page: number;
   pageSize: number;

@@ -9,7 +9,7 @@ import {
   ProductsKpiSummary,
   ProductCategoryOption,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantCategories, listTenantProducts } from '@omniretail/sql-connect';
+import { getCurrentUserAuthorization, listTenantCategories, listTenantProducts, listTenantInventory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
@@ -74,7 +74,7 @@ const PRODUCT_MUTATION_RESPONSE_KEYS: (keyof ProductMutationResponse)[] = [
   'sellingPrice', 'discountAllowed', 'status',
 ];
 
-function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Product {
+function mapTenantProduct(row: TenantProductRow | ProductMutationResponse, stockSummary?: Product['stockSummary']): Product {
   return {
     id: row.id,
     productCode: row.productCode,
@@ -100,6 +100,7 @@ function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Prod
     reorderQuantity: row.reorderQuantity ?? undefined,
     primarySupplier: row.primarySupplier ?? undefined,
     description: row.description ?? undefined,
+    stockSummary,
   };
 }
 
@@ -131,7 +132,9 @@ export function deriveProductView(all: Product[], query: ProductQuery = {}): Pro
     totalPages,
     kpis: {
       totalCatalogued: all.length,
-      addedThisFiscalCycle: all.length,
+      // Product timestamps were intentionally retired from the schema; do not
+      // pretend that every loaded product was added this fiscal cycle.
+      addedThisFiscalCycle: 0,
       inStockCount,
       inStockPercentage: all.length ? Number(((inStockCount / all.length) * 100).toFixed(1)) : 0,
       lowStockCount: all.filter((p) => p.stockSummary?.status === 'LOW_STOCK').length,
@@ -151,8 +154,20 @@ class ProductionProductService implements IProductService {
   /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */
   public async getAllProducts(): Promise<Product[]> {
     const organizationId = await this.organizationId();
-    const result = await listTenantProducts(getFirebaseClientServices().dataConnect, { organizationId });
-    return result.data.products.map(mapTenantProduct);
+    const [result, inventory] = await Promise.all([
+      listTenantProducts(getFirebaseClientServices().dataConnect, { organizationId }),
+      listTenantInventory(getFirebaseClientServices().dataConnect, { organizationId }).catch(() => null),
+    ]);
+    const stockByProduct = new Map<string, { onHand: number; reorderLevel: number }>();
+    for (const row of inventory?.data.inventoryStocks ?? []) {
+      const previous = stockByProduct.get(row.product.id) ?? { onHand: 0, reorderLevel: row.reorderLevel };
+      stockByProduct.set(row.product.id, { onHand: previous.onHand + row.onHandQty, reorderLevel: Math.max(previous.reorderLevel, row.reorderLevel) });
+    }
+    return result.data.products.map((row) => {
+      const stock = stockByProduct.get(row.id);
+      const status = !stock || stock.onHand === 0 ? 'OUT_OF_STOCK' : stock.onHand <= stock.reorderLevel ? 'LOW_STOCK' : 'IN_STOCK';
+      return mapTenantProduct(row, stock ? { onHandTotal: stock.onHand, reorderLevel: stock.reorderLevel, status } : undefined);
+    });
   }
 
   public async getCategories(): Promise<string[]> {

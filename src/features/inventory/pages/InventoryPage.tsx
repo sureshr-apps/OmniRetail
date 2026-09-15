@@ -200,7 +200,7 @@ export function InventoryPage() {
     setAdjustingItem(targetItem);
   };
 
-  // Mock Barcode Print
+  // Barcode print action
   const handlePrintBarcodes = () => {
     const count = selectedIds.size > 0 ? selectedIds.size : (data?.items.length || 0);
     showToast(

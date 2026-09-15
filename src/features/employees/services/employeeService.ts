@@ -61,19 +61,20 @@ export function deriveEmployeeView(all: Employee[], query: EmployeeQuery): Emplo
   let rows = all;
   const search = query.search?.trim().toLowerCase() ?? '';
   if (search) rows = rows.filter((row) => `${formatEmployeeCode(row.employeeCode)} ${row.displayName} ${row.email} ${row.phone} ${row.designation}`.toLowerCase().includes(search));
-  if (query.status && query.status !== 'All') rows = rows.filter((row) => row.employmentStatus === query.status);
   if (query.scope && query.scope !== 'All') rows = rows.filter((row) => row.assignmentScope === query.scope);
   if (query.loginAccess && query.loginAccess !== 'All') rows = rows.filter((row) => row.loginAccess === query.loginAccess);
   if (query.outlet) rows = rows.filter((row) => row.outletAssignment.includes(query.outlet!));
+  const countsSource = rows;
+  if (query.status && query.status !== 'All') rows = rows.filter((row) => row.employmentStatus === query.status);
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.max(1, query.pageSize ?? 10);
   const total = rows.length;
   return {
     employees: rows.slice((page - 1) * pageSize, page * pageSize),
     total,
-    activeCount: rows.filter((row) => row.employmentStatus === 'Active').length,
-    inactiveCount: rows.filter((row) => row.employmentStatus === 'Inactive').length,
-    loginEnabledCount: rows.filter((row) => row.loginAccess === 'Enabled').length,
+    activeCount: countsSource.filter((row) => row.employmentStatus === 'Active').length,
+    inactiveCount: countsSource.filter((row) => row.employmentStatus === 'Inactive').length,
+    loginEnabledCount: countsSource.filter((row) => row.loginAccess === 'Enabled').length,
     page,
     pageSize,
     totalPages: Math.max(1, Math.ceil(total / pageSize)),

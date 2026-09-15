@@ -1492,6 +1492,11 @@ export interface GetTenantEmployeeTrustedData {
       username: string;
       email: string;
       firebaseUid: string;
+      employeeTrustedMemberships: ({
+        role: {
+          code: string;
+        };
+      })[];
     } & AppUser_Key;
     employeeCode: number;
     fullName: string;
@@ -1998,6 +2003,11 @@ export interface ListTenantEmployeesData {
       id: UUIDString;
       username: string;
       email: string;
+      employeeMemberships: ({
+        role: {
+          code: string;
+        };
+      })[];
     } & AppUser_Key;
     employeeCode: number;
     fullName: string;
@@ -2508,6 +2518,29 @@ export interface ProvisionOrganizationAdministratorVariables {
   resultReference: string;
 }
 
+export interface ProvisionTenantEmployeeLoginTrustedData {
+  appUser_insert: AppUser_Key;
+  organizationMembership_insert: OrganizationMembership_Key;
+  userRole_upsert: UserRole_Key;
+  employee_update?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface ProvisionTenantEmployeeLoginTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
+  userId: UUIDString;
+  firebaseUid: string;
+  username: string;
+  email: string;
+  displayName: string;
+  phone?: string | null;
+  roleId: UUIDString;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
 export interface ProvisionTenantEmployeeTrustedData {
   appUser_insert: AppUser_Key;
   organizationMembership_insert: OrganizationMembership_Key;
@@ -2828,6 +2861,29 @@ export interface UpdateTenantCustomerVariables {
   dateOfBirth?: DateString | null;
   gender?: string | null;
   notes?: string | null;
+  auditId: UUIDString;
+  requestId: string;
+  actorFirebaseUid: string;
+}
+
+export interface UpdateTenantEmployeeLoginTrustedData {
+  appUser_update?: AppUser_Key | null;
+  organizationMembership_update?: OrganizationMembership_Key | null;
+  removeAdminRole?: UserRole_Key | null;
+  removeEmployeeRole?: UserRole_Key | null;
+  userRole_upsert: UserRole_Key;
+  employee_update?: Employee_Key | null;
+  auditEvent_insert: AuditEvent_Key;
+}
+
+export interface UpdateTenantEmployeeLoginTrustedVariables {
+  organizationId: UUIDString;
+  employeeId: UUIDString;
+  userId: UUIDString;
+  username: string;
+  email: string;
+  roleId: UUIDString;
+  loginAccess: LoginAccessStatus;
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
@@ -4386,6 +4442,30 @@ export const provisionTenantEmployeeTrustedRef: ProvisionTenantEmployeeTrustedRe
 
 export function provisionTenantEmployeeTrusted(vars: ProvisionTenantEmployeeTrustedVariables): MutationPromise<ProvisionTenantEmployeeTrustedData, ProvisionTenantEmployeeTrustedVariables>;
 export function provisionTenantEmployeeTrusted(dc: DataConnect, vars: ProvisionTenantEmployeeTrustedVariables): MutationPromise<ProvisionTenantEmployeeTrustedData, ProvisionTenantEmployeeTrustedVariables>;
+
+interface ProvisionTenantEmployeeLoginTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ProvisionTenantEmployeeLoginTrustedVariables): MutationRef<ProvisionTenantEmployeeLoginTrustedData, ProvisionTenantEmployeeLoginTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ProvisionTenantEmployeeLoginTrustedVariables): MutationRef<ProvisionTenantEmployeeLoginTrustedData, ProvisionTenantEmployeeLoginTrustedVariables>;
+  operationName: string;
+}
+export const provisionTenantEmployeeLoginTrustedRef: ProvisionTenantEmployeeLoginTrustedRef;
+
+export function provisionTenantEmployeeLoginTrusted(vars: ProvisionTenantEmployeeLoginTrustedVariables): MutationPromise<ProvisionTenantEmployeeLoginTrustedData, ProvisionTenantEmployeeLoginTrustedVariables>;
+export function provisionTenantEmployeeLoginTrusted(dc: DataConnect, vars: ProvisionTenantEmployeeLoginTrustedVariables): MutationPromise<ProvisionTenantEmployeeLoginTrustedData, ProvisionTenantEmployeeLoginTrustedVariables>;
+
+interface UpdateTenantEmployeeLoginTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdateTenantEmployeeLoginTrustedVariables): MutationRef<UpdateTenantEmployeeLoginTrustedData, UpdateTenantEmployeeLoginTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpdateTenantEmployeeLoginTrustedVariables): MutationRef<UpdateTenantEmployeeLoginTrustedData, UpdateTenantEmployeeLoginTrustedVariables>;
+  operationName: string;
+}
+export const updateTenantEmployeeLoginTrustedRef: UpdateTenantEmployeeLoginTrustedRef;
+
+export function updateTenantEmployeeLoginTrusted(vars: UpdateTenantEmployeeLoginTrustedVariables): MutationPromise<UpdateTenantEmployeeLoginTrustedData, UpdateTenantEmployeeLoginTrustedVariables>;
+export function updateTenantEmployeeLoginTrusted(dc: DataConnect, vars: UpdateTenantEmployeeLoginTrustedVariables): MutationPromise<UpdateTenantEmployeeLoginTrustedData, UpdateTenantEmployeeLoginTrustedVariables>;
 
 interface UpdateTenantEmployeeTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

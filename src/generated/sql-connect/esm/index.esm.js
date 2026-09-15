@@ -1541,6 +1541,30 @@ export function provisionTenantEmployeeTrusted(dcOrVars, vars) {
   return executeMutation(provisionTenantEmployeeTrustedRef(dcInstance, inputVars));
 }
 
+export const provisionTenantEmployeeLoginTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'ProvisionTenantEmployeeLoginTrusted', inputVars);
+}
+provisionTenantEmployeeLoginTrustedRef.operationName = 'ProvisionTenantEmployeeLoginTrusted';
+
+export function provisionTenantEmployeeLoginTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(provisionTenantEmployeeLoginTrustedRef(dcInstance, inputVars));
+}
+
+export const updateTenantEmployeeLoginTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpdateTenantEmployeeLoginTrusted', inputVars);
+}
+updateTenantEmployeeLoginTrustedRef.operationName = 'UpdateTenantEmployeeLoginTrusted';
+
+export function updateTenantEmployeeLoginTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(updateTenantEmployeeLoginTrustedRef(dcInstance, inputVars));
+}
+
 export const updateTenantEmployeeTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

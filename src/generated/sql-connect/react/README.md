@@ -421,7 +421,7 @@ import { useGetUserAuthorizationByFirebaseUid } from '@omniretail/sql-connect/re
 export default function GetUserAuthorizationByFirebaseUidComponent() {
   // The `useGetUserAuthorizationByFirebaseUid` Query hook requires an argument of type `GetUserAuthorizationByFirebaseUidVariables`:
   const getUserAuthorizationByFirebaseUidVars: GetUserAuthorizationByFirebaseUidVariables = {
-    firebaseUid: ...,
+    firebaseUid: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -512,7 +512,7 @@ import { useResolveUsernameLogin } from '@omniretail/sql-connect/react'
 export default function ResolveUsernameLoginComponent() {
   // The `useResolveUsernameLogin` Query hook requires an argument of type `ResolveUsernameLoginVariables`:
   const resolveUsernameLoginVars: ResolveUsernameLoginVariables = {
-    username: ...,
+    username: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -602,7 +602,7 @@ import { useGetAppUserForBootstrap } from '@omniretail/sql-connect/react'
 export default function GetAppUserForBootstrapComponent() {
   // The `useGetAppUserForBootstrap` Query hook requires an argument of type `GetAppUserForBootstrapVariables`:
   const getAppUserForBootstrapVars: GetAppUserForBootstrapVariables = {
-    firebaseUid: ...,
+    firebaseUid: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -769,7 +769,7 @@ import { useGetAppUserByFirebaseUid } from '@omniretail/sql-connect/react'
 export default function GetAppUserByFirebaseUidComponent() {
   // The `useGetAppUserByFirebaseUid` Query hook requires an argument of type `GetAppUserByFirebaseUidVariables`:
   const getAppUserByFirebaseUidVars: GetAppUserByFirebaseUidVariables = {
-    firebaseUid: ...,
+    firebaseUid: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1015,7 +1015,7 @@ import { useGetLicensePlan } from '@omniretail/sql-connect/react'
 export default function GetLicensePlanComponent() {
   // The `useGetLicensePlan` Query hook requires an argument of type `GetLicensePlanVariables`:
   const getLicensePlanVars: GetLicensePlanVariables = {
-    id: ...,
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1108,7 +1108,7 @@ import { useGetLicensePlanTrusted } from '@omniretail/sql-connect/react'
 export default function GetLicensePlanTrustedComponent() {
   // The `useGetLicensePlanTrusted` Query hook requires an argument of type `GetLicensePlanTrustedVariables`:
   const getLicensePlanTrustedVars: GetLicensePlanTrustedVariables = {
-    id: ...,
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1195,7 +1195,7 @@ import { useGetLicensePlanReferencesTrusted } from '@omniretail/sql-connect/reac
 export default function GetLicensePlanReferencesTrustedComponent() {
   // The `useGetLicensePlanReferencesTrusted` Query hook requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
   const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
-    id: ...,
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1383,7 +1383,7 @@ import { useGetOrganization } from '@omniretail/sql-connect/react'
 export default function GetOrganizationComponent() {
   // The `useGetOrganization` Query hook requires an argument of type `GetOrganizationVariables`:
   const getOrganizationVars: GetOrganizationVariables = {
-    id: ...,
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1483,7 +1483,7 @@ import { useGetOrganizationTrusted } from '@omniretail/sql-connect/react'
 export default function GetOrganizationTrustedComponent() {
   // The `useGetOrganizationTrusted` Query hook requires an argument of type `GetOrganizationTrustedVariables`:
   const getOrganizationTrustedVars: GetOrganizationTrustedVariables = {
-    id: ...,
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1576,7 +1576,7 @@ import { useListOrganizationAdministrators } from '@omniretail/sql-connect/react
 export default function ListOrganizationAdministratorsComponent() {
   // The `useListOrganizationAdministrators` Query hook requires an argument of type `ListOrganizationAdministratorsVariables`:
   const listOrganizationAdministratorsVars: ListOrganizationAdministratorsVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1670,8 +1670,8 @@ import { useGetOrganizationAdministrator } from '@omniretail/sql-connect/react'
 export default function GetOrganizationAdministratorComponent() {
   // The `useGetOrganizationAdministrator` Query hook requires an argument of type `GetOrganizationAdministratorVariables`:
   const getOrganizationAdministratorVars: GetOrganizationAdministratorVariables = {
-    organizationId: ...,
-    userId: ...,
+    organizationId: ..., 
+    userId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1765,8 +1765,8 @@ import { useGetOrganizationAdministratorTrusted } from '@omniretail/sql-connect/
 export default function GetOrganizationAdministratorTrustedComponent() {
   // The `useGetOrganizationAdministratorTrusted` Query hook requires an argument of type `GetOrganizationAdministratorTrustedVariables`:
   const getOrganizationAdministratorTrustedVars: GetOrganizationAdministratorTrustedVariables = {
-    organizationId: ...,
-    userId: ...,
+    organizationId: ..., 
+    userId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1859,8 +1859,8 @@ import { useResolveOrganizationAdministratorIdentity } from '@omniretail/sql-con
 export default function ResolveOrganizationAdministratorIdentityComponent() {
   // The `useResolveOrganizationAdministratorIdentity` Query hook requires an argument of type `ResolveOrganizationAdministratorIdentityVariables`:
   const resolveOrganizationAdministratorIdentityVars: ResolveOrganizationAdministratorIdentityVariables = {
-    organizationId: ...,
-    appUserId: ...,
+    organizationId: ..., 
+    appUserId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -1962,7 +1962,7 @@ import { useGetOrganizationLicense } from '@omniretail/sql-connect/react'
 export default function GetOrganizationLicenseComponent() {
   // The `useGetOrganizationLicense` Query hook requires an argument of type `GetOrganizationLicenseVariables`:
   const getOrganizationLicenseVars: GetOrganizationLicenseVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2064,7 +2064,7 @@ import { useGetOrganizationLicenseTrusted } from '@omniretail/sql-connect/react'
 export default function GetOrganizationLicenseTrustedComponent() {
   // The `useGetOrganizationLicenseTrusted` Query hook requires an argument of type `GetOrganizationLicenseTrustedVariables`:
   const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2174,7 +2174,7 @@ import { useGetOrganizationLicenseHistory } from '@omniretail/sql-connect/react'
 export default function GetOrganizationLicenseHistoryComponent() {
   // The `useGetOrganizationLicenseHistory` Query hook requires an argument of type `GetOrganizationLicenseHistoryVariables`:
   const getOrganizationLicenseHistoryVars: GetOrganizationLicenseHistoryVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2276,7 +2276,7 @@ import { useGetOrganizationLicensePublic } from '@omniretail/sql-connect/react'
 export default function GetOrganizationLicensePublicComponent() {
   // The `useGetOrganizationLicensePublic` Query hook requires an argument of type `GetOrganizationLicensePublicVariables`:
   const getOrganizationLicensePublicVars: GetOrganizationLicensePublicVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2386,7 +2386,7 @@ import { useGetOrganizationLicenseHistoryPublic } from '@omniretail/sql-connect/
 export default function GetOrganizationLicenseHistoryPublicComponent() {
   // The `useGetOrganizationLicenseHistoryPublic` Query hook requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`:
   const getOrganizationLicenseHistoryPublicVars: GetOrganizationLicenseHistoryPublicVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2560,7 +2560,7 @@ import { useListOrganizationUsersForDeletionTrusted } from '@omniretail/sql-conn
 export default function ListOrganizationUsersForDeletionTrustedComponent() {
   // The `useListOrganizationUsersForDeletionTrusted` Query hook requires an argument of type `ListOrganizationUsersForDeletionTrustedVariables`:
   const listOrganizationUsersForDeletionTrustedVars: ListOrganizationUsersForDeletionTrustedVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2667,7 +2667,7 @@ import { useListTenantOutlets } from '@omniretail/sql-connect/react'
 export default function ListTenantOutletsComponent() {
   // The `useListTenantOutlets` Query hook requires an argument of type `ListTenantOutletsVariables`:
   const listTenantOutletsVars: ListTenantOutletsVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2799,7 +2799,7 @@ import { useListTenantEmployees } from '@omniretail/sql-connect/react'
 export default function ListTenantEmployeesComponent() {
   // The `useListTenantEmployees` Query hook requires an argument of type `ListTenantEmployeesVariables`:
   const listTenantEmployeesVars: ListTenantEmployeesVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -2917,7 +2917,7 @@ import { useListTenantServicePersons } from '@omniretail/sql-connect/react'
 export default function ListTenantServicePersonsComponent() {
   // The `useListTenantServicePersons` Query hook requires an argument of type `ListTenantServicePersonsVariables`:
   const listTenantServicePersonsVars: ListTenantServicePersonsVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3017,7 +3017,7 @@ import { useListTenantCategories } from '@omniretail/sql-connect/react'
 export default function ListTenantCategoriesComponent() {
   // The `useListTenantCategories` Query hook requires an argument of type `ListTenantCategoriesVariables`:
   const listTenantCategoriesVars: ListTenantCategoriesVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3142,7 +3142,7 @@ import { useListTenantProducts } from '@omniretail/sql-connect/react'
 export default function ListTenantProductsComponent() {
   // The `useListTenantProducts` Query hook requires an argument of type `ListTenantProductsVariables`:
   const listTenantProductsVars: ListTenantProductsVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3267,7 +3267,7 @@ import { useListTenantInventory } from '@omniretail/sql-connect/react'
 export default function ListTenantInventoryComponent() {
   // The `useListTenantInventory` Query hook requires an argument of type `ListTenantInventoryVariables`:
   const listTenantInventoryVars: ListTenantInventoryVariables = {
-    organizationId: ...,
+    organizationId: ..., 
     outletId: ..., // optional
   };
 
@@ -3381,7 +3381,7 @@ import { useListTenantCustomers } from '@omniretail/sql-connect/react'
 export default function ListTenantCustomersComponent() {
   // The `useListTenantCustomers` Query hook requires an argument of type `ListTenantCustomersVariables`:
   const listTenantCustomersVars: ListTenantCustomersVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3482,8 +3482,8 @@ import { useListTenantCustomerPurchaseHistory } from '@omniretail/sql-connect/re
 export default function ListTenantCustomerPurchaseHistoryComponent() {
   // The `useListTenantCustomerPurchaseHistory` Query hook requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
   const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
-    organizationId: ...,
-    customerId: ...,
+    organizationId: ..., 
+    customerId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3570,12 +3570,8 @@ export interface ListTenantSuppliersData {
     contactPerson: string;
     phone: string;
     email: string;
-    taxId: string;
+    taxId?: string | null;
     address?: string | null;
-    city: string;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
     category: string;
     paymentTerms: string;
     creditLimit: number;
@@ -3597,7 +3593,7 @@ import { useListTenantSuppliers } from '@omniretail/sql-connect/react'
 export default function ListTenantSuppliersComponent() {
   // The `useListTenantSuppliers` Query hook requires an argument of type `ListTenantSuppliersVariables`:
   const listTenantSuppliersVars: ListTenantSuppliersVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3687,7 +3683,7 @@ export interface ListTenantPurchasesData {
       id: UUIDString;
       supplierCode: number;
       name: string;
-      taxId: string;
+      taxId?: string | null;
     } & Supplier_Key;
     outlet?: {
       id: UUIDString;
@@ -3745,7 +3741,7 @@ import { useListTenantPurchases } from '@omniretail/sql-connect/react'
 export default function ListTenantPurchasesComponent() {
   // The `useListTenantPurchases` Query hook requires an argument of type `ListTenantPurchasesVariables`:
   const listTenantPurchasesVars: ListTenantPurchasesVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -3867,7 +3863,7 @@ import { useListTenantExpenses } from '@omniretail/sql-connect/react'
 export default function ListTenantExpensesComponent() {
   // The `useListTenantExpenses` Query hook requires an argument of type `ListTenantExpensesVariables`:
   const listTenantExpensesVars: ListTenantExpensesVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4002,7 +3998,7 @@ import { useListTenantSales } from '@omniretail/sql-connect/react'
 export default function ListTenantSalesComponent() {
   // The `useListTenantSales` Query hook requires an argument of type `ListTenantSalesVariables`:
   const listTenantSalesVars: ListTenantSalesVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4089,9 +4085,9 @@ import { useGetTenantInventoryStockTrusted } from '@omniretail/sql-connect/react
 export default function GetTenantInventoryStockTrustedComponent() {
   // The `useGetTenantInventoryStockTrusted` Query hook requires an argument of type `GetTenantInventoryStockTrustedVariables`:
   const getTenantInventoryStockTrustedVars: GetTenantInventoryStockTrustedVariables = {
-    organizationId: ...,
-    outletId: ...,
-    productId: ...,
+    organizationId: ..., 
+    outletId: ..., 
+    productId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4168,12 +4164,8 @@ export interface GetTenantSupplierTrustedData {
     contactPerson: string;
     phone: string;
     email: string;
-    taxId: string;
+    taxId?: string | null;
     address?: string | null;
-    city: string;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
     category: string;
     paymentTerms: string;
     creditLimit: number;
@@ -4195,8 +4187,8 @@ import { useGetTenantSupplierTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantSupplierTrustedComponent() {
   // The `useGetTenantSupplierTrusted` Query hook requires an argument of type `GetTenantSupplierTrustedVariables`:
   const getTenantSupplierTrustedVars: GetTenantSupplierTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4299,8 +4291,8 @@ import { useGetTenantCustomerTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantCustomerTrustedComponent() {
   // The `useGetTenantCustomerTrusted` Query hook requires an argument of type `GetTenantCustomerTrustedVariables`:
   const getTenantCustomerTrustedVars: GetTenantCustomerTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4392,7 +4384,7 @@ import { useListTenantCategoriesTrusted } from '@omniretail/sql-connect/react'
 export default function ListTenantCategoriesTrustedComponent() {
   // The `useListTenantCategoriesTrusted` Query hook requires an argument of type `ListTenantCategoriesTrustedVariables`:
   const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
-    organizationId: ...,
+    organizationId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4507,8 +4499,8 @@ import { useGetTenantProductTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantProductTrustedComponent() {
   // The `useGetTenantProductTrusted` Query hook requires an argument of type `GetTenantProductTrustedVariables`:
   const getTenantProductTrustedVars: GetTenantProductTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4608,8 +4600,8 @@ import { useGetTenantMembershipTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantMembershipTrustedComponent() {
   // The `useGetTenantMembershipTrusted` Query hook requires an argument of type `GetTenantMembershipTrustedVariables`:
   const getTenantMembershipTrustedVars: GetTenantMembershipTrustedVariables = {
-    organizationId: ...,
-    firebaseUid: ...,
+    organizationId: ..., 
+    firebaseUid: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4699,8 +4691,8 @@ import { useResolveTenantEmployeeIdentityTrusted } from '@omniretail/sql-connect
 export default function ResolveTenantEmployeeIdentityTrustedComponent() {
   // The `useResolveTenantEmployeeIdentityTrusted` Query hook requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
   const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
-    organizationId: ...,
-    employeeId: ...,
+    organizationId: ..., 
+    employeeId: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4795,8 +4787,8 @@ import { useGetTenantOutletTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantOutletTrustedComponent() {
   // The `useGetTenantOutletTrusted` Query hook requires an argument of type `GetTenantOutletTrustedVariables`:
   const getTenantOutletTrustedVars: GetTenantOutletTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -4916,8 +4908,8 @@ import { useGetTenantEmployeeTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantEmployeeTrustedComponent() {
   // The `useGetTenantEmployeeTrusted` Query hook requires an argument of type `GetTenantEmployeeTrustedVariables`:
   const getTenantEmployeeTrustedVars: GetTenantEmployeeTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -5022,8 +5014,8 @@ import { useGetTenantServicePersonTrusted } from '@omniretail/sql-connect/react'
 export default function GetTenantServicePersonTrustedComponent() {
   // The `useGetTenantServicePersonTrusted` Query hook requires an argument of type `GetTenantServicePersonTrustedVariables`:
   const getTenantServicePersonTrustedVars: GetTenantServicePersonTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
 
   // You don't have to do anything to "execute" the Query.
@@ -5154,8 +5146,8 @@ export default function UpdateAppUserProfileComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateAppUserProfile` Mutation requires an argument of type `UpdateAppUserProfileVariables`:
   const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
-    userId: ...,
-    displayName: ...,
+    userId: ..., 
+    displayName: ..., 
     phone: ..., // optional
   };
   mutation.mutate(updateAppUserProfileVars);
@@ -5257,13 +5249,13 @@ export default function BootstrapMasterAdminComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useBootstrapMasterAdmin` Mutation requires an argument of type `BootstrapMasterAdminVariables`:
   const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
-    userId: ...,
-    firebaseUid: ...,
-    username: ...,
-    email: ...,
-    displayName: ...,
+    userId: ..., 
+    firebaseUid: ..., 
+    username: ..., 
+    email: ..., 
+    displayName: ..., 
     phone: ..., // optional
-    roleId: ...,
+    roleId: ..., 
   };
   mutation.mutate(bootstrapMasterAdminVars);
   // Variables can be defined inline as well.
@@ -5363,12 +5355,12 @@ export default function CreateLicensePlanComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateLicensePlan` Mutation requires an argument of type `CreateLicensePlanVariables`:
   const createLicensePlanVars: CreateLicensePlanVariables = {
-    planCode: ...,
-    name: ...,
+    planCode: ..., 
+    name: ..., 
     description: ..., // optional
-    level: ...,
-    maxStores: ...,
-    maxUsers: ...,
+    level: ..., 
+    maxStores: ..., 
+    maxUsers: ..., 
   };
   mutation.mutate(createLicensePlanVars);
   // Variables can be defined inline as well.
@@ -5467,12 +5459,12 @@ export default function UpdateLicensePlanComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateLicensePlan` Mutation requires an argument of type `UpdateLicensePlanVariables`:
   const updateLicensePlanVars: UpdateLicensePlanVariables = {
-    id: ...,
-    name: ...,
+    id: ..., 
+    name: ..., 
     description: ..., // optional
-    level: ...,
-    maxStores: ...,
-    maxUsers: ...,
+    level: ..., 
+    maxStores: ..., 
+    maxUsers: ..., 
   };
   mutation.mutate(updateLicensePlanVars);
   // Variables can be defined inline as well.
@@ -5567,8 +5559,8 @@ export default function ChangeLicensePlanStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeLicensePlanStatus` Mutation requires an argument of type `ChangeLicensePlanStatusVariables`:
   const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
-    id: ...,
-    status: ...,
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeLicensePlanStatusVars);
   // Variables can be defined inline as well.
@@ -5662,7 +5654,7 @@ export default function DeleteLicensePlanComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteLicensePlan` Mutation requires an argument of type `DeleteLicensePlanVariables`:
   const deleteLicensePlanVars: DeleteLicensePlanVariables = {
-    id: ...,
+    id: ..., 
   };
   mutation.mutate(deleteLicensePlanVars);
   // Variables can be defined inline as well.
@@ -5756,7 +5748,7 @@ export default function DeleteLicensePlanTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteLicensePlanTrusted` Mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
   const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
-    id: ...,
+    id: ..., 
   };
   mutation.mutate(deleteLicensePlanTrustedVars);
   // Variables can be defined inline as well.
@@ -5859,14 +5851,14 @@ export default function ProvisionOrganizationAdministratorComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useProvisionOrganizationAdministrator` Mutation requires an argument of type `ProvisionOrganizationAdministratorVariables`:
   const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministratorVariables = {
-    userId: ...,
-    firebaseUid: ...,
-    username: ...,
-    email: ...,
-    displayName: ...,
-    phone: ...,
-    organizationId: ...,
-    roleId: ...,
+    userId: ..., 
+    firebaseUid: ..., 
+    username: ..., 
+    email: ..., 
+    displayName: ..., 
+    phone: ..., 
+    organizationId: ..., 
+    roleId: ..., 
   };
   mutation.mutate(provisionOrganizationAdministratorVars);
   // Variables can be defined inline as well.
@@ -5963,8 +5955,8 @@ export default function EnsureAppUserRoleTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useEnsureAppUserRoleTrusted` Mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
   const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
-    userId: ...,
-    roleId: ...,
+    userId: ..., 
+    roleId: ..., 
   };
   mutation.mutate(ensureAppUserRoleTrustedVars);
   // Variables can be defined inline as well.
@@ -6061,10 +6053,10 @@ export default function UpdateOrganizationAdministratorComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateOrganizationAdministrator` Mutation requires an argument of type `UpdateOrganizationAdministratorVariables`:
   const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariables = {
-    organizationId: ...,
-    userId: ...,
-    displayName: ...,
-    phone: ...,
+    organizationId: ..., 
+    userId: ..., 
+    displayName: ..., 
+    phone: ..., 
   };
   mutation.mutate(updateOrganizationAdministratorVars);
   // Variables can be defined inline as well.
@@ -6162,10 +6154,10 @@ export default function ChangeOrganizationAdministratorStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeOrganizationAdministratorStatus` Mutation requires an argument of type `ChangeOrganizationAdministratorStatusVariables`:
   const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministratorStatusVariables = {
-    organizationId: ...,
-    userId: ...,
-    status: ...,
-    membershipStatus: ...,
+    organizationId: ..., 
+    userId: ..., 
+    status: ..., 
+    membershipStatus: ..., 
   };
   mutation.mutate(changeOrganizationAdministratorStatusVars);
   // Variables can be defined inline as well.
@@ -6260,7 +6252,7 @@ export default function DeleteOrganizationTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteOrganizationTrusted` Mutation requires an argument of type `DeleteOrganizationTrustedVariables`:
   const deleteOrganizationTrustedVars: DeleteOrganizationTrustedVariables = {
-    id: ...,
+    id: ..., 
   };
   mutation.mutate(deleteOrganizationTrustedVars);
   // Variables can be defined inline as well.
@@ -6354,7 +6346,7 @@ export default function DeleteAppUserTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteAppUserTrusted` Mutation requires an argument of type `DeleteAppUserTrustedVariables`:
   const deleteAppUserTrustedVars: DeleteAppUserTrustedVariables = {
-    id: ...,
+    id: ..., 
   };
   mutation.mutate(deleteAppUserTrustedVars);
   // Variables can be defined inline as well.
@@ -6461,19 +6453,19 @@ export default function AssignOrganizationLicenseTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useAssignOrganizationLicenseTrusted` Mutation requires an argument of type `AssignOrganizationLicenseTrustedVariables`:
   const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    planId: ...,
-    startDate: ...,
-    expiryDate: ...,
-    negotiatedPrice: ...,
-    currency: ...,
-    historyId: ...,
-    planCode: ...,
-    planName: ...,
-    planLevel: ...,
-    maxStores: ...,
-    maxUsers: ...,
+    id: ..., 
+    organizationId: ..., 
+    planId: ..., 
+    startDate: ..., 
+    expiryDate: ..., 
+    negotiatedPrice: ..., 
+    currency: ..., 
+    historyId: ..., 
+    planCode: ..., 
+    planName: ..., 
+    planLevel: ..., 
+    maxStores: ..., 
+    maxUsers: ..., 
   };
   mutation.mutate(assignOrganizationLicenseTrustedVars);
   // Variables can be defined inline as well.
@@ -6582,19 +6574,19 @@ export default function ChangeOrganizationLicensePlanTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeOrganizationLicensePlanTrusted` Mutation requires an argument of type `ChangeOrganizationLicensePlanTrustedVariables`:
   const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    planId: ...,
-    startDate: ...,
-    expiryDate: ...,
-    negotiatedPrice: ...,
-    currency: ...,
-    historyId: ...,
-    planCode: ...,
-    planName: ...,
-    planLevel: ...,
-    maxStores: ...,
-    maxUsers: ...,
+    id: ..., 
+    organizationId: ..., 
+    planId: ..., 
+    startDate: ..., 
+    expiryDate: ..., 
+    negotiatedPrice: ..., 
+    currency: ..., 
+    historyId: ..., 
+    planCode: ..., 
+    planName: ..., 
+    planLevel: ..., 
+    maxStores: ..., 
+    maxUsers: ..., 
     changes: ..., // optional
   };
   mutation.mutate(changeOrganizationLicensePlanTrustedVars);
@@ -6704,19 +6696,19 @@ export default function ModifyOrganizationCommercialTermsTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useModifyOrganizationCommercialTermsTrusted` Mutation requires an argument of type `ModifyOrganizationCommercialTermsTrustedVariables`:
   const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercialTermsTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    planId: ...,
-    startDate: ...,
-    expiryDate: ...,
-    negotiatedPrice: ...,
-    currency: ...,
-    historyId: ...,
-    planCode: ...,
-    planName: ...,
-    planLevel: ...,
-    maxStores: ...,
-    maxUsers: ...,
+    id: ..., 
+    organizationId: ..., 
+    planId: ..., 
+    startDate: ..., 
+    expiryDate: ..., 
+    negotiatedPrice: ..., 
+    currency: ..., 
+    historyId: ..., 
+    planCode: ..., 
+    planName: ..., 
+    planLevel: ..., 
+    maxStores: ..., 
+    maxUsers: ..., 
     changes: ..., // optional
   };
   mutation.mutate(modifyOrganizationCommercialTermsTrustedVars);
@@ -6826,19 +6818,19 @@ export default function RenewOrganizationLicenseTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useRenewOrganizationLicenseTrusted` Mutation requires an argument of type `RenewOrganizationLicenseTrustedVariables`:
   const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    planId: ...,
-    startDate: ...,
-    expiryDate: ...,
-    negotiatedPrice: ...,
-    currency: ...,
-    historyId: ...,
-    planCode: ...,
-    planName: ...,
-    planLevel: ...,
-    maxStores: ...,
-    maxUsers: ...,
+    id: ..., 
+    organizationId: ..., 
+    planId: ..., 
+    startDate: ..., 
+    expiryDate: ..., 
+    negotiatedPrice: ..., 
+    currency: ..., 
+    historyId: ..., 
+    planCode: ..., 
+    planName: ..., 
+    planLevel: ..., 
+    maxStores: ..., 
+    maxUsers: ..., 
     changes: ..., // optional
   };
   mutation.mutate(renewOrganizationLicenseTrustedVars);
@@ -6947,20 +6939,20 @@ export default function CreateOrganizationComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateOrganization` Mutation requires an argument of type `CreateOrganizationVariables`:
   const createOrganizationVars: CreateOrganizationVariables = {
-    id: ...,
-    organizationCode: ...,
-    businessName: ...,
+    id: ..., 
+    organizationCode: ..., 
+    businessName: ..., 
     legalEntityName: ..., // optional
     taxId: ..., // optional
-    primaryContactName: ...,
-    email: ...,
-    phone: ...,
+    primaryContactName: ..., 
+    email: ..., 
+    phone: ..., 
     address: ..., // optional
     city: ..., // optional
     state: ..., // optional
     postalCode: ..., // optional
-    timezone: ...,
-    currency: ...,
+    timezone: ..., 
+    currency: ..., 
   };
   mutation.mutate(createOrganizationVars);
   // Variables can be defined inline as well.
@@ -7066,19 +7058,19 @@ export default function UpdateOrganizationComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateOrganization` Mutation requires an argument of type `UpdateOrganizationVariables`:
   const updateOrganizationVars: UpdateOrganizationVariables = {
-    id: ...,
-    businessName: ...,
+    id: ..., 
+    businessName: ..., 
     legalEntityName: ..., // optional
     taxId: ..., // optional
-    primaryContactName: ...,
-    email: ...,
-    phone: ...,
+    primaryContactName: ..., 
+    email: ..., 
+    phone: ..., 
     address: ..., // optional
     city: ..., // optional
     state: ..., // optional
     postalCode: ..., // optional
-    timezone: ...,
-    currency: ...,
+    timezone: ..., 
+    currency: ..., 
   };
   mutation.mutate(updateOrganizationVars);
   // Variables can be defined inline as well.
@@ -7173,8 +7165,8 @@ export default function ChangeOrganizationStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeOrganizationStatus` Mutation requires an argument of type `ChangeOrganizationStatusVariables`:
   const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
-    id: ...,
-    status: ...,
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeOrganizationStatusVars);
   // Variables can be defined inline as well.
@@ -7283,21 +7275,21 @@ export default function CreateTenantExpenseComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantExpense` Mutation requires an argument of type `CreateTenantExpenseVariables`:
   const createTenantExpenseVars: CreateTenantExpenseVariables = {
-    organizationId: ...,
-    expenseNumber: ...,
-    expenseDate: ...,
-    category: ...,
-    description: ...,
+    organizationId: ..., 
+    expenseNumber: ..., 
+    expenseDate: ..., 
+    category: ..., 
+    description: ..., 
     reference: ..., // optional
     vendorName: ..., // optional
     outletId: ..., // optional
-    scope: ...,
-    baseAmount: ...,
-    taxAmount: ...,
-    amount: ...,
-    paymentMethod: ...,
-    paidByEmployee: ...,
-    submittedBy: ...,
+    scope: ..., 
+    baseAmount: ..., 
+    taxAmount: ..., 
+    amount: ..., 
+    paymentMethod: ..., 
+    paidByEmployee: ..., 
+    submittedBy: ..., 
     notes: ..., // optional
   };
   mutation.mutate(createTenantExpenseVars);
@@ -7405,19 +7397,19 @@ export default function UpdateTenantExpenseComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantExpense` Mutation requires an argument of type `UpdateTenantExpenseVariables`:
   const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
-    organizationId: ...,
-    id: ...,
-    expenseDate: ...,
-    category: ...,
-    description: ...,
+    organizationId: ..., 
+    id: ..., 
+    expenseDate: ..., 
+    category: ..., 
+    description: ..., 
     reference: ..., // optional
     vendorName: ..., // optional
-    scope: ...,
-    baseAmount: ...,
-    taxAmount: ...,
-    amount: ...,
-    paymentMethod: ...,
-    paidByEmployee: ...,
+    scope: ..., 
+    baseAmount: ..., 
+    taxAmount: ..., 
+    amount: ..., 
+    paymentMethod: ..., 
+    paidByEmployee: ..., 
     notes: ..., // optional
   };
   mutation.mutate(updateTenantExpenseVars);
@@ -7515,9 +7507,9 @@ export default function ChangeTenantExpenseApprovalComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantExpenseApproval` Mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`:
   const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
-    organizationId: ...,
-    id: ...,
-    approvalStatus: ...,
+    organizationId: ..., 
+    id: ..., 
+    approvalStatus: ..., 
     reason: ..., // optional
   };
   mutation.mutate(changeTenantExpenseApprovalVars);
@@ -7614,9 +7606,9 @@ export default function VoidTenantExpenseComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useVoidTenantExpense` Mutation requires an argument of type `VoidTenantExpenseVariables`:
   const voidTenantExpenseVars: VoidTenantExpenseVariables = {
-    organizationId: ...,
-    id: ...,
-    reason: ...,
+    organizationId: ..., 
+    id: ..., 
+    reason: ..., 
   };
   mutation.mutate(voidTenantExpenseVars);
   // Variables can be defined inline as well.
@@ -7723,20 +7715,20 @@ export default function CreateTenantSaleComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantSale` Mutation requires an argument of type `CreateTenantSaleVariables`:
   const createTenantSaleVars: CreateTenantSaleVariables = {
-    organizationId: ...,
-    outletId: ...,
-    receiptNumber: ...,
-    saleTimestamp: ...,
+    organizationId: ..., 
+    outletId: ..., 
+    receiptNumber: ..., 
+    saleTimestamp: ..., 
     customerId: ..., // optional
-    customerName: ...,
-    staffName: ...,
+    customerName: ..., 
+    staffName: ..., 
     channel: ..., // optional
-    terminalId: ...,
-    tenderType: ...,
-    tax: ...,
-    discount: ...,
-    subtotal: ...,
-    totalNet: ...,
+    terminalId: ..., 
+    tenderType: ..., 
+    tax: ..., 
+    discount: ..., 
+    subtotal: ..., 
+    totalNet: ..., 
   };
   mutation.mutate(createTenantSaleVars);
   // Variables can be defined inline as well.
@@ -7838,14 +7830,14 @@ export default function AddTenantSaleLineComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useAddTenantSaleLine` Mutation requires an argument of type `AddTenantSaleLineVariables`:
   const addTenantSaleLineVars: AddTenantSaleLineVariables = {
-    organizationId: ...,
-    saleId: ...,
-    outletId: ...,
-    productId: ...,
-    quantity: ...,
-    newStockQty: ...,
-    unitPrice: ...,
-    subtotal: ...,
+    organizationId: ..., 
+    saleId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    quantity: ..., 
+    newStockQty: ..., 
+    unitPrice: ..., 
+    subtotal: ..., 
   };
   mutation.mutate(addTenantSaleLineVars);
   // Variables can be defined inline as well.
@@ -7942,9 +7934,9 @@ export default function VoidTenantSaleComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useVoidTenantSale` Mutation requires an argument of type `VoidTenantSaleVariables`:
   const voidTenantSaleVars: VoidTenantSaleVariables = {
-    organizationId: ...,
-    saleId: ...,
-    reason: ...,
+    organizationId: ..., 
+    saleId: ..., 
+    reason: ..., 
   };
   mutation.mutate(voidTenantSaleVars);
   // Variables can be defined inline as well.
@@ -8055,24 +8047,24 @@ export default function CreateTenantPurchaseComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantPurchase` Mutation requires an argument of type `CreateTenantPurchaseVariables`:
   const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
-    organizationId: ...,
-    purchaseNumber: ...,
-    purchaseDate: ...,
-    supplierId: ...,
+    organizationId: ..., 
+    purchaseNumber: ..., 
+    purchaseDate: ..., 
+    supplierId: ..., 
     outletId: ..., // optional
-    scope: ...,
+    scope: ..., 
     paymentTerms: ..., // optional
-    subtotal: ...,
-    shippingFee: ...,
-    handlingFee: ...,
-    tax: ...,
-    totalAmount: ...,
-    amountPaid: ...,
-    outstandingAmount: ...,
-    paymentStatus: ...,
-    receiptStatus: ...,
-    status: ...,
-    createdBy: ...,
+    subtotal: ..., 
+    shippingFee: ..., 
+    handlingFee: ..., 
+    tax: ..., 
+    totalAmount: ..., 
+    amountPaid: ..., 
+    outstandingAmount: ..., 
+    paymentStatus: ..., 
+    receiptStatus: ..., 
+    status: ..., 
+    createdBy: ..., 
   };
   mutation.mutate(createTenantPurchaseVars);
   // Variables can be defined inline as well.
@@ -8174,15 +8166,15 @@ export default function CreateTenantPurchaseLineComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantPurchaseLine` Mutation requires an argument of type `CreateTenantPurchaseLineVariables`:
   const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
-    organizationId: ...,
-    purchaseId: ...,
-    productId: ...,
-    quantityOrdered: ...,
-    unitCost: ...,
-    discountPercent: ...,
-    taxRate: ...,
-    taxAmount: ...,
-    lineTotal: ...,
+    organizationId: ..., 
+    purchaseId: ..., 
+    productId: ..., 
+    quantityOrdered: ..., 
+    unitCost: ..., 
+    discountPercent: ..., 
+    taxRate: ..., 
+    taxAmount: ..., 
+    lineTotal: ..., 
   };
   mutation.mutate(createTenantPurchaseLineVars);
   // Variables can be defined inline as well.
@@ -8279,9 +8271,9 @@ export default function ChangeTenantPurchaseStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantPurchaseStatus` Mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`:
   const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
     reason: ..., // optional
   };
   mutation.mutate(changeTenantPurchaseStatusVars);
@@ -8388,14 +8380,14 @@ export default function ReceiveTenantPurchaseLineComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useReceiveTenantPurchaseLine` Mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`:
   const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
-    organizationId: ...,
-    purchaseId: ...,
-    lineId: ...,
-    outletId: ...,
-    productId: ...,
-    quantityReceived: ...,
-    newStockQty: ...,
-    receiptStatus: ...,
+    organizationId: ..., 
+    purchaseId: ..., 
+    lineId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    quantityReceived: ..., 
+    newStockQty: ..., 
+    receiptStatus: ..., 
     batchNumber: ..., // optional
     mfgDate: ..., // optional
     expiryDate: ..., // optional
@@ -8450,12 +8442,8 @@ export interface CreateTenantSupplierVariables {
   contactPerson: string;
   phone: string;
   email: string;
-  taxId: string;
+  taxId?: string | null;
   address?: string | null;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  country?: string | null;
   category: string;
   paymentTerms: string;
   creditLimit: number;
@@ -8509,26 +8497,22 @@ export default function CreateTenantSupplierComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantSupplier` Mutation requires an argument of type `CreateTenantSupplierVariables`:
   const createTenantSupplierVars: CreateTenantSupplierVariables = {
-    id: ...,
-    organizationId: ...,
-    name: ...,
-    contactPerson: ...,
-    phone: ...,
-    email: ...,
-    taxId: ...,
+    id: ..., 
+    organizationId: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    phone: ..., 
+    email: ..., 
+    taxId: ..., // optional
     address: ..., // optional
-    city: ...,
-    state: ..., // optional
-    postalCode: ..., // optional
-    country: ..., // optional
-    category: ...,
-    paymentTerms: ...,
-    creditLimit: ...,
+    category: ..., 
+    paymentTerms: ..., 
+    creditLimit: ..., 
     notes: ..., // optional
   };
   mutation.mutate(createTenantSupplierVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8574,12 +8558,8 @@ export interface UpdateTenantSupplierVariables {
   contactPerson: string;
   phone: string;
   email: string;
-  taxId: string;
+  taxId?: string | null;
   address?: string | null;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  country?: string | null;
   category: string;
   paymentTerms: string;
   creditLimit: number;
@@ -8633,26 +8613,22 @@ export default function UpdateTenantSupplierComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantSupplier` Mutation requires an argument of type `UpdateTenantSupplierVariables`:
   const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
-    organizationId: ...,
-    id: ...,
-    name: ...,
-    contactPerson: ...,
-    phone: ...,
-    email: ...,
-    taxId: ...,
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    contactPerson: ..., 
+    phone: ..., 
+    email: ..., 
+    taxId: ..., // optional
     address: ..., // optional
-    city: ...,
-    state: ..., // optional
-    postalCode: ..., // optional
-    country: ..., // optional
-    category: ...,
-    paymentTerms: ...,
-    creditLimit: ...,
+    category: ..., 
+    paymentTerms: ..., 
+    creditLimit: ..., 
     notes: ..., // optional
   };
   mutation.mutate(updateTenantSupplierVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., contactPerson: ..., phone: ..., email: ..., taxId: ..., address: ..., category: ..., paymentTerms: ..., creditLimit: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8744,9 +8720,9 @@ export default function ChangeTenantSupplierStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantSupplierStatus` Mutation requires an argument of type `ChangeTenantSupplierStatusVariables`:
   const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantSupplierStatusVars);
   // Variables can be defined inline as well.
@@ -8854,11 +8830,11 @@ export default function CreateTenantCustomerComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantCustomer` Mutation requires an argument of type `CreateTenantCustomerVariables`:
   const createTenantCustomerVars: CreateTenantCustomerVariables = {
-    id: ...,
-    organizationId: ...,
-    type: ...,
-    name: ...,
-    phone: ...,
+    id: ..., 
+    organizationId: ..., 
+    type: ..., 
+    name: ..., 
+    phone: ..., 
     email: ..., // optional
     taxId: ..., // optional
     documentType: ..., // optional
@@ -8976,11 +8952,11 @@ export default function UpdateTenantCustomerComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantCustomer` Mutation requires an argument of type `UpdateTenantCustomerVariables`:
   const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
-    organizationId: ...,
-    id: ...,
-    type: ...,
-    name: ...,
-    phone: ...,
+    organizationId: ..., 
+    id: ..., 
+    type: ..., 
+    name: ..., 
+    phone: ..., 
     email: ..., // optional
     taxId: ..., // optional
     documentType: ..., // optional
@@ -9086,9 +9062,9 @@ export default function ChangeTenantCustomerStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantCustomerStatus` Mutation requires an argument of type `ChangeTenantCustomerStatusVariables`:
   const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantCustomerStatusVars);
   // Variables can be defined inline as well.
@@ -9184,9 +9160,9 @@ export default function CreateTenantCategoryTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantCategoryTrusted` Mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
   const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    value: ...,
+    id: ..., 
+    organizationId: ..., 
+    value: ..., 
   };
   mutation.mutate(createTenantCategoryTrustedVars);
   // Variables can be defined inline as well.
@@ -9283,10 +9259,10 @@ export default function CreateTenantSubcategoryTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantSubcategoryTrusted` Mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
   const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    categoryId: ...,
-    value: ...,
+    id: ..., 
+    organizationId: ..., 
+    categoryId: ..., 
+    value: ..., 
   };
   mutation.mutate(createTenantSubcategoryTrustedVars);
   // Variables can be defined inline as well.
@@ -9400,22 +9376,22 @@ export default function CreateTenantProductComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantProduct` Mutation requires an argument of type `CreateTenantProductVariables`:
   const createTenantProductVars: CreateTenantProductVariables = {
-    id: ...,
-    organizationId: ...,
-    name: ...,
-    brand: ...,
-    categoryId: ...,
+    id: ..., 
+    organizationId: ..., 
+    name: ..., 
+    brand: ..., 
+    categoryId: ..., 
     subcategoryId: ..., // optional
-    type: ...,
-    sku: ...,
+    type: ..., 
+    sku: ..., 
     barcode: ..., // optional
     hsnCode: ..., // optional
     unitOfMeasure: ..., // optional
-    sellingPrice: ...,
+    sellingPrice: ..., 
     mrp: ..., // optional
     cost: ..., // optional
     minSellingPrice: ..., // optional
-    discountAllowed: ...,
+    discountAllowed: ..., 
     taxCategory: ..., // optional
     reorderLevel: ..., // optional
     reorderQuantity: ..., // optional
@@ -9534,22 +9510,22 @@ export default function UpdateTenantProductComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantProduct` Mutation requires an argument of type `UpdateTenantProductVariables`:
   const updateTenantProductVars: UpdateTenantProductVariables = {
-    organizationId: ...,
-    id: ...,
-    name: ...,
-    brand: ...,
-    categoryId: ...,
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    brand: ..., 
+    categoryId: ..., 
     subcategoryId: ..., // optional
-    type: ...,
-    sku: ...,
+    type: ..., 
+    sku: ..., 
     barcode: ..., // optional
     hsnCode: ..., // optional
     unitOfMeasure: ..., // optional
-    sellingPrice: ...,
+    sellingPrice: ..., 
     mrp: ..., // optional
     cost: ..., // optional
     minSellingPrice: ..., // optional
-    discountAllowed: ...,
+    discountAllowed: ..., 
     taxCategory: ..., // optional
     reorderLevel: ..., // optional
     reorderQuantity: ..., // optional
@@ -9650,9 +9626,9 @@ export default function ChangeTenantProductStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantProductStatus` Mutation requires an argument of type `ChangeTenantProductStatusVariables`:
   const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantProductStatusVars);
   // Variables can be defined inline as well.
@@ -9757,17 +9733,17 @@ export default function AdjustTenantInventoryComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useAdjustTenantInventory` Mutation requires an argument of type `AdjustTenantInventoryVariables`:
   const adjustTenantInventoryVars: AdjustTenantInventoryVariables = {
-    organizationId: ...,
-    outletId: ...,
-    productId: ...,
-    mode: ...,
-    quantity: ...,
-    previousQty: ...,
-    newQty: ...,
-    reasonCode: ...,
+    organizationId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    mode: ..., 
+    quantity: ..., 
+    previousQty: ..., 
+    newQty: ..., 
+    reasonCode: ..., 
     auditNote: ..., // optional
-    requestId: ...,
-    actorFirebaseUid: ...,
+    requestId: ..., 
+    actorFirebaseUid: ..., 
   };
   mutation.mutate(adjustTenantInventoryVars);
   // Variables can be defined inline as well.
@@ -9870,14 +9846,14 @@ export default function CreateTenantInventoryStockComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantInventoryStock` Mutation requires an argument of type `CreateTenantInventoryStockVariables`:
   const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
-    organizationId: ...,
-    outletId: ...,
-    productId: ...,
-    onHandQty: ...,
-    reorderLevel: ...,
-    overstockThreshold: ...,
-    requestId: ...,
-    actorFirebaseUid: ...,
+    organizationId: ..., 
+    outletId: ..., 
+    productId: ..., 
+    onHandQty: ..., 
+    reorderLevel: ..., 
+    overstockThreshold: ..., 
+    requestId: ..., 
+    actorFirebaseUid: ..., 
   };
   mutation.mutate(createTenantInventoryStockVars);
   // Variables can be defined inline as well.
@@ -9977,12 +9953,12 @@ export default function CreateTenantOutletComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantOutlet` Mutation requires an argument of type `CreateTenantOutletVariables`:
   const createTenantOutletVars: CreateTenantOutletVariables = {
-    organizationId: ...,
-    name: ...,
-    contactPerson: ...,
+    organizationId: ..., 
+    name: ..., 
+    contactPerson: ..., 
     email: ..., // optional
-    phone: ...,
-    address: ...,
+    phone: ..., 
+    address: ..., 
   };
   mutation.mutate(createTenantOutletVars);
   // Variables can be defined inline as well.
@@ -10082,13 +10058,13 @@ export default function UpdateTenantOutletComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantOutlet` Mutation requires an argument of type `UpdateTenantOutletVariables`:
   const updateTenantOutletVars: UpdateTenantOutletVariables = {
-    organizationId: ...,
-    id: ...,
-    name: ...,
-    contactPerson: ...,
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    contactPerson: ..., 
     email: ..., // optional
-    phone: ...,
-    address: ...,
+    phone: ..., 
+    address: ..., 
   };
   mutation.mutate(updateTenantOutletVars);
   // Variables can be defined inline as well.
@@ -10184,9 +10160,9 @@ export default function ChangeTenantOutletStatusComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantOutletStatus` Mutation requires an argument of type `ChangeTenantOutletStatusVariables`:
   const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantOutletStatusVars);
   // Variables can be defined inline as well.
@@ -10286,13 +10262,13 @@ export default function CreateTenantOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantOutletTrusted` Mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
   const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    name: ...,
-    contactPerson: ...,
+    id: ..., 
+    organizationId: ..., 
+    name: ..., 
+    contactPerson: ..., 
     email: ..., // optional
-    phone: ...,
-    address: ...,
+    phone: ..., 
+    address: ..., 
   };
   mutation.mutate(createTenantOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -10392,13 +10368,13 @@ export default function UpdateTenantOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantOutletTrusted` Mutation requires an argument of type `UpdateTenantOutletTrustedVariables`:
   const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    name: ...,
-    contactPerson: ...,
+    organizationId: ..., 
+    id: ..., 
+    name: ..., 
+    contactPerson: ..., 
     email: ..., // optional
-    phone: ...,
-    address: ...,
+    phone: ..., 
+    address: ..., 
   };
   mutation.mutate(updateTenantOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -10494,9 +10470,9 @@ export default function ChangeTenantOutletStatusTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantOutletStatusTrusted` Mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`:
   const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantOutletStatusTrustedVars);
   // Variables can be defined inline as well.
@@ -10591,8 +10567,8 @@ export default function DeleteTenantOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantOutletTrusted` Mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
   const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -10687,8 +10663,8 @@ export default function DeleteTenantEmployeeTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantEmployeeTrusted` Mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
   const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
@@ -10783,8 +10759,8 @@ export default function DeleteTenantServicePersonTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantServicePersonTrusted` Mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
   const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantServicePersonTrustedVars);
   // Variables can be defined inline as well.
@@ -10880,9 +10856,9 @@ export default function DeleteTenantServicePersonOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantServicePersonOutletTrusted` Mutation requires an argument of type `DeleteTenantServicePersonOutletTrustedVariables`:
   const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutletTrustedVariables = {
-    organizationId: ...,
-    servicePersonId: ...,
-    outletId: ...,
+    organizationId: ..., 
+    servicePersonId: ..., 
+    outletId: ..., 
   };
   mutation.mutate(deleteTenantServicePersonOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -10977,8 +10953,8 @@ export default function DeleteTenantCustomerTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantCustomerTrusted` Mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
   const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantCustomerTrustedVars);
   // Variables can be defined inline as well.
@@ -11073,8 +11049,8 @@ export default function DeleteTenantSupplierTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantSupplierTrusted` Mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
   const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantSupplierTrustedVars);
   // Variables can be defined inline as well.
@@ -11169,8 +11145,8 @@ export default function DeleteTenantProductTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantProductTrusted` Mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
   const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantProductTrustedVars);
   // Variables can be defined inline as well.
@@ -11265,8 +11241,8 @@ export default function DeleteTenantCategoryTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantCategoryTrusted` Mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
   const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantCategoryTrustedVars);
   // Variables can be defined inline as well.
@@ -11361,8 +11337,8 @@ export default function DeleteTenantSubcategoryTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantSubcategoryTrusted` Mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
   const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
-    organizationId: ...,
-    id: ...,
+    organizationId: ..., 
+    id: ..., 
   };
   mutation.mutate(deleteTenantSubcategoryTrustedVars);
   // Variables can be defined inline as well.
@@ -11468,19 +11444,19 @@ export default function CreateTenantEmployeeProfileTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantEmployeeProfileTrusted` Mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
   const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    fullName: ...,
+    id: ..., 
+    organizationId: ..., 
+    fullName: ..., 
     email: ..., // optional
-    phone: ...,
-    designation: ...,
+    phone: ..., 
+    designation: ..., 
     department: ..., // optional
     gender: ..., // optional
     dateOfBirth: ..., // optional
-    dateOfJoining: ...,
+    dateOfJoining: ..., 
     address: ..., // optional
     notes: ..., // optional
-    assignmentScope: ...,
+    assignmentScope: ..., 
   };
   mutation.mutate(createTenantEmployeeProfileTrustedVars);
   // Variables can be defined inline as well.
@@ -11593,23 +11569,23 @@ export default function ProvisionTenantEmployeeTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useProvisionTenantEmployeeTrusted` Mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
   const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
-    id: ...,
-    userId: ...,
-    firebaseUid: ...,
-    username: ...,
-    email: ...,
-    organizationId: ...,
-    fullName: ...,
-    phone: ...,
-    designation: ...,
+    id: ..., 
+    userId: ..., 
+    firebaseUid: ..., 
+    username: ..., 
+    email: ..., 
+    organizationId: ..., 
+    fullName: ..., 
+    phone: ..., 
+    designation: ..., 
     department: ..., // optional
     gender: ..., // optional
     dateOfBirth: ..., // optional
-    dateOfJoining: ...,
+    dateOfJoining: ..., 
     address: ..., // optional
     notes: ..., // optional
-    assignmentScope: ...,
-    roleId: ...,
+    assignmentScope: ..., 
+    roleId: ..., 
   };
   mutation.mutate(provisionTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
@@ -11717,15 +11693,15 @@ export default function ProvisionTenantEmployeeLoginTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useProvisionTenantEmployeeLoginTrusted` Mutation requires an argument of type `ProvisionTenantEmployeeLoginTrustedVariables`:
   const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrustedVariables = {
-    organizationId: ...,
-    employeeId: ...,
-    userId: ...,
-    firebaseUid: ...,
-    username: ...,
-    email: ...,
-    displayName: ...,
+    organizationId: ..., 
+    employeeId: ..., 
+    userId: ..., 
+    firebaseUid: ..., 
+    username: ..., 
+    email: ..., 
+    displayName: ..., 
     phone: ..., // optional
-    roleId: ...,
+    roleId: ..., 
   };
   mutation.mutate(provisionTenantEmployeeLoginTrustedVars);
   // Variables can be defined inline as well.
@@ -11833,13 +11809,13 @@ export default function UpdateTenantEmployeeLoginTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantEmployeeLoginTrusted` Mutation requires an argument of type `UpdateTenantEmployeeLoginTrustedVariables`:
   const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVariables = {
-    organizationId: ...,
-    employeeId: ...,
-    userId: ...,
-    username: ...,
-    email: ...,
-    roleId: ...,
-    loginAccess: ...,
+    organizationId: ..., 
+    employeeId: ..., 
+    userId: ..., 
+    username: ..., 
+    email: ..., 
+    roleId: ..., 
+    loginAccess: ..., 
   };
   mutation.mutate(updateTenantEmployeeLoginTrustedVars);
   // Variables can be defined inline as well.
@@ -11950,19 +11926,19 @@ export default function UpdateTenantEmployeeTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantEmployeeTrusted` Mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`:
   const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    fullName: ...,
+    organizationId: ..., 
+    id: ..., 
+    fullName: ..., 
     email: ..., // optional
-    phone: ...,
-    designation: ...,
+    phone: ..., 
+    designation: ..., 
     department: ..., // optional
     gender: ..., // optional
     dateOfBirth: ..., // optional
-    dateOfJoining: ...,
+    dateOfJoining: ..., 
     address: ..., // optional
     notes: ..., // optional
-    assignmentScope: ...,
+    assignmentScope: ..., 
   };
   mutation.mutate(updateTenantEmployeeTrustedVars);
   // Variables can be defined inline as well.
@@ -12058,9 +12034,9 @@ export default function ChangeTenantEmployeeStatusTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantEmployeeStatusTrusted` Mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`:
   const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantEmployeeStatusTrustedVars);
   // Variables can be defined inline as well.
@@ -12159,11 +12135,11 @@ export default function ChangeTenantEmployeeStatusWithLoginTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantEmployeeStatusWithLoginTrusted` Mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`:
   const changeTenantEmployeeStatusWithLoginTrustedVars: ChangeTenantEmployeeStatusWithLoginTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    userId: ...,
-    status: ...,
-    appUserStatus: ...,
+    organizationId: ..., 
+    id: ..., 
+    userId: ..., 
+    status: ..., 
+    appUserStatus: ..., 
   };
   mutation.mutate(changeTenantEmployeeStatusWithLoginTrustedVars);
   // Variables can be defined inline as well.
@@ -12262,10 +12238,10 @@ export default function ChangeTenantEmployeeLoginAccessTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantEmployeeLoginAccessTrusted` Mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`:
   const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAccessTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    userId: ...,
-    loginAccess: ...,
+    organizationId: ..., 
+    id: ..., 
+    userId: ..., 
+    loginAccess: ..., 
   };
   mutation.mutate(changeTenantEmployeeLoginAccessTrustedVars);
   // Variables can be defined inline as well.
@@ -12369,15 +12345,15 @@ export default function CreateTenantServicePersonTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useCreateTenantServicePersonTrusted` Mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
   const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
-    id: ...,
-    organizationId: ...,
-    fullName: ...,
+    id: ..., 
+    organizationId: ..., 
+    fullName: ..., 
     email: ..., // optional
-    phone: ...,
+    phone: ..., 
     address: ..., // optional
     specialization: ..., // optional
     yearsOfExperience: ..., // optional
-    assignmentScope: ...,
+    assignmentScope: ..., 
     notes: ..., // optional
   };
   mutation.mutate(createTenantServicePersonTrustedVars);
@@ -12481,15 +12457,15 @@ export default function UpdateTenantServicePersonTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useUpdateTenantServicePersonTrusted` Mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`:
   const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    fullName: ...,
+    organizationId: ..., 
+    id: ..., 
+    fullName: ..., 
     email: ..., // optional
-    phone: ...,
+    phone: ..., 
     address: ..., // optional
     specialization: ..., // optional
     yearsOfExperience: ..., // optional
-    assignmentScope: ...,
+    assignmentScope: ..., 
     notes: ..., // optional
   };
   mutation.mutate(updateTenantServicePersonTrustedVars);
@@ -12586,9 +12562,9 @@ export default function ChangeTenantServicePersonStatusTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useChangeTenantServicePersonStatusTrusted` Mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`:
   const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatusTrustedVariables = {
-    organizationId: ...,
-    id: ...,
-    status: ...,
+    organizationId: ..., 
+    id: ..., 
+    status: ..., 
   };
   mutation.mutate(changeTenantServicePersonStatusTrustedVars);
   // Variables can be defined inline as well.
@@ -12684,9 +12660,9 @@ export default function AssignTenantEmployeeOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useAssignTenantEmployeeOutletTrusted` Mutation requires an argument of type `AssignTenantEmployeeOutletTrustedVariables`:
   const assignTenantEmployeeOutletTrustedVars: AssignTenantEmployeeOutletTrustedVariables = {
-    organizationId: ...,
-    employeeId: ...,
-    outletId: ...,
+    organizationId: ..., 
+    employeeId: ..., 
+    outletId: ..., 
   };
   mutation.mutate(assignTenantEmployeeOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -12782,9 +12758,9 @@ export default function DeleteTenantEmployeeOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useDeleteTenantEmployeeOutletTrusted` Mutation requires an argument of type `DeleteTenantEmployeeOutletTrustedVariables`:
   const deleteTenantEmployeeOutletTrustedVars: DeleteTenantEmployeeOutletTrustedVariables = {
-    organizationId: ...,
-    employeeId: ...,
-    outletId: ...,
+    organizationId: ..., 
+    employeeId: ..., 
+    outletId: ..., 
   };
   mutation.mutate(deleteTenantEmployeeOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -12880,9 +12856,9 @@ export default function AssignTenantServicePersonOutletTrustedComponent() {
   // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
   // The `useAssignTenantServicePersonOutletTrusted` Mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`:
   const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutletTrustedVariables = {
-    organizationId: ...,
-    servicePersonId: ...,
-    outletId: ...,
+    organizationId: ..., 
+    servicePersonId: ..., 
+    outletId: ..., 
   };
   mutation.mutate(assignTenantServicePersonOutletTrustedVars);
   // Variables can be defined inline as well.
@@ -12910,3 +12886,4 @@ export default function AssignTenantServicePersonOutletTrustedComponent() {
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }
 ```
+

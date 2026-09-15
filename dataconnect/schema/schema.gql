@@ -276,12 +276,8 @@ type Supplier @table {
   contactPerson: String!
   phone: String!
   email: String!
-  taxId: String!
+  taxId: String
   address: String
-  city: String!
-  state: String
-  postalCode: String
-  country: String
   category: String!
   paymentTerms: String!
   creditLimit: Float!

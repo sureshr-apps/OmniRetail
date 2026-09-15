@@ -11,7 +11,7 @@ const supplier = (overrides: Partial<Supplier> = {}): Supplier => ({
   phone: '+15553829100',
   email: 'marcus@apexge.com',
   taxId: 'US-8829104',
-  city: 'New York',
+  address: '1 Apex Way, New York, NY 10001',
   category: 'Consumer Electronics',
   paymentTerms: 'Net 30 Days',
   creditLimit: 50000,

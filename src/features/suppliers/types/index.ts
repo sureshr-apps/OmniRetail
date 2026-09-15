@@ -8,16 +8,7 @@ export type PaymentTerms =
   | 'Cash on Delivery (COD)'
   | 'Immediate Wire';
 
-export type SupplierCategory =
-  | 'Consumer Electronics'
-  | 'Apparel & Textiles'
-  | 'Beverages & Groceries'
-  | 'Tools & Hardware'
-  | 'Office Supplies'
-  | 'Packaging & Shipping'
-  | 'Leather & Accessories'
-  | 'Point of Sale & Tech'
-  | 'General Merchandise';
+export type SupplierCategory = string;
 
 export interface SupplierPurchaseOrderSummary {
   id: string;
@@ -38,12 +29,8 @@ export interface Supplier {
   contactPerson: string; // e.g. Marcus Vance
   phone: string; // e.g. +1 (555) 382-9100
   email: string; // e.g. marcus@apexge.com
-  taxId: string; // e.g. US-8829104
+  taxId?: string; // e.g. 29ABCDE1234F1Z5
   address?: string;
-  city: string; // e.g. New York, NY
-  state?: string;
-  postalCode?: string;
-  country?: string;
   category: SupplierCategory;
   paymentTerms: PaymentTerms;
   creditLimit: number;
@@ -70,7 +57,6 @@ export interface SuppliersKpiSummary {
 export interface SupplierQuery {
   search?: string;
   status?: 'ALL' | 'Active' | 'Inactive';
-  city?: string;
   category?: string;
   page?: number;
   pageSize?: number;
@@ -91,15 +77,11 @@ export interface CreateSupplierInput {
   contactPerson: string;
   phone: string;
   email: string;
-  taxId: string;
+  taxId?: string;
   category: SupplierCategory;
   paymentTerms: PaymentTerms;
   creditLimit: number;
   address?: string;
-  city: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
   notes?: string;
 }
 
@@ -113,10 +95,6 @@ export interface UpdateSupplierInput {
   paymentTerms?: PaymentTerms;
   creditLimit?: number;
   address?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
   notes?: string;
   status?: SupplierStatus;
 }

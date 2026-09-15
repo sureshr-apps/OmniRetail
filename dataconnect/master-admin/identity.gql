@@ -529,7 +529,7 @@ query ListTenantCustomerPurchaseHistory($organizationId: UUID!, $customerId: UUI
 query ListTenantSuppliers($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'suppliers.read'))", message: "Supplier access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   suppliers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
-    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes
+    id organization { id } supplierCode name contactPerson phone email taxId address category paymentTerms creditLimit status notes
   }
 }
 
@@ -617,13 +617,13 @@ mutation ReceiveTenantPurchaseLine($organizationId: UUID!, $purchaseId: UUID!, $
   inventoryStock_update(key: { organizationId: $organizationId outletId: $outletId productId: $productId }, data: { onHandQty: $newStockQty updatedAt_expr: "request.time" })
 }
 
-mutation CreateTenantSupplier($id: UUID!, $organizationId: UUID!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String!, $address: String, $city: String!, $state: String, $postalCode: String, $country: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String) @auth(level: NO_ACCESS) @transaction {
-  supplier_insert(data: { id: $id organization: { id: $organizationId } name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes status: ACTIVE })
+mutation CreateTenantSupplier($id: UUID!, $organizationId: UUID!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String, $address: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String) @auth(level: NO_ACCESS) @transaction {
+  supplier_insert(data: { id: $id organization: { id: $organizationId } name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes status: ACTIVE })
 }
 
-mutation UpdateTenantSupplier($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String!, $address: String, $city: String!, $state: String, $postalCode: String, $country: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String) @auth(level: NO_ACCESS) @transaction {
+mutation UpdateTenantSupplier($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String, $address: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String) @auth(level: NO_ACCESS) @transaction {
   query @redact { suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id } }
-  supplier_update(id: $id, data: { name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes })
+  supplier_update(id: $id, data: { name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes })
 }
 
 mutation ChangeTenantSupplierStatus($organizationId: UUID!, $id: UUID!, $status: SupplierStatus!) @auth(level: NO_ACCESS) @transaction {
@@ -633,7 +633,7 @@ mutation ChangeTenantSupplierStatus($organizationId: UUID!, $id: UUID!, $status:
 
 query GetTenantSupplierTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes
+    id organization { id } supplierCode name contactPerson phone email taxId address category paymentTerms creditLimit status notes
   }
 }
 

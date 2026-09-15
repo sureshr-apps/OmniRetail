@@ -13,7 +13,11 @@ try {
     DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`);
   await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('supplier')}
     DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
-    DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`);
+    DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')},
+    DROP COLUMN IF EXISTS ${quoteIdentifier('city')},
+    DROP COLUMN IF EXISTS ${quoteIdentifier('state')},
+    DROP COLUMN IF EXISTS ${quoteIdentifier('postal_code')},
+    DROP COLUMN IF EXISTS ${quoteIdentifier('country')}`);
   await client.query('COMMIT');
   console.log('Removed retired tenant legacy columns.');
 } catch (error) {

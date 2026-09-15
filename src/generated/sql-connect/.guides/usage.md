@@ -75,7 +75,7 @@ Here's an example of how to use it with the first 5 operations:
 import { getCurrentUserAuthorization, getUserAuthorizationByFirebaseUid, resolveUsernameLogin, updateAppUserProfile, getAppUserForBootstrap, bootstrapMasterAdmin, getCurrentAppUser, getAppUserByFirebaseUid, listLicensePlans, listOrganizationLicensePlanAssignments } from '@omniretail/sql-connect';
 
 
-// Operation GetCurrentUserAuthorization:
+// Operation GetCurrentUserAuthorization: 
 const { data } = await GetCurrentUserAuthorization(dataConnect);
 
 // Operation GetUserAuthorizationByFirebaseUid:  For variables, look at type GetUserAuthorizationByFirebaseUidVars in ../index.d.ts
@@ -93,16 +93,16 @@ const { data } = await GetAppUserForBootstrap(dataConnect, getAppUserForBootstra
 // Operation BootstrapMasterAdmin:  For variables, look at type BootstrapMasterAdminVars in ../index.d.ts
 const { data } = await BootstrapMasterAdmin(dataConnect, bootstrapMasterAdminVars);
 
-// Operation GetCurrentAppUser:
+// Operation GetCurrentAppUser: 
 const { data } = await GetCurrentAppUser(dataConnect);
 
 // Operation GetAppUserByFirebaseUid:  For variables, look at type GetAppUserByFirebaseUidVars in ../index.d.ts
 const { data } = await GetAppUserByFirebaseUid(dataConnect, getAppUserByFirebaseUidVars);
 
-// Operation ListLicensePlans:
+// Operation ListLicensePlans: 
 const { data } = await ListLicensePlans(dataConnect);
 
-// Operation ListOrganizationLicensePlanAssignments:
+// Operation ListOrganizationLicensePlanAssignments: 
 const { data } = await ListOrganizationLicensePlanAssignments(dataConnect);
 
 

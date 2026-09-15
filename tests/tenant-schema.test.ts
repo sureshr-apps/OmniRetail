@@ -147,6 +147,10 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum SupplierStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
     expect(schema).toMatch(/type Supplier @table[\s\S]*organization: Organization![\s\S]*supplierCode: Int! @col\(dataType: "serial"\) @unique/);
     const supplier = schema.match(/type Supplier @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(supplier).toContain('taxId: String');
+    expect(supplier).toContain('address: String');
+    expect(supplier).toContain('category: String!');
+    for (const removedColumn of ['city:', 'state:', 'postalCode:', 'country:']) expect(supplier).not.toContain(removedColumn);
     expect(supplier).not.toContain('createdAt:');
     expect(supplier).not.toContain('updatedAt:');
   });
@@ -156,6 +160,9 @@ describe('tenant Data Connect foundation schema', () => {
     const supplierOperations = connector.match(/(?:query|mutation) (?:ListTenantSuppliers|CreateTenantSupplier|UpdateTenantSupplier|ChangeTenantSupplierStatus|GetTenantSupplierTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
     expect(supplierOperations.length).toBe(5);
     for (const operation of supplierOperations) expect(operation).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
+    for (const operation of supplierOperations) expect(operation).not.toMatch(/\bcity\b|\bstate\b|\bpostalCode\b|\bcountry\b/);
+    const supplierMutations = supplierOperations.filter((operation) => /CreateTenantSupplier|UpdateTenantSupplier/.test(operation)).join('\n');
+    expect(supplierMutations).toContain('$taxId: String');
   });
 
   it('defines purchase headers and product lines for tenant purchasing', () => {

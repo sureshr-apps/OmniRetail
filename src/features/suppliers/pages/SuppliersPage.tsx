@@ -28,14 +28,12 @@ export function SuppliersPage() {
   // Data: the full org-scoped set. Mutations upsert into this directly;
   // the visible page, filters, and KPI summary are all derived from it below.
   const [allSuppliers, setAllSuppliers] = useState<Supplier[]>([]);
-  const [cities, setCities] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Filters & pagination
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | SupplierStatus>('ALL');
-  const [cityFilter, setCityFilter] = useState('All Cities');
   const [categoryFilter, setCategoryFilter] = useState('All Categories');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -50,12 +48,11 @@ export function SuppliersPage() {
     () => deriveSupplierView(allSuppliers, {
       search: searchQuery,
       status: statusFilter,
-      city: cityFilter,
       category: categoryFilter,
       page: currentPage,
       pageSize,
     }),
-    [allSuppliers, searchQuery, statusFilter, cityFilter, categoryFilter, currentPage, pageSize],
+    [allSuppliers, searchQuery, statusFilter, categoryFilter, currentPage, pageSize],
   );
   const viewingSupplier = useMemo(
     () => allSuppliers.find((s) => s.id === selectedSupplierId) ?? null,
@@ -76,16 +73,11 @@ export function SuppliersPage() {
     },
   });
 
-  // Load auxiliary lists (cities, categories)
+  // Load the reusable supplier category list from the organization catalogue.
   useEffect(() => {
     async function loadAux() {
       try {
-        const [citiesList, catsList] = await Promise.all([
-          supplierService.getCities(),
-          supplierService.getCategories(),
-        ]);
-        setCities(citiesList);
-        setCategories(catsList);
+        setCategories(await supplierService.getCategories());
       } catch (e) {
         console.error('Failed to load auxiliary supplier options:', e);
       }
@@ -151,7 +143,6 @@ export function SuppliersPage() {
   const handleResetFilters = () => {
     setSearchQuery('');
     setStatusFilter('ALL');
-    setCityFilter('All Cities');
     setCategoryFilter('All Categories');
     setCurrentPage(1);
   };
@@ -163,7 +154,6 @@ export function SuppliersPage() {
       const allMatching = deriveSupplierView(allSuppliers, {
         search: searchQuery,
         status: statusFilter,
-        city: cityFilter,
         category: categoryFilter,
         page: 1,
         pageSize: Math.max(allSuppliers.length, 1),
@@ -195,6 +185,7 @@ export function SuppliersPage() {
       description: `${created.name} (${formatSupplierCode(created.supplierCode)}) is now registered.`,
     });
     setAllSuppliers((prev) => upsertById(prev, created));
+    setCategories((prev) => Array.from(new Set([...prev, created.category])));
     // Open created supplier in detail drawer
     setSelectedSupplierId(created.id);
   };
@@ -208,6 +199,7 @@ export function SuppliersPage() {
       description: `Changes to ${updated.name} have been saved.`,
     });
     setAllSuppliers((prev) => upsertById(prev, updated));
+    setCategories((prev) => Array.from(new Set([...prev, updated.category])));
   };
 
   const handlePromptDelete = (supplier: Supplier) => {
@@ -248,7 +240,6 @@ export function SuppliersPage() {
   const isFiltered =
     searchQuery.trim().length > 0 ||
     statusFilter !== 'ALL' ||
-    cityFilter !== 'All Cities' ||
     categoryFilter !== 'All Categories';
 
   return (
@@ -275,12 +266,6 @@ export function SuppliersPage() {
           setStatusFilter(s);
           setCurrentPage(1);
         }}
-        cityFilter={cityFilter}
-        onCityFilterChange={(c) => {
-          setCityFilter(c);
-          setCurrentPage(1);
-        }}
-        cities={cities}
         categoryFilter={categoryFilter}
         onCategoryFilterChange={(cat) => {
           setCategoryFilter(cat);
@@ -330,6 +315,7 @@ export function SuppliersPage() {
         onToggleStatus={handleToggleStatus}
         onDelete={handlePromptDelete}
         onNewPurchaseOrder={handleNewPurchaseOrder}
+        categories={categories}
       />
 
       <MasterDeleteConfirmDialog

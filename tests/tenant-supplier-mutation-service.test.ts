@@ -30,10 +30,6 @@ const supplierRow = (overrides: Record<string, unknown> = {}) => ({
   email: 'marcus@apexge.com',
   taxId: 'US-8829104',
   address: '1 Apex Way',
-  city: 'New York',
-  state: 'NY',
-  postalCode: '10001',
-  country: 'United States',
   category: 'Consumer Electronics',
   paymentTerms: 'Net 30 Days',
   creditLimit: 50000,
@@ -51,7 +47,6 @@ const createInput = {
   category: 'Consumer Electronics' as const,
   paymentTerms: 'Net 30 Days' as const,
   creditLimit: 50000,
-  city: 'New York',
 };
 
 beforeEach(() => {

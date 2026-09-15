@@ -21,7 +21,6 @@ export interface ISupplierService {
   updateSupplier(id: string, input: UpdateSupplierInput): Promise<Supplier>;
   toggleSupplierStatus(id: string): Promise<Supplier>;
   deleteSupplier(id: string): Promise<void>;
-  getCities(): Promise<string[]>;
   getCategories(): Promise<string[]>;
 }
 
@@ -34,12 +33,8 @@ interface SupplierMutationResponse {
   contactPerson: string;
   phone: string;
   email: string;
-  taxId: string;
+  taxId?: string | null;
   address?: string | null;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  country?: string | null;
   category: string;
   paymentTerms: string;
   creditLimit: number;
@@ -48,12 +43,12 @@ interface SupplierMutationResponse {
 }
 
 const SUPPLIER_MUTATION_RESPONSE_KEYS: (keyof SupplierMutationResponse)[] = [
-  'id', 'supplierCode', 'name', 'contactPerson', 'phone', 'email', 'taxId', 'city',
+  'id', 'supplierCode', 'name', 'contactPerson', 'phone', 'email',
   'category', 'paymentTerms', 'creditLimit', 'status',
 ];
 
 function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): Supplier {
-  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId, address: row.address ?? undefined, city: row.city, state: row.state ?? undefined, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, category: row.category as Supplier['category'], paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, outstandingBalance: 0, pendingDeliveriesCount: 0, totalOrdersCount: 0 };
+  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, address: row.address ?? undefined, category: row.category, paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, outstandingBalance: 0, pendingDeliveriesCount: 0, totalOrdersCount: 0 };
 }
 
 /**
@@ -63,7 +58,7 @@ function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): S
 export function deriveSupplierView(all: Supplier[], query: SupplierQuery = {}): SupplierQueryResult {
   let suppliers = [...all];
   const search = query.search?.trim().toLowerCase() ?? '';
-  suppliers = suppliers.filter((s) => (!search || `${formatSupplierCode(s.supplierCode)} ${s.name} ${s.contactPerson} ${s.phone} ${s.email}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || s.status === query.status) && (!query.city || s.city === query.city) && (!query.category || s.category === query.category));
+  suppliers = suppliers.filter((s) => (!search || `${formatSupplierCode(s.supplierCode)} ${s.name} ${s.contactPerson} ${s.phone} ${s.email} ${s.taxId ?? ''} ${s.address ?? ''}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || s.status === query.status) && (!query.category || s.category === query.category));
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.max(1, query.pageSize ?? 10);
   const totalPages = Math.max(1, Math.ceil(suppliers.length / pageSize));
@@ -103,7 +98,6 @@ class ProductionSupplierService implements ISupplierService {
     return deriveSupplierView(await this.getAllSuppliers(), query);
   }
   async getSupplierById(id: string): Promise<Supplier | null> { return (await this.getAllSuppliers()).find((s) => s.id === id || String(s.supplierCode) === id || formatSupplierCode(s.supplierCode) === id) ?? null; }
-  async getCities(): Promise<string[]> { return Array.from(new Set((await this.getAllSuppliers()).map((s) => s.city))).sort(); }
   async getCategories(): Promise<string[]> { return Array.from(new Set((await this.getAllSuppliers()).map((s) => s.category))).sort(); }
 
   async createSupplier(input: CreateSupplierInput): Promise<Supplier> {

@@ -35,6 +35,7 @@ export function AddSupplierDrawer({
   onSubmit,
   categories,
 }: AddSupplierDrawerProps) {
+  const availableCategories = Array.from(new Set([...DEFAULT_CATEGORIES, ...categories]));
   const [name, setName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [phone, setPhone] = useState('');
@@ -44,10 +45,6 @@ export function AddSupplierDrawer({
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('Net 30 Days');
   const [creditLimit, setCreditLimit] = useState('25000');
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('United States');
   const [notes, setNotes] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -65,8 +62,6 @@ export function AddSupplierDrawer({
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       errs.email = 'Please enter a valid email';
     }
-    if (!taxId.trim()) errs.taxId = 'Tax ID / EIN is required';
-    if (!city.trim()) errs.city = 'City is required';
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -88,10 +83,6 @@ export function AddSupplierDrawer({
         paymentTerms,
         creditLimit: parseFloat(creditLimit) || 10000,
         address,
-        city,
-        state,
-        postalCode,
-        country,
         notes,
       });
       // Reset form
@@ -104,9 +95,6 @@ export function AddSupplierDrawer({
       setPaymentTerms('Net 30 Days');
       setCreditLimit('25000');
       setAddress('');
-      setCity('');
-      setState('');
-      setPostalCode('');
       setNotes('');
       setErrors({});
       onClose();
@@ -179,17 +167,18 @@ export function AddSupplierDrawer({
                 <label className="block text-xs font-medium text-on-surface mb-1">
                   Primary Category <span className="text-error">*</span>
                 </label>
-                <select
+                <input
+                  type="text"
+                  list="supplier-categories"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as SupplierCategory)}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                  placeholder="e.g. Consumer Electronics"
                   className="w-full px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                >
-                  {DEFAULT_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                />
+                <datalist id="supplier-categories">
+                  {availableCategories.map((cat) => <option key={cat} value={cat} />)}
+                </datalist>
               </div>
 
               <div>
@@ -254,13 +243,13 @@ export function AddSupplierDrawer({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-medium text-on-surface mb-1">
-                  Tax ID / EIN <span className="text-error">*</span>
+                  GST <span className="text-on-surface-variant font-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
                   value={taxId}
                   onChange={(e) => setTaxId(e.target.value)}
-                  placeholder="e.g. US-8829104"
+                  placeholder="e.g. 29ABCDE1234F1Z5"
                   className={`w-full px-3 py-2 text-sm rounded bg-surface-container border ${
                     errors.taxId ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
                   } text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-1 focus:ring-primary`}
@@ -309,10 +298,9 @@ export function AddSupplierDrawer({
               <span>3. Headquarters Address</span>
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2">
+            <div>
                 <label className="block text-xs font-medium text-on-surface mb-1">
-                  Street Address
+                  Address
                 </label>
                 <input
                   type="text"
@@ -321,59 +309,6 @@ export function AddSupplierDrawer({
                   placeholder="e.g. 104 Madison Ave, Suite 800"
                   className="w-full px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-1 focus:ring-primary"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-on-surface mb-1">
-                  City <span className="text-error">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="e.g. New York, NY"
-                  className={`w-full px-3 py-2 text-sm rounded bg-surface-container border ${
-                    errors.city ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'
-                  } text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-1 focus:ring-primary`}
-                />
-                {errors.city && <p className="text-xs text-error mt-1">{errors.city}</p>}
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-on-surface mb-1">
-                  State / Province
-                </label>
-                <input
-                  type="text"
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  placeholder="e.g. NY"
-                  className="w-full px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-on-surface mb-1">
-                  Postal Code
-                </label>
-                <input
-                  type="text"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  placeholder="e.g. 10016"
-                  className="w-full px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-on-surface mb-1">Country</label>
-                <input
-                  type="text"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
             </div>
           </div>
 

@@ -122,7 +122,7 @@ describe('tenant callable contract', () => {
     for (const table of ['employee_outlet', 'service_person_outlet', 'product', 'supplier']) {
       expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${table}')`);
     }
-    for (const column of ['image_url', 'created_at', 'updated_at']) {
+    for (const column of ['image_url', 'created_at', 'updated_at', 'city', 'state', 'postal_code', 'country']) {
       expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${column}')`);
     }
     expect(tenantColumnRemovalSource).toContain('DROP COLUMN IF EXISTS');
@@ -354,6 +354,10 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const changeTenantSupplierStatus = onCall');
     expect(source).toContain('export const updateTenantSupplierRecord = onCall');
     expect(source).toContain('updateTenantSupplier({ organizationId, id');
+    expect(source).toContain("const taxId = typeof d.taxId === 'string' ? d.taxId.trim() || null : null");
+    expect(source).not.toContain("const city = typeof d.city");
+    expect(source).not.toContain('postalCode:');
+    expect(source).not.toContain('country:');
   });
 
   it('exposes an organization-scoped purchase creation boundary', () => {

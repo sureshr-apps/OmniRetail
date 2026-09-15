@@ -11,6 +11,7 @@ interface SupplierDetailDrawerProps {
   onToggleStatus: (id: string) => Promise<void>;
   onDelete: (supplier: Supplier) => void;
   onNewPurchaseOrder?: (supplier: Supplier) => void;
+  categories?: string[];
 }
 
 const CATEGORIES: SupplierCategory[] = [
@@ -42,7 +43,9 @@ export function SupplierDetailDrawer({
   onToggleStatus,
   onDelete,
   onNewPurchaseOrder,
+  categories = [],
 }: SupplierDetailDrawerProps) {
+  const availableCategories = Array.from(new Set([...CATEGORIES, ...categories]));
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDeactivate, setIsConfirmingDeactivate] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,8 +56,6 @@ export function SupplierDetailDrawer({
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
   const [address, setAddress] = useState('');
   const [category, setCategory] = useState<SupplierCategory>('Consumer Electronics');
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('Net 30 Days');
@@ -67,9 +68,7 @@ export function SupplierDetailDrawer({
       setContactPerson(supplier.contactPerson);
       setPhone(supplier.phone);
       setEmail(supplier.email);
-      setTaxId(supplier.taxId);
-      setCity(supplier.city);
-      setState(supplier.state || '');
+      setTaxId(supplier.taxId || '');
       setAddress(supplier.address || '');
       setCategory(supplier.category);
       setPaymentTerms(supplier.paymentTerms);
@@ -90,9 +89,7 @@ export function SupplierDetailDrawer({
         contactPerson,
         phone,
         email,
-        taxId,
-        city,
-        state,
+        taxId: taxId || undefined,
         address,
         category,
         paymentTerms,
@@ -277,18 +274,9 @@ export function SupplierDetailDrawer({
                     className="w-full px-3 py-1.5 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-on-surface mb-1">City</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-3 py-1.5 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-on-surface mb-1">
-                    Street Address
+                    Address
                   </label>
                   <input
                     type="text"
@@ -345,11 +333,8 @@ export function SupplierDetailDrawer({
                     location_on
                   </span>
                   <div>
-                    <div className="text-xs text-on-surface-variant font-medium">Location</div>
-                    <div className="font-semibold text-on-surface">{supplier.city}</div>
-                    {supplier.address && (
-                      <div className="text-xs text-on-surface-variant">{supplier.address}</div>
-                    )}
+                    <div className="text-xs text-on-surface-variant font-medium">Address</div>
+                    <div className="font-semibold text-on-surface">{supplier.address || 'Not provided'}</div>
                   </div>
                 </div>
               </div>
@@ -367,7 +352,7 @@ export function SupplierDetailDrawer({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-surface-container/20 rounded border border-outline-variant/30">
                 <div>
                   <label className="block text-xs font-medium text-on-surface mb-1">
-                    Tax ID / EIN
+                    GST <span className="text-on-surface-variant font-normal">(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -375,6 +360,22 @@ export function SupplierDetailDrawer({
                     onChange={(e) => setTaxId(e.target.value)}
                     className="w-full px-3 py-1.5 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-on-surface mb-1">
+                    Primary Category <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    list="supplier-detail-categories"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                    className="w-full px-3 py-1.5 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                  <datalist id="supplier-detail-categories">
+                    {availableCategories.map((option) => <option key={option} value={option} />)}
+                  </datalist>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-on-surface mb-1">
@@ -419,9 +420,9 @@ export function SupplierDetailDrawer({
               <div className="p-3.5 rounded bg-surface-container/30 border border-outline-variant/20 space-y-3 text-sm">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div>
-                    <span className="text-xs text-on-surface-variant block">Tax ID / EIN</span>
+                    <span className="text-xs text-on-surface-variant block">GST</span>
                     <span className="font-body-mono-num font-semibold text-on-surface">
-                      {supplier.taxId}
+                      {supplier.taxId || 'Not provided'}
                     </span>
                   </div>
                   <div>

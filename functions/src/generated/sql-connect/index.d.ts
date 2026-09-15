@@ -659,12 +659,8 @@ export interface CreateTenantSupplierVariables {
   contactPerson: string;
   phone: string;
   email: string;
-  taxId: string;
+  taxId?: string | null;
   address?: string | null;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  country?: string | null;
   category: string;
   paymentTerms: string;
   creditLimit: number;
@@ -1429,12 +1425,8 @@ export interface GetTenantSupplierTrustedData {
     contactPerson: string;
     phone: string;
     email: string;
-    taxId: string;
+    taxId?: string | null;
     address?: string | null;
-    city: string;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
     category: string;
     paymentTerms: string;
     creditLimit: number;
@@ -1985,7 +1977,7 @@ export interface ListTenantPurchasesData {
       id: UUIDString;
       supplierCode: number;
       name: string;
-      taxId: string;
+      taxId?: string | null;
     } & Supplier_Key;
     outlet?: {
       id: UUIDString;
@@ -2158,12 +2150,8 @@ export interface ListTenantSuppliersData {
     contactPerson: string;
     phone: string;
     email: string;
-    taxId: string;
+    taxId?: string | null;
     address?: string | null;
-    city: string;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
     category: string;
     paymentTerms: string;
     creditLimit: number;
@@ -2658,12 +2646,8 @@ export interface UpdateTenantSupplierVariables {
   contactPerson: string;
   phone: string;
   email: string;
-  taxId: string;
+  taxId?: string | null;
   address?: string | null;
-  city: string;
-  state?: string | null;
-  postalCode?: string | null;
-  country?: string | null;
   category: string;
   paymentTerms: string;
   creditLimit: number;

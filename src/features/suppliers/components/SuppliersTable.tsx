@@ -55,9 +55,6 @@ export function SuppliersTable({
             <th scope="col" className="py-3 px-4 min-w-[180px]">
               Contact Person
             </th>
-            <th scope="col" className="py-3 px-4 min-w-[140px]">
-              City
-            </th>
             <th scope="col" className="py-3 px-4 text-right min-w-[140px]">
               Outstanding
             </th>
@@ -104,11 +101,6 @@ export function SuppliersTable({
                   <div className="text-caption font-body-mono-num text-on-surface-variant">
                     {supplier.phone}
                   </div>
-                </td>
-
-                {/* City */}
-                <td className="py-3 px-4 whitespace-nowrap text-on-surface-variant font-medium">
-                  {supplier.city}
                 </td>
 
                 {/* Outstanding Balance (Right Aligned) */}

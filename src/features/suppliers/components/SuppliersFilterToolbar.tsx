@@ -7,9 +7,6 @@ interface SuppliersFilterToolbarProps {
   onSearchChange: (val: string) => void;
   statusFilter: 'ALL' | SupplierStatus;
   onStatusFilterChange: (val: 'ALL' | SupplierStatus) => void;
-  cityFilter: string;
-  onCityFilterChange: (val: string) => void;
-  cities: string[];
   categoryFilter: string;
   onCategoryFilterChange: (val: string) => void;
   categories: string[];
@@ -23,9 +20,6 @@ export function SuppliersFilterToolbar({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
-  cityFilter,
-  onCityFilterChange,
-  cities,
   categoryFilter,
   onCategoryFilterChange,
   categories,
@@ -75,20 +69,6 @@ export function SuppliersFilterToolbar({
           <option value="ALL">Status: All</option>
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
-        </select>
-
-        {/* City Filter */}
-        <select
-          value={cityFilter}
-          onChange={(e) => onCityFilterChange(e.target.value)}
-          className="px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer max-w-[160px]"
-        >
-          <option value="All Cities">City: All Cities</option>
-          {cities.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
         </select>
 
         {/* Category Filter */}

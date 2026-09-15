@@ -594,6 +594,7 @@ export interface CreateTenantEmployeeProfileTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  gender?: string | null;
   dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
   address?: string | null;
@@ -1504,6 +1505,7 @@ export interface GetTenantEmployeeTrustedData {
     phone: string;
     designation: string;
     department?: string | null;
+    gender?: string | null;
     dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
     address?: string | null;
@@ -1511,8 +1513,6 @@ export interface GetTenantEmployeeTrustedData {
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     employeeOutlets_on_employee: ({
       outlet: {
         id: UUIDString;
@@ -2015,6 +2015,7 @@ export interface ListTenantEmployeesData {
     phone: string;
     designation: string;
     department?: string | null;
+    gender?: string | null;
     dateOfBirth?: DateString | null;
     dateOfJoining: DateString;
     address?: string | null;
@@ -2022,8 +2023,6 @@ export interface ListTenantEmployeesData {
     assignmentScope: string;
     employmentStatus: EmploymentStatus;
     loginAccess: LoginAccessStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     employeeOutlets_on_employee: ({
       outlet: {
         id: UUIDString;
@@ -2560,6 +2559,7 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  gender?: string | null;
   dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
   address?: string | null;
@@ -2902,6 +2902,7 @@ export interface UpdateTenantEmployeeTrustedVariables {
   phone: string;
   designation: string;
   department?: string | null;
+  gender?: string | null;
   dateOfBirth?: DateString | null;
   dateOfJoining: DateString;
   address?: string | null;

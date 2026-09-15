@@ -185,6 +185,7 @@ type Employee @table {
   phone: String!
   designation: String!
   department: String
+  gender: String
   dateOfBirth: Date
   dateOfJoining: Date!
   address: String
@@ -192,8 +193,6 @@ type Employee @table {
   assignmentScope: String!
   employmentStatus: EmploymentStatus! @default(value: ACTIVE)
   loginAccess: LoginAccessStatus! @default(value: DISABLED)
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
 }
 
 type EmployeeOutlet @table(key: ["employee", "outlet"]) {

@@ -29,12 +29,11 @@ const employeeRow = (overrides: Record<string, unknown> = {}) => ({
   phone: '+919876543210',
   designation: 'Cashier',
   department: 'Cash & Billing',
+  gender: 'Female',
   dateOfJoining: '2023-01-15',
   assignmentScope: 'OUTLET',
   employmentStatus: 'ACTIVE',
   loginAccess: 'ENABLED',
-  createdAt: '2023-01-15T08:00:00Z',
-  updatedAt: '2023-01-15T08:00:00Z',
   user: { id: 'user-1', username: 'alex.doe', email: 'alex@example.com' },
   employeeOutlets_on_employee: [{ outlet: { id: 'outlet-1', outletCode: 1, name: 'Main Street' } }],
   ...overrides,
@@ -45,6 +44,7 @@ const createInput = {
   lastName: 'Lee',
   designation: 'Cashier',
   phone: '+919876543210',
+  gender: 'Female',
   assignmentScope: 'Specific Outlets' as const,
   outletAssignment: ['Main Street'],
   allowLogin: false,
@@ -65,6 +65,7 @@ describe('employeeService mutations return the canonical entity directly', () =>
     }));
     const created = await employeeService.createEmployee(createInput);
     expect(created).toMatchObject({ id: 'employee-2', employeeCode: 1002, displayName: 'Jordan Lee' });
+    expect(created.gender).toBe('Female');
     expect(mocks.listTenantEmployees).not.toHaveBeenCalled();
   });
 
@@ -156,6 +157,20 @@ describe('employeeService mutations return the canonical entity directly', () =>
     const updated = await employeeService.changeEmployeeStatus('employee-1', 'Inactive');
     expect(updated.employmentStatus).toBe('Inactive');
     expect(mocks.listTenantEmployees).not.toHaveBeenCalled();
+  });
+
+  it('passes gender through create and update profile mutations', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...employeeRow({ gender: 'Male' }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    await employeeService.createEmployee({ ...createInput, gender: 'Male' });
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ gender: 'Male' }));
+
+    callable.mockClear();
+    await employeeService.updateEmployee('employee-1', { gender: 'Non-binary' });
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ gender: 'Non-binary' }));
   });
 
   it('changeLoginAccess returns the enriched entity from the callable, with no follow-up list query', async () => {

@@ -55,6 +55,7 @@ describe('tenant callable contract', () => {
     expect(schemaMigrationSource).toContain('DROP COLUMN IF EXISTS');
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'created_at\')');
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'updated_at\')');
+    expect(schemaMigrationSource).toContain("quoteIdentifier('employee')");
     expect(schemaMigrationSource).toContain('quoteIdentifier(\'supplier_product_code\')');
     expect(schemaMigrationSource).toContain("quoteIdentifier('customer')");
     expect(schemaMigrationSource).toContain("quoteIdentifier('product')");
@@ -152,6 +153,10 @@ describe('tenant callable contract', () => {
 
   it('validates optional employee DOB server-side before writing SQL', () => {
     expect(source).toContain("const dateOfBirth = typeof d.dateOfBirth === 'string' && d.dateOfBirth ? d.dateOfBirth : null");
+    expect(source).toContain("const gender = typeof d.gender === 'string' ? d.gender.trim() || null : null");
+    expect(source).toContain('gender, dateOfBirth');
+    expect(source).not.toContain('createdAt: row.createdAt');
+    expect(source).not.toContain('updatedAt: row.updatedAt');
     expect(source).toContain("dateOfBirth !== null && !/^\\d{4}-\\d{2}-\\d{2}$/.test(dateOfBirth)");
     expect(connectorSource).toContain('$dateOfBirth: Date');
     expect(connectorSource).toContain('dateOfBirth: $dateOfBirth');

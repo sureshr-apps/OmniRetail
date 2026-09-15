@@ -54,8 +54,6 @@ export interface Employee {
   permissionProfile?: string;
   terminalPinConfigured?: boolean;
   lastActiveSession?: string;
-  createdAt: string;
-  updatedAt: string;
   recentActivity?: EmployeeActivity[];
 }
 

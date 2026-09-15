@@ -26,14 +26,17 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum LoginAccessStatus[\s\S]*ENABLED[\s\S]*DISABLED/);
   });
 
-  it('stores employee DOB, address, and notes as optional fields', () => {
+  it('stores employee gender, DOB, address, and notes as optional fields without timestamps', () => {
     const employee = schema.match(/type Employee @table[\s\S]*?\n}\n\ntype EmployeeOutlet/)?.[0] ?? '';
+    expect(employee).toContain('gender: String');
     expect(employee).toContain('dateOfBirth: Date');
     expect(employee).toContain('address: String');
     expect(employee).toContain('notes: String');
     expect(employee).not.toContain('city:');
     expect(employee).not.toContain('state:');
     expect(employee).not.toContain('postalCode:');
+    expect(employee).not.toContain('createdAt:');
+    expect(employee).not.toContain('updatedAt:');
   });
 
   it('keeps employee Firebase identities behind the trusted connector boundary', () => {
@@ -133,7 +136,8 @@ describe('tenant Data Connect foundation schema', () => {
   it('includes employee profile fields in reads and trusted write operations', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const employeeOperations = connector.match(/(?:query ListTenantEmployees|mutation CreateTenantEmployeeProfileTrusted|mutation ProvisionTenantEmployeeTrusted|mutation UpdateTenantEmployeeTrusted|query GetTenantEmployeeTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g)?.join('\n') ?? '';
-    for (const field of ['dateOfBirth', 'address', 'notes']) expect(employeeOperations).toContain(field);
+    for (const field of ['gender', 'dateOfBirth', 'address', 'notes']) expect(employeeOperations).toContain(field);
+    expect(employeeOperations).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
   });
 
   it('guards tenant master deletes against linked operational history', () => {

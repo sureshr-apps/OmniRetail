@@ -17,7 +17,6 @@ export function exportEmployeesToCsv(employees: Employee[], filename = 'omni_ret
     'Date of Joining',
     'Address',
     'Notes',
-    'Created Date',
   ];
 
   const rows = employees.map((emp) => [
@@ -35,7 +34,6 @@ export function exportEmployeesToCsv(employees: Employee[], filename = 'omni_ret
     `"${emp.dateOfJoining || ''}"`,
     `"${(emp.address || '').replace(/"/g, '""')}"`,
     `"${(emp.notes || '').replace(/"/g, '""')}"`,
-    `"${emp.createdAt}"`,
   ]);
 
   const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');

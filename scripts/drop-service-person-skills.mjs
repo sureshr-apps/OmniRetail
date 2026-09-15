@@ -11,6 +11,11 @@ try {
       DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`,
   );
   await client.query(
+    `ALTER TABLE ${schema}.${quoteIdentifier('employee')}
+      DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
+      DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`,
+  );
+  await client.query(
     `ALTER TABLE ${schema}.${quoteIdentifier('product')}
       DROP COLUMN IF EXISTS ${quoteIdentifier('supplier_product_code')}`,
   );
@@ -20,7 +25,7 @@ try {
       DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`,
   );
   await client.query('COMMIT');
-  console.log('Removed retired Service Person and Product columns.');
+  console.log('Removed retired Service Person, Employee, Customer, and Product columns.');
 } catch (error) {
   await client.query('ROLLBACK');
   throw error;

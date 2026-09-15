@@ -37,6 +37,7 @@ interface EmployeeMutationResponse {
   phone: string;
   designation: string;
   department: string | null;
+  gender: string | null;
   dateOfBirth: string | null;
   dateOfJoining: string;
   address: string | null;
@@ -44,15 +45,13 @@ interface EmployeeMutationResponse {
   assignmentScope: string;
   employmentStatus: string;
   loginAccess: string;
-  createdAt: string;
-  updatedAt: string;
   user: { id: string; username: string; email: string; employeeMemberships?: { role: { code: string } }[]; employeeTrustedMemberships?: { role: { code: string } }[] } | null;
   employeeOutlets_on_employee: { outlet: { id: string; outletCode: number; name: string } }[];
 }
 
 const EMPLOYEE_MUTATION_RESPONSE_KEYS: (keyof EmployeeMutationResponse)[] = [
-  'id', 'employeeCode', 'fullName', 'phone', 'designation', 'dateOfJoining',
-  'assignmentScope', 'employmentStatus', 'loginAccess', 'createdAt', 'updatedAt',
+  'id', 'employeeCode', 'fullName', 'phone', 'designation', 'gender', 'dateOfJoining',
+  'assignmentScope', 'employmentStatus', 'loginAccess',
   'employeeOutlets_on_employee',
 ];
 
@@ -86,7 +85,7 @@ export function deriveEmployeeView(all: Employee[], query: EmployeeQuery): Emplo
 
 class ProductionEmployeeService implements IEmployeeService {
   private async organizationId(): Promise<string> { const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
-  private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); const memberships = row.user && ('employeeTrustedMemberships' in row.user ? row.user.employeeTrustedMemberships : row.user.employeeMemberships); const permissionProfile = memberships?.[0]?.role.code === 'organization.admin' ? 'Admin' : memberships?.[0]?.role.code === 'organization.employee' ? 'User' : undefined; return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, permissionProfile, dateOfBirth: row.dateOfBirth ?? undefined, dateOfJoining: row.dateOfJoining, address: row.address ?? undefined, notes: row.notes ?? undefined, createdAt: row.createdAt, updatedAt: row.updatedAt, recentActivity: [] }; }
+  private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); const memberships = row.user && ('employeeTrustedMemberships' in row.user ? row.user.employeeTrustedMemberships : row.user.employeeMemberships); const permissionProfile = memberships?.[0]?.role.code === 'organization.admin' ? 'Admin' : memberships?.[0]?.role.code === 'organization.employee' ? 'User' : undefined; return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, permissionProfile, gender: row.gender ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, dateOfJoining: row.dateOfJoining, address: row.address ?? undefined, notes: row.notes ?? undefined, recentActivity: [] }; }
 
   /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */
   public async getAllEmployees(): Promise<Employee[]> { const organizationId = await this.organizationId(); const result = await listTenantEmployees(getFirebaseClientServices().dataConnect, { organizationId }); return result.data.employees.map((row) => this.map(row)); }
@@ -104,6 +103,7 @@ class ProductionEmployeeService implements IEmployeeService {
       phone: input.phone.trim(),
       designation: input.designation.trim(),
       department: input.department?.trim(),
+      gender: input.gender?.trim() || null,
       dateOfBirth: input.dateOfBirth || null,
       dateOfJoining: input.dateOfJoining || new Date().toISOString().slice(0, 10),
       address: input.address?.trim() || null,
@@ -130,6 +130,7 @@ class ProductionEmployeeService implements IEmployeeService {
       phone: input.phone ?? current.phone,
       designation: input.designation ?? current.designation,
       department: input.department ?? current.department,
+      gender: input.gender ?? current.gender ?? null,
       dateOfBirth: input.dateOfBirth ?? current.dateOfBirth ?? null,
       dateOfJoining: input.dateOfJoining ?? current.dateOfJoining,
       address: input.address ?? current.address ?? null,

@@ -13,12 +13,11 @@ const employee = (overrides: Partial<Employee> = {}): Employee => ({
   department: 'Cash & Billing',
   phone: '+919876543210',
   email: 'alex@example.com',
+  gender: 'Female',
   outletAssignment: ['Main Street'],
   assignmentScope: 'Specific Outlets',
   employmentStatus: 'Active',
   loginAccess: 'Enabled',
-  createdAt: '2023-01-15T08:00:00Z',
-  updatedAt: '2023-01-15T08:00:00Z',
   ...overrides,
 });
 

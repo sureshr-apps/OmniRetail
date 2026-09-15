@@ -6,6 +6,8 @@ const deploymentSource = readFileSync(new URL('../.github/workflows/firebase-dep
 const connectorSource = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
 const schemaMigrationSource = readFileSync(new URL('../scripts/drop-service-person-skills.mjs', import.meta.url), 'utf8');
 const taxonomyMigrationSource = readFileSync(new URL('../scripts/migrate-product-taxonomy.mjs', import.meta.url), 'utf8');
+const lifecycleRemovalSource = readFileSync(new URL('../scripts/drop-lifecycle-idempotency.mjs', import.meta.url), 'utf8');
+const taxonomyIndexRestoreSource = readFileSync(new URL('../scripts/restore-product-taxonomy-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
@@ -35,7 +37,7 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('--only "${{ steps.changes.outputs.targets }}" --non-interactive --force');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-service-person-skills|migrate-product-taxonomy)\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
     expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac');
@@ -47,8 +49,13 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('Remove retired Service Person and Product columns');
     expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
     expect(deploymentSource).toContain('node scripts/migrate-product-taxonomy.mjs');
+    expect(deploymentSource).toContain('node scripts/drop-lifecycle-idempotency.mjs');
+    expect(deploymentSource).toContain('node scripts/restore-product-taxonomy-indexes.mjs');
     expect(deploymentSource).toContain('Prepare Product category migration');
+    expect(deploymentSource).toContain('Remove retired LifecycleIdempotency storage');
     expect(deploymentSource.indexOf('Prepare Product category migration')).toBeLessThan(deploymentSource.indexOf('Migrate Data Connect SQL schema'));
+    expect(deploymentSource.indexOf('Remove retired LifecycleIdempotency storage')).toBeLessThan(deploymentSource.indexOf('Migrate Data Connect SQL schema'));
+    expect(deploymentSource.indexOf('Migrate Data Connect SQL schema')).toBeLessThan(deploymentSource.indexOf('Restore Product taxonomy uniqueness indexes'));
     expect(cloudSqlMigrationHelperSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
     expect(cloudSqlMigrationHelperSource).toContain('client_email');
     expect(deploymentSource).toContain('--non-interactive --force');
@@ -62,6 +69,15 @@ describe('tenant callable contract', () => {
     expect(schemaMigrationSource).toContain('SET LOCAL ROLE');
     expect(schemaMigrationSource).toContain('await client.query(\'BEGIN\')');
     expect(schemaMigrationSource).toContain('await client.query(\'COMMIT\')');
+    expect(lifecycleRemovalSource).toContain("quoteIdentifier('lifecycle_idempotency')");
+    expect(lifecycleRemovalSource).toContain("quoteIdentifier('provisioning_attempt_status')");
+    expect(lifecycleRemovalSource).toContain('DROP TABLE IF EXISTS');
+    expect(lifecycleRemovalSource).toContain('DROP TYPE IF EXISTS');
+    expect(lifecycleRemovalSource).toContain('await client.query(\'BEGIN\')');
+    expect(lifecycleRemovalSource).toContain('await client.query(\'COMMIT\')');
+    expect(taxonomyIndexRestoreSource).toContain('category_organizationId_lower_value_uidx');
+    expect(taxonomyIndexRestoreSource).toContain('subcategory_categoryId_lower_value_uidx');
+    expect(taxonomyIndexRestoreSource).toContain('CREATE UNIQUE INDEX IF NOT EXISTS');
     expect(taxonomyMigrationSource).toContain('legacy_category_name');
     expect(taxonomyMigrationSource).toContain('legacy_subcategory');
     expect(taxonomyMigrationSource).toContain('legacy_category_id');

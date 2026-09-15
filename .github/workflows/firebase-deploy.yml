@@ -47,7 +47,7 @@ jobs:
           if echo "$CHANGED" | grep -q '^dataconnect/'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
-          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/firebase-deploy\.yml|scripts/(cloud-sql-migration-helpers|drop-service-person-skills|migrate-product-taxonomy)\.mjs)$'; then
+          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/firebase-deploy\.yml|scripts/(cloud-sql-migration-helpers|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\.mjs)$'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
           if [ -z "$TARGETS" ]; then
@@ -81,11 +81,19 @@ jobs:
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/migrate-product-taxonomy.mjs
 
+      - name: Remove retired LifecycleIdempotency storage
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: node scripts/drop-lifecycle-idempotency.mjs
+
       - name: Migrate Data Connect SQL schema
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: |
           npx --no-install firebase-tools experiments:disable fdcapimigration
           npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
+
+      - name: Restore Product taxonomy uniqueness indexes
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: node scripts/restore-product-taxonomy-indexes.mjs
 
       - name: Bootstrap RBAC reference data
         if: contains(steps.changes.outputs.targets, 'dataconnect')

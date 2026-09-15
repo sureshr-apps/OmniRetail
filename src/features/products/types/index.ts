@@ -18,15 +18,6 @@ export interface ProductStockSummary {
   storeBreakdown?: MultiStoreStockAllocation[];
 }
 
-export interface ProductLedgerActivity {
-  id: string;
-  title: string;
-  reference: string;
-  timeAgo: string;
-  type: 'sale' | 'replenishment' | 'adjustment';
-  units: number;
-}
-
 export interface Product {
   id: string;
   productCode: number; // Internal catalogue identifier, e.g., 1024 (displayed as PR-1024)
@@ -54,7 +45,6 @@ export interface Product {
   description?: string;
   variantsConfigured?: string;
   stockSummary?: ProductStockSummary;
-  recentActivity?: ProductLedgerActivity[];
 }
 
 export interface ProductSubcategoryOption {

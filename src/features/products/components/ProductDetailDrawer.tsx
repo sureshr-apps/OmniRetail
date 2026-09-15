@@ -297,31 +297,6 @@ export function ProductDetailDrawer({
             </div>
           </div>
 
-          {/* Section: Recent Activity */}
-          <div>
-            <h3 className="font-caption text-caption uppercase tracking-wider text-on-surface-variant font-bold mb-space-xs flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px] text-primary">
-                history
-              </span>
-              <span>Recent Ledger Activity</span>
-            </h3>
-            <div className="bg-surface-container-low/30 p-space-base rounded-lg font-caption text-caption space-y-2 border border-outline-variant/20">
-              {product.recentActivity && product.recentActivity.length > 0 ? (
-                product.recentActivity.map((act) => (
-                  <div key={act.id} className="flex items-center justify-between">
-                    <span className="text-on-surface font-medium">{act.title}</span>
-                    <span className="font-body-mono-num text-on-surface-variant">
-                      {act.reference} • {act.timeAgo}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-on-surface-variant text-caption">
-                  No recent ledger transactions logged for this product.
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Drawer Action Footer */}

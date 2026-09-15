@@ -74,6 +74,7 @@ describe('requested shell cleanup', () => {
     const modal = read('features/products/components/AddProductModal.tsx');
     const page = read('features/products/pages/ProductsPage.tsx');
     const detail = read('features/products/components/ProductDetailDrawer.tsx');
+    const productTypes = read('features/products/types/index.ts');
 
     expect(modal).not.toContain('Service Item');
     expect(modal).not.toContain('Punarva Studio');
@@ -102,6 +103,10 @@ describe('requested shell cleanup', () => {
     expect(taxonomyModal).toContain("document.body.style.overflow = 'hidden'");
     expect(page).toContain('supplierService.getAllSuppliers()');
     expect(detail).not.toContain('Supplier SKU:');
+    expect(detail).not.toContain('Recent Ledger Activity');
+    expect(detail).not.toContain('recentActivity');
+    expect(productTypes).not.toContain('ProductLedgerActivity');
+    expect(productTypes).not.toContain('recentActivity');
   });
 
   it('keeps employee login setup username/password based and removes unsupported defaults', () => {

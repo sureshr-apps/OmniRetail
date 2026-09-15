@@ -918,11 +918,6 @@ export const createTenantSubcategory = onCall(callableOptions, async (request) =
     if (!organizationId || !categoryId || !value || value.length > 128 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     const id = randomUUID();
-    const categories = (await listTenantCategoriesTrusted({ organizationId })).data.categories;
-    const category = categories.find((candidate) => candidate.id === categoryId);
-    if (!category) throw new Error('category not found');
-    const existing = category.subcategories_on_category.find((subcategory) => normalizeTaxonomyValue(subcategory.value) === value);
-    if (existing) return { success: true, organizationId, id: existing.id, categoryId, value: existing.value };
     try {
       await createTenantSubcategoryTrusted({ id, organizationId, categoryId, value });
     } catch (error) {

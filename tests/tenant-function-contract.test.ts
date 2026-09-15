@@ -240,6 +240,12 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const updateTenantSubcategory = onCall');
     expect(source).toContain('updateTenantCategoryTrusted');
     expect(source).toContain('updateTenantSubcategoryTrusted');
+    const createSubcategoryStart = source.indexOf('export const createTenantSubcategory = onCall');
+    const updateSubcategoryStart = source.indexOf('export const updateTenantSubcategory = onCall', createSubcategoryStart);
+    const createSubcategoryHandler = source.slice(createSubcategoryStart, updateSubcategoryStart);
+    expect(createSubcategoryHandler).not.toContain('const categories = (await listTenantCategoriesTrusted({ organizationId })).data.categories');
+    expect(createSubcategoryHandler.indexOf('await createTenantSubcategoryTrusted')).toBeGreaterThan(-1);
+    expect(createSubcategoryHandler.indexOf('const winner =')).toBeGreaterThan(createSubcategoryHandler.indexOf('await createTenantSubcategoryTrusted'));
     expect(connectorSource).toContain('mutation UpdateTenantCategoryTrusted');
     expect(connectorSource).toContain('mutation UpdateTenantSubcategoryTrusted');
   });

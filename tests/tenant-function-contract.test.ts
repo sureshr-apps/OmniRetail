@@ -142,7 +142,7 @@ describe('tenant callable contract', () => {
     for (const table of ['employee_outlet', 'service_person_outlet', 'product', 'supplier']) {
       expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${table}')`);
     }
-    for (const column of ['image_url', 'created_at', 'updated_at', 'city', 'state', 'postal_code', 'country']) {
+    for (const column of ['image_url', 'opening_stock', 'opening_store_outlet', 'created_at', 'updated_at', 'city', 'state', 'postal_code', 'country']) {
       expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${column}')`);
     }
     expect(tenantColumnRemovalSource).toContain('DROP COLUMN IF EXISTS');

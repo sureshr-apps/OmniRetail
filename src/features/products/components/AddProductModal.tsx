@@ -58,10 +58,6 @@ export function AddProductModal({
 
   const [reorderLevel, setReorderLevel] = useState('15');
   const [reorderQuantity, setReorderQuantity] = useState('30');
-  const [openingStock, setOpeningStock] = useState('20');
-  const [openingStoreOutlet, setOpeningStoreOutlet] = useState(
-    'Downtown Flagship #01'
-  );
 
   const [primarySupplier, setPrimarySupplier] = useState('');
 
@@ -163,8 +159,6 @@ export function AddProductModal({
       status: 'active',
       reorderLevel: type !== 'service' ? Number(reorderLevel) || 15 : undefined,
       reorderQuantity: type !== 'service' ? Number(reorderQuantity) || 30 : undefined,
-      openingStock: type === 'stockable' ? Number(openingStock) || 0 : undefined,
-      openingStoreOutlet,
       primarySupplier: primarySupplier || undefined,
       description: description.trim() || undefined,
     };
@@ -587,12 +581,40 @@ export function AddProductModal({
             </div>
           </div>
 
-          {/* Section 4: Inventory & Reorder Thresholds (only for stockable items) */}
+          {/* Section 4: Supplier Linkage */}
+          <div className="space-y-space-sm">
+            <h3 className="font-caption text-caption uppercase tracking-wider text-on-surface-variant font-bold flex items-center gap-1 border-b border-outline-variant/20 pb-1">
+              <span className="material-symbols-outlined text-[16px] text-primary">local_shipping</span>
+              <span>4. Supplier Linkage</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+              <div>
+                <label className="font-caption text-caption text-on-surface font-medium block mb-1">
+                  Primary Supplier
+                </label>
+                <select
+                  value={primarySupplier}
+                  onChange={(e) => setPrimarySupplier(e.target.value)}
+                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
+                >
+                  <option value="">Select supplier</option>
+                  {activeSuppliers.map((supplier) => (
+                    <option key={supplier.id} value={supplier.name}>
+                      {supplier.name} (SUP-{supplier.supplierCode})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Inventory & Reorder Thresholds (only for stockable items) */}
           {type === 'stockable' && (
             <div className="space-y-space-sm bg-surface-container-low/40 p-space-base rounded-lg border border-outline-variant/20">
               <h3 className="font-caption text-caption uppercase tracking-wider text-on-surface-variant font-bold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[16px] text-primary">shelves</span>
-                <span>4. Inventory &amp; Reorder Thresholds</span>
+                <span>5. Inventory &amp; Reorder Thresholds</span>
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
@@ -622,68 +644,9 @@ export function AddProductModal({
                     className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
-
-                <div>
-                  <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                    Opening Master Stock (Total Units)
-                  </label>
-                  <input
-                    type="number"
-                    value={openingStock}
-                    onChange={(e) => setOpeningStock(e.target.value)}
-                    className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                  />
-                  {variantCombinationCount > 1 && (
-                    <span className="text-on-surface-variant text-[10px]">The total is split across the generated product combinations.</span>
-                  )}
-                </div>
-
-                <div>
-                  <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                    Opening Receiving Store
-                  </label>
-                  <select
-                    value={openingStoreOutlet}
-                    onChange={(e) => setOpeningStoreOutlet(e.target.value)}
-                    className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                  >
-                    <option value="Downtown Flagship #01">Downtown Flagship #01</option>
-                    <option value="Northside Galleria #02">Northside Galleria #02</option>
-                    <option value="Dallas Uptown #03">Dallas Uptown #03</option>
-                    <option value="Houston Galleria #04">Houston Galleria #04</option>
-                  </select>
-                </div>
               </div>
             </div>
           )}
-
-          {/* Section 5: Supplier Linkage */}
-          <div className="space-y-space-sm">
-            <h3 className="font-caption text-caption uppercase tracking-wider text-on-surface-variant font-bold flex items-center gap-1 border-b border-outline-variant/20 pb-1">
-              <span className="material-symbols-outlined text-[16px] text-primary">local_shipping</span>
-              <span>5. Supplier Linkage</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
-              <div>
-                <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                  Primary Supplier
-                </label>
-                <select
-                  value={primarySupplier}
-                  onChange={(e) => setPrimarySupplier(e.target.value)}
-                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                >
-                  <option value="">Select supplier</option>
-                  {activeSuppliers.map((supplier) => (
-                    <option key={supplier.id} value={supplier.name}>
-                      {supplier.name} (SUP-{supplier.supplierCode})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
         </form>
 
         {/* Footer */}

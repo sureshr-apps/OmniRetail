@@ -53,16 +53,6 @@ describe('product variant expansion', () => {
     ]);
   });
 
-  it('expands a single variant consistently and preserves total opening stock', () => {
-    const expanded = expandProductVariants({ ...baseProduct, openingStock: 100 }, ['S', 'M', 'L', 'XL']);
-    expect(expanded.map((product) => [product.name, product.sku, product.openingStock])).toEqual([
-      ['Lays Onion - S', 'LAYS-ONION-S', 25],
-      ['Lays Onion - M', 'LAYS-ONION-M', 25],
-      ['Lays Onion - L', 'LAYS-ONION-L', 25],
-      ['Lays Onion - XL', 'LAYS-ONION-XL', 25],
-    ]);
-  });
-
   it('keeps generated SKU suffixes unique when variant text normalizes to the same value', () => {
     const expanded = expandProductVariants(baseProduct, ['Blue/Green', 'Blue-Green']);
     expect(expanded.map((product) => product.sku)).toEqual(['LAYS-ONION-BLUE-GREEN', 'LAYS-ONION-BLUE-GREEN-2']);
@@ -70,17 +60,6 @@ describe('product variant expansion', () => {
 
   it('keeps a single product unchanged when no variants are supplied', () => {
     expect(expandProductVariants(baseProduct, [])).toEqual([baseProduct]);
-  });
-
-  it('splits opening stock across every generated combination without losing units', () => {
-    const expanded = expandProductVariantDimensions({ ...baseProduct, openingStock: 100 }, [
-      { name: 'Color', values: ['Red', 'Blue'] },
-      { name: 'Size', values: ['S', 'M', 'L'] },
-    ]);
-
-    expect(expanded).toHaveLength(6);
-    expect(expanded.map((product) => product.openingStock)).toEqual([16.67, 16.67, 16.67, 16.67, 16.66, 16.66]);
-    expect(expanded.reduce((total, product) => total + (product.openingStock ?? 0), 0)).toBe(100);
   });
 
   it('rejects incomplete dimensions and combinations over the batch limit', () => {

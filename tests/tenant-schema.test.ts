@@ -108,6 +108,8 @@ describe('tenant Data Connect foundation schema', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const productOperations = connector.match(/(?:query|mutation) (?:ListTenantProducts|CreateTenantProduct|UpdateTenantProduct|ChangeTenantProductStatus|GetTenantProductTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
     expect(product).not.toContain('imageUrl:');
+    expect(product).not.toContain('openingStock:');
+    expect(product).not.toContain('openingStoreOutlet:');
     expect(product).not.toContain('createdAt:');
     expect(productOperations.length).toBe(5);
     for (const operation of productOperations) expect(operation).not.toMatch(/\bimageUrl\b|\$imageUrl\b|\bupdatedAt\b|updatedAt_expr/);

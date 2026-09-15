@@ -42,14 +42,6 @@ function variantSuffix(variant: string, index: number, usedSuffixes: Set<string>
   return suffix;
 }
 
-function openingStockForVariant(total: number | undefined, variantCount: number, index: number): number | undefined {
-  if (total === undefined || !Number.isFinite(total) || total < 0) return undefined;
-  const totalCents = Math.round(total * 100);
-  const baseCents = Math.floor(totalCents / variantCount);
-  const remainderCents = totalCents % variantCount;
-  return (baseCents + (index < remainderCents ? 1 : 0)) / 100;
-}
-
 export function expandProductVariants(input: CreateProductInput, variants: string[]): CreateProductInput[] {
   return expandProductVariantDimensions(input, variants.length > 0 ? [{ name: 'Variant', values: variants }] : []);
 }
@@ -93,7 +85,6 @@ export function expandProductVariantDimensions(
       // A shared master barcode cannot identify a specific variant. Leave it
       // unset instead of creating a non-standard value such as 890123-1.
       barcode: undefined,
-      openingStock: openingStockForVariant(input.openingStock, combinations.length, index),
       variantsConfigured: variantDescription,
     };
   });

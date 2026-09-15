@@ -9,6 +9,8 @@ try {
   await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('service_person_outlet')} DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')}`);
   await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('product')}
     DROP COLUMN IF EXISTS ${quoteIdentifier('image_url')},
+    DROP COLUMN IF EXISTS ${quoteIdentifier('opening_stock')},
+    DROP COLUMN IF EXISTS ${quoteIdentifier('opening_store_outlet')},
     DROP COLUMN IF EXISTS ${quoteIdentifier('created_at')},
     DROP COLUMN IF EXISTS ${quoteIdentifier('updated_at')}`);
   await client.query(`ALTER TABLE ${schema}.${quoteIdentifier('supplier')}

@@ -455,7 +455,6 @@ export function ProductsPage() {
         status: 'active',
         reorderLevel: product.reorderLevel,
         reorderQuantity: product.reorderQuantity,
-        openingStock: 0,
         primarySupplier: product.primarySupplier,
         description: product.description,
         variantsConfigured: product.variantsConfigured,

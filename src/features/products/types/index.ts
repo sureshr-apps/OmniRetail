@@ -50,8 +50,6 @@ export interface Product {
   status: ProductStatus;
   reorderLevel?: number;
   reorderQuantity?: number;
-  openingStock?: number;
-  openingStoreOutlet?: string;
   primarySupplier?: string;
   description?: string;
   variantsConfigured?: string;
@@ -120,8 +118,6 @@ export interface CreateProductInput {
   status?: ProductStatus;
   reorderLevel?: number;
   reorderQuantity?: number;
-  openingStock?: number;
-  openingStoreOutlet?: string;
   primarySupplier?: string;
   description?: string;
   variantsConfigured?: string;

@@ -20,6 +20,9 @@ describe('product UI contract', () => {
     expect(addSource).toContain('Every combination becomes a separate product and SKU.');
     expect(addSource).toContain('variantCombinationCount');
     expect(addSource).toContain('parseProductVariants');
+    expect(addSource).not.toContain('Opening Master Stock');
+    expect(addSource).not.toContain('Opening Receiving Store');
+    expect(addSource.indexOf('4. Supplier Linkage')).toBeLessThan(addSource.indexOf('5. Inventory &amp; Reorder Thresholds'));
     expect(addSource).not.toContain("useState('6205.20.00')");
   });
 

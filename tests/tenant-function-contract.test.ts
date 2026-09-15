@@ -12,6 +12,7 @@ const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-l
 const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop-customer-address-columns.mjs', import.meta.url), 'utf8');
 const taxonomyIndexRestoreSource = readFileSync(new URL('../scripts/restore-product-taxonomy-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
+const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -35,6 +36,10 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('cache: npm');
     expect(deploymentSource).toContain('functions/package-lock.json');
     expect(deploymentSource).toContain('cancel-in-progress: true');
+  });
+
+  it('uses compatible schema validation for production Data Connect migrations', () => {
+    expect(dataConnectConfigSource).toContain('schemaValidation: "COMPATIBLE"');
   });
 
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {

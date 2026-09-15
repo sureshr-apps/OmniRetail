@@ -8,6 +8,6 @@ schema:
       database: "omniretail"
       cloudSql:
         instanceId: "omniretail-sql"
-        schemaValidation: "STRICT"
+        schemaValidation: "COMPATIBLE"
 connectorDirs:
   - "./master-admin"

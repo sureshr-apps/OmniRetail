@@ -63,6 +63,7 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force');
+    expect(deploymentSource).toContain('experiments:disable fdcapimigration');
     expect(deploymentSource).toContain('dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --force');
     expect(deploymentSource).toContain('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac');
     expect(deploymentSource.indexOf('Deploy Data Connect schema and connectors')).toBeLessThan(deploymentSource.indexOf('dataconnect:execute dataconnect/bootstrap_rbac.gql BootstrapPlatformRbac'));
@@ -84,6 +85,7 @@ describe('tenant callable contract', () => {
     expect(deploymentSource.indexOf('Remove retired customer address columns')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
     expect(deploymentSource.indexOf('Remove unmanaged product taxonomy helper indexes')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
     expect(deploymentSource.indexOf('Remove retired Service Person and Product columns')).toBeLessThan(deploymentSource.indexOf('Apply Data Connect SQL schema migration'));
+    expect(deploymentSource.indexOf('Use direct Cloud SQL migration path')).toBeLessThan(deploymentSource.indexOf('Apply Data Connect SQL schema migration'));
     expect(deploymentSource.indexOf('Apply Data Connect SQL schema migration')).toBeLessThan(deploymentSource.indexOf('Deploy Data Connect schema and connectors'));
     expect(cloudSqlMigrationHelperSource).toContain('GOOGLE_APPLICATION_CREDENTIALS');
     expect(cloudSqlMigrationHelperSource).toContain('client_email');

@@ -105,6 +105,10 @@ jobs:
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-service-person-skills.mjs
 
+      - name: Use direct Cloud SQL migration path
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: npx --no-install firebase-tools experiments:disable fdcapimigration
+
       - name: Apply Data Connect SQL schema migration
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --force

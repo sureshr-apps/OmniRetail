@@ -9,6 +9,7 @@ const taxonomyMigrationSource = readFileSync(new URL('../scripts/migrate-product
 const lifecycleRemovalSource = readFileSync(new URL('../scripts/drop-lifecycle-idempotency.mjs', import.meta.url), 'utf8');
 const appUserColumnRemovalSource = readFileSync(new URL('../scripts/drop-app-user-legacy-columns.mjs', import.meta.url), 'utf8');
 const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-legacy-columns.mjs', import.meta.url), 'utf8');
+const customerAddressColumnRemovalSource = readFileSync(new URL('../scripts/drop-customer-address-columns.mjs', import.meta.url), 'utf8');
 const taxonomyIndexRestoreSource = readFileSync(new URL('../scripts/restore-product-taxonomy-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 
@@ -39,7 +40,7 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect:omniretail-platform:master-admin --non-interactive --force');
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
@@ -56,6 +57,7 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('node scripts/drop-lifecycle-idempotency.mjs');
     expect(deploymentSource).toContain('node scripts/drop-app-user-legacy-columns.mjs');
     expect(deploymentSource).toContain('node scripts/drop-tenant-legacy-columns.mjs');
+    expect(deploymentSource).toContain('node scripts/drop-customer-address-columns.mjs');
     expect(deploymentSource).toContain('node scripts/restore-product-taxonomy-indexes.mjs');
     expect(deploymentSource).toContain('Prepare Product category migration');
     expect(deploymentSource).toContain('Remove retired lifecycle, reconciliation, and audit storage');
@@ -126,6 +128,20 @@ describe('tenant callable contract', () => {
     expect(tenantColumnRemovalSource).toContain("await client.query('ROLLBACK')");
   });
 
+  it('removes retired customer address columns and makes email nullable transactionally', () => {
+    expect(customerAddressColumnRemovalSource).toContain("quoteIdentifier('customer')");
+    expect(customerAddressColumnRemovalSource).toContain("quoteIdentifier('email')");
+    for (const column of ['city', 'state', 'postal_code', 'country']) {
+      expect(customerAddressColumnRemovalSource).toContain(`quoteIdentifier('${column}')`);
+    }
+    expect(customerAddressColumnRemovalSource).toContain('ALTER COLUMN');
+    expect(customerAddressColumnRemovalSource).toContain('DROP NOT NULL');
+    expect(customerAddressColumnRemovalSource).toContain('DROP COLUMN IF EXISTS');
+    expect(customerAddressColumnRemovalSource).toContain("await client.query('BEGIN')");
+    expect(customerAddressColumnRemovalSource).toContain("await client.query('COMMIT')");
+    expect(customerAddressColumnRemovalSource).toContain("await client.query('ROLLBACK')");
+  });
+
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {
     expect(source).toContain('export const createTenantOutlet = onCall');
     expect(source).toContain("requireCapability(caller, 'outlets.read')");
@@ -169,6 +185,17 @@ describe('tenant callable contract', () => {
     expect(connectorSource).toContain("this[0].loginAccess == 'DISABLED'");
     expect(connectorSource).toContain('Employee login access must be disabled before deletion.');
     expect(connectorSource).toContain('Product has sales history and cannot be deleted.');
+  });
+
+  it('accepts optional customer email while retaining server-side input validation', () => {
+    const createCustomer = source.match(/export const createTenantCustomerRecord[\s\S]*?\n\}\);/)?.[0] ?? '';
+    const updateCustomer = source.match(/export const updateTenantCustomerRecord[\s\S]*?\n\}\);/)?.[0] ?? '';
+    for (const callable of [createCustomer, updateCustomer]) {
+      expect(callable).toContain("const email = typeof d.email === 'string' ? d.email.trim().toLowerCase() || null : null");
+      expect(callable).not.toContain('!email');
+      expect(callable).not.toContain('const city =');
+      expect(callable).not.toContain('const state =');
+    }
   });
 
   it('exposes guarded organization-admin taxonomy delete callables', () => {

@@ -27,15 +27,7 @@ export function CustomerDetailDrawer({
   if (!isOpen || !customer) return null;
 
   const initials = getInitials(customer.name);
-  const cityState = customer.state ? `${customer.city}, ${customer.state}` : customer.city;
-  const fullAddress = [
-    customer.address,
-    customer.city,
-    customer.state,
-    customer.postalCode,
-  ]
-    .filter(Boolean)
-    .join(', ');
+  const fullAddress = customer.address;
 
   return (
     <div
@@ -66,7 +58,7 @@ export function CustomerDetailDrawer({
                 )}
               </div>
               <span className="font-body-mono-num text-caption text-primary font-semibold">
-                {formatCustomerCode(customer.customerCode)} · {customer.type} · {cityState}
+                {formatCustomerCode(customer.customerCode)} · {customer.type}
               </span>
             </div>
           </div>
@@ -129,8 +121,8 @@ export function CustomerDetailDrawer({
               </div>
               <div>
                 <span className="text-on-surface-variant block">Email Address:</span>
-                <strong className="text-on-surface truncate block" title={customer.email}>
-                  {customer.email}
+                <strong className="text-on-surface truncate block" title={customer.email || undefined}>
+                  {customer.email || 'None provided'}
                 </strong>
               </div>
               <div className="col-span-2">

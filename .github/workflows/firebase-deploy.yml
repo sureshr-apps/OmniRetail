@@ -47,7 +47,7 @@ jobs:
           if echo "$CHANGED" | grep -q '^dataconnect/'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
-          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/firebase-deploy\.yml|scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\.mjs)$'; then
+          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/firebase-deploy\.yml|scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|restore-product-taxonomy-indexes)\.mjs)$'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
           if [ -z "$TARGETS" ]; then
@@ -92,6 +92,10 @@ jobs:
       - name: Remove retired tenant columns
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-tenant-legacy-columns.mjs
+
+      - name: Remove retired customer address columns
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: node scripts/drop-customer-address-columns.mjs
 
       - name: Deploy Data Connect connectors before SQL migration
         if: contains(steps.changes.outputs.targets, 'dataconnect')

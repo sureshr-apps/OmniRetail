@@ -5,7 +5,7 @@ import type { Customer } from '@/features/customers/types';
 
 const customer = (overrides: Partial<Customer> = {}): Customer => ({
   id: 'c1', customerCode: 1, type: 'Individual', name: 'Jane Doe',
-  phone: '+919876543210', email: 'jane@example.com', city: 'Austin', state: 'TX',
+  phone: '+919876543210', email: 'jane@example.com',
   status: 'Active', totalPurchases: 0, completedOrdersCount: 0, balance: 0,
   ...overrides,
 });
@@ -38,9 +38,9 @@ describe('deriveCustomerView', () => {
     expect(view.items.map((c) => c.id)).toEqual(['c2']);
   });
 
-  it('honors the city filter', () => {
-    const all = [customer({ id: 'c1', city: 'Austin' }), customer({ id: 'c2', city: 'Dallas' })];
-    const view = deriveCustomerView(all, { city: 'Dallas', page: 1, pageSize: 10 });
+  it('includes customers without email in search derivation', () => {
+    const all = [customer({ id: 'c1', email: undefined }), customer({ id: 'c2', email: 'jane@example.com' })];
+    const view = deriveCustomerView(all, { search: 'jane@example.com', page: 1, pageSize: 10 });
     expect(view.items.map((c) => c.id)).toEqual(['c2']);
   });
 

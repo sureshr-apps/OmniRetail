@@ -8,9 +8,6 @@ interface CustomersFilterBarProps {
   onStatusChange: (status: 'ALL' | CustomerStatus) => void;
   type: 'ALL' | CustomerType;
   onTypeChange: (type: 'ALL' | CustomerType) => void;
-  city: string;
-  onCityChange: (city: string) => void;
-  cities: string[];
   isFiltered: boolean;
   onResetFilters: () => void;
 }
@@ -22,9 +19,6 @@ export function CustomersFilterBar({
   onStatusChange,
   type,
   onTypeChange,
-  city,
-  onCityChange,
-  cities,
   isFiltered,
   onResetFilters,
 }: CustomersFilterBarProps) {
@@ -85,25 +79,6 @@ export function CustomersFilterBar({
             <option value="ALL">All Types</option>
             <option value="Individual">Individual</option>
             <option value="Business">Business</option>
-          </select>
-        </div>
-
-        {/* City Filter */}
-        <div className="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded border border-outline-variant/30">
-          <span className="font-micro-label text-micro-label text-on-surface-variant uppercase tracking-wider">
-            City:
-          </span>
-          <select
-            value={city}
-            onChange={(e) => onCityChange(e.target.value)}
-            className="bg-transparent font-caption text-caption text-on-surface focus:outline-none cursor-pointer pr-1"
-          >
-            <option value="ALL">All Cities</option>
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
           </select>
         </div>
 

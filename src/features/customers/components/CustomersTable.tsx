@@ -73,9 +73,6 @@ export function CustomersTable({
               <th scope="col" className="py-2 px-space-base font-bold">
                 Phone / Email
               </th>
-              <th scope="col" className="py-2 px-space-base font-bold">
-                City
-              </th>
               <th scope="col" className="py-2 px-space-base font-bold text-right">
                 Total Purchases
               </th>
@@ -93,10 +90,6 @@ export function CustomersTable({
           <tbody className="divide-y divide-outline-variant/20 font-body-default text-body-default text-on-surface">
             {customers.map((customer) => {
               const isInactive = customer.status === 'Inactive';
-              const cityDisplay = customer.state
-                ? `${customer.city}, ${customer.state}`
-                : customer.city;
-
               return (
                 <tr
                   key={customer.id}
@@ -130,13 +123,8 @@ export function CustomersTable({
                       {customer.phone}
                     </div>
                     <div className="text-caption text-on-surface-variant truncate max-w-[200px]">
-                      {customer.email}
+                      {customer.email || '—'}
                     </div>
-                  </td>
-
-                  {/* City */}
-                  <td className="py-3 px-space-base text-caption text-on-surface-variant whitespace-nowrap">
-                    {cityDisplay}
                   </td>
 
                   {/* Total Purchases (Right Aligned) */}

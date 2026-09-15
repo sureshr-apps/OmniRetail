@@ -117,6 +117,10 @@ describe('tenant Data Connect foundation schema', () => {
     const customer = schema.match(/type Customer @table \{[\s\S]*?\n\}/)?.[0] ?? '';
     expect(customer).toContain('documentType: String');
     expect(customer).toContain('documentValue: String');
+    expect(customer).toContain('email: String');
+    for (const removedColumn of ['city:', 'state:', 'postalCode:', 'country:']) {
+      expect(customer).not.toContain(removedColumn);
+    }
     expect(customer).not.toContain('createdAt');
     expect(customer).not.toContain('updatedAt');
   });
@@ -129,7 +133,11 @@ describe('tenant Data Connect foundation schema', () => {
     const customerOperations = connector.match(/(?:query|mutation) (?:ListTenantCustomers|ListTenantCustomerPurchaseHistory|CreateTenantCustomer|UpdateTenantCustomer|ChangeTenantCustomerStatus|GetTenantCustomerTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
     for (const operation of customerOperations) {
       expect(operation).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
+      expect(operation).not.toMatch(/\bcity\b|\bstate\b|\bpostalCode\b|\bcountry\b/);
     }
+    const customerMutations = customerOperations.filter((operation) => /CreateTenantCustomer|UpdateTenantCustomer/.test(operation)).join('\n');
+    expect(customerMutations).toContain('$email: String,');
+    expect(customerMutations).not.toContain('$email: String!');
     const drawer = readFileSync(new URL('../src/features/customers/components/CustomerDetailDrawer.tsx', import.meta.url), 'utf8');
     expect(drawer).not.toContain('Service & Alteration History');
     expect(drawer).not.toContain('ORD-8942');

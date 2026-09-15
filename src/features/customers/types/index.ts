@@ -14,15 +14,11 @@ export interface Customer {
   type: CustomerType;
   name: string;
   phone: string;
-  email: string;
+  email?: string;
   taxId?: string;
   documentType?: string;
   documentValue?: string;
   address?: string;
-  city: string;
-  state: string;
-  postalCode?: string;
-  country?: string;
   creditLimit?: number;
   dateOfBirth?: string;
   gender?: string;
@@ -41,15 +37,11 @@ export interface CreateCustomerInput {
   type: CustomerType;
   name: string;
   phone: string;
-  email: string;
+  email?: string;
   taxId?: string;
   documentType?: string;
   documentValue?: string;
   address?: string;
-  city: string;
-  state: string;
-  postalCode?: string;
-  country?: string;
   creditLimit?: number;
   dateOfBirth?: string;
   gender?: string;
@@ -65,10 +57,6 @@ export interface UpdateCustomerInput {
   documentType?: string;
   documentValue?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
   creditLimit?: number;
   dateOfBirth?: string;
   gender?: string;
@@ -79,7 +67,6 @@ export interface CustomerQuery {
   search?: string;
   status?: 'ALL' | CustomerStatus;
   type?: 'ALL' | CustomerType;
-  city?: string;
   page: number;
   pageSize: number;
 }

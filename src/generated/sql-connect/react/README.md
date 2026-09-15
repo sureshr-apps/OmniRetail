@@ -3354,15 +3354,11 @@ export interface ListTenantCustomersData {
     type: CustomerType;
     name: string;
     phone: string;
-    email: string;
+    email?: string | null;
     taxId?: string | null;
     documentType?: string | null;
     documentValue?: string | null;
     address?: string | null;
-    city: string;
-    state: string;
-    postalCode?: string | null;
-    country?: string | null;
     creditLimit?: number | null;
     preferredContact?: string | null;
     dateOfBirth?: DateString | null;
@@ -3965,7 +3961,7 @@ export interface ListTenantSalesData {
       customerCode: number;
       name: string;
       phone: string;
-      email: string;
+      email?: string | null;
     } & Customer_Key;
     customerName: string;
     staffName: string;
@@ -4276,15 +4272,11 @@ export interface GetTenantCustomerTrustedData {
     type: CustomerType;
     name: string;
     phone: string;
-    email: string;
+    email?: string | null;
     taxId?: string | null;
     documentType?: string | null;
     documentValue?: string | null;
     address?: string | null;
-    city: string;
-    state: string;
-    postalCode?: string | null;
-    country?: string | null;
     creditLimit?: number | null;
     preferredContact?: string | null;
     dateOfBirth?: DateString | null;
@@ -8803,15 +8795,11 @@ export interface CreateTenantCustomerVariables {
   type: CustomerType;
   name: string;
   phone: string;
-  email: string;
+  email?: string | null;
   taxId?: string | null;
   documentType?: string | null;
   documentValue?: string | null;
   address?: string | null;
-  city: string;
-  state: string;
-  postalCode?: string | null;
-  country?: string | null;
   creditLimit?: number | null;
   preferredContact?: string | null;
   dateOfBirth?: DateString | null;
@@ -8871,15 +8859,11 @@ export default function CreateTenantCustomerComponent() {
     type: ...,
     name: ...,
     phone: ...,
-    email: ...,
+    email: ..., // optional
     taxId: ..., // optional
     documentType: ..., // optional
     documentValue: ..., // optional
     address: ..., // optional
-    city: ...,
-    state: ...,
-    postalCode: ..., // optional
-    country: ..., // optional
     creditLimit: ..., // optional
     preferredContact: ..., // optional
     dateOfBirth: ..., // optional
@@ -8888,7 +8872,7 @@ export default function CreateTenantCustomerComponent() {
   };
   mutation.mutate(createTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -8933,15 +8917,11 @@ export interface UpdateTenantCustomerVariables {
   type: CustomerType;
   name: string;
   phone: string;
-  email: string;
+  email?: string | null;
   taxId?: string | null;
   documentType?: string | null;
   documentValue?: string | null;
   address?: string | null;
-  city: string;
-  state: string;
-  postalCode?: string | null;
-  country?: string | null;
   creditLimit?: number | null;
   preferredContact?: string | null;
   dateOfBirth?: DateString | null;
@@ -9001,15 +8981,11 @@ export default function UpdateTenantCustomerComponent() {
     type: ...,
     name: ...,
     phone: ...,
-    email: ...,
+    email: ..., // optional
     taxId: ..., // optional
     documentType: ..., // optional
     documentValue: ..., // optional
     address: ..., // optional
-    city: ...,
-    state: ...,
-    postalCode: ..., // optional
-    country: ..., // optional
     creditLimit: ..., // optional
     preferredContact: ..., // optional
     dateOfBirth: ..., // optional
@@ -9018,7 +8994,7 @@ export default function UpdateTenantCustomerComponent() {
   };
   mutation.mutate(updateTenantCustomerVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

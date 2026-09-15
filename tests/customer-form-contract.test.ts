@@ -25,6 +25,11 @@ describe('customer India-focused form contract', () => {
       expect(source).toContain('Document Value');
       expect(source).toContain('GST Number');
       expect(source).toContain('Credit Limit (₹)');
+      expect(source).toContain('Email Address');
+      expect(source).not.toContain('Email Address *');
+      for (const retiredField of ['City', 'State / Province', 'Postal Code', 'Country']) {
+        expect(source).not.toContain(retiredField);
+      }
     }
   });
 

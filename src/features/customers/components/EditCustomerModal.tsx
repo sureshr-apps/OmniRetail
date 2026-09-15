@@ -26,10 +26,6 @@ export function EditCustomerModal({
 
   // Address
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [country, setCountry] = useState('');
 
   // Business & Tax
   const [taxId, setTaxId] = useState('');
@@ -47,14 +43,10 @@ export function EditCustomerModal({
       setType(customer.type);
       setName(customer.name);
       setPhone(customer.phone);
-      setEmail(customer.email);
+      setEmail(customer.email || '');
       setDateOfBirth(formatCustomerDateForDisplay(customer.dateOfBirth));
       setGender(customer.gender || '');
       setAddress(customer.address || '');
-      setCity(customer.city);
-      setState(customer.state);
-      setPostalCode(customer.postalCode || '');
-      setCountry(customer.country || '');
       setTaxId(customer.taxId || '');
       setCreditLimit(customer.creditLimit ? customer.creditLimit.toString() : '5000');
       setNotes(customer.notes || '');
@@ -74,13 +66,9 @@ export function EditCustomerModal({
     } else if (phone.trim().length < 7) {
       errs.phone = 'Please enter a valid phone number';
     }
-    if (!email.trim()) {
-      errs.email = 'Email address is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       errs.email = 'Please provide a valid email format';
     }
-    if (!city.trim()) errs.city = 'City is required';
-    if (!state.trim()) errs.state = 'State is required';
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -96,14 +84,10 @@ export function EditCustomerModal({
         type,
         name,
         phone,
-        email,
+        email: email.trim() || undefined,
         dateOfBirth: parseCustomerDate(dateOfBirth),
         gender: gender || undefined,
         address: address || undefined,
-        city,
-        state,
-        postalCode: postalCode || undefined,
-        country,
         taxId: taxId || undefined,
         creditLimit: creditLimit ? parseFloat(creditLimit) : undefined,
         notes: notes || undefined,
@@ -242,7 +226,7 @@ export function EditCustomerModal({
                 </div>
                 <div>
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Email Address *
+                    Email Address
                   </label>
                   <input
                     value={email}
@@ -265,7 +249,7 @@ export function EditCustomerModal({
                   <span>Address & Location</span>
                 </h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-space-base">
+              <div className="grid grid-cols-1 gap-space-base">
                 <div className="md:col-span-2">
                   <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
                     Street Address
@@ -273,56 +257,6 @@ export function EditCustomerModal({
                   <input
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                    type="text"
-                  />
-                </div>
-                <div>
-                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    City *
-                  </label>
-                  <input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className={`w-full h-9 px-space-base rounded bg-surface-container-low border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
-                      errors.city ? 'border-error ring-1 ring-error' : 'border-outline-variant/50'
-                    }`}
-                    type="text"
-                  />
-                  {errors.city && <p className="text-[11px] text-error mt-0.5">{errors.city}</p>}
-                </div>
-                <div>
-                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    State / Province *
-                  </label>
-                  <input
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className={`w-full h-9 px-space-base rounded bg-surface-container-low border font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary ${
-                      errors.state ? 'border-error ring-1 ring-error' : 'border-outline-variant/50'
-                    }`}
-                    type="text"
-                  />
-                  {errors.state && <p className="text-[11px] text-error mt-0.5">{errors.state}</p>}
-                </div>
-                <div>
-                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Postal Code
-                  </label>
-                  <input
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                    type="text"
-                  />
-                </div>
-                <div>
-                  <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                    Country
-                  </label>
-                  <input
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                     type="text"
                   />

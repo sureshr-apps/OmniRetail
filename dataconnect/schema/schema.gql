@@ -256,15 +256,11 @@ type Customer @table {
   type: CustomerType!
   name: String!
   phone: String!
-  email: String!
+  email: String
   taxId: String
   documentType: String
   documentValue: String
   address: String
-  city: String!
-  state: String!
-  postalCode: String
-  country: String
   creditLimit: Float
   preferredContact: String
   dateOfBirth: Date

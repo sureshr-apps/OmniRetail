@@ -24,9 +24,8 @@ import { MalformedCallableResponseError } from '@/shared/utils/callableResponse'
 const customerRow = (overrides: Record<string, unknown> = {}) => ({
   id: 'cust-1', customerCode: 105, type: 'INDIVIDUAL', name: 'Jane Doe',
   phone: '+919876543210', email: 'jane@example.com', taxId: null, address: '1 Elm St',
-  city: 'Austin', state: 'TX', postalCode: '73301', country: 'United States',
   creditLimit: 1500, preferredContact: 'Email & SMS', dateOfBirth: null, gender: null,
-  status: 'ACTIVE', notes: null, createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z',
+  status: 'ACTIVE', notes: null,
   ...overrides,
 });
 
@@ -44,7 +43,7 @@ describe('customerService mutations return the canonical entity directly', () =>
       data: { success: true, organizationId: 'org-1', ...customerRow({ id: 'cust-2', customerCode: 106, name: 'New Customer' }) },
     }));
     const created = await customerService.createCustomer({
-      type: 'Individual', name: 'New Customer', phone: '+919876543210', email: 'new@example.com', city: 'Austin', state: 'TX',
+      type: 'Individual', name: 'New Customer', phone: '+919876543210', email: 'new@example.com',
     });
     expect(created).toMatchObject({ id: 'cust-2', customerCode: 106, name: 'New Customer' });
     // customerCode is now a server-assigned serial, so create never needs an

@@ -20,7 +20,6 @@ export interface ICustomerService {
   updateCustomer(id: string, input: UpdateCustomerInput): Promise<Customer>;
   changeCustomerStatus(id: string, status: CustomerStatus): Promise<Customer>;
   deleteCustomer(id: string): Promise<void>;
-  getCities(): Promise<string[]>;
   getAllCustomers(): Promise<Customer[]>;
   getRecentPurchases(customerId: string): Promise<CustomerRecentOrder[]>;
 }
@@ -33,13 +32,9 @@ interface CustomerMutationResponse {
   type: string;
   name: string;
   phone: string;
-  email: string;
+  email: string | null;
   taxId: string | null;
   address: string | null;
-  city: string;
-  state: string;
-  postalCode: string | null;
-  country: string | null;
   creditLimit: number | null;
   dateOfBirth: string | null;
   gender: string | null;
@@ -50,11 +45,11 @@ interface CustomerMutationResponse {
 }
 
 function mapTenantCustomer(row: TenantCustomerRow | CustomerMutationResponse): Customer {
-  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, documentType: row.documentType ?? undefined, documentValue: row.documentValue ?? undefined, address: row.address ?? undefined, city: row.city, state: row.state, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, creditLimit: row.creditLimit ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: 0, completedOrdersCount: 0, balance: 0 };
+  return { id: row.id, customerCode: row.customerCode, type: row.type === 'BUSINESS' ? 'Business' : 'Individual', name: row.name, phone: row.phone, email: row.email ?? undefined, taxId: row.taxId ?? undefined, documentType: row.documentType ?? undefined, documentValue: row.documentValue ?? undefined, address: row.address ?? undefined, creditLimit: row.creditLimit ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, gender: row.gender ?? undefined, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, totalPurchases: 0, completedOrdersCount: 0, balance: 0 };
 }
 
 const CUSTOMER_MUTATION_RESPONSE_KEYS: (keyof CustomerMutationResponse)[] = [
-  'id', 'customerCode', 'type', 'name', 'phone', 'email', 'city', 'state', 'status',
+  'id', 'customerCode', 'type', 'name', 'phone', 'status',
 ];
 
 /**
@@ -63,7 +58,7 @@ const CUSTOMER_MUTATION_RESPONSE_KEYS: (keyof CustomerMutationResponse)[] = [
  */
 export function deriveCustomerView(all: Customer[], query: CustomerQuery): CustomerQueryResult {
   const search = query.search?.trim().toLowerCase() ?? '';
-  const customers = all.filter((customer) => (!search || `${formatCustomerCode(customer.customerCode)} ${customer.name} ${customer.phone} ${customer.email}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || customer.status === query.status) && (!query.type || query.type === 'ALL' || customer.type === query.type) && (!query.city || customer.city === query.city));
+  const customers = all.filter((customer) => (!search || `${formatCustomerCode(customer.customerCode)} ${customer.name} ${customer.phone} ${customer.email ?? ''}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || customer.status === query.status) && (!query.type || query.type === 'ALL' || customer.type === query.type));
   const page = Math.max(1, query.page);
   const pageSize = Math.max(1, query.pageSize);
   const totalPages = Math.max(1, Math.ceil(customers.length / pageSize));
@@ -95,7 +90,6 @@ class ProductionCustomerService implements ICustomerService {
     }));
   }
   async getCustomer(id: string): Promise<Customer | null> { return (await this.getAllCustomers()).find((customer) => customer.id === id || String(customer.customerCode) === id || formatCustomerCode(customer.customerCode) === id) ?? null; }
-  async getCities(): Promise<string[]> { return Array.from(new Set((await this.getAllCustomers()).map((customer) => customer.state ? `${customer.city}, ${customer.state}` : customer.city))).sort(); }
   async createCustomer(input: CreateCustomerInput): Promise<Customer> {
     const organizationId = await this.organizationId();
     const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantCustomerRecord')({

@@ -4150,15 +4150,11 @@ export interface ListTenantCustomersData {
     type: CustomerType;
     name: string;
     phone: string;
-    email: string;
+    email?: string | null;
     taxId?: string | null;
     documentType?: string | null;
     documentValue?: string | null;
     address?: string | null;
-    city: string;
-    state: string;
-    postalCode?: string | null;
-    country?: string | null;
     creditLimit?: number | null;
     preferredContact?: string | null;
     dateOfBirth?: DateString | null;
@@ -4912,7 +4908,7 @@ export interface ListTenantSalesData {
       customerCode: number;
       name: string;
       phone: string;
-      email: string;
+      email?: string | null;
     } & Customer_Key;
     customerName: string;
     staffName: string;
@@ -5310,15 +5306,11 @@ export interface GetTenantCustomerTrustedData {
     type: CustomerType;
     name: string;
     phone: string;
-    email: string;
+    email?: string | null;
     taxId?: string | null;
     documentType?: string | null;
     documentValue?: string | null;
     address?: string | null;
-    city: string;
-    state: string;
-    postalCode?: string | null;
-    country?: string | null;
     creditLimit?: number | null;
     preferredContact?: string | null;
     dateOfBirth?: DateString | null;
@@ -10831,15 +10823,11 @@ export interface CreateTenantCustomerVariables {
   type: CustomerType;
   name: string;
   phone: string;
-  email: string;
+  email?: string | null;
   taxId?: string | null;
   documentType?: string | null;
   documentValue?: string | null;
   address?: string | null;
-  city: string;
-  state: string;
-  postalCode?: string | null;
-  country?: string | null;
   creditLimit?: number | null;
   preferredContact?: string | null;
   dateOfBirth?: DateString | null;
@@ -10869,15 +10857,11 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   type: ...,
   name: ...,
   phone: ...,
-  email: ...,
+  email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ...,
-  state: ...,
-  postalCode: ..., // optional
-  country: ..., // optional
   creditLimit: ..., // optional
   preferredContact: ..., // optional
   dateOfBirth: ..., // optional
@@ -10889,7 +10873,7 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantCustomer(createTenantCustomerVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantCustomer({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
+const { data } = await createTenantCustomer({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10917,15 +10901,11 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   type: ...,
   name: ...,
   phone: ...,
-  email: ...,
+  email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ...,
-  state: ...,
-  postalCode: ..., // optional
-  country: ..., // optional
   creditLimit: ..., // optional
   preferredContact: ..., // optional
   dateOfBirth: ..., // optional
@@ -10936,7 +10916,7 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
 // Call the `createTenantCustomerRef()` function to get a reference to the mutation.
 const ref = createTenantCustomerRef(createTenantCustomerVars);
 // Variables can be defined inline as well.
-const ref = createTenantCustomerRef({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
+const ref = createTenantCustomerRef({ id: ..., organizationId: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -10994,15 +10974,11 @@ export interface UpdateTenantCustomerVariables {
   type: CustomerType;
   name: string;
   phone: string;
-  email: string;
+  email?: string | null;
   taxId?: string | null;
   documentType?: string | null;
   documentValue?: string | null;
   address?: string | null;
-  city: string;
-  state: string;
-  postalCode?: string | null;
-  country?: string | null;
   creditLimit?: number | null;
   preferredContact?: string | null;
   dateOfBirth?: DateString | null;
@@ -11032,15 +11008,11 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   type: ...,
   name: ...,
   phone: ...,
-  email: ...,
+  email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ...,
-  state: ...,
-  postalCode: ..., // optional
-  country: ..., // optional
   creditLimit: ..., // optional
   preferredContact: ..., // optional
   dateOfBirth: ..., // optional
@@ -11052,7 +11024,7 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantCustomer(updateTenantCustomerVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantCustomer({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
+const { data } = await updateTenantCustomer({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11080,15 +11052,11 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   type: ...,
   name: ...,
   phone: ...,
-  email: ...,
+  email: ..., // optional
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ...,
-  state: ...,
-  postalCode: ..., // optional
-  country: ..., // optional
   creditLimit: ..., // optional
   preferredContact: ..., // optional
   dateOfBirth: ..., // optional
@@ -11099,7 +11067,7 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
 // Call the `updateTenantCustomerRef()` function to get a reference to the mutation.
 const ref = updateTenantCustomerRef(updateTenantCustomerVars);
 // Variables can be defined inline as well.
-const ref = updateTenantCustomerRef({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., city: ..., state: ..., postalCode: ..., country: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
+const ref = updateTenantCustomerRef({ organizationId: ..., id: ..., type: ..., name: ..., phone: ..., email: ..., taxId: ..., documentType: ..., documentValue: ..., address: ..., creditLimit: ..., preferredContact: ..., dateOfBirth: ..., gender: ..., notes: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

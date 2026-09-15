@@ -26,14 +26,12 @@ export function CustomersPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<'ALL' | CustomerStatus>('Active'); // Default to Active matching Stitch screenshot
   const [type, setType] = useState<'ALL' | CustomerType>('ALL');
-  const [city, setCity] = useState<string>('ALL');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5); // Default to 5 matching Stitch screenshot
 
   // Data: the full org-scoped set. Mutations upsert into this directly;
   // the visible page, filters, and aggregate counts are all derived from it below.
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
-  const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Dialog & Drawer state — selection is an id; the record itself is always
@@ -60,11 +58,10 @@ export function CustomersPage() {
         search: search.trim() || undefined,
         status,
         type,
-        city: city !== 'ALL' ? city : undefined,
         page,
         pageSize,
       }),
-    [allCustomers, search, status, type, city, page, pageSize],
+    [allCustomers, search, status, type, page, pageSize],
   );
 
   const viewingCustomer = useMemo(
@@ -106,11 +103,6 @@ export function CustomersPage() {
     return () => { active = false; };
   }, [viewingCustomerId]);
 
-  // Load available cities
-  useEffect(() => {
-    customerService.getCities().then((cList) => setCities(cList));
-  }, []);
-
   // Reset page to 1 when filters change
   const handleSearchChange = (val: string) => {
     setSearch(val);
@@ -127,23 +119,17 @@ export function CustomersPage() {
     setPage(1);
   };
 
-  const handleCityChange = (val: string) => {
-    setCity(val);
-    setPage(1);
-  };
-
   const handleResetFilters = () => {
     setSearch('');
     setStatus('ALL');
     setType('ALL');
-    setCity('ALL');
     setPage(1);
   };
 
-  const isFiltered = search !== '' || status !== 'ALL' || type !== 'ALL' || city !== 'ALL';
+  const isFiltered = search !== '' || status !== 'ALL' || type !== 'ALL';
 
   // Export current filtered set — derived locally from the already-loaded full
-  // set, matching the current search/status/type/city filter, with no extra
+  // set, matching the current search/status/type filter, with no extra
   // network call.
   const handleExport = () => {
     try {
@@ -151,7 +137,6 @@ export function CustomersPage() {
         search: search.trim() || undefined,
         status,
         type,
-        city: city !== 'ALL' ? city : undefined,
         page: 1,
         pageSize: Math.max(allCustomers.length, 1),
       });
@@ -163,20 +148,12 @@ export function CustomersPage() {
     }
   };
 
-  // Refreshes metadata (available cities) derived from the directory. This is
-  // distinct from the customer rows themselves, which mutations now patch
-  // locally via upsertById instead of triggering a full list reload.
-  const refreshCustomerMetadata = async () => {
-    setCities(await customerService.getCities());
-  };
-
   const deleteConfirmation = useDeleteConfirmation<Customer>({
     deleteRecord: (customer) => customerService.deleteCustomer(customer.id),
     onDeleted: async (customer) => {
       setAllCustomers((prev) => removeById(prev, customer.id));
       showToast(`Customer ${formatCustomerCode(customer.customerCode)} deleted successfully.`);
       setViewingCustomerId(null);
-      await refreshCustomerMetadata();
     },
   });
 
@@ -185,7 +162,6 @@ export function CustomersPage() {
     const created = await customerService.createCustomer(input);
     showToast(`Customer ${formatCustomerCode(created.customerCode)} (${created.name}) created successfully.`);
     setAllCustomers((prev) => upsertById(prev, created));
-    await refreshCustomerMetadata();
   };
 
   // Edit customer
@@ -193,7 +169,6 @@ export function CustomersPage() {
     const updated = await customerService.updateCustomer(id, input);
     showToast(`Customer ${formatCustomerCode(updated.customerCode)} (${updated.name}) updated successfully.`);
     setAllCustomers((prev) => upsertById(prev, updated));
-    await refreshCustomerMetadata();
   };
 
   const handlePromptDelete = (customer: Customer) => {
@@ -211,7 +186,6 @@ export function CustomersPage() {
       `Customer ${formatCustomerCode(updated.customerCode)} marked as ${newStatus}.`
     );
     setAllCustomers((prev) => upsertById(prev, updated));
-    await refreshCustomerMetadata();
   };
 
   return (
@@ -239,9 +213,6 @@ export function CustomersPage() {
         onStatusChange={handleStatusChange}
         type={type}
         onTypeChange={handleTypeChange}
-        city={city}
-        onCityChange={handleCityChange}
-        cities={cities}
         isFiltered={isFiltered}
         onResetFilters={handleResetFilters}
       />

@@ -227,7 +227,7 @@ export function ServicePersonModal({
                   <input
                     type="tel"
                     value={phone}
-                    onChange={(e) => setPhone(formatIndianPhone(e.target.value))}
+                    onChange={(e) => setPhone(isEditing ? formatIndianPhone(e.target.value) : e.target.value)}
                     inputMode="tel"
                     placeholder="+91 98765 43210"
                     className={`w-full h-9 px-space-base rounded-xl bg-surface-container-low border ${

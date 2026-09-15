@@ -123,6 +123,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*UpdateTenantEmployeeLoginTrusted*](#updatetenantemployeelogintrusted)
   - [*UpdateTenantEmployeeTrusted*](#updatetenantemployeetrusted)
   - [*ChangeTenantEmployeeStatusTrusted*](#changetenantemployeestatustrusted)
+  - [*ChangeTenantEmployeeStatusWithLoginTrusted*](#changetenantemployeestatuswithlogintrusted)
   - [*ChangeTenantEmployeeLoginAccessTrusted*](#changetenantemployeeloginaccesstrusted)
   - [*CreateTenantServicePersonTrusted*](#createtenantservicepersontrusted)
   - [*UpdateTenantServicePersonTrusted*](#updatetenantservicepersontrusted)
@@ -221,6 +222,10 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -354,6 +359,10 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -496,6 +505,10 @@ export interface ResolveUsernameLoginData {
     firebaseUid: string;
     email: string;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
   } & AppUser_Key)[];
 }
 ```
@@ -14805,6 +14818,132 @@ console.log(data.employee_update);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.employee_update);
+});
+```
+
+## ChangeTenantEmployeeStatusWithLoginTrusted
+You can execute the `ChangeTenantEmployeeStatusWithLoginTrusted` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+changeTenantEmployeeStatusWithLoginTrusted(vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+
+interface ChangeTenantEmployeeStatusWithLoginTrustedRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationRef<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+}
+export const changeTenantEmployeeStatusWithLoginTrustedRef: ChangeTenantEmployeeStatusWithLoginTrustedRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+changeTenantEmployeeStatusWithLoginTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+
+interface ChangeTenantEmployeeStatusWithLoginTrustedRef {
+  ...
+  (dc: DataConnect, vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationRef<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+}
+export const changeTenantEmployeeStatusWithLoginTrustedRef: ChangeTenantEmployeeStatusWithLoginTrustedRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the changeTenantEmployeeStatusWithLoginTrustedRef:
+```typescript
+const name = changeTenantEmployeeStatusWithLoginTrustedRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ChangeTenantEmployeeStatusWithLoginTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ChangeTenantEmployeeStatusWithLoginTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  userId: UUIDString;
+  status: EmploymentStatus;
+  appUserStatus: AppUserStatus;
+}
+```
+### Return Type
+Recall that executing the `ChangeTenantEmployeeStatusWithLoginTrusted` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ChangeTenantEmployeeStatusWithLoginTrustedData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ChangeTenantEmployeeStatusWithLoginTrustedData {
+  employee_update?: Employee_Key | null;
+  appUser_update?: AppUser_Key | null;
+}
+```
+### Using `ChangeTenantEmployeeStatusWithLoginTrusted`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, changeTenantEmployeeStatusWithLoginTrusted, ChangeTenantEmployeeStatusWithLoginTrustedVariables } from '@omniretail/sql-connect';
+
+// The `ChangeTenantEmployeeStatusWithLoginTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`:
+const changeTenantEmployeeStatusWithLoginTrustedVars: ChangeTenantEmployeeStatusWithLoginTrustedVariables = {
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  status: ...,
+  appUserStatus: ...,
+};
+
+// Call the `changeTenantEmployeeStatusWithLoginTrusted()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await changeTenantEmployeeStatusWithLoginTrusted(changeTenantEmployeeStatusWithLoginTrustedVars);
+// Variables can be defined inline as well.
+const { data } = await changeTenantEmployeeStatusWithLoginTrusted({ organizationId: ..., id: ..., userId: ..., status: ..., appUserStatus: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await changeTenantEmployeeStatusWithLoginTrusted(dataConnect, changeTenantEmployeeStatusWithLoginTrustedVars);
+
+console.log(data.employee_update);
+console.log(data.appUser_update);
+
+// Or, you can use the `Promise` API.
+changeTenantEmployeeStatusWithLoginTrusted(changeTenantEmployeeStatusWithLoginTrustedVars).then((response) => {
+  const data = response.data;
+  console.log(data.employee_update);
+  console.log(data.appUser_update);
+});
+```
+
+### Using `ChangeTenantEmployeeStatusWithLoginTrusted`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, changeTenantEmployeeStatusWithLoginTrustedRef, ChangeTenantEmployeeStatusWithLoginTrustedVariables } from '@omniretail/sql-connect';
+
+// The `ChangeTenantEmployeeStatusWithLoginTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`:
+const changeTenantEmployeeStatusWithLoginTrustedVars: ChangeTenantEmployeeStatusWithLoginTrustedVariables = {
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  status: ...,
+  appUserStatus: ...,
+};
+
+// Call the `changeTenantEmployeeStatusWithLoginTrustedRef()` function to get a reference to the mutation.
+const ref = changeTenantEmployeeStatusWithLoginTrustedRef(changeTenantEmployeeStatusWithLoginTrustedVars);
+// Variables can be defined inline as well.
+const ref = changeTenantEmployeeStatusWithLoginTrustedRef({ organizationId: ..., id: ..., userId: ..., status: ..., appUserStatus: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = changeTenantEmployeeStatusWithLoginTrustedRef(dataConnect, changeTenantEmployeeStatusWithLoginTrustedVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.employee_update);
+console.log(data.appUser_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.employee_update);
+  console.log(data.appUser_update);
 });
 ```
 

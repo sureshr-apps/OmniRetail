@@ -38,6 +38,7 @@ import {
   updateTenantEmployeeTrusted,
   updateTenantEmployeeLoginTrusted,
   changeTenantEmployeeStatusTrusted,
+  changeTenantEmployeeStatusWithLoginTrusted,
   changeTenantEmployeeLoginAccessTrusted,
   createTenantEmployeeProfileTrusted,
   getTenantEmployeeTrusted,
@@ -130,7 +131,7 @@ function genericAuthenticationError(): HttpsError {
 async function loadAuthorization(firebaseUid: string): Promise<AuthorizationRecord> {
   const result = await getUserAuthorizationByFirebaseUid({ firebaseUid });
   const record = result.data.appUsers[0] as AuthorizationRecord | undefined;
-  if (!record || record.status !== AppUserStatus.ACTIVE) throw genericAuthenticationError();
+  if (!record || record.status !== AppUserStatus.ACTIVE || record.employees_on_user?.some((employee) => employee.employmentStatus !== 'ACTIVE' || employee.loginAccess !== 'ENABLED')) throw genericAuthenticationError();
   return record;
 }
 
@@ -931,6 +932,7 @@ export const updateTenantEmployeeLogin = onCall(callableOptions, async (request)
 
     const current = (await getTenantEmployeeTrusted({ organizationId, id: employeeId })).data.employees[0];
     if (!current) throw new Error('employee not found');
+    if (allowLogin && current.employmentStatus !== 'ACTIVE') throw new Error('employee inactive');
     const currentUser = current.user;
     const currentUsername = currentUser?.username ?? '';
     const currentEmail = currentUser?.email ?? '';
@@ -1016,10 +1018,28 @@ export const updateTenantEmployee = onCall(callableOptions, async (request) => {
 });
 
 export const changeTenantEmployeeStatus = onCall(callableOptions, async (request) => {
+  let targetUid = '';
+  let previousDisabled = false;
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'employees.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'INACTIVE' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
     if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationAdmin(actor, organizationId);
-    await changeTenantEmployeeStatusTrusted({ organizationId, id, status });
+    const current = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
+    if (!current) throw new Error('employee not found');
+    if (current.user?.firebaseUid) {
+      targetUid = current.user.firebaseUid;
+      const authUser = await getAuth().getUser(targetUid);
+      previousDisabled = authUser.disabled;
+      await getAuth().updateUser(targetUid, { disabled: status === 'INACTIVE' || current.loginAccess !== 'ENABLED' });
+      if (status === 'INACTIVE') await getAuth().revokeRefreshTokens(targetUid);
+      try {
+        await changeTenantEmployeeStatusWithLoginTrusted({ organizationId, id, userId: current.user.id, status, appUserStatus: status === 'ACTIVE' ? AppUserStatus.ACTIVE : AppUserStatus.INACTIVE });
+      } catch (error) {
+        await getAuth().updateUser(targetUid, { disabled: previousDisabled }).catch(() => undefined);
+        throw error;
+      }
+    } else {
+      await changeTenantEmployeeStatusTrusted({ organizationId, id, status });
+    }
     const row = (await getTenantEmployeeTrusted({ organizationId, id })).data.employees[0];
     if (!row) throw new Error('employee not found after status change');
     return { success: true, organizationId, ...mapTrustedEmployeeRow(row) };

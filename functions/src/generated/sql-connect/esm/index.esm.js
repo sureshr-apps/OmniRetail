@@ -787,6 +787,12 @@ export function changeTenantEmployeeStatusTrusted(dcOrVarsOrOptions, varsOrOptio
   return dcInstance.executeMutation('ChangeTenantEmployeeStatusTrusted', inputVars, inputOpts);
 }
 
+export function changeTenantEmployeeStatusWithLoginTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeMutation('ChangeTenantEmployeeStatusWithLoginTrusted', inputVars, inputOpts);
+}
+
 export function changeTenantEmployeeLoginAccessTrusted(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

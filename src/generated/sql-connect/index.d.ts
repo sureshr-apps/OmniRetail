@@ -317,6 +317,19 @@ export interface ChangeTenantEmployeeStatusTrustedVariables {
   status: EmploymentStatus;
 }
 
+export interface ChangeTenantEmployeeStatusWithLoginTrustedData {
+  employee_update?: Employee_Key | null;
+  appUser_update?: AppUser_Key | null;
+}
+
+export interface ChangeTenantEmployeeStatusWithLoginTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  userId: UUIDString;
+  status: EmploymentStatus;
+  appUserStatus: AppUserStatus;
+}
+
 export interface ChangeTenantExpenseApprovalData {
   expense_update?: Expense_Key | null;
 }
@@ -893,6 +906,10 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -1472,6 +1489,10 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -2400,6 +2421,10 @@ export interface ResolveUsernameLoginData {
     firebaseUid: string;
     email: string;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
   } & AppUser_Key)[];
 }
 
@@ -4030,6 +4055,18 @@ export const changeTenantEmployeeStatusTrustedRef: ChangeTenantEmployeeStatusTru
 
 export function changeTenantEmployeeStatusTrusted(vars: ChangeTenantEmployeeStatusTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusTrustedData, ChangeTenantEmployeeStatusTrustedVariables>;
 export function changeTenantEmployeeStatusTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusTrustedData, ChangeTenantEmployeeStatusTrustedVariables>;
+
+interface ChangeTenantEmployeeStatusWithLoginTrustedRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationRef<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationRef<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+  operationName: string;
+}
+export const changeTenantEmployeeStatusWithLoginTrustedRef: ChangeTenantEmployeeStatusWithLoginTrustedRef;
+
+export function changeTenantEmployeeStatusWithLoginTrusted(vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+export function changeTenantEmployeeStatusWithLoginTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables): MutationPromise<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
 
 interface ChangeTenantEmployeeLoginAccessTrustedRef {
   /* Allow users to create refs without passing in DataConnect */

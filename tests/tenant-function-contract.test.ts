@@ -237,6 +237,12 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const updateTenantEmployee = onCall');
     expect(source).toContain('export const updateTenantEmployeeLogin = onCall');
     expect(source).toContain('export const changeTenantEmployeeStatus = onCall');
+    expect(source).toContain('changeTenantEmployeeStatusWithLoginTrusted');
+    expect(source).toContain("disabled: status === 'INACTIVE' || current.loginAccess !== 'ENABLED'");
+    expect(source).toContain('revokeRefreshTokens(targetUid)');
+    expect(source).toContain("appUserStatus: status === 'ACTIVE' ? AppUserStatus.ACTIVE : AppUserStatus.INACTIVE");
+    expect(source).toContain("if (allowLogin && current.employmentStatus !== 'ACTIVE') throw new Error('employee inactive');");
+    expect(source).toContain("employee.loginAccess !== 'ENABLED'");
     expect(source).toContain('export const changeTenantEmployeeLoginAccess = onCall');
     expect(source).toContain('resolveTenantEmployeeIdentityTrusted');
     expect(source).toContain('revokeRefreshTokens(targetUid)');

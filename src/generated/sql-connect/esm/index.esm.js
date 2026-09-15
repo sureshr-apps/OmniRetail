@@ -1496,6 +1496,18 @@ export function changeTenantEmployeeStatusTrusted(dcOrVars, vars) {
   return executeMutation(changeTenantEmployeeStatusTrustedRef(dcInstance, inputVars));
 }
 
+export const changeTenantEmployeeStatusWithLoginTrustedRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'ChangeTenantEmployeeStatusWithLoginTrusted', inputVars);
+}
+changeTenantEmployeeStatusWithLoginTrustedRef.operationName = 'ChangeTenantEmployeeStatusWithLoginTrusted';
+
+export function changeTenantEmployeeStatusWithLoginTrusted(dcOrVars, vars) {
+  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
+  return executeMutation(changeTenantEmployeeStatusWithLoginTrustedRef(dcInstance, inputVars));
+}
+
 export const changeTenantEmployeeLoginAccessTrustedRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

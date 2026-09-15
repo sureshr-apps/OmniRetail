@@ -130,6 +130,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*UpdateTenantEmployeeLoginTrusted*](#updatetenantemployeelogintrusted)
   - [*UpdateTenantEmployeeTrusted*](#updatetenantemployeetrusted)
   - [*ChangeTenantEmployeeStatusTrusted*](#changetenantemployeestatustrusted)
+  - [*ChangeTenantEmployeeStatusWithLoginTrusted*](#changetenantemployeestatuswithlogintrusted)
   - [*ChangeTenantEmployeeLoginAccessTrusted*](#changetenantemployeeloginaccesstrusted)
   - [*CreateTenantServicePersonTrusted*](#createtenantservicepersontrusted)
   - [*UpdateTenantServicePersonTrusted*](#updatetenantservicepersontrusted)
@@ -257,6 +258,10 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -368,6 +373,10 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -483,6 +492,10 @@ export interface ResolveUsernameLoginData {
     firebaseUid: string;
     email: string;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
   } & AppUser_Key)[];
 }
 ```
@@ -12095,6 +12108,110 @@ export default function ChangeTenantEmployeeStatusTrustedComponent() {
   // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
   if (mutation.isSuccess) {
     console.log(mutation.data.employee_update);
+  }
+  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ChangeTenantEmployeeStatusWithLoginTrusted
+You can execute the `ChangeTenantEmployeeStatusWithLoginTrusted` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
+```javascript
+useChangeTenantEmployeeStatusWithLoginTrusted(options?: useDataConnectMutationOptions<ChangeTenantEmployeeStatusWithLoginTrustedData, FirebaseError, ChangeTenantEmployeeStatusWithLoginTrustedVariables>): UseDataConnectMutationResult<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+```
+You can also pass in a `DataConnect` instance to the Mutation hook function.
+```javascript
+useChangeTenantEmployeeStatusWithLoginTrusted(dc: DataConnect, options?: useDataConnectMutationOptions<ChangeTenantEmployeeStatusWithLoginTrustedData, FirebaseError, ChangeTenantEmployeeStatusWithLoginTrustedVariables>): UseDataConnectMutationResult<ChangeTenantEmployeeStatusWithLoginTrustedData, ChangeTenantEmployeeStatusWithLoginTrustedVariables>;
+```
+
+### Variables
+The `ChangeTenantEmployeeStatusWithLoginTrusted` Mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ChangeTenantEmployeeStatusWithLoginTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  userId: UUIDString;
+  status: EmploymentStatus;
+  appUserStatus: AppUserStatus;
+}
+```
+### Return Type
+Recall that calling the `ChangeTenantEmployeeStatusWithLoginTrusted` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
+
+To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
+
+To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
+
+To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `ChangeTenantEmployeeStatusWithLoginTrusted` Mutation is of type `ChangeTenantEmployeeStatusWithLoginTrustedData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ChangeTenantEmployeeStatusWithLoginTrustedData {
+  employee_update?: Employee_Key | null;
+  appUser_update?: AppUser_Key | null;
+}
+```
+
+To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
+
+### Using `ChangeTenantEmployeeStatusWithLoginTrusted`'s Mutation hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ChangeTenantEmployeeStatusWithLoginTrustedVariables } from '@omniretail/sql-connect';
+import { useChangeTenantEmployeeStatusWithLoginTrusted } from '@omniretail/sql-connect/react'
+
+export default function ChangeTenantEmployeeStatusWithLoginTrustedComponent() {
+  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
+  const mutation = useChangeTenantEmployeeStatusWithLoginTrusted();
+
+  // You can also pass in a `DataConnect` instance to the Mutation hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const mutation = useChangeTenantEmployeeStatusWithLoginTrusted(dataConnect);
+
+  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantEmployeeStatusWithLoginTrusted(options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  const mutation = useChangeTenantEmployeeStatusWithLoginTrusted(dataConnect, options);
+
+  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
+  // The `useChangeTenantEmployeeStatusWithLoginTrusted` Mutation requires an argument of type `ChangeTenantEmployeeStatusWithLoginTrustedVariables`:
+  const changeTenantEmployeeStatusWithLoginTrustedVars: ChangeTenantEmployeeStatusWithLoginTrustedVariables = {
+    organizationId: ...,
+    id: ...,
+    userId: ...,
+    status: ...,
+    appUserStatus: ...,
+  };
+  mutation.mutate(changeTenantEmployeeStatusWithLoginTrustedVars);
+  // Variables can be defined inline as well.
+  mutation.mutate({ organizationId: ..., id: ..., userId: ..., status: ..., appUserStatus: ..., });
+
+  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
+  const options = {
+    onSuccess: () => { console.log('Mutation succeeded!'); }
+  };
+  mutation.mutate(changeTenantEmployeeStatusWithLoginTrustedVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Mutation.
+  if (mutation.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (mutation.isError) {
+    return <div>Error: {mutation.error.message}</div>;
+  }
+
+  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
+  if (mutation.isSuccess) {
+    console.log(mutation.data.employee_update);
+    console.log(mutation.data.appUser_update);
   }
   return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
 }

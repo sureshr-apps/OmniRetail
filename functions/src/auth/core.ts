@@ -8,6 +8,7 @@ export interface AuthorizationRecord {
   displayName: string;
   phone?: string | null;
   status: string;
+  employees_on_user?: Array<{ employmentStatus: string; loginAccess: string }>;
   userRoles_on_user: Array<{
     role: {
       code: string;
@@ -87,6 +88,7 @@ interface UsernameIdentity {
   firebaseUid: string;
   email: string;
   status: string;
+  employees_on_user?: Array<{ employmentStatus: string; loginAccess: string }>;
 }
 
 interface VerifiedCredential {
@@ -111,7 +113,9 @@ export async function authenticateUsername(
 
   try {
     const identity = await dependencies.resolveUsername(username);
-    if (!identity || identity.status !== 'ACTIVE') throw new Error(GENERIC_AUTH_ERROR);
+    if (!identity || identity.status !== 'ACTIVE' || identity.employees_on_user?.some((employee) => employee.employmentStatus !== 'ACTIVE' || employee.loginAccess !== 'ENABLED')) {
+      throw new Error(GENERIC_AUTH_ERROR);
+    }
 
     const passwordResult = await dependencies.verifyPassword(identity.email, password);
     const verified = await dependencies.verifyCredential(passwordResult.idToken);

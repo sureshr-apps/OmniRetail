@@ -57,6 +57,8 @@ describe('trusted username authentication', () => {
   it.each([
     ['missing username', { resolveUsername: vi.fn().mockResolvedValue(null) }],
     ['inactive user', { resolveUsername: vi.fn().mockResolvedValue({ firebaseUid: 'uid-1', email: 'admin@example.com', status: 'INACTIVE' }) }],
+    ['inactive employee', { resolveUsername: vi.fn().mockResolvedValue({ firebaseUid: 'uid-1', email: 'employee@login.omniretail.local', status: 'ACTIVE', employees_on_user: [{ employmentStatus: 'INACTIVE', loginAccess: 'ENABLED' }] }) }],
+    ['disabled employee login', { resolveUsername: vi.fn().mockResolvedValue({ firebaseUid: 'uid-1', email: 'employee@login.omniretail.local', status: 'ACTIVE', employees_on_user: [{ employmentStatus: 'ACTIVE', loginAccess: 'DISABLED' }] }) }],
     ['UID mismatch', { verifyCredential: vi.fn().mockResolvedValue({ uid: 'other', emailVerified: true }) }],
     ['invalid password', { verifyPassword: vi.fn().mockRejectedValue(new Error('INVALID_PASSWORD')) }],
   ])('uses the same generic failure for %s', async (_label, override) => {

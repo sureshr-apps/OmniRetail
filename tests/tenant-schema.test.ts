@@ -213,6 +213,13 @@ describe('tenant Data Connect foundation schema', () => {
     expect(connector).toContain('employeeOutlet_delete(key: { employeeId: $employeeId outletId: $outletId })');
   });
 
+  it('synchronizes employee status with linked application login status', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(connector).toContain('mutation ChangeTenantEmployeeStatusWithLoginTrusted');
+    expect(connector).toContain('appUser_update(id: $userId, data: { status: $appUserStatus })');
+    expect(connector).toContain('employee_update(id: $id, data: { employmentStatus: $status })');
+  });
+
   it('keeps Service Person storage aligned with the supported form fields', () => {
     const schema = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
     const servicePerson = schema.match(/type ServicePerson @table \{[\s\S]*?\n\}/)?.[0] ?? '';

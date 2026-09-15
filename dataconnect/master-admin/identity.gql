@@ -15,6 +15,7 @@ query GetCurrentUserAuthorization @auth(level: USER) {
     displayName
     phone
     status
+    employees_on_user { employmentStatus loginAccess }
     userRoles_on_user {
       role {
         code
@@ -42,6 +43,7 @@ query GetUserAuthorizationByFirebaseUid($firebaseUid: String!) @auth(level: NO_A
     displayName
     phone
     status
+    employees_on_user { employmentStatus loginAccess }
     userRoles_on_user {
       role {
         code
@@ -64,6 +66,7 @@ query ResolveUsernameLogin($username: String!) @auth(level: NO_ACCESS) {
     firebaseUid
     email
     status
+    employees_on_user { employmentStatus loginAccess }
   }
 }
 
@@ -889,6 +892,12 @@ mutation UpdateTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!, $fullNa
 mutation ChangeTenantEmployeeStatusTrusted($organizationId: UUID!, $id: UUID!, $status: EmploymentStatus!) @auth(level: NO_ACCESS) @transaction {
   query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee is not in this organization.") { organization { id } } }
   employee_update(id: $id, data: { employmentStatus: $status })
+}
+
+mutation ChangeTenantEmployeeStatusWithLoginTrusted($organizationId: UUID!, $id: UUID!, $userId: UUID!, $status: EmploymentStatus!, $appUserStatus: AppUserStatus!) @auth(level: NO_ACCESS) @transaction {
+  query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } }, user: { id: { eq: $userId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee identity is not in this organization.") { organization { id } user { id } } }
+  employee_update(id: $id, data: { employmentStatus: $status })
+  appUser_update(id: $userId, data: { status: $appUserStatus })
 }
 
 mutation ChangeTenantEmployeeLoginAccessTrusted($organizationId: UUID!, $id: UUID!, $userId: UUID!, $loginAccess: LoginAccessStatus!) @auth(level: NO_ACCESS) @transaction {

@@ -293,6 +293,19 @@ export interface ChangeTenantEmployeeStatusTrustedVariables {
   status: EmploymentStatus;
 }
 
+export interface ChangeTenantEmployeeStatusWithLoginTrustedData {
+  employee_update?: Employee_Key | null;
+  appUser_update?: AppUser_Key | null;
+}
+
+export interface ChangeTenantEmployeeStatusWithLoginTrustedVariables {
+  organizationId: UUIDString;
+  id: UUIDString;
+  userId: UUIDString;
+  status: EmploymentStatus;
+  appUserStatus: AppUserStatus;
+}
+
 export interface ChangeTenantExpenseApprovalData {
   expense_update?: Expense_Key | null;
 }
@@ -869,6 +882,10 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -1448,6 +1465,10 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
     userRoles_on_user: ({
       role: {
         code: string;
@@ -2376,6 +2397,10 @@ export interface ResolveUsernameLoginData {
     firebaseUid: string;
     email: string;
     status: AppUserStatus;
+    employees_on_user: ({
+      employmentStatus: EmploymentStatus;
+      loginAccess: LoginAccessStatus;
+    })[];
   } & AppUser_Key)[];
 }
 
@@ -3236,6 +3261,11 @@ export function updateTenantEmployeeTrusted(vars: UpdateTenantEmployeeTrustedVar
 export function changeTenantEmployeeStatusTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantEmployeeStatusTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'ChangeTenantEmployeeStatusTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function changeTenantEmployeeStatusTrusted(vars: ChangeTenantEmployeeStatusTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantEmployeeStatusTrustedData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ChangeTenantEmployeeStatusWithLoginTrusted' Mutation. Allow users to execute without passing in DataConnect. */
+export function changeTenantEmployeeStatusWithLoginTrusted(dc: DataConnect, vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantEmployeeStatusWithLoginTrustedData>>;
+/** Generated Node Admin SDK operation action function for the 'ChangeTenantEmployeeStatusWithLoginTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
+export function changeTenantEmployeeStatusWithLoginTrusted(vars: ChangeTenantEmployeeStatusWithLoginTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantEmployeeStatusWithLoginTrustedData>>;
 
 /** Generated Node Admin SDK operation action function for the 'ChangeTenantEmployeeLoginAccessTrusted' Mutation. Allow users to execute without passing in DataConnect. */
 export function changeTenantEmployeeLoginAccessTrusted(dc: DataConnect, vars: ChangeTenantEmployeeLoginAccessTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ChangeTenantEmployeeLoginAccessTrustedData>>;

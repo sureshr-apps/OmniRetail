@@ -50,7 +50,7 @@ export function ServicePersonStatusConfirmDialog({
         {/* Message */}
         <p className="font-body-default text-body-default text-on-surface-variant mb-space-lg">
           {willBeInactive
-            ? `Are you sure you want to deactivate ${person.displayName}? They will be marked as Inactive and removed from active dispatch queues. All historical records and past service assignments will remain preserved.`
+            ? `Are you sure you want to deactivate ${person.displayName}? They will be marked as Inactive. All historical records and past service assignments will remain preserved.`
             : `Are you sure you want to reactivate ${person.displayName}? They will be marked as Active and restored to the operational service dispatch queue.`}
         </p>
 

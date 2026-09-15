@@ -96,15 +96,6 @@ const ProductType = {
 }
 exports.ProductType = ProductType;
 
-const ProvisioningAttemptStatus = {
-  IN_PROGRESS: "IN_PROGRESS",
-  SUCCEEDED: "SUCCEEDED",
-  FAILED_RETRYABLE: "FAILED_RETRYABLE",
-  FAILED_TERMINAL: "FAILED_TERMINAL",
-  REQUIRES_RECONCILIATION: "REQUIRES_RECONCILIATION",
-}
-exports.ProvisioningAttemptStatus = ProvisioningAttemptStatus;
-
 const PurchasePaymentStatus = {
   PAID: "PAID",
   PARTIALLY_PAID: "PARTIALLY_PAID",
@@ -382,13 +373,6 @@ function recordAdministratorSecurityEvent(dcOrVarsOrOptions, varsOrOptions, opti
 }
 exports.recordAdministratorSecurityEvent = recordAdministratorSecurityEvent;
 
-function getLifecycleIdempotency(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeQuery('GetLifecycleIdempotency', inputVars, inputOpts);
-}
-exports.getLifecycleIdempotency = getLifecycleIdempotency;
-
 function getOrganizationLicense(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -479,20 +463,6 @@ function renewOrganizationLicenseTrusted(dcOrVarsOrOptions, varsOrOptions, optio
   return dcInstance.executeMutation('RenewOrganizationLicenseTrusted', inputVars, inputOpts);
 }
 exports.renewOrganizationLicenseTrusted = renewOrganizationLicenseTrusted;
-
-function claimLifecycleIdempotency(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('ClaimLifecycleIdempotency', inputVars, inputOpts);
-}
-exports.claimLifecycleIdempotency = claimLifecycleIdempotency;
-
-function completeLifecycleIdempotency(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('CompleteLifecycleIdempotency', inputVars, inputOpts);
-}
-exports.completeLifecycleIdempotency = completeLifecycleIdempotency;
 
 function recordProvisioningReconciliation(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);

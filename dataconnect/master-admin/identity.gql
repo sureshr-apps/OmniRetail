@@ -414,12 +414,11 @@ query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth
   }
 }
 
-mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String!, $organizationId: UUID!, $roleId: UUID!, $auditId: UUID!, $requestId: String!, $idempotencyKey: String!, $resultReference: String!) @auth(level: NO_ACCESS) @transaction {
+mutation ProvisionOrganizationAdministrator($userId: UUID!, $firebaseUid: String!, $username: String!, $email: String!, $displayName: String!, $phone: String!, $organizationId: UUID!, $roleId: UUID!, $auditId: UUID!, $requestId: String!) @auth(level: NO_ACCESS) @transaction {
   appUser_insert(data: { id: $userId firebaseUid: $firebaseUid username: $username email: $email displayName: $displayName phone: $phone status: ACTIVE })
   organizationMembership_insert(data: { organizationId: $organizationId userId: $userId roleId: $roleId status: ACTIVE })
   userRole_upsert(data: { userId: $userId, roleId: $roleId })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $firebaseUid action: "organization_administrator.created" targetType: "AppUser" targetId: $userId requestId: $requestId metadata: { organizationId: $organizationId } })
-  lifecycleIdempotency_update(key: { idempotencyKey: $idempotencyKey }, data: { status: SUCCEEDED resultReference: $resultReference completedAt_expr: "request.time" updatedAt_expr: "request.time" })
 }
 
 mutation EnsureAppUserRoleTrusted($userId: UUID!, $roleId: UUID!) @auth(level: NO_ACCESS) {
@@ -462,10 +461,6 @@ query ResolveOrganizationAdministratorIdentity($organizationId: UUID!, $appUserI
 
 mutation RecordAdministratorSecurityEvent($auditId: UUID!, $actorFirebaseUid: String!, $action: String!, $targetId: UUID!, $organizationId: UUID!, $requestId: String!) @auth(level: NO_ACCESS) {
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: $action targetType: "AppUser" targetId: $targetId requestId: $requestId metadata: { organizationId: $organizationId } })
-}
-
-query GetLifecycleIdempotency($idempotencyKey: String!) @auth(level: NO_ACCESS) {
-  lifecycleIdempotency(key: { idempotencyKey: $idempotencyKey }) { idempotencyKey operationType status requestFingerprint resultReference createdAt updatedAt completedAt }
 }
 
 query GetOrganizationLicense($organizationId: UUID!) @auth(level: NO_ACCESS) {
@@ -543,14 +538,6 @@ mutation RenewOrganizationLicenseTrusted($id: UUID!, $organizationId: UUID!, $pl
 
 
 
-
-mutation ClaimLifecycleIdempotency($idempotencyKey: String!, $operationType: String!, $requestFingerprint: String!) @auth(level: NO_ACCESS) {
-  lifecycleIdempotency_insert(data: { idempotencyKey: $idempotencyKey operationType: $operationType status: IN_PROGRESS requestFingerprint: $requestFingerprint })
-}
-
-mutation CompleteLifecycleIdempotency($idempotencyKey: String!, $status: ProvisioningAttemptStatus!, $resultReference: String) @auth(level: NO_ACCESS) {
-  lifecycleIdempotency_update(key: { idempotencyKey: $idempotencyKey }, data: { status: $status resultReference: $resultReference completedAt_expr: "request.time" updatedAt_expr: "request.time" })
-}
 
 mutation RecordProvisioningReconciliation($idempotencyKey: String!, $firebaseUid: String!, $errorClass: String!) @auth(level: NO_ACCESS) {
   provisioningReconciliation_insert(data: { idempotencyKey: $idempotencyKey operationType: "provisionOrganizationAdministrator" firebaseUid: $firebaseUid status: "requires_reconciliation" errorClass: $errorClass })

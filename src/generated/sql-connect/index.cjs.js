@@ -96,15 +96,6 @@ const ProductType = {
 }
 exports.ProductType = ProductType;
 
-const ProvisioningAttemptStatus = {
-  IN_PROGRESS: "IN_PROGRESS",
-  SUCCEEDED: "SUCCEEDED",
-  FAILED_RETRYABLE: "FAILED_RETRYABLE",
-  FAILED_TERMINAL: "FAILED_TERMINAL",
-  REQUIRES_RECONCILIATION: "REQUIRES_RECONCILIATION",
-}
-exports.ProvisioningAttemptStatus = ProvisioningAttemptStatus;
-
 const PurchasePaymentStatus = {
   PAID: "PAID",
   PARTIALLY_PAID: "PARTIALLY_PAID",
@@ -630,21 +621,6 @@ exports.recordAdministratorSecurityEvent = function recordAdministratorSecurityE
 }
 ;
 
-const getLifecycleIdempotencyRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'GetLifecycleIdempotency', inputVars);
-}
-getLifecycleIdempotencyRef.operationName = 'GetLifecycleIdempotency';
-exports.getLifecycleIdempotencyRef = getLifecycleIdempotencyRef;
-
-exports.getLifecycleIdempotency = function getLifecycleIdempotency(dcOrVars, varsOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  return executeQuery(getLifecycleIdempotencyRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
-}
-;
-
 const getOrganizationLicenseRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -831,34 +807,6 @@ exports.renewOrganizationLicenseTrustedRef = renewOrganizationLicenseTrustedRef;
 exports.renewOrganizationLicenseTrusted = function renewOrganizationLicenseTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(renewOrganizationLicenseTrustedRef(dcInstance, inputVars));
-}
-;
-
-const claimLifecycleIdempotencyRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'ClaimLifecycleIdempotency', inputVars);
-}
-claimLifecycleIdempotencyRef.operationName = 'ClaimLifecycleIdempotency';
-exports.claimLifecycleIdempotencyRef = claimLifecycleIdempotencyRef;
-
-exports.claimLifecycleIdempotency = function claimLifecycleIdempotency(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(claimLifecycleIdempotencyRef(dcInstance, inputVars));
-}
-;
-
-const completeLifecycleIdempotencyRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'CompleteLifecycleIdempotency', inputVars);
-}
-completeLifecycleIdempotencyRef.operationName = 'CompleteLifecycleIdempotency';
-exports.completeLifecycleIdempotencyRef = completeLifecycleIdempotencyRef;
-
-exports.completeLifecycleIdempotency = function completeLifecycleIdempotency(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(completeLifecycleIdempotencyRef(dcInstance, inputVars));
 }
 ;
 

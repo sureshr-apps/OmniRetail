@@ -59,11 +59,11 @@ class OrganizationAdminService implements IOrganizationAdminService {
     input: CreateAdminInput
   ): Promise<OrganizationAdministrator> {
     const provision = httpsCallable<
-      { organizationId: string; displayName: string; username: string; email: string; phone: string; idempotencyKey: string },
+      { organizationId: string; displayName: string; username: string; email: string; phone: string },
       { appUserId: string; organizationMembershipId: string; organizationId: string; username: string; displayName: string; email: string; phone: string; status: 'active'; onboardingStatus?: string }
     >(getFirebaseClientServices().functions, 'provisionOrganizationAdministrator', { limitedUseAppCheckTokens: true });
     try {
-      const result = await provision({ organizationId, displayName: input.name.trim(), username: input.username.trim().toLowerCase(), email: input.email.trim(), phone: input.phone.trim(), idempotencyKey: globalThis.crypto.randomUUID() });
+      const result = await provision({ organizationId, displayName: input.name.trim(), username: input.username.trim().toLowerCase(), email: input.email.trim(), phone: input.phone.trim() });
       // The trusted provisioning response uses domain names that are explicit
       // about their source (AppUser ID/displayName). Normalize it at the
       // service boundary to the UI's administrator model.

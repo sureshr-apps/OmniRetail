@@ -125,25 +125,6 @@ enum LicenseEventType {
   RENEWED
 }
 
-enum ProvisioningAttemptStatus {
-  IN_PROGRESS
-  SUCCEEDED
-  FAILED_RETRYABLE
-  FAILED_TERMINAL
-  REQUIRES_RECONCILIATION
-}
-
-type LifecycleIdempotency @table(key: "idempotencyKey") {
-  idempotencyKey: String! @unique
-  operationType: String!
-  status: ProvisioningAttemptStatus!
-  requestFingerprint: String!
-  resultReference: String
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
-  completedAt: Timestamp
-}
-
 type ProvisioningReconciliation @table {
   idempotencyKey: String!
   operationType: String!

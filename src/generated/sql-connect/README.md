@@ -28,7 +28,6 @@ This README will guide you through the process of using the generated JavaScript
   - [*GetOrganizationAdministrator*](#getorganizationadministrator)
   - [*GetOrganizationAdministratorTrusted*](#getorganizationadministratortrusted)
   - [*ResolveOrganizationAdministratorIdentity*](#resolveorganizationadministratoridentity)
-  - [*GetLifecycleIdempotency*](#getlifecycleidempotency)
   - [*GetOrganizationLicense*](#getorganizationlicense)
   - [*GetOrganizationLicenseTrusted*](#getorganizationlicensetrusted)
   - [*GetOrganizationLicenseHistory*](#getorganizationlicensehistory)
@@ -79,8 +78,6 @@ This README will guide you through the process of using the generated JavaScript
   - [*ChangeOrganizationLicensePlanTrusted*](#changeorganizationlicenseplantrusted)
   - [*ModifyOrganizationCommercialTermsTrusted*](#modifyorganizationcommercialtermstrusted)
   - [*RenewOrganizationLicenseTrusted*](#reneworganizationlicensetrusted)
-  - [*ClaimLifecycleIdempotency*](#claimlifecycleidempotency)
-  - [*CompleteLifecycleIdempotency*](#completelifecycleidempotency)
   - [*RecordProvisioningReconciliation*](#recordprovisioningreconciliation)
   - [*CreateOrganization*](#createorganization)
   - [*UpdateOrganization*](#updateorganization)
@@ -404,7 +401,7 @@ import { connectorConfig, getUserAuthorizationByFirebaseUid, GetUserAuthorizatio
 
 // The `GetUserAuthorizationByFirebaseUid` query requires an argument of type `GetUserAuthorizationByFirebaseUidVariables`:
 const getUserAuthorizationByFirebaseUidVars: GetUserAuthorizationByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getUserAuthorizationByFirebaseUid()` function to execute the query.
@@ -434,7 +431,7 @@ import { connectorConfig, getUserAuthorizationByFirebaseUidRef, GetUserAuthoriza
 
 // The `GetUserAuthorizationByFirebaseUid` query requires an argument of type `GetUserAuthorizationByFirebaseUidVariables`:
 const getUserAuthorizationByFirebaseUidVars: GetUserAuthorizationByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getUserAuthorizationByFirebaseUidRef()` function to get a reference to the query.
@@ -518,7 +515,7 @@ import { connectorConfig, resolveUsernameLogin, ResolveUsernameLoginVariables } 
 
 // The `ResolveUsernameLogin` query requires an argument of type `ResolveUsernameLoginVariables`:
 const resolveUsernameLoginVars: ResolveUsernameLoginVariables = {
-  username: ..., 
+  username: ...,
 };
 
 // Call the `resolveUsernameLogin()` function to execute the query.
@@ -548,7 +545,7 @@ import { connectorConfig, resolveUsernameLoginRef, ResolveUsernameLoginVariables
 
 // The `ResolveUsernameLogin` query requires an argument of type `ResolveUsernameLoginVariables`:
 const resolveUsernameLoginVars: ResolveUsernameLoginVariables = {
-  username: ..., 
+  username: ...,
 };
 
 // Call the `resolveUsernameLoginRef()` function to get a reference to the query.
@@ -635,7 +632,7 @@ import { connectorConfig, getAppUserForBootstrap, GetAppUserForBootstrapVariable
 
 // The `GetAppUserForBootstrap` query requires an argument of type `GetAppUserForBootstrapVariables`:
 const getAppUserForBootstrapVars: GetAppUserForBootstrapVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserForBootstrap()` function to execute the query.
@@ -665,7 +662,7 @@ import { connectorConfig, getAppUserForBootstrapRef, GetAppUserForBootstrapVaria
 
 // The `GetAppUserForBootstrap` query requires an argument of type `GetAppUserForBootstrapVariables`:
 const getAppUserForBootstrapVars: GetAppUserForBootstrapVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserForBootstrapRef()` function to get a reference to the query.
@@ -853,7 +850,7 @@ import { connectorConfig, getAppUserByFirebaseUid, GetAppUserByFirebaseUidVariab
 
 // The `GetAppUserByFirebaseUid` query requires an argument of type `GetAppUserByFirebaseUidVariables`:
 const getAppUserByFirebaseUidVars: GetAppUserByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserByFirebaseUid()` function to execute the query.
@@ -883,7 +880,7 @@ import { connectorConfig, getAppUserByFirebaseUidRef, GetAppUserByFirebaseUidVar
 
 // The `GetAppUserByFirebaseUid` query requires an argument of type `GetAppUserByFirebaseUidVariables`:
 const getAppUserByFirebaseUidVars: GetAppUserByFirebaseUidVariables = {
-  firebaseUid: ..., 
+  firebaseUid: ...,
 };
 
 // Call the `getAppUserByFirebaseUidRef()` function to get a reference to the query.
@@ -1170,7 +1167,7 @@ import { connectorConfig, getLicensePlan, GetLicensePlanVariables } from '@omnir
 
 // The `GetLicensePlan` query requires an argument of type `GetLicensePlanVariables`:
 const getLicensePlanVars: GetLicensePlanVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlan()` function to execute the query.
@@ -1200,7 +1197,7 @@ import { connectorConfig, getLicensePlanRef, GetLicensePlanVariables } from '@om
 
 // The `GetLicensePlan` query requires an argument of type `GetLicensePlanVariables`:
 const getLicensePlanVars: GetLicensePlanVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanRef()` function to get a reference to the query.
@@ -1290,7 +1287,7 @@ import { connectorConfig, getLicensePlanTrusted, GetLicensePlanTrustedVariables 
 
 // The `GetLicensePlanTrusted` query requires an argument of type `GetLicensePlanTrustedVariables`:
 const getLicensePlanTrustedVars: GetLicensePlanTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanTrusted()` function to execute the query.
@@ -1320,7 +1317,7 @@ import { connectorConfig, getLicensePlanTrustedRef, GetLicensePlanTrustedVariabl
 
 // The `GetLicensePlanTrusted` query requires an argument of type `GetLicensePlanTrustedVariables`:
 const getLicensePlanTrustedVars: GetLicensePlanTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanTrustedRef()` function to get a reference to the query.
@@ -1404,7 +1401,7 @@ import { connectorConfig, getLicensePlanReferencesTrusted, GetLicensePlanReferen
 
 // The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
 const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanReferencesTrusted()` function to execute the query.
@@ -1436,7 +1433,7 @@ import { connectorConfig, getLicensePlanReferencesTrustedRef, GetLicensePlanRefe
 
 // The `GetLicensePlanReferencesTrusted` query requires an argument of type `GetLicensePlanReferencesTrustedVariables`:
 const getLicensePlanReferencesTrustedVars: GetLicensePlanReferencesTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getLicensePlanReferencesTrustedRef()` function to get a reference to the query.
@@ -1644,7 +1641,7 @@ import { connectorConfig, getOrganization, GetOrganizationVariables } from '@omn
 
 // The `GetOrganization` query requires an argument of type `GetOrganizationVariables`:
 const getOrganizationVars: GetOrganizationVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganization()` function to execute the query.
@@ -1674,7 +1671,7 @@ import { connectorConfig, getOrganizationRef, GetOrganizationVariables } from '@
 
 // The `GetOrganization` query requires an argument of type `GetOrganizationVariables`:
 const getOrganizationVars: GetOrganizationVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganizationRef()` function to get a reference to the query.
@@ -1771,7 +1768,7 @@ import { connectorConfig, getOrganizationTrusted, GetOrganizationTrustedVariable
 
 // The `GetOrganizationTrusted` query requires an argument of type `GetOrganizationTrustedVariables`:
 const getOrganizationTrustedVars: GetOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganizationTrusted()` function to execute the query.
@@ -1801,7 +1798,7 @@ import { connectorConfig, getOrganizationTrustedRef, GetOrganizationTrustedVaria
 
 // The `GetOrganizationTrusted` query requires an argument of type `GetOrganizationTrustedVariables`:
 const getOrganizationTrustedVars: GetOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `getOrganizationTrustedRef()` function to get a reference to the query.
@@ -1894,7 +1891,7 @@ import { connectorConfig, listOrganizationAdministrators, ListOrganizationAdmini
 
 // The `ListOrganizationAdministrators` query requires an argument of type `ListOrganizationAdministratorsVariables`:
 const listOrganizationAdministratorsVars: ListOrganizationAdministratorsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationAdministrators()` function to execute the query.
@@ -1924,7 +1921,7 @@ import { connectorConfig, listOrganizationAdministratorsRef, ListOrganizationAdm
 
 // The `ListOrganizationAdministrators` query requires an argument of type `ListOrganizationAdministratorsVariables`:
 const listOrganizationAdministratorsVars: ListOrganizationAdministratorsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationAdministratorsRef()` function to get a reference to the query.
@@ -2018,8 +2015,8 @@ import { connectorConfig, getOrganizationAdministrator, GetOrganizationAdministr
 
 // The `GetOrganizationAdministrator` query requires an argument of type `GetOrganizationAdministratorVariables`:
 const getOrganizationAdministratorVars: GetOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministrator()` function to execute the query.
@@ -2049,8 +2046,8 @@ import { connectorConfig, getOrganizationAdministratorRef, GetOrganizationAdmini
 
 // The `GetOrganizationAdministrator` query requires an argument of type `GetOrganizationAdministratorVariables`:
 const getOrganizationAdministratorVars: GetOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministratorRef()` function to get a reference to the query.
@@ -2144,8 +2141,8 @@ import { connectorConfig, getOrganizationAdministratorTrusted, GetOrganizationAd
 
 // The `GetOrganizationAdministratorTrusted` query requires an argument of type `GetOrganizationAdministratorTrustedVariables`:
 const getOrganizationAdministratorTrustedVars: GetOrganizationAdministratorTrustedVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministratorTrusted()` function to execute the query.
@@ -2175,8 +2172,8 @@ import { connectorConfig, getOrganizationAdministratorTrustedRef, GetOrganizatio
 
 // The `GetOrganizationAdministratorTrusted` query requires an argument of type `GetOrganizationAdministratorTrustedVariables`:
 const getOrganizationAdministratorTrustedVars: GetOrganizationAdministratorTrustedVariables = {
-  organizationId: ..., 
-  userId: ..., 
+  organizationId: ...,
+  userId: ...,
 };
 
 // Call the `getOrganizationAdministratorTrustedRef()` function to get a reference to the query.
@@ -2266,8 +2263,8 @@ import { connectorConfig, resolveOrganizationAdministratorIdentity, ResolveOrgan
 
 // The `ResolveOrganizationAdministratorIdentity` query requires an argument of type `ResolveOrganizationAdministratorIdentityVariables`:
 const resolveOrganizationAdministratorIdentityVars: ResolveOrganizationAdministratorIdentityVariables = {
-  organizationId: ..., 
-  appUserId: ..., 
+  organizationId: ...,
+  appUserId: ...,
 };
 
 // Call the `resolveOrganizationAdministratorIdentity()` function to execute the query.
@@ -2297,8 +2294,8 @@ import { connectorConfig, resolveOrganizationAdministratorIdentityRef, ResolveOr
 
 // The `ResolveOrganizationAdministratorIdentity` query requires an argument of type `ResolveOrganizationAdministratorIdentityVariables`:
 const resolveOrganizationAdministratorIdentityVars: ResolveOrganizationAdministratorIdentityVariables = {
-  organizationId: ..., 
-  appUserId: ..., 
+  organizationId: ...,
+  appUserId: ...,
 };
 
 // Call the `resolveOrganizationAdministratorIdentityRef()` function to get a reference to the query.
@@ -2320,124 +2317,6 @@ console.log(data.organizationMembership);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationMembership);
-});
-```
-
-## GetLifecycleIdempotency
-You can execute the `GetLifecycleIdempotency` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-getLifecycleIdempotency(vars: GetLifecycleIdempotencyVariables, options?: ExecuteQueryOptions): QueryPromise<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-
-interface GetLifecycleIdempotencyRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: GetLifecycleIdempotencyVariables): QueryRef<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-}
-export const getLifecycleIdempotencyRef: GetLifecycleIdempotencyRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
-```typescript
-getLifecycleIdempotency(dc: DataConnect, vars: GetLifecycleIdempotencyVariables, options?: ExecuteQueryOptions): QueryPromise<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-
-interface GetLifecycleIdempotencyRef {
-  ...
-  (dc: DataConnect, vars: GetLifecycleIdempotencyVariables): QueryRef<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-}
-export const getLifecycleIdempotencyRef: GetLifecycleIdempotencyRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getLifecycleIdempotencyRef:
-```typescript
-const name = getLifecycleIdempotencyRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `GetLifecycleIdempotency` query requires an argument of type `GetLifecycleIdempotencyVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface GetLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-}
-```
-### Return Type
-Recall that executing the `GetLifecycleIdempotency` query returns a `QueryPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `GetLifecycleIdempotencyData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface GetLifecycleIdempotencyData {
-  lifecycleIdempotency?: {
-    idempotencyKey: string;
-    operationType: string;
-    status: ProvisioningAttemptStatus;
-    requestFingerprint: string;
-    resultReference?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
-    completedAt?: TimestampString | null;
-  } & LifecycleIdempotency_Key;
-}
-```
-### Using `GetLifecycleIdempotency`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, getLifecycleIdempotency, GetLifecycleIdempotencyVariables } from '@omniretail/sql-connect';
-
-// The `GetLifecycleIdempotency` query requires an argument of type `GetLifecycleIdempotencyVariables`:
-const getLifecycleIdempotencyVars: GetLifecycleIdempotencyVariables = {
-  idempotencyKey: ..., 
-};
-
-// Call the `getLifecycleIdempotency()` function to execute the query.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await getLifecycleIdempotency(getLifecycleIdempotencyVars);
-// Variables can be defined inline as well.
-const { data } = await getLifecycleIdempotency({ idempotencyKey: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await getLifecycleIdempotency(dataConnect, getLifecycleIdempotencyVars);
-
-console.log(data.lifecycleIdempotency);
-
-// Or, you can use the `Promise` API.
-getLifecycleIdempotency(getLifecycleIdempotencyVars).then((response) => {
-  const data = response.data;
-  console.log(data.lifecycleIdempotency);
-});
-```
-
-### Using `GetLifecycleIdempotency`'s `QueryRef` function
-
-```typescript
-import { getDataConnect, executeQuery } from 'firebase/data-connect';
-import { connectorConfig, getLifecycleIdempotencyRef, GetLifecycleIdempotencyVariables } from '@omniretail/sql-connect';
-
-// The `GetLifecycleIdempotency` query requires an argument of type `GetLifecycleIdempotencyVariables`:
-const getLifecycleIdempotencyVars: GetLifecycleIdempotencyVariables = {
-  idempotencyKey: ..., 
-};
-
-// Call the `getLifecycleIdempotencyRef()` function to get a reference to the query.
-const ref = getLifecycleIdempotencyRef(getLifecycleIdempotencyVars);
-// Variables can be defined inline as well.
-const ref = getLifecycleIdempotencyRef({ idempotencyKey: ..., });
-
-// You can also pass in a `DataConnect` instance to the `QueryRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = getLifecycleIdempotencyRef(dataConnect, getLifecycleIdempotencyVars);
-
-// Call `executeQuery()` on the reference to execute the query.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeQuery(ref);
-
-console.log(data.lifecycleIdempotency);
-
-// Or, you can use the `Promise` API.
-executeQuery(ref).then((response) => {
-  const data = response.data;
-  console.log(data.lifecycleIdempotency);
 });
 ```
 
@@ -2515,7 +2394,7 @@ import { connectorConfig, getOrganizationLicense, GetOrganizationLicenseVariable
 
 // The `GetOrganizationLicense` query requires an argument of type `GetOrganizationLicenseVariables`:
 const getOrganizationLicenseVars: GetOrganizationLicenseVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicense()` function to execute the query.
@@ -2545,7 +2424,7 @@ import { connectorConfig, getOrganizationLicenseRef, GetOrganizationLicenseVaria
 
 // The `GetOrganizationLicense` query requires an argument of type `GetOrganizationLicenseVariables`:
 const getOrganizationLicenseVars: GetOrganizationLicenseVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseRef()` function to get a reference to the query.
@@ -2644,7 +2523,7 @@ import { connectorConfig, getOrganizationLicenseTrusted, GetOrganizationLicenseT
 
 // The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`:
 const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseTrusted()` function to execute the query.
@@ -2674,7 +2553,7 @@ import { connectorConfig, getOrganizationLicenseTrustedRef, GetOrganizationLicen
 
 // The `GetOrganizationLicenseTrusted` query requires an argument of type `GetOrganizationLicenseTrustedVariables`:
 const getOrganizationLicenseTrustedVars: GetOrganizationLicenseTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseTrustedRef()` function to get a reference to the query.
@@ -2781,7 +2660,7 @@ import { connectorConfig, getOrganizationLicenseHistory, GetOrganizationLicenseH
 
 // The `GetOrganizationLicenseHistory` query requires an argument of type `GetOrganizationLicenseHistoryVariables`:
 const getOrganizationLicenseHistoryVars: GetOrganizationLicenseHistoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistory()` function to execute the query.
@@ -2811,7 +2690,7 @@ import { connectorConfig, getOrganizationLicenseHistoryRef, GetOrganizationLicen
 
 // The `GetOrganizationLicenseHistory` query requires an argument of type `GetOrganizationLicenseHistoryVariables`:
 const getOrganizationLicenseHistoryVars: GetOrganizationLicenseHistoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistoryRef()` function to get a reference to the query.
@@ -2910,7 +2789,7 @@ import { connectorConfig, getOrganizationLicensePublic, GetOrganizationLicensePu
 
 // The `GetOrganizationLicensePublic` query requires an argument of type `GetOrganizationLicensePublicVariables`:
 const getOrganizationLicensePublicVars: GetOrganizationLicensePublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicensePublic()` function to execute the query.
@@ -2940,7 +2819,7 @@ import { connectorConfig, getOrganizationLicensePublicRef, GetOrganizationLicens
 
 // The `GetOrganizationLicensePublic` query requires an argument of type `GetOrganizationLicensePublicVariables`:
 const getOrganizationLicensePublicVars: GetOrganizationLicensePublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicensePublicRef()` function to get a reference to the query.
@@ -3047,7 +2926,7 @@ import { connectorConfig, getOrganizationLicenseHistoryPublic, GetOrganizationLi
 
 // The `GetOrganizationLicenseHistoryPublic` query requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`:
 const getOrganizationLicenseHistoryPublicVars: GetOrganizationLicenseHistoryPublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistoryPublic()` function to execute the query.
@@ -3077,7 +2956,7 @@ import { connectorConfig, getOrganizationLicenseHistoryPublicRef, GetOrganizatio
 
 // The `GetOrganizationLicenseHistoryPublic` query requires an argument of type `GetOrganizationLicenseHistoryPublicVariables`:
 const getOrganizationLicenseHistoryPublicVars: GetOrganizationLicenseHistoryPublicVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `getOrganizationLicenseHistoryPublicRef()` function to get a reference to the query.
@@ -3270,7 +3149,7 @@ import { connectorConfig, listOrganizationUsersForDeletionTrusted, ListOrganizat
 
 // The `ListOrganizationUsersForDeletionTrusted` query requires an argument of type `ListOrganizationUsersForDeletionTrustedVariables`:
 const listOrganizationUsersForDeletionTrustedVars: ListOrganizationUsersForDeletionTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationUsersForDeletionTrusted()` function to execute the query.
@@ -3300,7 +3179,7 @@ import { connectorConfig, listOrganizationUsersForDeletionTrustedRef, ListOrgani
 
 // The `ListOrganizationUsersForDeletionTrusted` query requires an argument of type `ListOrganizationUsersForDeletionTrustedVariables`:
 const listOrganizationUsersForDeletionTrustedVars: ListOrganizationUsersForDeletionTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listOrganizationUsersForDeletionTrustedRef()` function to get a reference to the query.
@@ -3404,7 +3283,7 @@ import { connectorConfig, listTenantOutlets, ListTenantOutletsVariables } from '
 
 // The `ListTenantOutlets` query requires an argument of type `ListTenantOutletsVariables`:
 const listTenantOutletsVars: ListTenantOutletsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantOutlets()` function to execute the query.
@@ -3436,7 +3315,7 @@ import { connectorConfig, listTenantOutletsRef, ListTenantOutletsVariables } fro
 
 // The `ListTenantOutlets` query requires an argument of type `ListTenantOutletsVariables`:
 const listTenantOutletsVars: ListTenantOutletsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantOutletsRef()` function to get a reference to the query.
@@ -3566,7 +3445,7 @@ import { connectorConfig, listTenantEmployees, ListTenantEmployeesVariables } fr
 
 // The `ListTenantEmployees` query requires an argument of type `ListTenantEmployeesVariables`:
 const listTenantEmployeesVars: ListTenantEmployeesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantEmployees()` function to execute the query.
@@ -3598,7 +3477,7 @@ import { connectorConfig, listTenantEmployeesRef, ListTenantEmployeesVariables }
 
 // The `ListTenantEmployees` query requires an argument of type `ListTenantEmployeesVariables`:
 const listTenantEmployeesVars: ListTenantEmployeesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantEmployeesRef()` function to get a reference to the query.
@@ -3714,7 +3593,7 @@ import { connectorConfig, listTenantServicePersons, ListTenantServicePersonsVari
 
 // The `ListTenantServicePersons` query requires an argument of type `ListTenantServicePersonsVariables`:
 const listTenantServicePersonsVars: ListTenantServicePersonsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantServicePersons()` function to execute the query.
@@ -3746,7 +3625,7 @@ import { connectorConfig, listTenantServicePersonsRef, ListTenantServicePersonsV
 
 // The `ListTenantServicePersons` query requires an argument of type `ListTenantServicePersonsVariables`:
 const listTenantServicePersonsVars: ListTenantServicePersonsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantServicePersonsRef()` function to get a reference to the query.
@@ -3844,7 +3723,7 @@ import { connectorConfig, listTenantCategories, ListTenantCategoriesVariables } 
 
 // The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`:
 const listTenantCategoriesVars: ListTenantCategoriesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategories()` function to execute the query.
@@ -3876,7 +3755,7 @@ import { connectorConfig, listTenantCategoriesRef, ListTenantCategoriesVariables
 
 // The `ListTenantCategories` query requires an argument of type `ListTenantCategoriesVariables`:
 const listTenantCategoriesVars: ListTenantCategoriesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategoriesRef()` function to get a reference to the query.
@@ -4002,7 +3881,7 @@ import { connectorConfig, listTenantProducts, ListTenantProductsVariables } from
 
 // The `ListTenantProducts` query requires an argument of type `ListTenantProductsVariables`:
 const listTenantProductsVars: ListTenantProductsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantProducts()` function to execute the query.
@@ -4034,7 +3913,7 @@ import { connectorConfig, listTenantProductsRef, ListTenantProductsVariables } f
 
 // The `ListTenantProducts` query requires an argument of type `ListTenantProductsVariables`:
 const listTenantProductsVars: ListTenantProductsVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantProductsRef()` function to get a reference to the query.
@@ -4157,7 +4036,7 @@ import { connectorConfig, listTenantInventory, ListTenantInventoryVariables } fr
 
 // The `ListTenantInventory` query requires an argument of type `ListTenantInventoryVariables`:
 const listTenantInventoryVars: ListTenantInventoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
   outletId: ..., // optional
 };
 
@@ -4190,7 +4069,7 @@ import { connectorConfig, listTenantInventoryRef, ListTenantInventoryVariables }
 
 // The `ListTenantInventory` query requires an argument of type `ListTenantInventoryVariables`:
 const listTenantInventoryVars: ListTenantInventoryVariables = {
-  organizationId: ..., 
+  organizationId: ...,
   outletId: ..., // optional
 };
 
@@ -4306,7 +4185,7 @@ import { connectorConfig, listTenantCustomers, ListTenantCustomersVariables } fr
 
 // The `ListTenantCustomers` query requires an argument of type `ListTenantCustomersVariables`:
 const listTenantCustomersVars: ListTenantCustomersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCustomers()` function to execute the query.
@@ -4338,7 +4217,7 @@ import { connectorConfig, listTenantCustomersRef, ListTenantCustomersVariables }
 
 // The `ListTenantCustomers` query requires an argument of type `ListTenantCustomersVariables`:
 const listTenantCustomersVars: ListTenantCustomersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCustomersRef()` function to get a reference to the query.
@@ -4437,8 +4316,8 @@ import { connectorConfig, listTenantCustomerPurchaseHistory, ListTenantCustomerP
 
 // The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
 const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
-  organizationId: ..., 
-  customerId: ..., 
+  organizationId: ...,
+  customerId: ...,
 };
 
 // Call the `listTenantCustomerPurchaseHistory()` function to execute the query.
@@ -4470,8 +4349,8 @@ import { connectorConfig, listTenantCustomerPurchaseHistoryRef, ListTenantCustom
 
 // The `ListTenantCustomerPurchaseHistory` query requires an argument of type `ListTenantCustomerPurchaseHistoryVariables`:
 const listTenantCustomerPurchaseHistoryVars: ListTenantCustomerPurchaseHistoryVariables = {
-  organizationId: ..., 
-  customerId: ..., 
+  organizationId: ...,
+  customerId: ...,
 };
 
 // Call the `listTenantCustomerPurchaseHistoryRef()` function to get a reference to the query.
@@ -4585,7 +4464,7 @@ import { connectorConfig, listTenantSuppliers, ListTenantSuppliersVariables } fr
 
 // The `ListTenantSuppliers` query requires an argument of type `ListTenantSuppliersVariables`:
 const listTenantSuppliersVars: ListTenantSuppliersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSuppliers()` function to execute the query.
@@ -4617,7 +4496,7 @@ import { connectorConfig, listTenantSuppliersRef, ListTenantSuppliersVariables }
 
 // The `ListTenantSuppliers` query requires an argument of type `ListTenantSuppliersVariables`:
 const listTenantSuppliersVars: ListTenantSuppliersVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSuppliersRef()` function to get a reference to the query.
@@ -4763,7 +4642,7 @@ import { connectorConfig, listTenantPurchases, ListTenantPurchasesVariables } fr
 
 // The `ListTenantPurchases` query requires an argument of type `ListTenantPurchasesVariables`:
 const listTenantPurchasesVars: ListTenantPurchasesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantPurchases()` function to execute the query.
@@ -4795,7 +4674,7 @@ import { connectorConfig, listTenantPurchasesRef, ListTenantPurchasesVariables }
 
 // The `ListTenantPurchases` query requires an argument of type `ListTenantPurchasesVariables`:
 const listTenantPurchasesVars: ListTenantPurchasesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantPurchasesRef()` function to get a reference to the query.
@@ -4915,7 +4794,7 @@ import { connectorConfig, listTenantExpenses, ListTenantExpensesVariables } from
 
 // The `ListTenantExpenses` query requires an argument of type `ListTenantExpensesVariables`:
 const listTenantExpensesVars: ListTenantExpensesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantExpenses()` function to execute the query.
@@ -4947,7 +4826,7 @@ import { connectorConfig, listTenantExpensesRef, ListTenantExpensesVariables } f
 
 // The `ListTenantExpenses` query requires an argument of type `ListTenantExpensesVariables`:
 const listTenantExpensesVars: ListTenantExpensesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantExpensesRef()` function to get a reference to the query.
@@ -5080,7 +4959,7 @@ import { connectorConfig, listTenantSales, ListTenantSalesVariables } from '@omn
 
 // The `ListTenantSales` query requires an argument of type `ListTenantSalesVariables`:
 const listTenantSalesVars: ListTenantSalesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSales()` function to execute the query.
@@ -5112,7 +4991,7 @@ import { connectorConfig, listTenantSalesRef, ListTenantSalesVariables } from '@
 
 // The `ListTenantSales` query requires an argument of type `ListTenantSalesVariables`:
 const listTenantSalesVars: ListTenantSalesVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantSalesRef()` function to get a reference to the query.
@@ -5197,9 +5076,9 @@ import { connectorConfig, getTenantInventoryStockTrusted, GetTenantInventoryStoc
 
 // The `GetTenantInventoryStockTrusted` query requires an argument of type `GetTenantInventoryStockTrustedVariables`:
 const getTenantInventoryStockTrustedVars: GetTenantInventoryStockTrustedVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
 };
 
 // Call the `getTenantInventoryStockTrusted()` function to execute the query.
@@ -5229,9 +5108,9 @@ import { connectorConfig, getTenantInventoryStockTrustedRef, GetTenantInventoryS
 
 // The `GetTenantInventoryStockTrusted` query requires an argument of type `GetTenantInventoryStockTrustedVariables`:
 const getTenantInventoryStockTrustedVars: GetTenantInventoryStockTrustedVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
 };
 
 // Call the `getTenantInventoryStockTrustedRef()` function to get a reference to the query.
@@ -5334,8 +5213,8 @@ import { connectorConfig, getTenantSupplierTrusted, GetTenantSupplierTrustedVari
 
 // The `GetTenantSupplierTrusted` query requires an argument of type `GetTenantSupplierTrustedVariables`:
 const getTenantSupplierTrustedVars: GetTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantSupplierTrusted()` function to execute the query.
@@ -5365,8 +5244,8 @@ import { connectorConfig, getTenantSupplierTrustedRef, GetTenantSupplierTrustedV
 
 // The `GetTenantSupplierTrusted` query requires an argument of type `GetTenantSupplierTrustedVariables`:
 const getTenantSupplierTrustedVars: GetTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantSupplierTrustedRef()` function to get a reference to the query.
@@ -5470,8 +5349,8 @@ import { connectorConfig, getTenantCustomerTrusted, GetTenantCustomerTrustedVari
 
 // The `GetTenantCustomerTrusted` query requires an argument of type `GetTenantCustomerTrustedVariables`:
 const getTenantCustomerTrustedVars: GetTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantCustomerTrusted()` function to execute the query.
@@ -5501,8 +5380,8 @@ import { connectorConfig, getTenantCustomerTrustedRef, GetTenantCustomerTrustedV
 
 // The `GetTenantCustomerTrusted` query requires an argument of type `GetTenantCustomerTrustedVariables`:
 const getTenantCustomerTrustedVars: GetTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantCustomerTrustedRef()` function to get a reference to the query.
@@ -5591,7 +5470,7 @@ import { connectorConfig, listTenantCategoriesTrusted, ListTenantCategoriesTrust
 
 // The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`:
 const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategoriesTrusted()` function to execute the query.
@@ -5621,7 +5500,7 @@ import { connectorConfig, listTenantCategoriesTrustedRef, ListTenantCategoriesTr
 
 // The `ListTenantCategoriesTrusted` query requires an argument of type `ListTenantCategoriesTrustedVariables`:
 const listTenantCategoriesTrustedVars: ListTenantCategoriesTrustedVariables = {
-  organizationId: ..., 
+  organizationId: ...,
 };
 
 // Call the `listTenantCategoriesTrustedRef()` function to get a reference to the query.
@@ -5736,8 +5615,8 @@ import { connectorConfig, getTenantProductTrusted, GetTenantProductTrustedVariab
 
 // The `GetTenantProductTrusted` query requires an argument of type `GetTenantProductTrustedVariables`:
 const getTenantProductTrustedVars: GetTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantProductTrusted()` function to execute the query.
@@ -5767,8 +5646,8 @@ import { connectorConfig, getTenantProductTrustedRef, GetTenantProductTrustedVar
 
 // The `GetTenantProductTrusted` query requires an argument of type `GetTenantProductTrustedVariables`:
 const getTenantProductTrustedVars: GetTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantProductTrustedRef()` function to get a reference to the query.
@@ -5865,8 +5744,8 @@ import { connectorConfig, getTenantMembershipTrusted, GetTenantMembershipTrusted
 
 // The `GetTenantMembershipTrusted` query requires an argument of type `GetTenantMembershipTrustedVariables`:
 const getTenantMembershipTrustedVars: GetTenantMembershipTrustedVariables = {
-  organizationId: ..., 
-  firebaseUid: ..., 
+  organizationId: ...,
+  firebaseUid: ...,
 };
 
 // Call the `getTenantMembershipTrusted()` function to execute the query.
@@ -5896,8 +5775,8 @@ import { connectorConfig, getTenantMembershipTrustedRef, GetTenantMembershipTrus
 
 // The `GetTenantMembershipTrusted` query requires an argument of type `GetTenantMembershipTrustedVariables`:
 const getTenantMembershipTrustedVars: GetTenantMembershipTrustedVariables = {
-  organizationId: ..., 
-  firebaseUid: ..., 
+  organizationId: ...,
+  firebaseUid: ...,
 };
 
 // Call the `getTenantMembershipTrustedRef()` function to get a reference to the query.
@@ -5984,8 +5863,8 @@ import { connectorConfig, resolveTenantEmployeeIdentityTrusted, ResolveTenantEmp
 
 // The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
 const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
+  organizationId: ...,
+  employeeId: ...,
 };
 
 // Call the `resolveTenantEmployeeIdentityTrusted()` function to execute the query.
@@ -6015,8 +5894,8 @@ import { connectorConfig, resolveTenantEmployeeIdentityTrustedRef, ResolveTenant
 
 // The `ResolveTenantEmployeeIdentityTrusted` query requires an argument of type `ResolveTenantEmployeeIdentityTrustedVariables`:
 const resolveTenantEmployeeIdentityTrustedVars: ResolveTenantEmployeeIdentityTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
+  organizationId: ...,
+  employeeId: ...,
 };
 
 // Call the `resolveTenantEmployeeIdentityTrustedRef()` function to get a reference to the query.
@@ -6108,8 +5987,8 @@ import { connectorConfig, getTenantOutletTrusted, GetTenantOutletTrustedVariable
 
 // The `GetTenantOutletTrusted` query requires an argument of type `GetTenantOutletTrustedVariables`:
 const getTenantOutletTrustedVars: GetTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantOutletTrusted()` function to execute the query.
@@ -6139,8 +6018,8 @@ import { connectorConfig, getTenantOutletTrustedRef, GetTenantOutletTrustedVaria
 
 // The `GetTenantOutletTrusted` query requires an argument of type `GetTenantOutletTrustedVariables`:
 const getTenantOutletTrustedVars: GetTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantOutletTrustedRef()` function to get a reference to the query.
@@ -6257,8 +6136,8 @@ import { connectorConfig, getTenantEmployeeTrusted, GetTenantEmployeeTrustedVari
 
 // The `GetTenantEmployeeTrusted` query requires an argument of type `GetTenantEmployeeTrustedVariables`:
 const getTenantEmployeeTrustedVars: GetTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantEmployeeTrusted()` function to execute the query.
@@ -6288,8 +6167,8 @@ import { connectorConfig, getTenantEmployeeTrustedRef, GetTenantEmployeeTrustedV
 
 // The `GetTenantEmployeeTrusted` query requires an argument of type `GetTenantEmployeeTrustedVariables`:
 const getTenantEmployeeTrustedVars: GetTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantEmployeeTrustedRef()` function to get a reference to the query.
@@ -6391,8 +6270,8 @@ import { connectorConfig, getTenantServicePersonTrusted, GetTenantServicePersonT
 
 // The `GetTenantServicePersonTrusted` query requires an argument of type `GetTenantServicePersonTrustedVariables`:
 const getTenantServicePersonTrustedVars: GetTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantServicePersonTrusted()` function to execute the query.
@@ -6422,8 +6301,8 @@ import { connectorConfig, getTenantServicePersonTrustedRef, GetTenantServicePers
 
 // The `GetTenantServicePersonTrusted` query requires an argument of type `GetTenantServicePersonTrustedVariables`:
 const getTenantServicePersonTrustedVars: GetTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
+  organizationId: ...,
+  id: ...,
 };
 
 // Call the `getTenantServicePersonTrustedRef()` function to get a reference to the query.
@@ -6520,9 +6399,9 @@ import { connectorConfig, recordSuccessfulLogin, RecordSuccessfulLoginVariables 
 
 // The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`:
 const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
-  userId: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  userId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `recordSuccessfulLogin()` function to execute the mutation.
@@ -6554,9 +6433,9 @@ import { connectorConfig, recordSuccessfulLoginRef, RecordSuccessfulLoginVariabl
 
 // The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`:
 const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
-  userId: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  userId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `recordSuccessfulLoginRef()` function to get a reference to the mutation.
@@ -6642,11 +6521,11 @@ import { connectorConfig, updateAppUserProfile, UpdateAppUserProfileVariables } 
 
 // The `UpdateAppUserProfile` mutation requires an argument of type `UpdateAppUserProfileVariables`:
 const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
-  userId: ..., 
-  displayName: ..., 
+  userId: ...,
+  displayName: ...,
   phone: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateAppUserProfile()` function to execute the mutation.
@@ -6678,11 +6557,11 @@ import { connectorConfig, updateAppUserProfileRef, UpdateAppUserProfileVariables
 
 // The `UpdateAppUserProfile` mutation requires an argument of type `UpdateAppUserProfileVariables`:
 const updateAppUserProfileVars: UpdateAppUserProfileVariables = {
-  userId: ..., 
-  displayName: ..., 
+  userId: ...,
+  displayName: ...,
   phone: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateAppUserProfileRef()` function to get a reference to the mutation.
@@ -6765,9 +6644,9 @@ import { connectorConfig, recordPasswordChange, RecordPasswordChangeVariables } 
 
 // The `RecordPasswordChange` mutation requires an argument of type `RecordPasswordChangeVariables`:
 const recordPasswordChangeVars: RecordPasswordChangeVariables = {
-  userId: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  userId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `recordPasswordChange()` function to execute the mutation.
@@ -6797,9 +6676,9 @@ import { connectorConfig, recordPasswordChangeRef, RecordPasswordChangeVariables
 
 // The `RecordPasswordChange` mutation requires an argument of type `RecordPasswordChangeVariables`:
 const recordPasswordChangeVars: RecordPasswordChangeVariables = {
-  userId: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  userId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `recordPasswordChangeRef()` function to get a reference to the mutation.
@@ -6888,15 +6767,15 @@ import { connectorConfig, bootstrapMasterAdmin, BootstrapMasterAdminVariables } 
 
 // The `BootstrapMasterAdmin` mutation requires an argument of type `BootstrapMasterAdminVariables`:
 const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `bootstrapMasterAdmin()` function to execute the mutation.
@@ -6930,15 +6809,15 @@ import { connectorConfig, bootstrapMasterAdminRef, BootstrapMasterAdminVariables
 
 // The `BootstrapMasterAdmin` mutation requires an argument of type `BootstrapMasterAdminVariables`:
 const bootstrapMasterAdminVars: BootstrapMasterAdminVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `bootstrapMasterAdminRef()` function to get a reference to the mutation.
@@ -7029,14 +6908,14 @@ import { connectorConfig, createLicensePlan, CreateLicensePlanVariables } from '
 
 // The `CreateLicensePlan` mutation requires an argument of type `CreateLicensePlanVariables`:
 const createLicensePlanVars: CreateLicensePlanVariables = {
-  planCode: ..., 
-  name: ..., 
+  planCode: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `createLicensePlan()` function to execute the mutation.
@@ -7068,14 +6947,14 @@ import { connectorConfig, createLicensePlanRef, CreateLicensePlanVariables } fro
 
 // The `CreateLicensePlan` mutation requires an argument of type `CreateLicensePlanVariables`:
 const createLicensePlanVars: CreateLicensePlanVariables = {
-  planCode: ..., 
-  name: ..., 
+  planCode: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `createLicensePlanRef()` function to get a reference to the mutation.
@@ -7164,14 +7043,14 @@ import { connectorConfig, updateLicensePlan, UpdateLicensePlanVariables } from '
 
 // The `UpdateLicensePlan` mutation requires an argument of type `UpdateLicensePlanVariables`:
 const updateLicensePlanVars: UpdateLicensePlanVariables = {
-  id: ..., 
-  name: ..., 
+  id: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateLicensePlan()` function to execute the mutation.
@@ -7203,14 +7082,14 @@ import { connectorConfig, updateLicensePlanRef, UpdateLicensePlanVariables } fro
 
 // The `UpdateLicensePlan` mutation requires an argument of type `UpdateLicensePlanVariables`:
 const updateLicensePlanVars: UpdateLicensePlanVariables = {
-  id: ..., 
-  name: ..., 
+  id: ...,
+  name: ...,
   description: ..., // optional
-  level: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  level: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateLicensePlanRef()` function to get a reference to the mutation.
@@ -7296,11 +7175,11 @@ import { connectorConfig, changeLicensePlanStatus, ChangeLicensePlanStatusVariab
 
 // The `ChangeLicensePlanStatus` mutation requires an argument of type `ChangeLicensePlanStatusVariables`:
 const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
-  id: ..., 
-  status: ..., 
-  action: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  id: ...,
+  status: ...,
+  action: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `changeLicensePlanStatus()` function to execute the mutation.
@@ -7332,11 +7211,11 @@ import { connectorConfig, changeLicensePlanStatusRef, ChangeLicensePlanStatusVar
 
 // The `ChangeLicensePlanStatus` mutation requires an argument of type `ChangeLicensePlanStatusVariables`:
 const changeLicensePlanStatusVars: ChangeLicensePlanStatusVariables = {
-  id: ..., 
-  status: ..., 
-  action: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  id: ...,
+  status: ...,
+  action: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `changeLicensePlanStatusRef()` function to get a reference to the mutation.
@@ -7420,9 +7299,9 @@ import { connectorConfig, deleteLicensePlan, DeleteLicensePlanVariables } from '
 
 // The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
 const deleteLicensePlanVars: DeleteLicensePlanVariables = {
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  id: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `deleteLicensePlan()` function to execute the mutation.
@@ -7454,9 +7333,9 @@ import { connectorConfig, deleteLicensePlanRef, DeleteLicensePlanVariables } fro
 
 // The `DeleteLicensePlan` mutation requires an argument of type `DeleteLicensePlanVariables`:
 const deleteLicensePlanVars: DeleteLicensePlanVariables = {
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  id: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `deleteLicensePlanRef()` function to get a reference to the mutation.
@@ -7541,10 +7420,10 @@ import { connectorConfig, deleteLicensePlanTrusted, DeleteLicensePlanTrustedVari
 
 // The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
 const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteLicensePlanTrusted()` function to execute the mutation.
@@ -7576,10 +7455,10 @@ import { connectorConfig, deleteLicensePlanTrustedRef, DeleteLicensePlanTrustedV
 
 // The `DeleteLicensePlanTrusted` mutation requires an argument of type `DeleteLicensePlanTrustedVariables`:
 const deleteLicensePlanTrustedVars: DeleteLicensePlanTrustedVariables = {
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteLicensePlanTrustedRef()` function to get a reference to the mutation.
@@ -7650,8 +7529,6 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
-  idempotencyKey: string;
-  resultReference: string;
 }
 ```
 ### Return Type
@@ -7664,7 +7541,6 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
-  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 ```
 ### Using `ProvisionOrganizationAdministrator`'s action shortcut function
@@ -7675,25 +7551,23 @@ import { connectorConfig, provisionOrganizationAdministrator, ProvisionOrganizat
 
 // The `ProvisionOrganizationAdministrator` mutation requires an argument of type `ProvisionOrganizationAdministratorVariables`:
 const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministratorVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
-  phone: ..., 
-  organizationId: ..., 
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  idempotencyKey: ..., 
-  resultReference: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
+  phone: ...,
+  organizationId: ...,
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `provisionOrganizationAdministrator()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await provisionOrganizationAdministrator(provisionOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const { data } = await provisionOrganizationAdministrator({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., idempotencyKey: ..., resultReference: ..., });
+const { data } = await provisionOrganizationAdministrator({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7703,7 +7577,6 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.auditEvent_insert);
-console.log(data.lifecycleIdempotency_update);
 
 // Or, you can use the `Promise` API.
 provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then((response) => {
@@ -7712,7 +7585,6 @@ provisionOrganizationAdministrator(provisionOrganizationAdministratorVars).then(
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.auditEvent_insert);
-  console.log(data.lifecycleIdempotency_update);
 });
 ```
 
@@ -7724,24 +7596,22 @@ import { connectorConfig, provisionOrganizationAdministratorRef, ProvisionOrgani
 
 // The `ProvisionOrganizationAdministrator` mutation requires an argument of type `ProvisionOrganizationAdministratorVariables`:
 const provisionOrganizationAdministratorVars: ProvisionOrganizationAdministratorVariables = {
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
-  phone: ..., 
-  organizationId: ..., 
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  idempotencyKey: ..., 
-  resultReference: ..., 
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
+  phone: ...,
+  organizationId: ...,
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `provisionOrganizationAdministratorRef()` function to get a reference to the mutation.
 const ref = provisionOrganizationAdministratorRef(provisionOrganizationAdministratorVars);
 // Variables can be defined inline as well.
-const ref = provisionOrganizationAdministratorRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., idempotencyKey: ..., resultReference: ..., });
+const ref = provisionOrganizationAdministratorRef({ userId: ..., firebaseUid: ..., username: ..., email: ..., displayName: ..., phone: ..., organizationId: ..., roleId: ..., auditId: ..., requestId: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -7755,7 +7625,6 @@ console.log(data.appUser_insert);
 console.log(data.organizationMembership_insert);
 console.log(data.userRole_upsert);
 console.log(data.auditEvent_insert);
-console.log(data.lifecycleIdempotency_update);
 
 // Or, you can use the `Promise` API.
 executeMutation(ref).then((response) => {
@@ -7764,7 +7633,6 @@ executeMutation(ref).then((response) => {
   console.log(data.organizationMembership_insert);
   console.log(data.userRole_upsert);
   console.log(data.auditEvent_insert);
-  console.log(data.lifecycleIdempotency_update);
 });
 ```
 
@@ -7823,8 +7691,8 @@ import { connectorConfig, ensureAppUserRoleTrusted, EnsureAppUserRoleTrustedVari
 
 // The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
 const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
-  userId: ..., 
-  roleId: ..., 
+  userId: ...,
+  roleId: ...,
 };
 
 // Call the `ensureAppUserRoleTrusted()` function to execute the mutation.
@@ -7854,8 +7722,8 @@ import { connectorConfig, ensureAppUserRoleTrustedRef, EnsureAppUserRoleTrustedV
 
 // The `EnsureAppUserRoleTrusted` mutation requires an argument of type `EnsureAppUserRoleTrustedVariables`:
 const ensureAppUserRoleTrustedVars: EnsureAppUserRoleTrustedVariables = {
-  userId: ..., 
-  roleId: ..., 
+  userId: ...,
+  roleId: ...,
 };
 
 // Call the `ensureAppUserRoleTrustedRef()` function to get a reference to the mutation.
@@ -7940,12 +7808,12 @@ import { connectorConfig, updateOrganizationAdministrator, UpdateOrganizationAdm
 
 // The `UpdateOrganizationAdministrator` mutation requires an argument of type `UpdateOrganizationAdministratorVariables`:
 const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  displayName: ..., 
-  phone: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  organizationId: ...,
+  userId: ...,
+  displayName: ...,
+  phone: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateOrganizationAdministrator()` function to execute the mutation.
@@ -7977,12 +7845,12 @@ import { connectorConfig, updateOrganizationAdministratorRef, UpdateOrganization
 
 // The `UpdateOrganizationAdministrator` mutation requires an argument of type `UpdateOrganizationAdministratorVariables`:
 const updateOrganizationAdministratorVars: UpdateOrganizationAdministratorVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  displayName: ..., 
-  phone: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  organizationId: ...,
+  userId: ...,
+  displayName: ...,
+  phone: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateOrganizationAdministratorRef()` function to get a reference to the mutation.
@@ -8072,12 +7940,12 @@ import { connectorConfig, changeOrganizationAdministratorStatus, ChangeOrganizat
 
 // The `ChangeOrganizationAdministratorStatus` mutation requires an argument of type `ChangeOrganizationAdministratorStatusVariables`:
 const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministratorStatusVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  status: ..., 
-  membershipStatus: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  organizationId: ...,
+  userId: ...,
+  status: ...,
+  membershipStatus: ...,
+  auditId: ...,
+  requestId: ...,
   actorFirebaseUid: ..., // optional
   action: ..., // optional
 };
@@ -8113,12 +7981,12 @@ import { connectorConfig, changeOrganizationAdministratorStatusRef, ChangeOrgani
 
 // The `ChangeOrganizationAdministratorStatus` mutation requires an argument of type `ChangeOrganizationAdministratorStatusVariables`:
 const changeOrganizationAdministratorStatusVars: ChangeOrganizationAdministratorStatusVariables = {
-  organizationId: ..., 
-  userId: ..., 
-  status: ..., 
-  membershipStatus: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  organizationId: ...,
+  userId: ...,
+  status: ...,
+  membershipStatus: ...,
+  auditId: ...,
+  requestId: ...,
   actorFirebaseUid: ..., // optional
   action: ..., // optional
 };
@@ -8208,12 +8076,12 @@ import { connectorConfig, recordAdministratorSecurityEvent, RecordAdministratorS
 
 // The `RecordAdministratorSecurityEvent` mutation requires an argument of type `RecordAdministratorSecurityEventVariables`:
 const recordAdministratorSecurityEventVars: RecordAdministratorSecurityEventVariables = {
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  action: ..., 
-  targetId: ..., 
-  organizationId: ..., 
-  requestId: ..., 
+  auditId: ...,
+  actorFirebaseUid: ...,
+  action: ...,
+  targetId: ...,
+  organizationId: ...,
+  requestId: ...,
 };
 
 // Call the `recordAdministratorSecurityEvent()` function to execute the mutation.
@@ -8243,12 +8111,12 @@ import { connectorConfig, recordAdministratorSecurityEventRef, RecordAdministrat
 
 // The `RecordAdministratorSecurityEvent` mutation requires an argument of type `RecordAdministratorSecurityEventVariables`:
 const recordAdministratorSecurityEventVars: RecordAdministratorSecurityEventVariables = {
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  action: ..., 
-  targetId: ..., 
-  organizationId: ..., 
-  requestId: ..., 
+  auditId: ...,
+  actorFirebaseUid: ...,
+  action: ...,
+  targetId: ...,
+  organizationId: ...,
+  requestId: ...,
 };
 
 // Call the `recordAdministratorSecurityEventRef()` function to get a reference to the mutation.
@@ -8327,7 +8195,7 @@ import { connectorConfig, deleteOrganizationTrusted, DeleteOrganizationTrustedVa
 
 // The `DeleteOrganizationTrusted` mutation requires an argument of type `DeleteOrganizationTrustedVariables`:
 const deleteOrganizationTrustedVars: DeleteOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteOrganizationTrusted()` function to execute the mutation.
@@ -8357,7 +8225,7 @@ import { connectorConfig, deleteOrganizationTrustedRef, DeleteOrganizationTruste
 
 // The `DeleteOrganizationTrusted` mutation requires an argument of type `DeleteOrganizationTrustedVariables`:
 const deleteOrganizationTrustedVars: DeleteOrganizationTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteOrganizationTrustedRef()` function to get a reference to the mutation.
@@ -8436,7 +8304,7 @@ import { connectorConfig, deleteAppUserTrusted, DeleteAppUserTrustedVariables } 
 
 // The `DeleteAppUserTrusted` mutation requires an argument of type `DeleteAppUserTrustedVariables`:
 const deleteAppUserTrustedVars: DeleteAppUserTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteAppUserTrusted()` function to execute the mutation.
@@ -8466,7 +8334,7 @@ import { connectorConfig, deleteAppUserTrustedRef, DeleteAppUserTrustedVariables
 
 // The `DeleteAppUserTrusted` mutation requires an argument of type `DeleteAppUserTrustedVariables`:
 const deleteAppUserTrustedVars: DeleteAppUserTrustedVariables = {
-  id: ..., 
+  id: ...,
 };
 
 // Call the `deleteAppUserTrustedRef()` function to get a reference to the mutation.
@@ -8562,22 +8430,22 @@ import { connectorConfig, assignOrganizationLicenseTrusted, AssignOrganizationLi
 
 // The `AssignOrganizationLicenseTrusted` mutation requires an argument of type `AssignOrganizationLicenseTrustedVariables`:
 const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
 };
 
 // Call the `assignOrganizationLicenseTrusted()` function to execute the mutation.
@@ -8611,22 +8479,22 @@ import { connectorConfig, assignOrganizationLicenseTrustedRef, AssignOrganizatio
 
 // The `AssignOrganizationLicenseTrusted` mutation requires an argument of type `AssignOrganizationLicenseTrustedVariables`:
 const assignOrganizationLicenseTrustedVars: AssignOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
 };
 
 // Call the `assignOrganizationLicenseTrustedRef()` function to get a reference to the mutation.
@@ -8727,22 +8595,22 @@ import { connectorConfig, changeOrganizationLicensePlanTrusted, ChangeOrganizati
 
 // The `ChangeOrganizationLicensePlanTrusted` mutation requires an argument of type `ChangeOrganizationLicensePlanTrustedVariables`:
 const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
   changes: ..., // optional
 };
 
@@ -8777,22 +8645,22 @@ import { connectorConfig, changeOrganizationLicensePlanTrustedRef, ChangeOrganiz
 
 // The `ChangeOrganizationLicensePlanTrusted` mutation requires an argument of type `ChangeOrganizationLicensePlanTrustedVariables`:
 const changeOrganizationLicensePlanTrustedVars: ChangeOrganizationLicensePlanTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
   changes: ..., // optional
 };
 
@@ -8894,22 +8762,22 @@ import { connectorConfig, modifyOrganizationCommercialTermsTrusted, ModifyOrgani
 
 // The `ModifyOrganizationCommercialTermsTrusted` mutation requires an argument of type `ModifyOrganizationCommercialTermsTrustedVariables`:
 const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercialTermsTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
   changes: ..., // optional
 };
 
@@ -8944,22 +8812,22 @@ import { connectorConfig, modifyOrganizationCommercialTermsTrustedRef, ModifyOrg
 
 // The `ModifyOrganizationCommercialTermsTrusted` mutation requires an argument of type `ModifyOrganizationCommercialTermsTrustedVariables`:
 const modifyOrganizationCommercialTermsTrustedVars: ModifyOrganizationCommercialTermsTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
   changes: ..., // optional
 };
 
@@ -9061,22 +8929,22 @@ import { connectorConfig, renewOrganizationLicenseTrusted, RenewOrganizationLice
 
 // The `RenewOrganizationLicenseTrusted` mutation requires an argument of type `RenewOrganizationLicenseTrustedVariables`:
 const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
   changes: ..., // optional
 };
 
@@ -9111,22 +8979,22 @@ import { connectorConfig, renewOrganizationLicenseTrustedRef, RenewOrganizationL
 
 // The `RenewOrganizationLicenseTrusted` mutation requires an argument of type `RenewOrganizationLicenseTrustedVariables`:
 const renewOrganizationLicenseTrustedVars: RenewOrganizationLicenseTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  planId: ..., 
-  startDate: ..., 
-  expiryDate: ..., 
-  negotiatedPrice: ..., 
-  currency: ..., 
-  historyId: ..., 
-  planCode: ..., 
-  planName: ..., 
-  planLevel: ..., 
-  maxStores: ..., 
-  maxUsers: ..., 
-  auditId: ..., 
-  actorFirebaseUid: ..., 
-  requestId: ..., 
+  id: ...,
+  organizationId: ...,
+  planId: ...,
+  startDate: ...,
+  expiryDate: ...,
+  negotiatedPrice: ...,
+  currency: ...,
+  historyId: ...,
+  planCode: ...,
+  planName: ...,
+  planLevel: ...,
+  maxStores: ...,
+  maxUsers: ...,
+  auditId: ...,
+  actorFirebaseUid: ...,
+  requestId: ...,
   changes: ..., // optional
 };
 
@@ -9153,236 +9021,6 @@ executeMutation(ref).then((response) => {
   console.log(data.organizationLicense_update);
   console.log(data.licenseHistory_insert);
   console.log(data.auditEvent_insert);
-});
-```
-
-## ClaimLifecycleIdempotency
-You can execute the `ClaimLifecycleIdempotency` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-claimLifecycleIdempotency(vars: ClaimLifecycleIdempotencyVariables): MutationPromise<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-
-interface ClaimLifecycleIdempotencyRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: ClaimLifecycleIdempotencyVariables): MutationRef<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-}
-export const claimLifecycleIdempotencyRef: ClaimLifecycleIdempotencyRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
-claimLifecycleIdempotency(dc: DataConnect, vars: ClaimLifecycleIdempotencyVariables): MutationPromise<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-
-interface ClaimLifecycleIdempotencyRef {
-  ...
-  (dc: DataConnect, vars: ClaimLifecycleIdempotencyVariables): MutationRef<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-}
-export const claimLifecycleIdempotencyRef: ClaimLifecycleIdempotencyRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the claimLifecycleIdempotencyRef:
-```typescript
-const name = claimLifecycleIdempotencyRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `ClaimLifecycleIdempotency` mutation requires an argument of type `ClaimLifecycleIdempotencyVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface ClaimLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-  operationType: string;
-  requestFingerprint: string;
-}
-```
-### Return Type
-Recall that executing the `ClaimLifecycleIdempotency` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `ClaimLifecycleIdempotencyData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface ClaimLifecycleIdempotencyData {
-  lifecycleIdempotency_insert: LifecycleIdempotency_Key;
-}
-```
-### Using `ClaimLifecycleIdempotency`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, claimLifecycleIdempotency, ClaimLifecycleIdempotencyVariables } from '@omniretail/sql-connect';
-
-// The `ClaimLifecycleIdempotency` mutation requires an argument of type `ClaimLifecycleIdempotencyVariables`:
-const claimLifecycleIdempotencyVars: ClaimLifecycleIdempotencyVariables = {
-  idempotencyKey: ..., 
-  operationType: ..., 
-  requestFingerprint: ..., 
-};
-
-// Call the `claimLifecycleIdempotency()` function to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await claimLifecycleIdempotency(claimLifecycleIdempotencyVars);
-// Variables can be defined inline as well.
-const { data } = await claimLifecycleIdempotency({ idempotencyKey: ..., operationType: ..., requestFingerprint: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await claimLifecycleIdempotency(dataConnect, claimLifecycleIdempotencyVars);
-
-console.log(data.lifecycleIdempotency_insert);
-
-// Or, you can use the `Promise` API.
-claimLifecycleIdempotency(claimLifecycleIdempotencyVars).then((response) => {
-  const data = response.data;
-  console.log(data.lifecycleIdempotency_insert);
-});
-```
-
-### Using `ClaimLifecycleIdempotency`'s `MutationRef` function
-
-```typescript
-import { getDataConnect, executeMutation } from 'firebase/data-connect';
-import { connectorConfig, claimLifecycleIdempotencyRef, ClaimLifecycleIdempotencyVariables } from '@omniretail/sql-connect';
-
-// The `ClaimLifecycleIdempotency` mutation requires an argument of type `ClaimLifecycleIdempotencyVariables`:
-const claimLifecycleIdempotencyVars: ClaimLifecycleIdempotencyVariables = {
-  idempotencyKey: ..., 
-  operationType: ..., 
-  requestFingerprint: ..., 
-};
-
-// Call the `claimLifecycleIdempotencyRef()` function to get a reference to the mutation.
-const ref = claimLifecycleIdempotencyRef(claimLifecycleIdempotencyVars);
-// Variables can be defined inline as well.
-const ref = claimLifecycleIdempotencyRef({ idempotencyKey: ..., operationType: ..., requestFingerprint: ..., });
-
-// You can also pass in a `DataConnect` instance to the `MutationRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = claimLifecycleIdempotencyRef(dataConnect, claimLifecycleIdempotencyVars);
-
-// Call `executeMutation()` on the reference to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeMutation(ref);
-
-console.log(data.lifecycleIdempotency_insert);
-
-// Or, you can use the `Promise` API.
-executeMutation(ref).then((response) => {
-  const data = response.data;
-  console.log(data.lifecycleIdempotency_insert);
-});
-```
-
-## CompleteLifecycleIdempotency
-You can execute the `CompleteLifecycleIdempotency` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-completeLifecycleIdempotency(vars: CompleteLifecycleIdempotencyVariables): MutationPromise<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-
-interface CompleteLifecycleIdempotencyRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: CompleteLifecycleIdempotencyVariables): MutationRef<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-}
-export const completeLifecycleIdempotencyRef: CompleteLifecycleIdempotencyRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
-completeLifecycleIdempotency(dc: DataConnect, vars: CompleteLifecycleIdempotencyVariables): MutationPromise<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-
-interface CompleteLifecycleIdempotencyRef {
-  ...
-  (dc: DataConnect, vars: CompleteLifecycleIdempotencyVariables): MutationRef<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-}
-export const completeLifecycleIdempotencyRef: CompleteLifecycleIdempotencyRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the completeLifecycleIdempotencyRef:
-```typescript
-const name = completeLifecycleIdempotencyRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `CompleteLifecycleIdempotency` mutation requires an argument of type `CompleteLifecycleIdempotencyVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface CompleteLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-  status: ProvisioningAttemptStatus;
-  resultReference?: string | null;
-}
-```
-### Return Type
-Recall that executing the `CompleteLifecycleIdempotency` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `CompleteLifecycleIdempotencyData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface CompleteLifecycleIdempotencyData {
-  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
-}
-```
-### Using `CompleteLifecycleIdempotency`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, completeLifecycleIdempotency, CompleteLifecycleIdempotencyVariables } from '@omniretail/sql-connect';
-
-// The `CompleteLifecycleIdempotency` mutation requires an argument of type `CompleteLifecycleIdempotencyVariables`:
-const completeLifecycleIdempotencyVars: CompleteLifecycleIdempotencyVariables = {
-  idempotencyKey: ..., 
-  status: ..., 
-  resultReference: ..., // optional
-};
-
-// Call the `completeLifecycleIdempotency()` function to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await completeLifecycleIdempotency(completeLifecycleIdempotencyVars);
-// Variables can be defined inline as well.
-const { data } = await completeLifecycleIdempotency({ idempotencyKey: ..., status: ..., resultReference: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await completeLifecycleIdempotency(dataConnect, completeLifecycleIdempotencyVars);
-
-console.log(data.lifecycleIdempotency_update);
-
-// Or, you can use the `Promise` API.
-completeLifecycleIdempotency(completeLifecycleIdempotencyVars).then((response) => {
-  const data = response.data;
-  console.log(data.lifecycleIdempotency_update);
-});
-```
-
-### Using `CompleteLifecycleIdempotency`'s `MutationRef` function
-
-```typescript
-import { getDataConnect, executeMutation } from 'firebase/data-connect';
-import { connectorConfig, completeLifecycleIdempotencyRef, CompleteLifecycleIdempotencyVariables } from '@omniretail/sql-connect';
-
-// The `CompleteLifecycleIdempotency` mutation requires an argument of type `CompleteLifecycleIdempotencyVariables`:
-const completeLifecycleIdempotencyVars: CompleteLifecycleIdempotencyVariables = {
-  idempotencyKey: ..., 
-  status: ..., 
-  resultReference: ..., // optional
-};
-
-// Call the `completeLifecycleIdempotencyRef()` function to get a reference to the mutation.
-const ref = completeLifecycleIdempotencyRef(completeLifecycleIdempotencyVars);
-// Variables can be defined inline as well.
-const ref = completeLifecycleIdempotencyRef({ idempotencyKey: ..., status: ..., resultReference: ..., });
-
-// You can also pass in a `DataConnect` instance to the `MutationRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = completeLifecycleIdempotencyRef(dataConnect, completeLifecycleIdempotencyVars);
-
-// Call `executeMutation()` on the reference to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeMutation(ref);
-
-console.log(data.lifecycleIdempotency_update);
-
-// Or, you can use the `Promise` API.
-executeMutation(ref).then((response) => {
-  const data = response.data;
-  console.log(data.lifecycleIdempotency_update);
 });
 ```
 
@@ -9442,9 +9080,9 @@ import { connectorConfig, recordProvisioningReconciliation, RecordProvisioningRe
 
 // The `RecordProvisioningReconciliation` mutation requires an argument of type `RecordProvisioningReconciliationVariables`:
 const recordProvisioningReconciliationVars: RecordProvisioningReconciliationVariables = {
-  idempotencyKey: ..., 
-  firebaseUid: ..., 
-  errorClass: ..., 
+  idempotencyKey: ...,
+  firebaseUid: ...,
+  errorClass: ...,
 };
 
 // Call the `recordProvisioningReconciliation()` function to execute the mutation.
@@ -9474,9 +9112,9 @@ import { connectorConfig, recordProvisioningReconciliationRef, RecordProvisionin
 
 // The `RecordProvisioningReconciliation` mutation requires an argument of type `RecordProvisioningReconciliationVariables`:
 const recordProvisioningReconciliationVars: RecordProvisioningReconciliationVariables = {
-  idempotencyKey: ..., 
-  firebaseUid: ..., 
-  errorClass: ..., 
+  idempotencyKey: ...,
+  firebaseUid: ...,
+  errorClass: ...,
 };
 
 // Call the `recordProvisioningReconciliationRef()` function to get a reference to the mutation.
@@ -9571,22 +9209,22 @@ import { connectorConfig, createOrganization, CreateOrganizationVariables } from
 
 // The `CreateOrganization` mutation requires an argument of type `CreateOrganizationVariables`:
 const createOrganizationVars: CreateOrganizationVariables = {
-  id: ..., 
-  organizationCode: ..., 
-  businessName: ..., 
+  id: ...,
+  organizationCode: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  timezone: ...,
+  currency: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `createOrganization()` function to execute the mutation.
@@ -9618,22 +9256,22 @@ import { connectorConfig, createOrganizationRef, CreateOrganizationVariables } f
 
 // The `CreateOrganization` mutation requires an argument of type `CreateOrganizationVariables`:
 const createOrganizationVars: CreateOrganizationVariables = {
-  id: ..., 
-  organizationCode: ..., 
-  businessName: ..., 
+  id: ...,
+  organizationCode: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  timezone: ...,
+  currency: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `createOrganizationRef()` function to get a reference to the mutation.
@@ -9729,21 +9367,21 @@ import { connectorConfig, updateOrganization, UpdateOrganizationVariables } from
 
 // The `UpdateOrganization` mutation requires an argument of type `UpdateOrganizationVariables`:
 const updateOrganizationVars: UpdateOrganizationVariables = {
-  id: ..., 
-  businessName: ..., 
+  id: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  timezone: ...,
+  currency: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateOrganization()` function to execute the mutation.
@@ -9775,21 +9413,21 @@ import { connectorConfig, updateOrganizationRef, UpdateOrganizationVariables } f
 
 // The `UpdateOrganization` mutation requires an argument of type `UpdateOrganizationVariables`:
 const updateOrganizationVars: UpdateOrganizationVariables = {
-  id: ..., 
-  businessName: ..., 
+  id: ...,
+  businessName: ...,
   legalEntityName: ..., // optional
   taxId: ..., // optional
-  primaryContactName: ..., 
-  email: ..., 
-  phone: ..., 
+  primaryContactName: ...,
+  email: ...,
+  phone: ...,
   address: ..., // optional
   city: ..., // optional
   state: ..., // optional
   postalCode: ..., // optional
-  timezone: ..., 
-  currency: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  timezone: ...,
+  currency: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateOrganizationRef()` function to get a reference to the mutation.
@@ -9875,11 +9513,11 @@ import { connectorConfig, changeOrganizationStatus, ChangeOrganizationStatusVari
 
 // The `ChangeOrganizationStatus` mutation requires an argument of type `ChangeOrganizationStatusVariables`:
 const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
-  id: ..., 
-  status: ..., 
-  action: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  id: ...,
+  status: ...,
+  action: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `changeOrganizationStatus()` function to execute the mutation.
@@ -9911,11 +9549,11 @@ import { connectorConfig, changeOrganizationStatusRef, ChangeOrganizationStatusV
 
 // The `ChangeOrganizationStatus` mutation requires an argument of type `ChangeOrganizationStatusVariables`:
 const changeOrganizationStatusVars: ChangeOrganizationStatusVariables = {
-  id: ..., 
-  status: ..., 
-  action: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  id: ...,
+  status: ...,
+  action: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `changeOrganizationStatusRef()` function to get a reference to the mutation.
@@ -10015,25 +9653,25 @@ import { connectorConfig, createTenantExpense, CreateTenantExpenseVariables } fr
 
 // The `CreateTenantExpense` mutation requires an argument of type `CreateTenantExpenseVariables`:
 const createTenantExpenseVars: CreateTenantExpenseVariables = {
-  organizationId: ..., 
-  expenseNumber: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  expenseNumber: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
   outletId: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
-  submittedBy: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
+  submittedBy: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantExpense()` function to execute the mutation.
@@ -10065,25 +9703,25 @@ import { connectorConfig, createTenantExpenseRef, CreateTenantExpenseVariables }
 
 // The `CreateTenantExpense` mutation requires an argument of type `CreateTenantExpenseVariables`:
 const createTenantExpenseVars: CreateTenantExpenseVariables = {
-  organizationId: ..., 
-  expenseNumber: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  expenseNumber: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
   outletId: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
-  submittedBy: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
+  submittedBy: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantExpenseRef()` function to get a reference to the mutation.
@@ -10181,23 +9819,23 @@ import { connectorConfig, updateTenantExpense, UpdateTenantExpenseVariables } fr
 
 // The `UpdateTenantExpense` mutation requires an argument of type `UpdateTenantExpenseVariables`:
 const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  id: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantExpense()` function to execute the mutation.
@@ -10229,23 +9867,23 @@ import { connectorConfig, updateTenantExpenseRef, UpdateTenantExpenseVariables }
 
 // The `UpdateTenantExpense` mutation requires an argument of type `UpdateTenantExpenseVariables`:
 const updateTenantExpenseVars: UpdateTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  expenseDate: ..., 
-  category: ..., 
-  description: ..., 
+  organizationId: ...,
+  id: ...,
+  expenseDate: ...,
+  category: ...,
+  description: ...,
   reference: ..., // optional
   vendorName: ..., // optional
-  scope: ..., 
-  baseAmount: ..., 
-  taxAmount: ..., 
-  amount: ..., 
-  paymentMethod: ..., 
-  paidByEmployee: ..., 
+  scope: ...,
+  baseAmount: ...,
+  taxAmount: ...,
+  amount: ...,
+  paymentMethod: ...,
+  paidByEmployee: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantExpenseRef()` function to get a reference to the mutation.
@@ -10333,13 +9971,13 @@ import { connectorConfig, changeTenantExpenseApproval, ChangeTenantExpenseApprov
 
 // The `ChangeTenantExpenseApproval` mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`:
 const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
-  organizationId: ..., 
-  id: ..., 
-  approvalStatus: ..., 
+  organizationId: ...,
+  id: ...,
+  approvalStatus: ...,
   reason: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantExpenseApproval()` function to execute the mutation.
@@ -10371,13 +10009,13 @@ import { connectorConfig, changeTenantExpenseApprovalRef, ChangeTenantExpenseApp
 
 // The `ChangeTenantExpenseApproval` mutation requires an argument of type `ChangeTenantExpenseApprovalVariables`:
 const changeTenantExpenseApprovalVars: ChangeTenantExpenseApprovalVariables = {
-  organizationId: ..., 
-  id: ..., 
-  approvalStatus: ..., 
+  organizationId: ...,
+  id: ...,
+  approvalStatus: ...,
   reason: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantExpenseApprovalRef()` function to get a reference to the mutation.
@@ -10464,12 +10102,12 @@ import { connectorConfig, voidTenantExpense, VoidTenantExpenseVariables } from '
 
 // The `VoidTenantExpense` mutation requires an argument of type `VoidTenantExpenseVariables`:
 const voidTenantExpenseVars: VoidTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  reason: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  reason: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantExpense()` function to execute the mutation.
@@ -10501,12 +10139,12 @@ import { connectorConfig, voidTenantExpenseRef, VoidTenantExpenseVariables } fro
 
 // The `VoidTenantExpense` mutation requires an argument of type `VoidTenantExpenseVariables`:
 const voidTenantExpenseVars: VoidTenantExpenseVariables = {
-  organizationId: ..., 
-  id: ..., 
-  reason: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  reason: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantExpenseRef()` function to get a reference to the mutation.
@@ -10604,23 +10242,23 @@ import { connectorConfig, createTenantSale, CreateTenantSaleVariables } from '@o
 
 // The `CreateTenantSale` mutation requires an argument of type `CreateTenantSaleVariables`:
 const createTenantSaleVars: CreateTenantSaleVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  receiptNumber: ..., 
-  saleTimestamp: ..., 
+  organizationId: ...,
+  outletId: ...,
+  receiptNumber: ...,
+  saleTimestamp: ...,
   customerId: ..., // optional
-  customerName: ..., 
-  staffName: ..., 
+  customerName: ...,
+  staffName: ...,
   channel: ..., // optional
-  terminalId: ..., 
-  tenderType: ..., 
-  tax: ..., 
-  discount: ..., 
-  subtotal: ..., 
-  totalNet: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  terminalId: ...,
+  tenderType: ...,
+  tax: ...,
+  discount: ...,
+  subtotal: ...,
+  totalNet: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSale()` function to execute the mutation.
@@ -10652,23 +10290,23 @@ import { connectorConfig, createTenantSaleRef, CreateTenantSaleVariables } from 
 
 // The `CreateTenantSale` mutation requires an argument of type `CreateTenantSaleVariables`:
 const createTenantSaleVars: CreateTenantSaleVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  receiptNumber: ..., 
-  saleTimestamp: ..., 
+  organizationId: ...,
+  outletId: ...,
+  receiptNumber: ...,
+  saleTimestamp: ...,
   customerId: ..., // optional
-  customerName: ..., 
-  staffName: ..., 
+  customerName: ...,
+  staffName: ...,
   channel: ..., // optional
-  terminalId: ..., 
-  tenderType: ..., 
-  tax: ..., 
-  discount: ..., 
-  subtotal: ..., 
-  totalNet: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  terminalId: ...,
+  tenderType: ...,
+  tax: ...,
+  discount: ...,
+  subtotal: ...,
+  totalNet: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSaleRef()` function to get a reference to the mutation.
@@ -10761,17 +10399,17 @@ import { connectorConfig, addTenantSaleLine, AddTenantSaleLineVariables } from '
 
 // The `AddTenantSaleLine` mutation requires an argument of type `AddTenantSaleLineVariables`:
 const addTenantSaleLineVars: AddTenantSaleLineVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantity: ..., 
-  newStockQty: ..., 
-  unitPrice: ..., 
-  subtotal: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  saleId: ...,
+  outletId: ...,
+  productId: ...,
+  quantity: ...,
+  newStockQty: ...,
+  unitPrice: ...,
+  subtotal: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `addTenantSaleLine()` function to execute the mutation.
@@ -10805,17 +10443,17 @@ import { connectorConfig, addTenantSaleLineRef, AddTenantSaleLineVariables } fro
 
 // The `AddTenantSaleLine` mutation requires an argument of type `AddTenantSaleLineVariables`:
 const addTenantSaleLineVars: AddTenantSaleLineVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantity: ..., 
-  newStockQty: ..., 
-  unitPrice: ..., 
-  subtotal: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  saleId: ...,
+  outletId: ...,
+  productId: ...,
+  quantity: ...,
+  newStockQty: ...,
+  unitPrice: ...,
+  subtotal: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `addTenantSaleLineRef()` function to get a reference to the mutation.
@@ -10904,12 +10542,12 @@ import { connectorConfig, voidTenantSale, VoidTenantSaleVariables } from '@omnir
 
 // The `VoidTenantSale` mutation requires an argument of type `VoidTenantSaleVariables`:
 const voidTenantSaleVars: VoidTenantSaleVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  reason: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  saleId: ...,
+  reason: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantSale()` function to execute the mutation.
@@ -10941,12 +10579,12 @@ import { connectorConfig, voidTenantSaleRef, VoidTenantSaleVariables } from '@om
 
 // The `VoidTenantSale` mutation requires an argument of type `VoidTenantSaleVariables`:
 const voidTenantSaleVars: VoidTenantSaleVariables = {
-  organizationId: ..., 
-  saleId: ..., 
-  reason: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  saleId: ...,
+  reason: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `voidTenantSaleRef()` function to get a reference to the mutation.
@@ -11048,27 +10686,27 @@ import { connectorConfig, createTenantPurchase, CreateTenantPurchaseVariables } 
 
 // The `CreateTenantPurchase` mutation requires an argument of type `CreateTenantPurchaseVariables`:
 const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
-  organizationId: ..., 
-  purchaseNumber: ..., 
-  purchaseDate: ..., 
-  supplierId: ..., 
+  organizationId: ...,
+  purchaseNumber: ...,
+  purchaseDate: ...,
+  supplierId: ...,
   outletId: ..., // optional
-  scope: ..., 
+  scope: ...,
   paymentTerms: ..., // optional
-  subtotal: ..., 
-  shippingFee: ..., 
-  handlingFee: ..., 
-  tax: ..., 
-  totalAmount: ..., 
-  amountPaid: ..., 
-  outstandingAmount: ..., 
-  paymentStatus: ..., 
-  receiptStatus: ..., 
-  status: ..., 
-  createdBy: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  subtotal: ...,
+  shippingFee: ...,
+  handlingFee: ...,
+  tax: ...,
+  totalAmount: ...,
+  amountPaid: ...,
+  outstandingAmount: ...,
+  paymentStatus: ...,
+  receiptStatus: ...,
+  status: ...,
+  createdBy: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchase()` function to execute the mutation.
@@ -11100,27 +10738,27 @@ import { connectorConfig, createTenantPurchaseRef, CreateTenantPurchaseVariables
 
 // The `CreateTenantPurchase` mutation requires an argument of type `CreateTenantPurchaseVariables`:
 const createTenantPurchaseVars: CreateTenantPurchaseVariables = {
-  organizationId: ..., 
-  purchaseNumber: ..., 
-  purchaseDate: ..., 
-  supplierId: ..., 
+  organizationId: ...,
+  purchaseNumber: ...,
+  purchaseDate: ...,
+  supplierId: ...,
   outletId: ..., // optional
-  scope: ..., 
+  scope: ...,
   paymentTerms: ..., // optional
-  subtotal: ..., 
-  shippingFee: ..., 
-  handlingFee: ..., 
-  tax: ..., 
-  totalAmount: ..., 
-  amountPaid: ..., 
-  outstandingAmount: ..., 
-  paymentStatus: ..., 
-  receiptStatus: ..., 
-  status: ..., 
-  createdBy: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  subtotal: ...,
+  shippingFee: ...,
+  handlingFee: ...,
+  tax: ...,
+  totalAmount: ...,
+  amountPaid: ...,
+  outstandingAmount: ...,
+  paymentStatus: ...,
+  receiptStatus: ...,
+  status: ...,
+  createdBy: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchaseRef()` function to get a reference to the mutation.
@@ -11213,18 +10851,18 @@ import { connectorConfig, createTenantPurchaseLine, CreateTenantPurchaseLineVari
 
 // The `CreateTenantPurchaseLine` mutation requires an argument of type `CreateTenantPurchaseLineVariables`:
 const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  productId: ..., 
-  quantityOrdered: ..., 
-  unitCost: ..., 
-  discountPercent: ..., 
-  taxRate: ..., 
-  taxAmount: ..., 
-  lineTotal: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  productId: ...,
+  quantityOrdered: ...,
+  unitCost: ...,
+  discountPercent: ...,
+  taxRate: ...,
+  taxAmount: ...,
+  lineTotal: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchaseLine()` function to execute the mutation.
@@ -11256,18 +10894,18 @@ import { connectorConfig, createTenantPurchaseLineRef, CreateTenantPurchaseLineV
 
 // The `CreateTenantPurchaseLine` mutation requires an argument of type `CreateTenantPurchaseLineVariables`:
 const createTenantPurchaseLineVars: CreateTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  productId: ..., 
-  quantityOrdered: ..., 
-  unitCost: ..., 
-  discountPercent: ..., 
-  taxRate: ..., 
-  taxAmount: ..., 
-  lineTotal: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  productId: ...,
+  quantityOrdered: ...,
+  unitCost: ...,
+  discountPercent: ...,
+  taxRate: ...,
+  taxAmount: ...,
+  lineTotal: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantPurchaseLineRef()` function to get a reference to the mutation.
@@ -11355,13 +10993,13 @@ import { connectorConfig, changeTenantPurchaseStatus, ChangeTenantPurchaseStatus
 
 // The `ChangeTenantPurchaseStatus` mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`:
 const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
   reason: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantPurchaseStatus()` function to execute the mutation.
@@ -11393,13 +11031,13 @@ import { connectorConfig, changeTenantPurchaseStatusRef, ChangeTenantPurchaseSta
 
 // The `ChangeTenantPurchaseStatus` mutation requires an argument of type `ChangeTenantPurchaseStatusVariables`:
 const changeTenantPurchaseStatusVars: ChangeTenantPurchaseStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
   reason: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantPurchaseStatusRef()` function to get a reference to the mutation.
@@ -11496,20 +11134,20 @@ import { connectorConfig, receiveTenantPurchaseLine, ReceiveTenantPurchaseLineVa
 
 // The `ReceiveTenantPurchaseLine` mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`:
 const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  lineId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantityReceived: ..., 
-  newStockQty: ..., 
-  receiptStatus: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  lineId: ...,
+  outletId: ...,
+  productId: ...,
+  quantityReceived: ...,
+  newStockQty: ...,
+  receiptStatus: ...,
   batchNumber: ..., // optional
   mfgDate: ..., // optional
   expiryDate: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `receiveTenantPurchaseLine()` function to execute the mutation.
@@ -11545,20 +11183,20 @@ import { connectorConfig, receiveTenantPurchaseLineRef, ReceiveTenantPurchaseLin
 
 // The `ReceiveTenantPurchaseLine` mutation requires an argument of type `ReceiveTenantPurchaseLineVariables`:
 const receiveTenantPurchaseLineVars: ReceiveTenantPurchaseLineVariables = {
-  organizationId: ..., 
-  purchaseId: ..., 
-  lineId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  quantityReceived: ..., 
-  newStockQty: ..., 
-  receiptStatus: ..., 
+  organizationId: ...,
+  purchaseId: ...,
+  lineId: ...,
+  outletId: ...,
+  productId: ...,
+  quantityReceived: ...,
+  newStockQty: ...,
+  receiptStatus: ...,
   batchNumber: ..., // optional
   mfgDate: ..., // optional
   expiryDate: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `receiveTenantPurchaseLineRef()` function to get a reference to the mutation.
@@ -11662,25 +11300,25 @@ import { connectorConfig, createTenantSupplier, CreateTenantSupplierVariables } 
 
 // The `CreateTenantSupplier` mutation requires an argument of type `CreateTenantSupplierVariables`:
 const createTenantSupplierVars: CreateTenantSupplierVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
-  taxId: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
+  taxId: ...,
   address: ..., // optional
-  city: ..., 
+  city: ...,
   state: ..., // optional
   postalCode: ..., // optional
   country: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSupplier()` function to execute the mutation.
@@ -11712,25 +11350,25 @@ import { connectorConfig, createTenantSupplierRef, CreateTenantSupplierVariables
 
 // The `CreateTenantSupplier` mutation requires an argument of type `CreateTenantSupplierVariables`:
 const createTenantSupplierVars: CreateTenantSupplierVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
-  taxId: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
+  taxId: ...,
   address: ..., // optional
-  city: ..., 
+  city: ...,
   state: ..., // optional
   postalCode: ..., // optional
   country: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSupplierRef()` function to get a reference to the mutation.
@@ -11830,25 +11468,25 @@ import { connectorConfig, updateTenantSupplier, UpdateTenantSupplierVariables } 
 
 // The `UpdateTenantSupplier` mutation requires an argument of type `UpdateTenantSupplierVariables`:
 const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
-  taxId: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
+  taxId: ...,
   address: ..., // optional
-  city: ..., 
+  city: ...,
   state: ..., // optional
   postalCode: ..., // optional
   country: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantSupplier()` function to execute the mutation.
@@ -11880,25 +11518,25 @@ import { connectorConfig, updateTenantSupplierRef, UpdateTenantSupplierVariables
 
 // The `UpdateTenantSupplier` mutation requires an argument of type `UpdateTenantSupplierVariables`:
 const updateTenantSupplierVars: UpdateTenantSupplierVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
-  phone: ..., 
-  email: ..., 
-  taxId: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
+  phone: ...,
+  email: ...,
+  taxId: ...,
   address: ..., // optional
-  city: ..., 
+  city: ...,
   state: ..., // optional
   postalCode: ..., // optional
   country: ..., // optional
-  category: ..., 
-  paymentTerms: ..., 
-  creditLimit: ..., 
+  category: ...,
+  paymentTerms: ...,
+  creditLimit: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantSupplierRef()` function to get a reference to the mutation.
@@ -11985,12 +11623,12 @@ import { connectorConfig, changeTenantSupplierStatus, ChangeTenantSupplierStatus
 
 // The `ChangeTenantSupplierStatus` mutation requires an argument of type `ChangeTenantSupplierStatusVariables`:
 const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantSupplierStatus()` function to execute the mutation.
@@ -12022,12 +11660,12 @@ import { connectorConfig, changeTenantSupplierStatusRef, ChangeTenantSupplierSta
 
 // The `ChangeTenantSupplierStatus` mutation requires an argument of type `ChangeTenantSupplierStatusVariables`:
 const changeTenantSupplierStatusVars: ChangeTenantSupplierStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantSupplierStatusRef()` function to get a reference to the mutation.
@@ -12130,18 +11768,18 @@ import { connectorConfig, createTenantCustomer, CreateTenantCustomerVariables } 
 
 // The `CreateTenantCustomer` mutation requires an argument of type `CreateTenantCustomerVariables`:
 const createTenantCustomerVars: CreateTenantCustomerVariables = {
-  id: ..., 
-  organizationId: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
-  email: ..., 
+  id: ...,
+  organizationId: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ..., 
-  state: ..., 
+  city: ...,
+  state: ...,
   postalCode: ..., // optional
   country: ..., // optional
   creditLimit: ..., // optional
@@ -12149,9 +11787,9 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCustomer()` function to execute the mutation.
@@ -12183,18 +11821,18 @@ import { connectorConfig, createTenantCustomerRef, CreateTenantCustomerVariables
 
 // The `CreateTenantCustomer` mutation requires an argument of type `CreateTenantCustomerVariables`:
 const createTenantCustomerVars: CreateTenantCustomerVariables = {
-  id: ..., 
-  organizationId: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
-  email: ..., 
+  id: ...,
+  organizationId: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ..., 
-  state: ..., 
+  city: ...,
+  state: ...,
   postalCode: ..., // optional
   country: ..., // optional
   creditLimit: ..., // optional
@@ -12202,9 +11840,9 @@ const createTenantCustomerVars: CreateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCustomerRef()` function to get a reference to the mutation.
@@ -12307,18 +11945,18 @@ import { connectorConfig, updateTenantCustomer, UpdateTenantCustomerVariables } 
 
 // The `UpdateTenantCustomer` mutation requires an argument of type `UpdateTenantCustomerVariables`:
 const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
-  organizationId: ..., 
-  id: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
-  email: ..., 
+  organizationId: ...,
+  id: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ..., 
-  state: ..., 
+  city: ...,
+  state: ...,
   postalCode: ..., // optional
   country: ..., // optional
   creditLimit: ..., // optional
@@ -12326,9 +11964,9 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantCustomer()` function to execute the mutation.
@@ -12360,18 +11998,18 @@ import { connectorConfig, updateTenantCustomerRef, UpdateTenantCustomerVariables
 
 // The `UpdateTenantCustomer` mutation requires an argument of type `UpdateTenantCustomerVariables`:
 const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
-  organizationId: ..., 
-  id: ..., 
-  type: ..., 
-  name: ..., 
-  phone: ..., 
-  email: ..., 
+  organizationId: ...,
+  id: ...,
+  type: ...,
+  name: ...,
+  phone: ...,
+  email: ...,
   taxId: ..., // optional
   documentType: ..., // optional
   documentValue: ..., // optional
   address: ..., // optional
-  city: ..., 
-  state: ..., 
+  city: ...,
+  state: ...,
   postalCode: ..., // optional
   country: ..., // optional
   creditLimit: ..., // optional
@@ -12379,9 +12017,9 @@ const updateTenantCustomerVars: UpdateTenantCustomerVariables = {
   dateOfBirth: ..., // optional
   gender: ..., // optional
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantCustomerRef()` function to get a reference to the mutation.
@@ -12468,12 +12106,12 @@ import { connectorConfig, changeTenantCustomerStatus, ChangeTenantCustomerStatus
 
 // The `ChangeTenantCustomerStatus` mutation requires an argument of type `ChangeTenantCustomerStatusVariables`:
 const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantCustomerStatus()` function to execute the mutation.
@@ -12505,12 +12143,12 @@ import { connectorConfig, changeTenantCustomerStatusRef, ChangeTenantCustomerSta
 
 // The `ChangeTenantCustomerStatus` mutation requires an argument of type `ChangeTenantCustomerStatusVariables`:
 const changeTenantCustomerStatusVars: ChangeTenantCustomerStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantCustomerStatusRef()` function to get a reference to the mutation.
@@ -12597,12 +12235,12 @@ import { connectorConfig, createTenantCategoryTrusted, CreateTenantCategoryTrust
 
 // The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
 const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  value: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  id: ...,
+  organizationId: ...,
+  value: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCategoryTrusted()` function to execute the mutation.
@@ -12634,12 +12272,12 @@ import { connectorConfig, createTenantCategoryTrustedRef, CreateTenantCategoryTr
 
 // The `CreateTenantCategoryTrusted` mutation requires an argument of type `CreateTenantCategoryTrustedVariables`:
 const createTenantCategoryTrustedVars: CreateTenantCategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  value: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  id: ...,
+  organizationId: ...,
+  value: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantCategoryTrustedRef()` function to get a reference to the mutation.
@@ -12727,13 +12365,13 @@ import { connectorConfig, createTenantSubcategoryTrusted, CreateTenantSubcategor
 
 // The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
 const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  categoryId: ..., 
-  value: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  id: ...,
+  organizationId: ...,
+  categoryId: ...,
+  value: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSubcategoryTrusted()` function to execute the mutation.
@@ -12765,13 +12403,13 @@ import { connectorConfig, createTenantSubcategoryTrustedRef, CreateTenantSubcate
 
 // The `CreateTenantSubcategoryTrusted` mutation requires an argument of type `CreateTenantSubcategoryTrustedVariables`:
 const createTenantSubcategoryTrustedVars: CreateTenantSubcategoryTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  categoryId: ..., 
-  value: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  id: ...,
+  organizationId: ...,
+  categoryId: ...,
+  value: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
@@ -12877,31 +12515,31 @@ import { connectorConfig, createTenantProduct, CreateTenantProductVariables } fr
 
 // The `CreateTenantProduct` mutation requires an argument of type `CreateTenantProductVariables`:
 const createTenantProductVars: CreateTenantProductVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantProduct()` function to execute the mutation.
@@ -12933,31 +12571,31 @@ import { connectorConfig, createTenantProductRef, CreateTenantProductVariables }
 
 // The `CreateTenantProduct` mutation requires an argument of type `CreateTenantProductVariables`:
 const createTenantProductVars: CreateTenantProductVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantProductRef()` function to get a reference to the mutation.
@@ -13063,31 +12701,31 @@ import { connectorConfig, updateTenantProduct, UpdateTenantProductVariables } fr
 
 // The `UpdateTenantProduct` mutation requires an argument of type `UpdateTenantProductVariables`:
 const updateTenantProductVars: UpdateTenantProductVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantProduct()` function to execute the mutation.
@@ -13119,31 +12757,31 @@ import { connectorConfig, updateTenantProductRef, UpdateTenantProductVariables }
 
 // The `UpdateTenantProduct` mutation requires an argument of type `UpdateTenantProductVariables`:
 const updateTenantProductVars: UpdateTenantProductVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  brand: ..., 
-  categoryId: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  brand: ...,
+  categoryId: ...,
   subcategoryId: ..., // optional
-  type: ..., 
-  sku: ..., 
+  type: ...,
+  sku: ...,
   barcode: ..., // optional
   hsnCode: ..., // optional
   unitOfMeasure: ..., // optional
-  sellingPrice: ..., 
+  sellingPrice: ...,
   mrp: ..., // optional
   cost: ..., // optional
   minSellingPrice: ..., // optional
-  discountAllowed: ..., 
+  discountAllowed: ...,
   taxCategory: ..., // optional
   reorderLevel: ..., // optional
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
   imageUrl: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantProductRef()` function to get a reference to the mutation.
@@ -13230,12 +12868,12 @@ import { connectorConfig, changeTenantProductStatus, ChangeTenantProductStatusVa
 
 // The `ChangeTenantProductStatus` mutation requires an argument of type `ChangeTenantProductStatusVariables`:
 const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantProductStatus()` function to execute the mutation.
@@ -13267,12 +12905,12 @@ import { connectorConfig, changeTenantProductStatusRef, ChangeTenantProductStatu
 
 // The `ChangeTenantProductStatus` mutation requires an argument of type `ChangeTenantProductStatusVariables`:
 const changeTenantProductStatusVars: ChangeTenantProductStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantProductStatusRef()` function to get a reference to the mutation.
@@ -13364,17 +13002,17 @@ import { connectorConfig, adjustTenantInventory, AdjustTenantInventoryVariables 
 
 // The `AdjustTenantInventory` mutation requires an argument of type `AdjustTenantInventoryVariables`:
 const adjustTenantInventoryVars: AdjustTenantInventoryVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  mode: ..., 
-  quantity: ..., 
-  previousQty: ..., 
-  newQty: ..., 
-  reasonCode: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  mode: ...,
+  quantity: ...,
+  previousQty: ...,
+  newQty: ...,
+  reasonCode: ...,
   auditNote: ..., // optional
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `adjustTenantInventory()` function to execute the mutation.
@@ -13406,17 +13044,17 @@ import { connectorConfig, adjustTenantInventoryRef, AdjustTenantInventoryVariabl
 
 // The `AdjustTenantInventory` mutation requires an argument of type `AdjustTenantInventoryVariables`:
 const adjustTenantInventoryVars: AdjustTenantInventoryVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  mode: ..., 
-  quantity: ..., 
-  previousQty: ..., 
-  newQty: ..., 
-  reasonCode: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  mode: ...,
+  quantity: ...,
+  previousQty: ...,
+  newQty: ...,
+  reasonCode: ...,
   auditNote: ..., // optional
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `adjustTenantInventoryRef()` function to get a reference to the mutation.
@@ -13505,14 +13143,14 @@ import { connectorConfig, createTenantInventoryStock, CreateTenantInventoryStock
 
 // The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`:
 const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  onHandQty: ..., 
-  reorderLevel: ..., 
-  overstockThreshold: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  onHandQty: ...,
+  reorderLevel: ...,
+  overstockThreshold: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantInventoryStock()` function to execute the mutation.
@@ -13544,14 +13182,14 @@ import { connectorConfig, createTenantInventoryStockRef, CreateTenantInventorySt
 
 // The `CreateTenantInventoryStock` mutation requires an argument of type `CreateTenantInventoryStockVariables`:
 const createTenantInventoryStockVars: CreateTenantInventoryStockVariables = {
-  organizationId: ..., 
-  outletId: ..., 
-  productId: ..., 
-  onHandQty: ..., 
-  reorderLevel: ..., 
-  overstockThreshold: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  outletId: ...,
+  productId: ...,
+  onHandQty: ...,
+  reorderLevel: ...,
+  overstockThreshold: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantInventoryStockRef()` function to get a reference to the mutation.
@@ -13640,14 +13278,14 @@ import { connectorConfig, createTenantOutlet, CreateTenantOutletVariables } from
 
 // The `CreateTenantOutlet` mutation requires an argument of type `CreateTenantOutletVariables`:
 const createTenantOutletVars: CreateTenantOutletVariables = {
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `createTenantOutlet()` function to execute the mutation.
@@ -13679,14 +13317,14 @@ import { connectorConfig, createTenantOutletRef, CreateTenantOutletVariables } f
 
 // The `CreateTenantOutlet` mutation requires an argument of type `CreateTenantOutletVariables`:
 const createTenantOutletVars: CreateTenantOutletVariables = {
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `createTenantOutletRef()` function to get a reference to the mutation.
@@ -13776,15 +13414,15 @@ import { connectorConfig, updateTenantOutlet, UpdateTenantOutletVariables } from
 
 // The `UpdateTenantOutlet` mutation requires an argument of type `UpdateTenantOutletVariables`:
 const updateTenantOutletVars: UpdateTenantOutletVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateTenantOutlet()` function to execute the mutation.
@@ -13816,15 +13454,15 @@ import { connectorConfig, updateTenantOutletRef, UpdateTenantOutletVariables } f
 
 // The `UpdateTenantOutlet` mutation requires an argument of type `UpdateTenantOutletVariables`:
 const updateTenantOutletVars: UpdateTenantOutletVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `updateTenantOutletRef()` function to get a reference to the mutation.
@@ -13910,11 +13548,11 @@ import { connectorConfig, changeTenantOutletStatus, ChangeTenantOutletStatusVari
 
 // The `ChangeTenantOutletStatus` mutation requires an argument of type `ChangeTenantOutletStatusVariables`:
 const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `changeTenantOutletStatus()` function to execute the mutation.
@@ -13946,11 +13584,11 @@ import { connectorConfig, changeTenantOutletStatusRef, ChangeTenantOutletStatusV
 
 // The `ChangeTenantOutletStatus` mutation requires an argument of type `ChangeTenantOutletStatusVariables`:
 const changeTenantOutletStatusVars: ChangeTenantOutletStatusVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
 };
 
 // Call the `changeTenantOutletStatusRef()` function to get a reference to the mutation.
@@ -14041,16 +13679,16 @@ import { connectorConfig, createTenantOutletTrusted, CreateTenantOutletTrustedVa
 
 // The `CreateTenantOutletTrusted` mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
 const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantOutletTrusted()` function to execute the mutation.
@@ -14082,16 +13720,16 @@ import { connectorConfig, createTenantOutletTrustedRef, CreateTenantOutletTruste
 
 // The `CreateTenantOutletTrusted` mutation requires an argument of type `CreateTenantOutletTrustedVariables`:
 const createTenantOutletTrustedVars: CreateTenantOutletTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  id: ...,
+  organizationId: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantOutletTrustedRef()` function to get a reference to the mutation.
@@ -14182,16 +13820,16 @@ import { connectorConfig, updateTenantOutletTrusted, UpdateTenantOutletTrustedVa
 
 // The `UpdateTenantOutletTrusted` mutation requires an argument of type `UpdateTenantOutletTrustedVariables`:
 const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantOutletTrusted()` function to execute the mutation.
@@ -14223,16 +13861,16 @@ import { connectorConfig, updateTenantOutletTrustedRef, UpdateTenantOutletTruste
 
 // The `UpdateTenantOutletTrusted` mutation requires an argument of type `UpdateTenantOutletTrustedVariables`:
 const updateTenantOutletTrustedVars: UpdateTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  name: ..., 
-  contactPerson: ..., 
+  organizationId: ...,
+  id: ...,
+  name: ...,
+  contactPerson: ...,
   email: ..., // optional
-  phone: ..., 
-  address: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  phone: ...,
+  address: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantOutletTrustedRef()` function to get a reference to the mutation.
@@ -14319,12 +13957,12 @@ import { connectorConfig, changeTenantOutletStatusTrusted, ChangeTenantOutletSta
 
 // The `ChangeTenantOutletStatusTrusted` mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`:
 const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantOutletStatusTrusted()` function to execute the mutation.
@@ -14356,12 +13994,12 @@ import { connectorConfig, changeTenantOutletStatusTrustedRef, ChangeTenantOutlet
 
 // The `ChangeTenantOutletStatusTrusted` mutation requires an argument of type `ChangeTenantOutletStatusTrustedVariables`:
 const changeTenantOutletStatusTrustedVars: ChangeTenantOutletStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantOutletStatusTrustedRef()` function to get a reference to the mutation.
@@ -14447,11 +14085,11 @@ import { connectorConfig, deleteTenantOutletTrusted, DeleteTenantOutletTrustedVa
 
 // The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
 const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantOutletTrusted()` function to execute the mutation.
@@ -14483,11 +14121,11 @@ import { connectorConfig, deleteTenantOutletTrustedRef, DeleteTenantOutletTruste
 
 // The `DeleteTenantOutletTrusted` mutation requires an argument of type `DeleteTenantOutletTrustedVariables`:
 const deleteTenantOutletTrustedVars: DeleteTenantOutletTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantOutletTrustedRef()` function to get a reference to the mutation.
@@ -14573,11 +14211,11 @@ import { connectorConfig, deleteTenantEmployeeTrusted, DeleteTenantEmployeeTrust
 
 // The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
 const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantEmployeeTrusted()` function to execute the mutation.
@@ -14609,11 +14247,11 @@ import { connectorConfig, deleteTenantEmployeeTrustedRef, DeleteTenantEmployeeTr
 
 // The `DeleteTenantEmployeeTrusted` mutation requires an argument of type `DeleteTenantEmployeeTrustedVariables`:
 const deleteTenantEmployeeTrustedVars: DeleteTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantEmployeeTrustedRef()` function to get a reference to the mutation.
@@ -14699,11 +14337,11 @@ import { connectorConfig, deleteTenantServicePersonTrusted, DeleteTenantServiceP
 
 // The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
 const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonTrusted()` function to execute the mutation.
@@ -14735,11 +14373,11 @@ import { connectorConfig, deleteTenantServicePersonTrustedRef, DeleteTenantServi
 
 // The `DeleteTenantServicePersonTrusted` mutation requires an argument of type `DeleteTenantServicePersonTrustedVariables`:
 const deleteTenantServicePersonTrustedVars: DeleteTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonTrustedRef()` function to get a reference to the mutation.
@@ -14826,12 +14464,12 @@ import { connectorConfig, deleteTenantServicePersonOutletTrusted, DeleteTenantSe
 
 // The `DeleteTenantServicePersonOutletTrusted` mutation requires an argument of type `DeleteTenantServicePersonOutletTrustedVariables`:
 const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonOutletTrusted()` function to execute the mutation.
@@ -14863,12 +14501,12 @@ import { connectorConfig, deleteTenantServicePersonOutletTrustedRef, DeleteTenan
 
 // The `DeleteTenantServicePersonOutletTrusted` mutation requires an argument of type `DeleteTenantServicePersonOutletTrustedVariables`:
 const deleteTenantServicePersonOutletTrustedVars: DeleteTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantServicePersonOutletTrustedRef()` function to get a reference to the mutation.
@@ -14954,11 +14592,11 @@ import { connectorConfig, deleteTenantCustomerTrusted, DeleteTenantCustomerTrust
 
 // The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
 const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCustomerTrusted()` function to execute the mutation.
@@ -14990,11 +14628,11 @@ import { connectorConfig, deleteTenantCustomerTrustedRef, DeleteTenantCustomerTr
 
 // The `DeleteTenantCustomerTrusted` mutation requires an argument of type `DeleteTenantCustomerTrustedVariables`:
 const deleteTenantCustomerTrustedVars: DeleteTenantCustomerTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCustomerTrustedRef()` function to get a reference to the mutation.
@@ -15080,11 +14718,11 @@ import { connectorConfig, deleteTenantSupplierTrusted, DeleteTenantSupplierTrust
 
 // The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
 const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSupplierTrusted()` function to execute the mutation.
@@ -15116,11 +14754,11 @@ import { connectorConfig, deleteTenantSupplierTrustedRef, DeleteTenantSupplierTr
 
 // The `DeleteTenantSupplierTrusted` mutation requires an argument of type `DeleteTenantSupplierTrustedVariables`:
 const deleteTenantSupplierTrustedVars: DeleteTenantSupplierTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSupplierTrustedRef()` function to get a reference to the mutation.
@@ -15206,11 +14844,11 @@ import { connectorConfig, deleteTenantProductTrusted, DeleteTenantProductTrusted
 
 // The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
 const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantProductTrusted()` function to execute the mutation.
@@ -15242,11 +14880,11 @@ import { connectorConfig, deleteTenantProductTrustedRef, DeleteTenantProductTrus
 
 // The `DeleteTenantProductTrusted` mutation requires an argument of type `DeleteTenantProductTrustedVariables`:
 const deleteTenantProductTrustedVars: DeleteTenantProductTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantProductTrustedRef()` function to get a reference to the mutation.
@@ -15332,11 +14970,11 @@ import { connectorConfig, deleteTenantCategoryTrusted, DeleteTenantCategoryTrust
 
 // The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
 const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCategoryTrusted()` function to execute the mutation.
@@ -15368,11 +15006,11 @@ import { connectorConfig, deleteTenantCategoryTrustedRef, DeleteTenantCategoryTr
 
 // The `DeleteTenantCategoryTrusted` mutation requires an argument of type `DeleteTenantCategoryTrustedVariables`:
 const deleteTenantCategoryTrustedVars: DeleteTenantCategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantCategoryTrustedRef()` function to get a reference to the mutation.
@@ -15458,11 +15096,11 @@ import { connectorConfig, deleteTenantSubcategoryTrusted, DeleteTenantSubcategor
 
 // The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
 const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSubcategoryTrusted()` function to execute the mutation.
@@ -15494,11 +15132,11 @@ import { connectorConfig, deleteTenantSubcategoryTrustedRef, DeleteTenantSubcate
 
 // The `DeleteTenantSubcategoryTrusted` mutation requires an argument of type `DeleteTenantSubcategoryTrustedVariables`:
 const deleteTenantSubcategoryTrustedVars: DeleteTenantSubcategoryTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `deleteTenantSubcategoryTrustedRef()` function to get a reference to the mutation.
@@ -15595,22 +15233,22 @@ import { connectorConfig, createTenantEmployeeProfileTrusted, CreateTenantEmploy
 
 // The `CreateTenantEmployeeProfileTrusted` mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
 const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  assignmentScope: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantEmployeeProfileTrusted()` function to execute the mutation.
@@ -15642,22 +15280,22 @@ import { connectorConfig, createTenantEmployeeProfileTrustedRef, CreateTenantEmp
 
 // The `CreateTenantEmployeeProfileTrusted` mutation requires an argument of type `CreateTenantEmployeeProfileTrustedVariables`:
 const createTenantEmployeeProfileTrustedVars: CreateTenantEmployeeProfileTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  assignmentScope: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantEmployeeProfileTrustedRef()` function to get a reference to the mutation.
@@ -15761,26 +15399,26 @@ import { connectorConfig, provisionTenantEmployeeTrusted, ProvisionTenantEmploye
 
 // The `ProvisionTenantEmployeeTrusted` mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
 const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
-  id: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  organizationId: ..., 
-  fullName: ..., 
-  phone: ..., 
-  designation: ..., 
+  id: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  organizationId: ...,
+  fullName: ...,
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  assignmentScope: ...,
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeTrusted()` function to execute the mutation.
@@ -15818,26 +15456,26 @@ import { connectorConfig, provisionTenantEmployeeTrustedRef, ProvisionTenantEmpl
 
 // The `ProvisionTenantEmployeeTrusted` mutation requires an argument of type `ProvisionTenantEmployeeTrustedVariables`:
 const provisionTenantEmployeeTrustedVars: ProvisionTenantEmployeeTrustedVariables = {
-  id: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  organizationId: ..., 
-  fullName: ..., 
-  phone: ..., 
-  designation: ..., 
+  id: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  organizationId: ...,
+  fullName: ...,
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  assignmentScope: ...,
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeTrustedRef()` function to get a reference to the mutation.
@@ -15939,18 +15577,18 @@ import { connectorConfig, provisionTenantEmployeeLoginTrusted, ProvisionTenantEm
 
 // The `ProvisionTenantEmployeeLoginTrusted` mutation requires an argument of type `ProvisionTenantEmployeeLoginTrustedVariables`:
 const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeLoginTrusted()` function to execute the mutation.
@@ -15988,18 +15626,18 @@ import { connectorConfig, provisionTenantEmployeeLoginTrustedRef, ProvisionTenan
 
 // The `ProvisionTenantEmployeeLoginTrusted` mutation requires an argument of type `ProvisionTenantEmployeeLoginTrustedVariables`:
 const provisionTenantEmployeeLoginTrustedVars: ProvisionTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  firebaseUid: ..., 
-  username: ..., 
-  email: ..., 
-  displayName: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  firebaseUid: ...,
+  username: ...,
+  email: ...,
+  displayName: ...,
   phone: ..., // optional
-  roleId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  roleId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `provisionTenantEmployeeLoginTrustedRef()` function to get a reference to the mutation.
@@ -16101,16 +15739,16 @@ import { connectorConfig, updateTenantEmployeeLoginTrusted, UpdateTenantEmployee
 
 // The `UpdateTenantEmployeeLoginTrusted` mutation requires an argument of type `UpdateTenantEmployeeLoginTrustedVariables`:
 const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  username: ..., 
-  email: ..., 
-  roleId: ..., 
-  loginAccess: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  username: ...,
+  email: ...,
+  roleId: ...,
+  loginAccess: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeLoginTrusted()` function to execute the mutation.
@@ -16152,16 +15790,16 @@ import { connectorConfig, updateTenantEmployeeLoginTrustedRef, UpdateTenantEmplo
 
 // The `UpdateTenantEmployeeLoginTrusted` mutation requires an argument of type `UpdateTenantEmployeeLoginTrustedVariables`:
 const updateTenantEmployeeLoginTrustedVars: UpdateTenantEmployeeLoginTrustedVariables = {
-  organizationId: ..., 
-  employeeId: ..., 
-  userId: ..., 
-  username: ..., 
-  email: ..., 
-  roleId: ..., 
-  loginAccess: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  employeeId: ...,
+  userId: ...,
+  username: ...,
+  email: ...,
+  roleId: ...,
+  loginAccess: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeLoginTrustedRef()` function to get a reference to the mutation.
@@ -16268,22 +15906,22 @@ import { connectorConfig, updateTenantEmployeeTrusted, UpdateTenantEmployeeTrust
 
 // The `UpdateTenantEmployeeTrusted` mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`:
 const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  assignmentScope: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeTrusted()` function to execute the mutation.
@@ -16315,22 +15953,22 @@ import { connectorConfig, updateTenantEmployeeTrustedRef, UpdateTenantEmployeeTr
 
 // The `UpdateTenantEmployeeTrusted` mutation requires an argument of type `UpdateTenantEmployeeTrustedVariables`:
 const updateTenantEmployeeTrustedVars: UpdateTenantEmployeeTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
-  designation: ..., 
+  phone: ...,
+  designation: ...,
   department: ..., // optional
   gender: ..., // optional
   dateOfBirth: ..., // optional
-  dateOfJoining: ..., 
+  dateOfJoining: ...,
   address: ..., // optional
   notes: ..., // optional
-  assignmentScope: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  assignmentScope: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantEmployeeTrustedRef()` function to get a reference to the mutation.
@@ -16417,12 +16055,12 @@ import { connectorConfig, changeTenantEmployeeStatusTrusted, ChangeTenantEmploye
 
 // The `ChangeTenantEmployeeStatusTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`:
 const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeStatusTrusted()` function to execute the mutation.
@@ -16454,12 +16092,12 @@ import { connectorConfig, changeTenantEmployeeStatusTrustedRef, ChangeTenantEmpl
 
 // The `ChangeTenantEmployeeStatusTrusted` mutation requires an argument of type `ChangeTenantEmployeeStatusTrustedVariables`:
 const changeTenantEmployeeStatusTrustedVars: ChangeTenantEmployeeStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeStatusTrustedRef()` function to get a reference to the mutation.
@@ -16548,13 +16186,13 @@ import { connectorConfig, changeTenantEmployeeLoginAccessTrusted, ChangeTenantEm
 
 // The `ChangeTenantEmployeeLoginAccessTrusted` mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`:
 const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAccessTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  userId: ..., 
-  loginAccess: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  loginAccess: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeLoginAccessTrusted()` function to execute the mutation.
@@ -16588,13 +16226,13 @@ import { connectorConfig, changeTenantEmployeeLoginAccessTrustedRef, ChangeTenan
 
 // The `ChangeTenantEmployeeLoginAccessTrusted` mutation requires an argument of type `ChangeTenantEmployeeLoginAccessTrustedVariables`:
 const changeTenantEmployeeLoginAccessTrustedVars: ChangeTenantEmployeeLoginAccessTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  userId: ..., 
-  loginAccess: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  userId: ...,
+  loginAccess: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantEmployeeLoginAccessTrustedRef()` function to get a reference to the mutation.
@@ -16690,19 +16328,19 @@ import { connectorConfig, createTenantServicePersonTrusted, CreateTenantServiceP
 
 // The `CreateTenantServicePersonTrusted` mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
 const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantServicePersonTrusted()` function to execute the mutation.
@@ -16734,19 +16372,19 @@ import { connectorConfig, createTenantServicePersonTrustedRef, CreateTenantServi
 
 // The `CreateTenantServicePersonTrusted` mutation requires an argument of type `CreateTenantServicePersonTrustedVariables`:
 const createTenantServicePersonTrustedVars: CreateTenantServicePersonTrustedVariables = {
-  id: ..., 
-  organizationId: ..., 
-  fullName: ..., 
+  id: ...,
+  organizationId: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `createTenantServicePersonTrustedRef()` function to get a reference to the mutation.
@@ -16840,19 +16478,19 @@ import { connectorConfig, updateTenantServicePersonTrusted, UpdateTenantServiceP
 
 // The `UpdateTenantServicePersonTrusted` mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`:
 const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantServicePersonTrusted()` function to execute the mutation.
@@ -16884,19 +16522,19 @@ import { connectorConfig, updateTenantServicePersonTrustedRef, UpdateTenantServi
 
 // The `UpdateTenantServicePersonTrusted` mutation requires an argument of type `UpdateTenantServicePersonTrustedVariables`:
 const updateTenantServicePersonTrustedVars: UpdateTenantServicePersonTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  fullName: ..., 
+  organizationId: ...,
+  id: ...,
+  fullName: ...,
   email: ..., // optional
-  phone: ..., 
+  phone: ...,
   address: ..., // optional
   specialization: ..., // optional
   yearsOfExperience: ..., // optional
-  assignmentScope: ..., 
+  assignmentScope: ...,
   notes: ..., // optional
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `updateTenantServicePersonTrustedRef()` function to get a reference to the mutation.
@@ -16983,12 +16621,12 @@ import { connectorConfig, changeTenantServicePersonStatusTrusted, ChangeTenantSe
 
 // The `ChangeTenantServicePersonStatusTrusted` mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`:
 const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantServicePersonStatusTrusted()` function to execute the mutation.
@@ -17020,12 +16658,12 @@ import { connectorConfig, changeTenantServicePersonStatusTrustedRef, ChangeTenan
 
 // The `ChangeTenantServicePersonStatusTrusted` mutation requires an argument of type `ChangeTenantServicePersonStatusTrustedVariables`:
 const changeTenantServicePersonStatusTrustedVars: ChangeTenantServicePersonStatusTrustedVariables = {
-  organizationId: ..., 
-  id: ..., 
-  status: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  id: ...,
+  status: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `changeTenantServicePersonStatusTrustedRef()` function to get a reference to the mutation.
@@ -17370,12 +17008,12 @@ import { connectorConfig, assignTenantServicePersonOutletTrusted, AssignTenantSe
 
 // The `AssignTenantServicePersonOutletTrusted` mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`:
 const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `assignTenantServicePersonOutletTrusted()` function to execute the mutation.
@@ -17407,12 +17045,12 @@ import { connectorConfig, assignTenantServicePersonOutletTrustedRef, AssignTenan
 
 // The `AssignTenantServicePersonOutletTrusted` mutation requires an argument of type `AssignTenantServicePersonOutletTrustedVariables`:
 const assignTenantServicePersonOutletTrustedVars: AssignTenantServicePersonOutletTrustedVariables = {
-  organizationId: ..., 
-  servicePersonId: ..., 
-  outletId: ..., 
-  auditId: ..., 
-  requestId: ..., 
-  actorFirebaseUid: ..., 
+  organizationId: ...,
+  servicePersonId: ...,
+  outletId: ...,
+  auditId: ...,
+  requestId: ...,
+  actorFirebaseUid: ...,
 };
 
 // Call the `assignTenantServicePersonOutletTrustedRef()` function to get a reference to the mutation.

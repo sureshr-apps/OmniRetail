@@ -133,6 +133,15 @@ describe('tenant Data Connect foundation schema', () => {
     }
   });
 
+  it('does not define the retired lifecycle idempotency table or connector operations', () => {
+    const schemaSource = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(schemaSource).not.toContain('type LifecycleIdempotency');
+    expect(schemaSource).not.toContain('enum ProvisioningAttemptStatus');
+    expect(connector).not.toContain('LifecycleIdempotency');
+    expect(connector).not.toContain('lifecycleIdempotency');
+  });
+
   it('includes employee profile fields in reads and trusted write operations', () => {
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
     const employeeOperations = connector.match(/(?:query ListTenantEmployees|mutation CreateTenantEmployeeProfileTrusted|mutation ProvisionTenantEmployeeTrusted|mutation UpdateTenantEmployeeTrusted|query GetTenantEmployeeTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g)?.join('\n') ?? '';

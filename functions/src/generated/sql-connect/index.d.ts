@@ -73,13 +73,6 @@ export enum ProductType {
   SERVICE = "SERVICE",
   CONSUMABLE = "CONSUMABLE",
 }
-export enum ProvisioningAttemptStatus {
-  IN_PROGRESS = "IN_PROGRESS",
-  SUCCEEDED = "SUCCEEDED",
-  FAILED_RETRYABLE = "FAILED_RETRYABLE",
-  FAILED_TERMINAL = "FAILED_TERMINAL",
-  REQUIRES_RECONCILIATION = "REQUIRES_RECONCILIATION",
-}
 export enum PurchasePaymentStatus {
   PAID = "PAID",
   PARTIALLY_PAID = "PARTIALLY_PAID",
@@ -450,26 +443,6 @@ export interface ChangeTenantSupplierStatusVariables {
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
-}
-
-export interface ClaimLifecycleIdempotencyData {
-  lifecycleIdempotency_insert: LifecycleIdempotency_Key;
-}
-
-export interface ClaimLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-  operationType: string;
-  requestFingerprint: string;
-}
-
-export interface CompleteLifecycleIdempotencyData {
-  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
-}
-
-export interface CompleteLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-  status: ProvisioningAttemptStatus;
-  resultReference?: string | null;
 }
 
 export interface CreateLicensePlanData {
@@ -1167,23 +1140,6 @@ export interface GetLicensePlanVariables {
   id: UUIDString;
 }
 
-export interface GetLifecycleIdempotencyData {
-  lifecycleIdempotency?: {
-    idempotencyKey: string;
-    operationType: string;
-    status: ProvisioningAttemptStatus;
-    requestFingerprint: string;
-    resultReference?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
-    completedAt?: TimestampString | null;
-  } & LifecycleIdempotency_Key;
-}
-
-export interface GetLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-}
-
 export interface GetOrganizationAdministratorData {
   organizationMemberships: ({
     createdAt: TimestampString;
@@ -1749,11 +1705,6 @@ export interface LicenseHistory_Key {
 export interface LicensePlan_Key {
   id: UUIDString;
   __typename?: 'LicensePlan_Key';
-}
-
-export interface LifecycleIdempotency_Key {
-  idempotencyKey: string;
-  __typename?: 'LifecycleIdempotency_Key';
 }
 
 export interface ListLicensePlansData {
@@ -2488,7 +2439,6 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
-  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 
 export interface ProvisionOrganizationAdministratorVariables {
@@ -2502,8 +2452,6 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
-  idempotencyKey: string;
-  resultReference: string;
 }
 
 export interface ProvisionTenantEmployeeLoginTrustedData {
@@ -3237,11 +3185,6 @@ export function recordAdministratorSecurityEvent(dc: DataConnect, vars: RecordAd
 /** Generated Node Admin SDK operation action function for the 'RecordAdministratorSecurityEvent' Mutation. Allow users to pass in custom DataConnect instances. */
 export function recordAdministratorSecurityEvent(vars: RecordAdministratorSecurityEventVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordAdministratorSecurityEventData>>;
 
-/** Generated Node Admin SDK operation action function for the 'GetLifecycleIdempotency' Query. Allow users to execute without passing in DataConnect. */
-export function getLifecycleIdempotency(dc: DataConnect, vars: GetLifecycleIdempotencyVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLifecycleIdempotencyData>>;
-/** Generated Node Admin SDK operation action function for the 'GetLifecycleIdempotency' Query. Allow users to pass in custom DataConnect instances. */
-export function getLifecycleIdempotency(vars: GetLifecycleIdempotencyVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetLifecycleIdempotencyData>>;
-
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicense' Query. Allow users to execute without passing in DataConnect. */
 export function getOrganizationLicense(dc: DataConnect, vars: GetOrganizationLicenseVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationLicenseData>>;
 /** Generated Node Admin SDK operation action function for the 'GetOrganizationLicense' Query. Allow users to pass in custom DataConnect instances. */
@@ -3306,16 +3249,6 @@ export function modifyOrganizationCommercialTermsTrusted(vars: ModifyOrganizatio
 export function renewOrganizationLicenseTrusted(dc: DataConnect, vars: RenewOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RenewOrganizationLicenseTrustedData>>;
 /** Generated Node Admin SDK operation action function for the 'RenewOrganizationLicenseTrusted' Mutation. Allow users to pass in custom DataConnect instances. */
 export function renewOrganizationLicenseTrusted(vars: RenewOrganizationLicenseTrustedVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RenewOrganizationLicenseTrustedData>>;
-
-/** Generated Node Admin SDK operation action function for the 'ClaimLifecycleIdempotency' Mutation. Allow users to execute without passing in DataConnect. */
-export function claimLifecycleIdempotency(dc: DataConnect, vars: ClaimLifecycleIdempotencyVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ClaimLifecycleIdempotencyData>>;
-/** Generated Node Admin SDK operation action function for the 'ClaimLifecycleIdempotency' Mutation. Allow users to pass in custom DataConnect instances. */
-export function claimLifecycleIdempotency(vars: ClaimLifecycleIdempotencyVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ClaimLifecycleIdempotencyData>>;
-
-/** Generated Node Admin SDK operation action function for the 'CompleteLifecycleIdempotency' Mutation. Allow users to execute without passing in DataConnect. */
-export function completeLifecycleIdempotency(dc: DataConnect, vars: CompleteLifecycleIdempotencyVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CompleteLifecycleIdempotencyData>>;
-/** Generated Node Admin SDK operation action function for the 'CompleteLifecycleIdempotency' Mutation. Allow users to pass in custom DataConnect instances. */
-export function completeLifecycleIdempotency(vars: CompleteLifecycleIdempotencyVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CompleteLifecycleIdempotencyData>>;
 
 /** Generated Node Admin SDK operation action function for the 'RecordProvisioningReconciliation' Mutation. Allow users to execute without passing in DataConnect. */
 export function recordProvisioningReconciliation(dc: DataConnect, vars: RecordProvisioningReconciliationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordProvisioningReconciliationData>>;

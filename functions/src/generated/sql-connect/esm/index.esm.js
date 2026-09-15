@@ -81,14 +81,6 @@ export const ProductType = {
   CONSUMABLE: "CONSUMABLE",
 }
 
-export const ProvisioningAttemptStatus = {
-  IN_PROGRESS: "IN_PROGRESS",
-  SUCCEEDED: "SUCCEEDED",
-  FAILED_RETRYABLE: "FAILED_RETRYABLE",
-  FAILED_TERMINAL: "FAILED_TERMINAL",
-  REQUIRES_RECONCILIATION: "REQUIRES_RECONCILIATION",
-}
-
 export const PurchasePaymentStatus = {
   PAID: "PAID",
   PARTIALLY_PAID: "PARTIALLY_PAID",
@@ -327,12 +319,6 @@ export function recordAdministratorSecurityEvent(dcOrVarsOrOptions, varsOrOption
   return dcInstance.executeMutation('RecordAdministratorSecurityEvent', inputVars, inputOpts);
 }
 
-export function getLifecycleIdempotency(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeQuery('GetLifecycleIdempotency', inputVars, inputOpts);
-}
-
 export function getOrganizationLicense(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -409,18 +395,6 @@ export function renewOrganizationLicenseTrusted(dcOrVarsOrOptions, varsOrOptions
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
   return dcInstance.executeMutation('RenewOrganizationLicenseTrusted', inputVars, inputOpts);
-}
-
-export function claimLifecycleIdempotency(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('ClaimLifecycleIdempotency', inputVars, inputOpts);
-}
-
-export function completeLifecycleIdempotency(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('CompleteLifecycleIdempotency', inputVars, inputOpts);
 }
 
 export function recordProvisioningReconciliation(dcOrVarsOrOptions, varsOrOptions, options) {

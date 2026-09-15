@@ -151,6 +151,25 @@ describe('tenant callable contract', () => {
     expect(provisioningHandler).not.toContain('phoneNumber: phone');
   });
 
+  it('keeps administrator provisioning free of LifecycleIdempotency state', () => {
+    const start = source.indexOf('export const provisionOrganizationAdministrator = onCall');
+    const end = source.indexOf('export const changeOrganizationAdministratorStatus = onCall', start);
+    const provisioning = source.slice(start, end);
+    expect(provisioning).not.toContain('idempotencyKey');
+    expect(provisioning).not.toContain('LifecycleIdempotency');
+    expect(provisioning).toContain('recordProvisioningReconciliation');
+  });
+
+  it('keeps license mutations transaction-backed without lifecycle idempotency inputs', () => {
+    for (const callable of ['assignOrganizationLicense', 'changeOrganizationLicensePlan', 'modifyOrganizationCommercialTerms', 'renewOrganizationLicense']) {
+      const start = source.indexOf(`export const ${callable} = onCall`);
+      const end = source.indexOf('\nexport const ', start + 1);
+      const handler = source.slice(start, end === -1 ? source.length : end);
+      expect(handler).not.toContain('idempotencyKey');
+      expect(handler).not.toContain('LifecycleIdempotency');
+    }
+  });
+
   it('validates optional employee DOB server-side before writing SQL', () => {
     expect(source).toContain("const dateOfBirth = typeof d.dateOfBirth === 'string' && d.dateOfBirth ? d.dateOfBirth : null");
     expect(source).toContain("const gender = typeof d.gender === 'string' ? d.gender.trim() || null : null");

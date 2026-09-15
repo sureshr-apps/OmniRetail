@@ -81,14 +81,6 @@ export const ProductType = {
   CONSUMABLE: "CONSUMABLE",
 }
 
-export const ProvisioningAttemptStatus = {
-  IN_PROGRESS: "IN_PROGRESS",
-  SUCCEEDED: "SUCCEEDED",
-  FAILED_RETRYABLE: "FAILED_RETRYABLE",
-  FAILED_TERMINAL: "FAILED_TERMINAL",
-  REQUIRES_RECONCILIATION: "REQUIRES_RECONCILIATION",
-}
-
 export const PurchasePaymentStatus = {
   PAID: "PAID",
   PARTIALLY_PAID: "PARTIALLY_PAID",
@@ -541,19 +533,6 @@ export function recordAdministratorSecurityEvent(dcOrVars, vars) {
   return executeMutation(recordAdministratorSecurityEventRef(dcInstance, inputVars));
 }
 
-export const getLifecycleIdempotencyRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return queryRef(dcInstance, 'GetLifecycleIdempotency', inputVars);
-}
-getLifecycleIdempotencyRef.operationName = 'GetLifecycleIdempotency';
-
-export function getLifecycleIdempotency(dcOrVars, varsOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  return executeQuery(getLifecycleIdempotencyRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
-}
-
 export const getOrganizationLicenseRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -715,30 +694,6 @@ renewOrganizationLicenseTrustedRef.operationName = 'RenewOrganizationLicenseTrus
 export function renewOrganizationLicenseTrusted(dcOrVars, vars) {
   const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
   return executeMutation(renewOrganizationLicenseTrustedRef(dcInstance, inputVars));
-}
-
-export const claimLifecycleIdempotencyRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'ClaimLifecycleIdempotency', inputVars);
-}
-claimLifecycleIdempotencyRef.operationName = 'ClaimLifecycleIdempotency';
-
-export function claimLifecycleIdempotency(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(claimLifecycleIdempotencyRef(dcInstance, inputVars));
-}
-
-export const completeLifecycleIdempotencyRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'CompleteLifecycleIdempotency', inputVars);
-}
-completeLifecycleIdempotencyRef.operationName = 'CompleteLifecycleIdempotency';
-
-export function completeLifecycleIdempotency(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(completeLifecycleIdempotencyRef(dcInstance, inputVars));
 }
 
 export const recordProvisioningReconciliationRef = (dcOrVars, vars) => {

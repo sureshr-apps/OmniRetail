@@ -90,14 +90,6 @@ export enum ProductType {
   CONSUMABLE = "CONSUMABLE",
 };
 
-export enum ProvisioningAttemptStatus {
-  IN_PROGRESS = "IN_PROGRESS",
-  SUCCEEDED = "SUCCEEDED",
-  FAILED_RETRYABLE = "FAILED_RETRYABLE",
-  FAILED_TERMINAL = "FAILED_TERMINAL",
-  REQUIRES_RECONCILIATION = "REQUIRES_RECONCILIATION",
-};
-
 export enum PurchasePaymentStatus {
   PAID = "PAID",
   PARTIALLY_PAID = "PARTIALLY_PAID",
@@ -475,26 +467,6 @@ export interface ChangeTenantSupplierStatusVariables {
   auditId: UUIDString;
   requestId: string;
   actorFirebaseUid: string;
-}
-
-export interface ClaimLifecycleIdempotencyData {
-  lifecycleIdempotency_insert: LifecycleIdempotency_Key;
-}
-
-export interface ClaimLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-  operationType: string;
-  requestFingerprint: string;
-}
-
-export interface CompleteLifecycleIdempotencyData {
-  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
-}
-
-export interface CompleteLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-  status: ProvisioningAttemptStatus;
-  resultReference?: string | null;
 }
 
 export interface CreateLicensePlanData {
@@ -1192,23 +1164,6 @@ export interface GetLicensePlanVariables {
   id: UUIDString;
 }
 
-export interface GetLifecycleIdempotencyData {
-  lifecycleIdempotency?: {
-    idempotencyKey: string;
-    operationType: string;
-    status: ProvisioningAttemptStatus;
-    requestFingerprint: string;
-    resultReference?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
-    completedAt?: TimestampString | null;
-  } & LifecycleIdempotency_Key;
-}
-
-export interface GetLifecycleIdempotencyVariables {
-  idempotencyKey: string;
-}
-
 export interface GetOrganizationAdministratorData {
   organizationMemberships: ({
     createdAt: TimestampString;
@@ -1774,11 +1729,6 @@ export interface LicenseHistory_Key {
 export interface LicensePlan_Key {
   id: UUIDString;
   __typename?: 'LicensePlan_Key';
-}
-
-export interface LifecycleIdempotency_Key {
-  idempotencyKey: string;
-  __typename?: 'LifecycleIdempotency_Key';
 }
 
 export interface ListLicensePlansData {
@@ -2513,7 +2463,6 @@ export interface ProvisionOrganizationAdministratorData {
   organizationMembership_insert: OrganizationMembership_Key;
   userRole_upsert: UserRole_Key;
   auditEvent_insert: AuditEvent_Key;
-  lifecycleIdempotency_update?: LifecycleIdempotency_Key | null;
 }
 
 export interface ProvisionOrganizationAdministratorVariables {
@@ -2527,8 +2476,6 @@ export interface ProvisionOrganizationAdministratorVariables {
   roleId: UUIDString;
   auditId: UUIDString;
   requestId: string;
-  idempotencyKey: string;
-  resultReference: string;
 }
 
 export interface ProvisionTenantEmployeeLoginTrustedData {
@@ -3486,18 +3433,6 @@ export const recordAdministratorSecurityEventRef: RecordAdministratorSecurityEve
 export function recordAdministratorSecurityEvent(vars: RecordAdministratorSecurityEventVariables): MutationPromise<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
 export function recordAdministratorSecurityEvent(dc: DataConnect, vars: RecordAdministratorSecurityEventVariables): MutationPromise<RecordAdministratorSecurityEventData, RecordAdministratorSecurityEventVariables>;
 
-interface GetLifecycleIdempotencyRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: GetLifecycleIdempotencyVariables): QueryRef<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: GetLifecycleIdempotencyVariables): QueryRef<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-  operationName: string;
-}
-export const getLifecycleIdempotencyRef: GetLifecycleIdempotencyRef;
-
-export function getLifecycleIdempotency(vars: GetLifecycleIdempotencyVariables, options?: ExecuteQueryOptions): QueryPromise<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-export function getLifecycleIdempotency(dc: DataConnect, vars: GetLifecycleIdempotencyVariables, options?: ExecuteQueryOptions): QueryPromise<GetLifecycleIdempotencyData, GetLifecycleIdempotencyVariables>;
-
 interface GetOrganizationLicenseRef {
   /* Allow users to create refs without passing in DataConnect */
   (vars: GetOrganizationLicenseVariables): QueryRef<GetOrganizationLicenseData, GetOrganizationLicenseVariables>;
@@ -3653,30 +3588,6 @@ export const renewOrganizationLicenseTrustedRef: RenewOrganizationLicenseTrusted
 
 export function renewOrganizationLicenseTrusted(vars: RenewOrganizationLicenseTrustedVariables): MutationPromise<RenewOrganizationLicenseTrustedData, RenewOrganizationLicenseTrustedVariables>;
 export function renewOrganizationLicenseTrusted(dc: DataConnect, vars: RenewOrganizationLicenseTrustedVariables): MutationPromise<RenewOrganizationLicenseTrustedData, RenewOrganizationLicenseTrustedVariables>;
-
-interface ClaimLifecycleIdempotencyRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: ClaimLifecycleIdempotencyVariables): MutationRef<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: ClaimLifecycleIdempotencyVariables): MutationRef<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-  operationName: string;
-}
-export const claimLifecycleIdempotencyRef: ClaimLifecycleIdempotencyRef;
-
-export function claimLifecycleIdempotency(vars: ClaimLifecycleIdempotencyVariables): MutationPromise<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-export function claimLifecycleIdempotency(dc: DataConnect, vars: ClaimLifecycleIdempotencyVariables): MutationPromise<ClaimLifecycleIdempotencyData, ClaimLifecycleIdempotencyVariables>;
-
-interface CompleteLifecycleIdempotencyRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: CompleteLifecycleIdempotencyVariables): MutationRef<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: CompleteLifecycleIdempotencyVariables): MutationRef<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-  operationName: string;
-}
-export const completeLifecycleIdempotencyRef: CompleteLifecycleIdempotencyRef;
-
-export function completeLifecycleIdempotency(vars: CompleteLifecycleIdempotencyVariables): MutationPromise<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
-export function completeLifecycleIdempotency(dc: DataConnect, vars: CompleteLifecycleIdempotencyVariables): MutationPromise<CompleteLifecycleIdempotencyData, CompleteLifecycleIdempotencyVariables>;
 
 interface RecordProvisioningReconciliationRef {
   /* Allow users to create refs without passing in DataConnect */

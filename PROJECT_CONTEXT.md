@@ -469,13 +469,12 @@ Provisioning uses:
 - trusted Cloud Function
 - Firebase Admin Auth
 - SQL persistence
-- durable idempotency
 - compensation/reconciliation
 - audit
 
 Provisioning assigns the `organization.admin` role both on the organization membership and through the `UserRole` relation. The role is organization-scoped and is not a Master Admin role.
 
-Firebase Auth and PostgreSQL cannot participate in the same transaction, so cross-system lifecycle operations use idempotency and compensation.
+Firebase Auth and PostgreSQL cannot participate in the same transaction. Provisioning therefore creates the Firebase identity first, persists the SQL records in a transaction, and attempts compensating Auth cleanup if SQL persistence fails. Cleanup failures are recorded for reconciliation; duplicate usernames/emails are rejected by existing Auth and database uniqueness checks.
 
 ---
 
@@ -781,36 +780,7 @@ Browser clients never choose arbitrary history event types or snapshot values.
 
 ---
 
-## 24. Durable idempotency
-
-Trusted lifecycle operations use SQL-backed `LifecycleIdempotency`.
-
-It supports:
-
-- operation type
-- idempotency key
-- request fingerprint
-- IN_PROGRESS
-- SUCCEEDED
-- retryable failure state
-- persisted safe result
-
-Same key + same request safely replays.
-
-Same key + different request is rejected.
-
-Successful replay must not duplicate:
-
-- Auth identities
-- SQL writes
-- history
-- audit
-
-Do not use process memory as the idempotency authority.
-
----
-
-## 25. Reconciliation
+## 24. Reconciliation
 
 Cross-system Auth/SQL failures that cannot be compensated cleanly are recorded through reconciliation state.
 
@@ -820,7 +790,7 @@ Reconciliation records contain no passwords/tokens.
 
 ---
 
-## 26. Audit
+## 25. Audit
 
 Important administrative mutations write AuditEvent records.
 
@@ -847,7 +817,7 @@ LicenseHistory and AuditEvent have different responsibilities:
 
 ---
 
-## 27. Organizations directory
+## 26. Organizations directory
 
 The Organizations directory is production-backed.
 
@@ -876,7 +846,7 @@ and supports:
 
 ---
 
-## 28. Master Admin Overview
+## 27. Master Admin Overview
 
 Overview is production-backed through:
 
@@ -907,7 +877,7 @@ Existing Add Organization and Renew License actions reuse their production workf
 
 ---
 
-## 29. Profile
+## 28. Profile
 
 Current Profile functionality is intentionally minimal.
 
@@ -925,7 +895,7 @@ Do not introduce username/email-change workflows without explicitly designing th
 
 ---
 
-## 30. Current production status
+## 29. Current production status
 
 Master Admin is now essentially production-backed end-to-end.
 
@@ -958,7 +928,7 @@ The `organization.admin` role is now assigned through both `OrganizationMembersh
 
 ---
 
-## 31. Current deployed Functions
+## 30. Current deployed Functions
 
 Known deployed trusted Functions include:
 
@@ -986,7 +956,7 @@ Inspect Firebase configuration/repository for the exact current deployed list ra
 
 ---
 
-## 32. Current development data
+## 31. Current development data
 
 Known development organizations include:
 
@@ -1005,7 +975,7 @@ Do not use recognizable real-world brands as fictional customers.
 
 ---
 
-## 33. Database environment
+## 32. Database environment
 
 Development currently uses Cloud SQL PostgreSQL.
 
@@ -1026,7 +996,7 @@ Do not assume the current development database configuration is production-ready
 
 ---
 
-## 34. App Check
+## 33. App Check
 
 App Check support has been prepared, but verify current enforcement/configuration before relying on it.
 
@@ -1036,13 +1006,13 @@ Production readiness should include App Check configuration/enforcement where ap
 
 ---
 
-## 35. Tests and regression coverage
+## 34. Tests and regression coverage
 
-The repository currently has 124 passing Vitest tests covering authentication, optional email verification, username login, active-AppUser/bootstrap behavior, safe errors, provisioning idempotency/compensation/reconciliation, role assignment, protected routes, tenant service boundaries, connector authorization, license status derivation, and mutation refresh regressions.
+The repository currently has passing Vitest tests covering authentication, optional email verification, username login, active-AppUser/bootstrap behavior, safe errors, provisioning compensation/reconciliation, role assignment, protected routes, tenant service boundaries, connector authorization, license status derivation, and mutation refresh regressions.
 
 Run `npm test -- --run` before handing off changes.
 
-## 36. Remaining technical debt / verification
+## 35. Remaining technical debt / verification
 
 Some production workflows were deployed after build/dry-run validation without exhaustive dedicated live integration tests.
 
@@ -1070,19 +1040,19 @@ The following gaps have been confirmed and remain open:
 
 ---
 
-## 37. Known compatibility cleanup
+## 36. Known compatibility cleanup
 
 The dead `OrganizationLicenseService.getLicenseSync()` compatibility API and the unused mock administrator fallback have been removed. Do not reintroduce synchronous mock license state.
 
 ---
 
-## 38. Bundle warning
+## 37. Bundle warning
 
 Route-level lazy loading and stable React, Firebase, and icon vendor chunks now keep every production chunk below Vite's warning threshold. Preserve those split points as new modules are added.
 
 ---
 
-## 39. What NOT to implement without product design
+## 38. What NOT to implement without product design
 
 Do not invent:
 
@@ -1103,7 +1073,7 @@ These were deliberately excluded.
 
 ---
 
-## 40. Next major product phase
+## 39. Next major product phase
 
 The next major product area is expected to be the **organization/tenant-facing application**.
 
@@ -1122,7 +1092,7 @@ Then proceed into operational modules such as Products, Inventory, POS, etc.
 
 ---
 
-## 41. How to work on this repository
+## 40. How to work on this repository
 
 When receiving a task:
 
@@ -1152,7 +1122,7 @@ Ask for confirmation only when:
 
 ---
 
-## 42. Codex / Stitch / Google AI Studio workflow
+## 41. Codex / Stitch / Google AI Studio workflow
 
 Use Codex as the coordination and implementation source of truth for future work:
 
@@ -1164,7 +1134,7 @@ Use Codex as the coordination and implementation source of truth for future work
 
 Update this file whenever a product decision, trust boundary, schema contract, deployment target, or major implementation status changes.
 
-## 43. First action
+## 42. First action
 
 Before implementing anything:
 

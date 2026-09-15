@@ -84,6 +84,24 @@ describe('productService mutations return the canonical entity directly', () => 
     expect(mocks.listTenantProducts).not.toHaveBeenCalled();
   });
 
+  it('creates variants through one transactional batch callable', async () => {
+    mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', products: [
+        productRow({ id: 'prod-2', productCode: 1031, name: 'New Tee - S', sku: 'AP-TEE-002-S' }),
+        productRow({ id: 'prod-3', productCode: 1032, name: 'New Tee - M', sku: 'AP-TEE-002-M' }),
+      ] },
+    }));
+
+    const created = await productService.createProducts([
+      createInput({ name: 'New Tee - S', sku: 'AP-TEE-002-S' }),
+      createInput({ name: 'New Tee - M', sku: 'AP-TEE-002-M' }),
+    ]);
+
+    expect(created.map((product) => product.id)).toEqual(['prod-2', 'prod-3']);
+    expect(mocks.httpsCallable).toHaveBeenCalledWith(mocks.functions, 'createTenantProductBatchRecord');
+    expect(mocks.listTenantProducts).not.toHaveBeenCalled();
+  });
+
   it('updateProduct returns the enriched entity from the callable, with no follow-up list query after the mutation', async () => {
     mocks.httpsCallable.mockReturnValue(vi.fn().mockResolvedValue({
       data: { success: true, organizationId: 'org-1', ...productRow({ name: 'Renamed Tee' }) },

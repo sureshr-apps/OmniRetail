@@ -4,6 +4,7 @@ import { deriveExpenseView } from '@/features/expenses/services/expenseService';
 import { matchesSalesFilter } from '@/features/sales/services/salesService';
 import { deriveSupplierView } from '@/features/suppliers/services/supplierService';
 import { buildSaleInsertQuery, isStockTrackedProduct, validateCheckoutInput } from '../functions/src/checkout';
+import { validateProductFields } from '../functions/src/productBatch';
 import type { Expense } from '@/features/expenses/types';
 import type { SalesTransaction } from '@/features/sales/types';
 
@@ -60,6 +61,15 @@ describe('review regression coverage', () => {
     expect(isStockTrackedProduct('STOCKABLE')).toBe(true);
     expect(isStockTrackedProduct('SERVICE')).toBe(false);
     expect(isStockTrackedProduct('CONSUMABLE')).toBe(false);
+  });
+
+  it('rejects oversized product text at the callable boundary', () => {
+    expect(() => validateProductFields({
+      name: 'x'.repeat(129), brand: 'Brand', categoryName: 'Apparel', subcategoryName: null,
+      type: 'STOCKABLE', sku: 'SKU-1', barcode: null, hsnCode: null, unitOfMeasure: 'Pieces',
+      sellingPrice: 10, mrp: null, cost: null, minSellingPrice: null, discountAllowed: true,
+      taxCategory: 'GST 5%', reorderLevel: 1, reorderQuantity: 1, primarySupplier: null, description: null,
+    })).toThrow('invalid input');
   });
 
   it('maps the labels used by the Sales filter bar to production values', () => {

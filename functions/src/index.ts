@@ -5,7 +5,7 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { defineString } from 'firebase-functions/params';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import {
-  AppUserStatus, LoginAccessStatus, CustomerType, PurchasePaymentStatus, PurchaseReceiptStatus, PurchaseStatus, SaleTenderType,
+  AppUserStatus, LoginAccessStatus, CustomerType, ProductType, PurchasePaymentStatus, PurchaseReceiptStatus, PurchaseStatus, SaleTenderType,
   getUserAuthorizationByFirebaseUid,
   resolveUsernameLogin,
   updateAppUserProfile,
@@ -86,6 +86,7 @@ import {
   changeTenantSupplierStatus as changeTenantSupplierStatusSql,
 } from '@omniretail/sql-connect-admin';
 import { persistCheckout } from './checkout.js';
+import { persistProductBatch, validateProductFields, PRODUCT_BATCH_MAX_SIZE, type ProductBatchFields } from './productBatch.js';
 import {
   authenticateUsername,
   GENERIC_AUTH_ERROR,
@@ -865,7 +866,7 @@ export const createTenantCategory = onCall(callableOptions, async (request) => {
     const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
     const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    if (!organizationId || !value || value.length > 128 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     const id = randomUUID();
     const existing = (await listTenantCategoriesTrusted({ organizationId })).data.categories.find((category) => normalizeTaxonomyValue(category.value) === value);
@@ -894,7 +895,7 @@ export const updateTenantCategory = onCall(callableOptions, async (request) => {
     const id = typeof d.id === 'string' ? d.id : '';
     const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !id || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    if (!organizationId || !id || !value || value.length > 128 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     await updateTenantCategoryTrusted({ organizationId, id, value });
     return { success: true, organizationId, id, value };
@@ -914,7 +915,7 @@ export const createTenantSubcategory = onCall(callableOptions, async (request) =
     const categoryId = typeof d.categoryId === 'string' ? d.categoryId : '';
     const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !categoryId || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    if (!organizationId || !categoryId || !value || value.length > 128 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     const id = randomUUID();
     const categories = (await listTenantCategoriesTrusted({ organizationId })).data.categories;
@@ -946,7 +947,7 @@ export const updateTenantSubcategory = onCall(callableOptions, async (request) =
     const id = typeof d.id === 'string' ? d.id : '';
     const value = typeof d.value === 'string' ? normalizeTaxonomyValue(d.value) : '';
     const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
-    if (!organizationId || !id || !value || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    if (!organizationId || !id || !value || value.length > 128 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationAdmin(actor, organizationId);
     await updateTenantSubcategoryTrusted({ organizationId, id, value });
     return { success: true, organizationId, id, value };
@@ -1262,7 +1263,8 @@ export const createTenantInventoryStockRecord = onCall(callableOptions, async (r
   } catch (error) { logCallableFailure('createTenantInventoryStockRecord', error); throw new HttpsError('permission-denied', 'Unable to create the inventory record.'); }
 });
 
-function productFields(d: any) {
+function productFields(d: any): ProductBatchFields {
+  d = d && typeof d === 'object' ? d : {};
   return { name: typeof d.name === 'string' ? d.name.trim() : '', brand: typeof d.brand === 'string' ? d.brand.trim() : '', categoryName: typeof d.categoryName === 'string' ? d.categoryName.trim() : '', subcategoryName: typeof d.subcategory === 'string' ? d.subcategory.trim() || null : null, type: d.type === 'SERVICE' || d.type === 'CONSUMABLE' ? d.type : 'STOCKABLE', sku: typeof d.sku === 'string' ? d.sku.trim() : '', barcode: typeof d.barcode === 'string' ? d.barcode.trim() || null : null, hsnCode: typeof d.hsnCode === 'string' ? d.hsnCode.trim() || null : null, unitOfMeasure: typeof d.unitOfMeasure === 'string' ? d.unitOfMeasure.trim() || null : null, sellingPrice: Number(d.sellingPrice), mrp: Number.isFinite(Number(d.mrp)) ? Number(d.mrp) : null, cost: Number.isFinite(Number(d.cost)) ? Number(d.cost) : null, minSellingPrice: Number.isFinite(Number(d.minSellingPrice)) ? Number(d.minSellingPrice) : null, discountAllowed: d.discountAllowed !== false, taxCategory: typeof d.taxCategory === 'string' ? d.taxCategory.trim() || null : null, reorderLevel: Number.isFinite(Number(d.reorderLevel)) ? Number(d.reorderLevel) : null, reorderQuantity: Number.isFinite(Number(d.reorderQuantity)) ? Number(d.reorderQuantity) : null, primarySupplier: typeof d.primarySupplier === 'string' ? d.primarySupplier.trim() || null : null, description: typeof d.description === 'string' ? d.description.trim() || null : null };
 }
 
@@ -1307,11 +1309,35 @@ async function resolveProductTaxonomy(organizationId: string, categoryName: stri
 }
 
 export const createTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName); const id = randomUUID(); await createTenantProduct({ id, organizationId, ...productData, ...taxonomy }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); validateProductFields(fields); if (!organizationId || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName); const id = randomUUID(); await createTenantProduct({ id, organizationId, ...productData, type: productData.type as ProductType, ...taxonomy }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after creation'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('createTenantProductRecord', error); throw productCreationFailure(error); }
+});
+
+export const createTenantProductBatchRecord = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'products.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const rawProducts = Array.isArray(d.products) ? d.products : [];
+    if (!organizationId || rawProducts.length === 0 || rawProducts.length > PRODUCT_BATCH_MAX_SIZE || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    const fields = rawProducts.map(productFields);
+    for (const input of fields) {
+      validateProductFields(input);
+      if (!input.name || !input.brand || !input.categoryName || !input.sku || !Number.isFinite(input.sellingPrice)) throw new Error('invalid input');
+    }
+    await requireOrganizationCapability(actor, organizationId, 'products.read');
+    const products = await persistProductBatch(organizationId, fields);
+    return { success: true, organizationId, products };
+  } catch (error) {
+    logCallableFailure('createTenantProductBatchRecord', error);
+    throw productCreationFailure(error);
+  }
 });
 
 export const updateTenantProductRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); if (!organizationId || !id || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName); await updateTenantProduct({ organizationId, id, ...productData, ...taxonomy }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to update the product.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'products.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const fields = productFields(d); validateProductFields(fields); if (!organizationId || !id || !fields.name || !fields.brand || !fields.categoryName || !fields.sku || !Number.isFinite(fields.sellingPrice) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'products.read'); const { categoryName, subcategoryName, ...productData } = fields; const taxonomy = await resolveProductTaxonomy(organizationId, categoryName, subcategoryName); await updateTenantProduct({ organizationId, id, ...productData, type: productData.type as ProductType, ...taxonomy }); const row = (await getTenantProductTrusted({ organizationId, id })).data.products[0]; if (!row) throw new Error('product not found after update'); return { success: true, organizationId, ...row }; } catch (error) { logCallableFailure('updateTenantProductRecord', error); throw new HttpsError('permission-denied', 'Unable to update the product.'); }
 });
 
 export const changeTenantProductStatus = onCall(callableOptions, async (request) => {

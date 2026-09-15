@@ -20,6 +20,12 @@ describe('product UI contract', () => {
     expect(addSource).not.toContain("useState('6205.20.00')");
   });
 
+  it('does not generate shared synthetic barcodes for variants', () => {
+    const variantSource = readFileSync(new URL('../src/features/products/utils/variants.ts', import.meta.url), 'utf8');
+    expect(variantSource).toContain('barcode: undefined');
+    expect(variantSource).not.toContain('barcode: input.barcode?.trim() ?');
+  });
+
   it('offers add, edit, and delete controls for categories and subcategories', () => {
     for (const callback of ['onCreateCategory', 'onUpdateCategory', 'onDeleteCategory', 'onCreateSubcategory', 'onUpdateSubcategory', 'onDeleteSubcategory']) {
       expect(taxonomySource).toContain(callback);

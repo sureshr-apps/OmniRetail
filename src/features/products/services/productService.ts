@@ -12,7 +12,7 @@ import {
 import { getCurrentUserAuthorization, listTenantCategories, listTenantProducts, listTenantInventory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
-import { assertCallableEntity } from '@/shared/utils/callableResponse';
+import { assertCallableEntity, MalformedCallableResponseError } from '@/shared/utils/callableResponse';
 import { formatProductCode } from '../utils/formatProductCode';
 
 export interface IProductService {
@@ -20,6 +20,7 @@ export interface IProductService {
   getProducts(query?: ProductQuery): Promise<ProductQueryResult>;
   getProduct(id: string): Promise<Product | null>;
   createProduct(input: CreateProductInput): Promise<Product>;
+  createProducts(inputs: CreateProductInput[]): Promise<Product[]>;
   updateProduct(id: string, input: UpdateProductInput): Promise<Product>;
   changeProductStatus(id: string, status: ProductStatus): Promise<Product>;
   deleteProduct(id: string): Promise<void>;
@@ -61,6 +62,12 @@ interface ProductMutationResponse {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
+}
+
+interface ProductBatchMutationResponse {
+  success: boolean;
+  organizationId: string;
+  products: unknown[];
 }
 
 interface TaxonomyMutationResponse {
@@ -257,6 +264,23 @@ class ProductionProductService implements IProductService {
     });
     const row = assertCallableEntity<ProductMutationResponse>(response.data, PRODUCT_MUTATION_RESPONSE_KEYS, 'createProduct');
     return mapTenantProduct(row);
+  }
+  public async createProducts(inputs: CreateProductInput[]): Promise<Product[]> {
+    if (inputs.length === 0) return [];
+    if (inputs.length === 1) return [await this.createProduct(inputs[0])];
+    const organizationId = await this.context();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductBatchRecord')({
+      organizationId,
+      products: inputs.map((input) => ({ ...input, type: input.type.toUpperCase() })),
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const data = response.data as ProductBatchMutationResponse;
+    if (!data || typeof data !== 'object' || !Array.isArray(data.products)) {
+      throw new MalformedCallableResponseError('createProducts', ['products']);
+    }
+    return data.products.map((product, index) => mapTenantProduct(
+      assertCallableEntity<ProductMutationResponse>(product, PRODUCT_MUTATION_RESPONSE_KEYS, `createProducts[${index}]`),
+    ));
   }
   public async updateProduct(id: string, input: UpdateProductInput): Promise<Product> {
     const current = await this.getProduct(id);

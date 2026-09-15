@@ -288,11 +288,8 @@ export function ProductsPage() {
 
   // Create Product handler
   const handleCreateProducts = async (inputs: CreateProductInput[]) => {
-    const createdProducts: Product[] = [];
     try {
-      for (const input of inputs) {
-        createdProducts.push(await productService.createProduct(input));
-      }
+      const createdProducts = await productService.createProducts(inputs);
       setIsAddModalOpen(false);
       for (const created of createdProducts) {
         setAllProducts((prev) => upsertById(prev, created));
@@ -312,9 +309,7 @@ export function ProductsPage() {
         id: `toast-${Date.now()}`,
         type: 'warning',
         title: 'Creation Failed',
-        description: createdProducts.length > 0
-          ? `${createdProducts.length} variant product(s) were created before the failure. ${getProductCreationErrorMessage(err)}`
-          : getProductCreationErrorMessage(err),
+        description: getProductCreationErrorMessage(err),
       });
       throw err;
     }

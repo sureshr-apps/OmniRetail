@@ -14,6 +14,7 @@ const taxonomyIndexRemovalSource = readFileSync(new URL('../scripts/drop-product
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
 const functionsPackageSource = readFileSync(new URL('../functions/package.json', import.meta.url), 'utf8');
+const productBatchSource = readFileSync(new URL('../functions/src/productBatch.ts', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -42,6 +43,14 @@ describe('tenant callable contract', () => {
   it('keeps the functions package independent from the workspace root', () => {
     const functionsPackage = JSON.parse(functionsPackageSource) as { dependencies?: Record<string, string> };
     expect(functionsPackage.dependencies).not.toHaveProperty('react-example');
+  });
+
+  it('creates product variants in one rollback-safe SQL transaction', () => {
+    expect(productBatchSource).toContain("await client.query('BEGIN')");
+    expect(productBatchSource).toContain("await client.query('COMMIT')");
+    expect(productBatchSource).toContain("await client.query('ROLLBACK')");
+    expect(productBatchSource).toContain('PRODUCT_BATCH_MAX_SIZE = 50');
+    expect(productBatchSource).toContain('ON CONFLICT (organization_id, value) DO NOTHING');
   });
 
   it('uses compatible schema validation for production Data Connect migrations', () => {
@@ -332,8 +341,12 @@ describe('tenant callable contract', () => {
 
   it('exposes tenant product and inventory write boundaries', () => {
     expect(source).toContain('export const createTenantProductRecord = onCall');
+    expect(source).toContain('export const createTenantProductBatchRecord = onCall');
+    expect(source).toContain('persistProductBatch(organizationId, fields)');
+    expect(source).toContain('PRODUCT_BATCH_MAX_SIZE');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'products.read')");
-    expect(source).toContain('await createTenantProduct({ id, organizationId, ...productData, ...taxonomy');
+    expect(source).toContain('await createTenantProduct({ id, organizationId');
+    expect(source).toContain('type: productData.type as ProductType');
     expect(source).not.toContain('d.productCode');
     expect(source).not.toContain('supplierProductCode');
     expect(source).toContain('getTenantProductTrusted({ organizationId, id })');

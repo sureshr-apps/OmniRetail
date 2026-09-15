@@ -61,6 +61,7 @@ export function AddProductModal({
 
   const validate = async (): Promise<boolean> => {
     const errs: { [key: string]: string } = {};
+    const configuredVariants = parseProductVariants(variantsInput);
 
     if (!name.trim()) {
       errs.name = 'Product name is required';
@@ -75,7 +76,9 @@ export function AddProductModal({
       errs.sku = 'SKU is already taken in catalog';
     }
 
-    if (barcode.trim() && !(await productService.checkBarcodeUnique(barcode.trim()))) {
+    if (barcode.trim() && configuredVariants.length > 0) {
+      errs.barcode = 'A shared barcode cannot identify multiple variants. Assign barcodes after creation.';
+    } else if (barcode.trim() && !(await productService.checkBarcodeUnique(barcode.trim()))) {
       errs.barcode = 'Barcode is already assigned to another item';
     }
 
@@ -337,6 +340,9 @@ export function AddProductModal({
                   }`}
                 />
                 {errors.barcode && <span className="text-error text-[10px]">{errors.barcode}</span>}
+                {!errors.barcode && parseProductVariants(variantsInput).length > 0 && (
+                  <span className="text-on-surface-variant text-[10px]">Variant barcodes are assigned individually after creation.</span>
+                )}
               </div>
 
               <div>
@@ -528,7 +534,7 @@ export function AddProductModal({
 
                 <div>
                   <label className="font-caption text-caption text-on-surface font-medium block mb-1">
-                    Opening Master Stock (Units)
+                    Opening Master Stock (Total Units)
                   </label>
                   <input
                     type="number"
@@ -536,6 +542,9 @@ export function AddProductModal({
                     onChange={(e) => setOpeningStock(e.target.value)}
                     className="w-full h-9 px-3 rounded bg-surface-container-lowest border border-outline-variant/40 text-body-default font-body-mono-num text-on-surface outline-none focus:ring-1 focus:ring-primary"
                   />
+                  {parseProductVariants(variantsInput).length > 0 && (
+                    <span className="text-on-surface-variant text-[10px]">The total is split across the selected variants.</span>
+                  )}
                 </div>
 
                 <div>

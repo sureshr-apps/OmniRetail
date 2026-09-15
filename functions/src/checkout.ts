@@ -1,8 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { Connector, AuthTypes, IpAddressTypes } from '@google-cloud/cloud-sql-connector';
 import pg from 'pg';
-
-const { Pool } = pg;
+import { getCloudSqlPool } from './cloudSql.js';
 
 export interface CheckoutLineInput {
   productId: string | null;
@@ -42,31 +40,6 @@ export function isStockTrackedProduct(type: unknown): boolean {
   return String(type).toUpperCase() === 'STOCKABLE';
 }
 
-let poolPromise: Promise<{ pool: pg.Pool; connector: Connector }> | undefined;
-
-function projectId(): string {
-  const value = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || process.env.FIREBASE_PROJECT_ID;
-  if (!value) throw new Error('Cloud project is not configured.');
-  return value;
-}
-
-async function getPool(): Promise<{ pool: pg.Pool; connector: Connector }> {
-  if (!poolPromise) {
-    poolPromise = (async () => {
-      const connector = new Connector();
-      const options = await connector.getOptions({
-        instanceConnectionName: `${projectId()}:asia-south1:omniretail-sql`,
-        ipType: IpAddressTypes.PUBLIC,
-        authType: AuthTypes.IAM,
-      });
-      const iamUser = process.env.CLOUD_SQL_IAM_USER || `${projectId()}@appspot`;
-      const pool = new Pool({ ...options, user: iamUser, database: process.env.CLOUD_SQL_DATABASE || 'omniretail', max: 5 });
-      return { pool, connector };
-    })();
-  }
-  return poolPromise;
-}
-
 export function validateCheckoutInput(input: CheckoutInput): void {
   if (!input.organizationId || !input.outletId || !input.receiptNumber || !input.customerName || !input.staffName || !input.terminalId) throw new Error('invalid input');
   if (!input.lines.length) throw new Error('The checkout must contain at least one line.');
@@ -81,7 +54,7 @@ export function validateCheckoutInput(input: CheckoutInput): void {
 
 export async function persistCheckout(input: CheckoutInput): Promise<{ saleId: string }> {
   validateCheckoutInput(input);
-  const { pool } = await getPool();
+  const { pool } = await getCloudSqlPool();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

@@ -39,7 +39,7 @@ export function ServicePersonStatusConfirmDialog({
           </div>
           <div>
             <h3 className="font-headline-sm text-headline-sm text-on-surface">
-              {willBeInactive ? 'Deactivate Service Person' : 'Activate Service Person'}
+              {willBeInactive ? 'Deactivate' : 'Activate'}
             </h3>
             <span className="font-body-mono-num text-caption text-on-surface-variant font-medium">
               {formatServicePersonCode(person.servicePersonCode)} · {person.displayName}
@@ -84,7 +84,7 @@ export function ServicePersonStatusConfirmDialog({
                 <span className="material-symbols-outlined text-[16px]">
                   {willBeInactive ? 'lock' : 'check_circle'}
                 </span>
-                <span>{willBeInactive ? 'Deactivate Person' : 'Activate Person'}</span>
+                <span>{willBeInactive ? 'Deactivate' : 'Activate'}</span>
               </>
             )}
           </button>

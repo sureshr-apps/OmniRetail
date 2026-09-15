@@ -21,15 +21,6 @@ export type Department =
   | 'Store Management'
   | 'Inventory & Audit';
 
-export interface EmployeeActivity {
-  id: string;
-  title: string;
-  timestamp: string;
-  description: string;
-  icon?: string;
-  iconColor?: string;
-}
-
 export interface Employee {
   id: string;
   employeeCode: number;
@@ -53,9 +44,6 @@ export interface Employee {
   notes?: string;
   username?: string;
   permissionProfile?: string;
-  terminalPinConfigured?: boolean;
-  lastActiveSession?: string;
-  recentActivity?: EmployeeActivity[];
 }
 
 export interface EmployeeQuery {

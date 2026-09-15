@@ -121,6 +121,12 @@ describe('requested shell cleanup', () => {
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('onToggleLoginAccess');
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Enable Access');
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Disable Access');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Terminal Override PIN');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Last Active Session');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Recent Activity Log');
+    expect(read('features/employees/types/index.ts')).not.toContain('recentActivity');
+    expect(read('features/employees/types/index.ts')).not.toContain('terminalPinConfigured');
+    expect(read('features/employees/types/index.ts')).not.toContain('lastActiveSession');
   });
 
   it('keeps employee role fields editable with suggestions and outlet selection as a dropdown', () => {

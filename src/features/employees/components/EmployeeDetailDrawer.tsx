@@ -200,89 +200,26 @@ export function EmployeeDetailDrawer({
                   {employee.username || employee.email.split('@')[0]}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-caption text-caption text-on-surface-variant">Terminal Override PIN:</span>
-                <span className="font-body-mono-num text-caption text-on-surface">
-                  {employee.terminalPinConfigured ? '•••• (Configured)' : 'None (Cashier Only)'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-caption text-caption text-on-surface-variant">Last Active Session:</span>
-                <span className="font-body-mono-num text-caption text-on-surface">
-                  {employee.lastActiveSession || 'Today, 08:30 AM (Shift #104)'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Activity Log */}
-          <div className="space-y-space-sm">
-            <h4 className="font-micro-label text-micro-label text-on-surface-variant uppercase tracking-wider font-bold">
-              Recent Activity Log
-            </h4>
-            <div className="space-y-2">
-              {employee.recentActivity && employee.recentActivity.length > 0 ? (
-                employee.recentActivity.map((act) => (
-                  <div
-                    key={act.id}
-                    className="p-2.5 rounded bg-surface-container-low border border-outline-variant/20 flex items-start gap-2.5"
-                  >
-                    <span
-                      className={`material-symbols-outlined text-[16px] mt-0.5 ${
-                        act.iconColor || 'text-primary'
-                      }`}
-                    >
-                      {act.icon || 'history'}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="font-body-medium text-body-medium text-on-surface font-semibold truncate">
-                          {act.title}
-                        </span>
-                        <span className="font-body-mono-num text-micro-label text-on-surface-variant shrink-0 ml-2">
-                          {act.timestamp}
-                        </span>
-                      </div>
-                      <p className="font-caption text-caption text-on-surface-variant mt-0.5">
-                        {act.description}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="p-3 rounded bg-surface-container-low border border-outline-variant/20 text-center text-caption text-on-surface-variant">
-                  No logged security or shift events recorded yet.
-                </div>
-              )}
             </div>
           </div>
         </div>
 
         {/* Panel Footer Actions */}
         <div className="px-space-xl py-space-base bg-surface-container-low border-t border-outline-variant/30 flex items-center justify-between gap-space-sm shrink-0">
-          <button
-            type="button"
-            onClick={() => onToggleStatus(employee)}
-            className={`h-9 px-3 rounded border font-body-medium text-body-medium flex items-center gap-1 transition-colors cursor-pointer ${
-              isInactive
-                ? 'border-emerald-600/30 text-emerald-700 hover:bg-emerald-50'
-                : 'border-error/30 text-error hover:bg-error-container/20'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">
-              {isInactive ? 'power_settings_new' : 'person_off'}
-            </span>
-            <span>{isInactive ? 'Activate' : 'Deactivate'}</span>
-          </button>
-
           <div className="flex items-center gap-space-sm">
             <button
               type="button"
-              onClick={() => onEdit(employee)}
-              className="h-9 px-space-lg rounded bg-primary hover:bg-primary-container text-on-primary font-body-medium text-body-medium font-semibold shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+              onClick={() => onToggleStatus(employee)}
+              className={`h-9 px-3 rounded border font-body-medium text-body-medium flex items-center gap-1 transition-colors cursor-pointer ${
+                isInactive
+                  ? 'border-emerald-600/30 text-emerald-700 hover:bg-emerald-50'
+                  : 'border-error/30 text-error hover:bg-error-container/20'
+              }`}
             >
-              <span className="material-symbols-outlined text-[16px]">edit</span>
-              <span>Edit Employee</span>
+              <span className="material-symbols-outlined text-[16px]">
+                {isInactive ? 'power_settings_new' : 'person_off'}
+              </span>
+              <span>{isInactive ? 'Activate' : 'Deactivate'}</span>
             </button>
             <button
               type="button"
@@ -294,6 +231,14 @@ export function EmployeeDetailDrawer({
               <span>Delete</span>
             </button>
           </div>
+          <button
+            type="button"
+            onClick={() => onEdit(employee)}
+            className="h-9 ml-auto px-space-lg rounded bg-primary hover:bg-primary-container text-on-primary font-body-medium text-body-medium font-semibold shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[16px]">edit</span>
+            <span>Edit Employee</span>
+          </button>
         </div>
       </div>
     </div>

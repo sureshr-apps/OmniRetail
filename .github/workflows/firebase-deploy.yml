@@ -32,6 +32,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
             echo "Manual run or no previous commit to diff against; deploying everything."
             echo "targets=hosting,functions,dataconnect" >> "$GITHUB_OUTPUT"
+            echo "connector_first=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")
@@ -54,8 +55,13 @@ jobs:
             echo "No deploy-relevant paths changed; deploying everything as a safe default."
             TARGETS="hosting,functions,dataconnect"
           fi
+          CONNECTOR_FIRST=true
+          if echo "$CHANGED" | grep -q '^scripts/drop-customer-address-columns\.mjs$'; then
+            CONNECTOR_FIRST=false
+          fi
           echo "Deploy targets: $TARGETS"
           echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
+          echo "connector_first=$CONNECTOR_FIRST" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -98,7 +104,7 @@ jobs:
         run: node scripts/drop-customer-address-columns.mjs
 
       - name: Deploy Data Connect connectors before SQL migration
-        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        if: contains(steps.changes.outputs.targets, 'dataconnect') && steps.changes.outputs.connector_first == 'true'
         run: npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect:omniretail-platform:master-admin --non-interactive --force
 
       - name: Migrate Data Connect SQL schema

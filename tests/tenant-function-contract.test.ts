@@ -40,6 +40,10 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
+    expect(deploymentSource).toContain('connector_first=true');
+    expect(deploymentSource).toContain('connector_first=$CONNECTOR_FIRST');
+    expect(deploymentSource).toContain("grep -q '^scripts/drop-customer-address-columns\\.mjs$'");
+    expect(deploymentSource).toContain("steps.changes.outputs.connector_first == 'true'");
     expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect:omniretail-platform:master-admin --non-interactive --force');

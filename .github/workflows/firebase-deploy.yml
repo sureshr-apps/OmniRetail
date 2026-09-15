@@ -85,6 +85,16 @@ jobs:
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-lifecycle-idempotency.mjs
 
+      - name: Deploy Data Connect connectors before SQL migration
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect:omniretail-platform:master-admin --non-interactive --force
+
+      - name: Migrate Data Connect SQL schema
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: |
+          npx --no-install firebase-tools experiments:disable fdcapimigration
+          npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --force
+
       - name: Deploy Data Connect schema and connectors
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force

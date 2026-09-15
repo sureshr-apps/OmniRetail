@@ -132,9 +132,6 @@ type AppUser @table {
   displayName: String!
   phone: String
   status: AppUserStatus! @default(value: ACTIVE)
-  lastLoginAt: Timestamp
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
 }
 
 type Outlet @table {
@@ -170,7 +167,6 @@ type Employee @table {
 type EmployeeOutlet @table(key: ["employee", "outlet"]) {
   employee: Employee!
   outlet: Outlet!
-  createdAt: Timestamp! @default(expr: "request.time")
 }
 
 type ServicePerson @table {
@@ -190,7 +186,6 @@ type ServicePerson @table {
 type ServicePersonOutlet @table(key: ["servicePerson", "outlet"]) {
   servicePerson: ServicePerson!
   outlet: Outlet!
-  createdAt: Timestamp! @default(expr: "request.time")
 }
 
 type Category @table @unique(fields: ["organization", "value"]) {
@@ -226,9 +221,6 @@ type Product @table {
   reorderQuantity: Float
   primarySupplier: String
   description: String
-  imageUrl: String
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
 }
 
 type InventoryStock @table(key: ["organization", "outlet", "product"]) {
@@ -299,8 +291,6 @@ type Supplier @table {
   creditLimit: Float!
   status: SupplierStatus! @default(value: ACTIVE)
   notes: String
-  createdAt: Timestamp! @default(expr: "request.time")
-  updatedAt: Timestamp! @default(expr: "request.time")
 }
 
 type Purchase @table {

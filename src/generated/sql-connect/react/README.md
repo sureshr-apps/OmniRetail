@@ -65,7 +65,6 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*GetTenantEmployeeTrusted*](#gettenantemployeetrusted)
   - [*GetTenantServicePersonTrusted*](#gettenantservicepersontrusted)
 - [**Mutations**](#mutations)
-  - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
   - [*BootstrapMasterAdmin*](#bootstrapmasteradmin)
   - [*CreateLicensePlan*](#createlicenseplan)
@@ -258,8 +257,6 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -371,8 +368,6 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -662,8 +657,6 @@ export interface GetCurrentAppUserData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & AppUser_Key)[];
 }
 ```
@@ -1553,9 +1546,6 @@ export interface ListOrganizationAdministratorsData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1650,9 +1640,6 @@ export interface GetOrganizationAdministratorData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1748,9 +1735,6 @@ export interface GetOrganizationAdministratorTrustedData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -3129,9 +3113,6 @@ export interface ListTenantProductsData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 ```
@@ -3591,8 +3572,6 @@ export interface ListTenantSuppliersData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 ```
@@ -4191,8 +4170,6 @@ export interface GetTenantSupplierTrustedData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 ```
@@ -4509,9 +4486,6 @@ export interface GetTenantProductTrustedData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 ```
@@ -5107,100 +5081,6 @@ Here's a general overview of how to use the generated Mutation hooks in your cod
   - ***Special case:*** If the Mutation has no arguments (or all optional arguments and you wish to provide none), and you want to pass `options` to `UseMutationResult.mutate()`, you must pass `undefined` where you would normally pass the Mutation's arguments, and then may provide the options argument.
 
 Below are examples of how to use the `master-admin` connector's generated Mutation hook functions to execute each Mutation. You can also follow the examples from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#operations-react-angular).
-
-## RecordSuccessfulLogin
-You can execute the `RecordSuccessfulLogin` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
-```javascript
-useRecordSuccessfulLogin(options?: useDataConnectMutationOptions<RecordSuccessfulLoginData, FirebaseError, RecordSuccessfulLoginVariables>): UseDataConnectMutationResult<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-```
-You can also pass in a `DataConnect` instance to the Mutation hook function.
-```javascript
-useRecordSuccessfulLogin(dc: DataConnect, options?: useDataConnectMutationOptions<RecordSuccessfulLoginData, FirebaseError, RecordSuccessfulLoginVariables>): UseDataConnectMutationResult<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-```
-
-### Variables
-The `RecordSuccessfulLogin` Mutation requires an argument of type `RecordSuccessfulLoginVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-
-```javascript
-export interface RecordSuccessfulLoginVariables {
-  userId: UUIDString;
-}
-```
-### Return Type
-Recall that calling the `RecordSuccessfulLogin` Mutation hook function returns a `UseMutationResult` object. This object holds the state of your Mutation, including whether the Mutation is loading, has completed, or has succeeded/failed, among other things.
-
-To check the status of a Mutation, use the `UseMutationResult.status` field. You can also check for pending / success / error status using the `UseMutationResult.isPending`, `UseMutationResult.isSuccess`, and `UseMutationResult.isError` fields.
-
-To execute the Mutation, call `UseMutationResult.mutate()`. This function executes the Mutation, but does not return the data from the Mutation.
-
-To access the data returned by a Mutation, use the `UseMutationResult.data` field. The data for the `RecordSuccessfulLogin` Mutation is of type `RecordSuccessfulLoginData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
-```javascript
-export interface RecordSuccessfulLoginData {
-  appUser_update?: AppUser_Key | null;
-}
-```
-
-To learn more about the `UseMutationResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useMutation).
-
-### Using `RecordSuccessfulLogin`'s Mutation hook function
-
-```javascript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, RecordSuccessfulLoginVariables } from '@omniretail/sql-connect';
-import { useRecordSuccessfulLogin } from '@omniretail/sql-connect/react'
-
-export default function RecordSuccessfulLoginComponent() {
-  // Call the Mutation hook function to get a `UseMutationResult` object which holds the state of your Mutation.
-  const mutation = useRecordSuccessfulLogin();
-
-  // You can also pass in a `DataConnect` instance to the Mutation hook function.
-  const dataConnect = getDataConnect(connectorConfig);
-  const mutation = useRecordSuccessfulLogin(dataConnect);
-
-  // You can also pass in a `useDataConnectMutationOptions` object to the Mutation hook function.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordSuccessfulLogin(options);
-
-  // You can also pass both a `DataConnect` instance and a `useDataConnectMutationOptions` object.
-  const dataConnect = getDataConnect(connectorConfig);
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  const mutation = useRecordSuccessfulLogin(dataConnect, options);
-
-  // After calling the Mutation hook function, you must call `UseMutationResult.mutate()` to execute the Mutation.
-  // The `useRecordSuccessfulLogin` Mutation requires an argument of type `RecordSuccessfulLoginVariables`:
-  const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
-    userId: ...,
-  };
-  mutation.mutate(recordSuccessfulLoginVars);
-  // Variables can be defined inline as well.
-  mutation.mutate({ userId: ..., });
-
-  // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
-  const options = {
-    onSuccess: () => { console.log('Mutation succeeded!'); }
-  };
-  mutation.mutate(recordSuccessfulLoginVars, options);
-
-  // Then, you can render your component dynamically based on the status of the Mutation.
-  if (mutation.isPending) {
-    return <div>Loading...</div>;
-  }
-
-  if (mutation.isError) {
-    return <div>Error: {mutation.error.message}</div>;
-  }
-
-  // If the Mutation is successful, you can access the data returned using the `UseMutationResult.data` field.
-  if (mutation.isSuccess) {
-    console.log(mutation.data.appUser_update);
-  }
-  return <div>Mutation execution {mutation.isSuccess ? 'successful' : 'failed'}!</div>;
-}
-```
 
 ## UpdateAppUserProfile
 You can execute the `UpdateAppUserProfile` Mutation using the `UseMutationResult` object returned by the following Mutation hook function (which is defined in [sql-connect/react/index.d.ts](./index.d.ts)):
@@ -9482,7 +9362,6 @@ export interface CreateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 ```
 ### Return Type
@@ -9553,11 +9432,10 @@ export default function CreateTenantProductComponent() {
     reorderQuantity: ..., // optional
     primarySupplier: ..., // optional
     description: ..., // optional
-    imageUrl: ..., // optional
   };
   mutation.mutate(createTenantProductVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
+  mutation.mutate({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {
@@ -9618,7 +9496,6 @@ export interface UpdateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 ```
 ### Return Type
@@ -9689,11 +9566,10 @@ export default function UpdateTenantProductComponent() {
     reorderQuantity: ..., // optional
     primarySupplier: ..., // optional
     description: ..., // optional
-    imageUrl: ..., // optional
   };
   mutation.mutate(updateTenantProductVars);
   // Variables can be defined inline as well.
-  mutation.mutate({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
+  mutation.mutate({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., });
 
   // You can also pass in a `useDataConnectMutationOptions` object to `UseMutationResult.mutate()`.
   const options = {

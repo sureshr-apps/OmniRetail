@@ -95,14 +95,14 @@ function validateAuthorizationResponse(value: unknown): AuthorizedUserResponse {
 }
 
 export class FirebaseAuthService implements IAuthService {
-  private async bootstrap(firebaseUser: FirebaseUser, recordLogin: boolean): Promise<User> {
+  private async bootstrap(firebaseUser: FirebaseUser): Promise<User> {
     const { functions } = getFirebaseClientServices();
-    const bootstrapUser = httpsCallable<{ recordLogin: boolean }, AuthorizedUserResponse>(
+    const bootstrapUser = httpsCallable<Record<string, never>, AuthorizedUserResponse>(
       functions,
       'bootstrapAuthenticatedUser',
       callableOptions
     );
-    const result = await bootstrapUser({ recordLogin });
+    const result = await bootstrapUser({});
     const authorized = validateAuthorizationResponse(result.data);
     if (authorized.firebaseUid !== firebaseUser.uid) throw new Error(GENERIC_AUTH_ERROR);
     return toUser(authorized);
@@ -126,7 +126,7 @@ export class FirebaseAuthService implements IAuthService {
             return signInWithCustomToken(auth, response.data.customToken);
           })();
 
-      return await this.bootstrap(credential.user, true);
+      return await this.bootstrap(credential.user);
     } catch {
       await signOut(auth).catch(() => undefined);
       throw new Error(GENERIC_AUTH_ERROR);
@@ -142,7 +142,7 @@ export class FirebaseAuthService implements IAuthService {
     await auth.authStateReady();
     if (!auth.currentUser) return null;
     try {
-      return await this.bootstrap(auth.currentUser, false);
+      return await this.bootstrap(auth.currentUser);
     } catch {
       await signOut(auth).catch(() => undefined);
       return null;
@@ -159,7 +159,7 @@ export class FirebaseAuthService implements IAuthService {
         return;
       }
       try {
-        const user = await this.bootstrap(firebaseUser, false);
+        const user = await this.bootstrap(firebaseUser);
         if (currentRevision === revision) listener(user);
       } catch {
         await signOut(auth).catch(() => undefined);

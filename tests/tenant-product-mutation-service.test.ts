@@ -47,9 +47,6 @@ const productRow = (overrides: Record<string, unknown> = {}) => ({
   reorderQuantity: 30,
   primarySupplier: null,
   description: null,
-  imageUrl: null,
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z',
   ...overrides,
 });
 

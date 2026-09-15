@@ -49,9 +49,30 @@ describe('tenant Data Connect foundation schema', () => {
     expect(identityLookup).toContain('user { id firebaseUid }');
   });
 
+  it('removes retired login and timestamp columns from AppUser', () => {
+    const appUser = schema.match(/type AppUser @table[\s\S]*?\n}\n\ntype Outlet/)?.[0] ?? '';
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+
+    expect(appUser).toContain('firebaseUid: String!');
+    for (const removedField of ['lastLoginAt', 'createdAt', 'updatedAt']) {
+      expect(appUser).not.toContain(`${removedField}:`);
+    }
+    expect(connector).not.toContain('lastLoginAt');
+    expect(connector).not.toContain('lastLoginAt_expr');
+    const appUserUpdates = connector.match(/appUser_update[\s\S]*?data:\s*\{[\s\S]*?\}\)/g) ?? [];
+    for (const update of appUserUpdates) expect(update).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|_expr/);
+    expect(connector).not.toMatch(/user \{[^}]*\bcreatedAt\b/);
+    expect(connector).not.toMatch(/user \{[^}]*\bupdatedAt\b/);
+    expect(connector).not.toContain('RecordSuccessfulLogin');
+  });
+
   it('defines explicit outlet assignment joins for employees and service persons', () => {
-    expect(schema).toContain('type EmployeeOutlet @table(key: ["employee", "outlet"])');
-    expect(schema).toContain('type ServicePersonOutlet @table(key: ["servicePerson", "outlet"])');
+    const employeeOutlet = schema.match(/type EmployeeOutlet @table[\s\S]*?\n}\n\ntype ServicePerson/)?.[0] ?? '';
+    const servicePersonOutlet = schema.match(/type ServicePersonOutlet @table[\s\S]*?\n}\n\ntype Category/)?.[0] ?? '';
+    expect(employeeOutlet).toContain('type EmployeeOutlet @table(key: ["employee", "outlet"])');
+    expect(servicePersonOutlet).toContain('type ServicePersonOutlet @table(key: ["servicePerson", "outlet"])');
+    expect(employeeOutlet).not.toContain('createdAt:');
+    expect(servicePersonOutlet).not.toContain('createdAt:');
   });
 
   it('defines tenant-scoped product catalogue and inventory stock entities', () => {
@@ -81,6 +102,15 @@ describe('tenant Data Connect foundation schema', () => {
     expect(product).not.toMatch(/categoryId:|categoryName:|subcategory: String/);
   });
 
+  it('removes retired Product timestamps and image storage from schema and connectors', () => {
+    const product = schema.match(/type Product @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const productOperations = connector.match(/(?:query|mutation) (?:ListTenantProducts|CreateTenantProduct|UpdateTenantProduct|ChangeTenantProductStatus|GetTenantProductTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    for (const removedField of ['imageUrl:', 'createdAt:', 'updatedAt:']) expect(product).not.toContain(removedField);
+    expect(productOperations.length).toBe(5);
+    for (const operation of productOperations) expect(operation).not.toMatch(/\bimageUrl\b|\$imageUrl\b|\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
+  });
+
   it('defines an organization-scoped customer master', () => {
     expect(schema).toMatch(/enum CustomerStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
     expect(schema).toMatch(/type Customer @table[\s\S]*organization: Organization![\s\S]*customerCode: Int! @col\(dataType: "serial"\) @unique/);
@@ -108,6 +138,16 @@ describe('tenant Data Connect foundation schema', () => {
   it('defines an organization-scoped supplier master', () => {
     expect(schema).toMatch(/enum SupplierStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
     expect(schema).toMatch(/type Supplier @table[\s\S]*organization: Organization![\s\S]*supplierCode: Int! @col\(dataType: "serial"\) @unique/);
+    const supplier = schema.match(/type Supplier @table \{[\s\S]*?\n\}/)?.[0] ?? '';
+    expect(supplier).not.toContain('createdAt:');
+    expect(supplier).not.toContain('updatedAt:');
+  });
+
+  it('removes retired Supplier timestamps from connectors and writes', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const supplierOperations = connector.match(/(?:query|mutation) (?:ListTenantSuppliers|CreateTenantSupplier|UpdateTenantSupplier|ChangeTenantSupplierStatus|GetTenantSupplierTrusted)[\s\S]*?(?=\n(?:query|mutation) |$)/g) ?? [];
+    expect(supplierOperations.length).toBe(5);
+    for (const operation of supplierOperations) expect(operation).not.toMatch(/\bcreatedAt\b|\bupdatedAt\b|updatedAt_expr/);
   });
 
   it('defines purchase headers and product lines for tenant purchasing', () => {

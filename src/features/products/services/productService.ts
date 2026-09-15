@@ -57,14 +57,11 @@ interface ProductMutationResponse {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 const PRODUCT_MUTATION_RESPONSE_KEYS: (keyof ProductMutationResponse)[] = [
   'id', 'productCode', 'name', 'brand', 'category', 'type', 'sku',
-  'sellingPrice', 'discountAllowed', 'status', 'createdAt', 'updatedAt',
+  'sellingPrice', 'discountAllowed', 'status',
 ];
 
 function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Product {
@@ -93,9 +90,6 @@ function mapTenantProduct(row: TenantProductRow | ProductMutationResponse): Prod
     reorderQuantity: row.reorderQuantity ?? undefined,
     primarySupplier: row.primarySupplier ?? undefined,
     description: row.description ?? undefined,
-    imageUrl: row.imageUrl ?? undefined,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
   };
 }
 

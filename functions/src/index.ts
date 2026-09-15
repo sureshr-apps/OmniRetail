@@ -7,7 +7,6 @@ import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import {
   AppUserStatus, LoginAccessStatus, CustomerType, PurchasePaymentStatus, PurchaseReceiptStatus, PurchaseStatus, SaleTenderType,
   getUserAuthorizationByFirebaseUid,
-  recordSuccessfulLogin,
   resolveUsernameLogin,
   updateAppUserProfile,
   getOrganizationTrusted,
@@ -269,11 +268,7 @@ export const bootstrapAuthenticatedUser = onCall(callableOptions, async (request
   try {
     const firebaseUid = requireVerifiedFirebaseIdentity(request.auth);
     const record = await loadAuthorization(firebaseUid);
-    const authorizedUser = toAuthorizedUser(record);
-    if (request.data?.recordLogin === true) {
-      await recordSuccessfulLogin({ userId: record.id });
-    }
-    return authorizedUser;
+    return toAuthorizedUser(record);
   } catch {
     throw genericAuthenticationError();
   }
@@ -412,8 +407,7 @@ export const changeOrganizationAdministratorStatus = onCall(callableOptions, asy
       email: membership.user.email,
       phone: membership.user.phone ?? '',
       status: membership.user.status === 'ACTIVE' ? 'active' : 'inactive',
-      createdAt: membership.user.createdAt,
-      lastLoginAt: membership.user.lastLoginAt ?? null,
+      createdAt: membership.createdAt,
     };
   } catch { throw new HttpsError('permission-denied', 'Unable to change administrator status.'); }
 });
@@ -1128,7 +1122,7 @@ export const createTenantInventoryStockRecord = onCall(callableOptions, async (r
 });
 
 function productFields(d: any) {
-  return { name: typeof d.name === 'string' ? d.name.trim() : '', brand: typeof d.brand === 'string' ? d.brand.trim() : '', categoryName: typeof d.categoryName === 'string' ? d.categoryName.trim() : '', subcategoryName: typeof d.subcategory === 'string' ? d.subcategory.trim() || null : null, type: d.type === 'SERVICE' || d.type === 'CONSUMABLE' ? d.type : 'STOCKABLE', sku: typeof d.sku === 'string' ? d.sku.trim() : '', barcode: typeof d.barcode === 'string' ? d.barcode.trim() || null : null, hsnCode: typeof d.hsnCode === 'string' ? d.hsnCode.trim() || null : null, unitOfMeasure: typeof d.unitOfMeasure === 'string' ? d.unitOfMeasure.trim() || null : null, sellingPrice: Number(d.sellingPrice), mrp: Number.isFinite(Number(d.mrp)) ? Number(d.mrp) : null, cost: Number.isFinite(Number(d.cost)) ? Number(d.cost) : null, minSellingPrice: Number.isFinite(Number(d.minSellingPrice)) ? Number(d.minSellingPrice) : null, discountAllowed: d.discountAllowed !== false, taxCategory: typeof d.taxCategory === 'string' ? d.taxCategory.trim() || null : null, reorderLevel: Number.isFinite(Number(d.reorderLevel)) ? Number(d.reorderLevel) : null, reorderQuantity: Number.isFinite(Number(d.reorderQuantity)) ? Number(d.reorderQuantity) : null, primarySupplier: typeof d.primarySupplier === 'string' ? d.primarySupplier.trim() || null : null, description: typeof d.description === 'string' ? d.description.trim() || null : null, imageUrl: typeof d.imageUrl === 'string' ? d.imageUrl.trim() || null : null };
+  return { name: typeof d.name === 'string' ? d.name.trim() : '', brand: typeof d.brand === 'string' ? d.brand.trim() : '', categoryName: typeof d.categoryName === 'string' ? d.categoryName.trim() : '', subcategoryName: typeof d.subcategory === 'string' ? d.subcategory.trim() || null : null, type: d.type === 'SERVICE' || d.type === 'CONSUMABLE' ? d.type : 'STOCKABLE', sku: typeof d.sku === 'string' ? d.sku.trim() : '', barcode: typeof d.barcode === 'string' ? d.barcode.trim() || null : null, hsnCode: typeof d.hsnCode === 'string' ? d.hsnCode.trim() || null : null, unitOfMeasure: typeof d.unitOfMeasure === 'string' ? d.unitOfMeasure.trim() || null : null, sellingPrice: Number(d.sellingPrice), mrp: Number.isFinite(Number(d.mrp)) ? Number(d.mrp) : null, cost: Number.isFinite(Number(d.cost)) ? Number(d.cost) : null, minSellingPrice: Number.isFinite(Number(d.minSellingPrice)) ? Number(d.minSellingPrice) : null, discountAllowed: d.discountAllowed !== false, taxCategory: typeof d.taxCategory === 'string' ? d.taxCategory.trim() || null : null, reorderLevel: Number.isFinite(Number(d.reorderLevel)) ? Number(d.reorderLevel) : null, reorderQuantity: Number.isFinite(Number(d.reorderQuantity)) ? Number(d.reorderQuantity) : null, primarySupplier: typeof d.primarySupplier === 'string' ? d.primarySupplier.trim() || null : null, description: typeof d.description === 'string' ? d.description.trim() || null : null };
 }
 
 async function resolveProductTaxonomy(organizationId: string, categoryName: string, subcategoryName: string | null) {

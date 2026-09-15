@@ -170,18 +170,6 @@ export function resolveUsernameLogin(dcOrVars, varsOrOptions, options) {
   return executeQuery(resolveUsernameLoginRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 
-export const recordSuccessfulLoginRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'RecordSuccessfulLogin', inputVars);
-}
-recordSuccessfulLoginRef.operationName = 'RecordSuccessfulLogin';
-
-export function recordSuccessfulLogin(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(recordSuccessfulLoginRef(dcInstance, inputVars));
-}
-
 export const updateAppUserProfileRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

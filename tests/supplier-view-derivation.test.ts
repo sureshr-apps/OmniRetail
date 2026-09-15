@@ -16,8 +16,6 @@ const supplier = (overrides: Partial<Supplier> = {}): Supplier => ({
   paymentTerms: 'Net 30 Days',
   creditLimit: 50000,
   status: 'Active',
-  createdAt: '2024-01-01T00:00:00.000Z',
-  updatedAt: '2024-01-01T00:00:00.000Z',
   outstandingBalance: 0,
   pendingDeliveriesCount: 0,
   totalOrdersCount: 0,

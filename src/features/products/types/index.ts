@@ -54,13 +54,9 @@ export interface Product {
   openingStoreOutlet?: string;
   primarySupplier?: string;
   description?: string;
-  imageUrl?: string;
-  imageAlt?: string;
   variantsConfigured?: string;
   stockSummary?: ProductStockSummary;
   recentActivity?: ProductLedgerActivity[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface ProductSubcategoryOption {
@@ -128,7 +124,6 @@ export interface CreateProductInput {
   openingStoreOutlet?: string;
   primarySupplier?: string;
   description?: string;
-  imageUrl?: string;
   variantsConfigured?: string;
 }
 

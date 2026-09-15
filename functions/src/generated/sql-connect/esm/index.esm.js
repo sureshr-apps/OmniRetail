@@ -145,12 +145,6 @@ export function resolveUsernameLogin(dcOrVarsOrOptions, varsOrOptions, options) 
   return dcInstance.executeQuery('ResolveUsernameLogin', inputVars, inputOpts);
 }
 
-export function recordSuccessfulLogin(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('RecordSuccessfulLogin', inputVars, inputOpts);
-}
-
 export function updateAppUserProfile(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

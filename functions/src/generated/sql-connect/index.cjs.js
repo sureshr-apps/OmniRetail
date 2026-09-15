@@ -170,13 +170,6 @@ function resolveUsernameLogin(dcOrVarsOrOptions, varsOrOptions, options) {
 }
 exports.resolveUsernameLogin = resolveUsernameLogin;
 
-function recordSuccessfulLogin(dcOrVarsOrOptions, varsOrOptions, options) {
-  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
-  dcInstance.useGen(true);
-  return dcInstance.executeMutation('RecordSuccessfulLogin', inputVars, inputOpts);
-}
-exports.recordSuccessfulLogin = recordSuccessfulLogin;
-
 function updateAppUserProfile(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);

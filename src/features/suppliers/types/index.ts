@@ -49,8 +49,6 @@ export interface Supplier {
   creditLimit: number;
   status: SupplierStatus;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
   // Derived from purchases ledger
   outstandingBalance: number;
   pendingDeliveriesCount: number;

@@ -15,8 +15,6 @@ query GetCurrentUserAuthorization @auth(level: USER) {
     displayName
     phone
     status
-    createdAt
-    updatedAt
     userRoles_on_user {
       role {
         code
@@ -44,8 +42,6 @@ query GetUserAuthorizationByFirebaseUid($firebaseUid: String!) @auth(level: NO_A
     displayName
     phone
     status
-    createdAt
-    updatedAt
     userRoles_on_user {
       role {
         code
@@ -71,14 +67,6 @@ query ResolveUsernameLogin($username: String!) @auth(level: NO_ACCESS) {
   }
 }
 
-mutation RecordSuccessfulLogin($userId: UUID!)
-  @auth(level: NO_ACCESS) @transaction {
-  appUser_update(id: $userId, data: {
-    lastLoginAt_expr: "request.time"
-    updatedAt_expr: "request.time"
-  })
-}
-
 mutation UpdateAppUserProfile(
   $userId: UUID!
   $displayName: String!
@@ -87,7 +75,6 @@ mutation UpdateAppUserProfile(
   appUser_update(id: $userId, data: {
     displayName: $displayName
     phone: $phone
-    updatedAt_expr: "request.time"
   })
 }
 
@@ -121,7 +108,6 @@ mutation BootstrapMasterAdmin(
     displayName: $displayName
     phone: $phone
     status: ACTIVE
-    updatedAt_expr: "request.time"
   })
   userRole_upsert(data: { userId: $userId, roleId: $roleId })
 }
@@ -139,8 +125,6 @@ query GetCurrentAppUser @auth(level: USER) {
     displayName
     phone
     status
-    createdAt
-    updatedAt
   }
 }
 
@@ -321,7 +305,7 @@ query ListOrganizationAdministrators($organizationId: UUID!) @auth(level: USER) 
   ) {
     createdAt
     status
-    user { id username email displayName phone status createdAt updatedAt lastLoginAt }
+    user { id username email displayName phone status }
   }
 }
 
@@ -338,7 +322,7 @@ query GetOrganizationAdministrator($organizationId: UUID!, $userId: UUID!) @auth
   organizationMemberships(where: { organizationId: { eq: $organizationId }, userId: { eq: $userId }, status: { eq: ACTIVE } }, limit: 1) {
     createdAt
     status
-    user { id username email displayName phone status createdAt updatedAt lastLoginAt }
+    user { id username email displayName phone status }
   }
 }
 
@@ -357,11 +341,11 @@ mutation UpdateOrganizationAdministrator($organizationId: UUID!, $userId: UUID!,
     appUsers(where: { firebaseUid: { eq_expr: "auth.uid" }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && this[0].userRoles_on_user.exists(ur, ur.role.rolePermissions_on_role.exists(rp, rp.permission.code == 'organization_admins.update'))", message: "Administrator updates are not available.") { userRoles_on_user { role { rolePermissions_on_role { permission { code } } } } }
     organizationMembership(key: { organizationId: $organizationId, userId: $userId }) @check(expr: "this != null", message: "Administrator is not in this organization.") { organizationId userId }
   }
-  appUser_update(id: $userId, data: { displayName: $displayName phone: $phone updatedAt_expr: "request.time" })
+  appUser_update(id: $userId, data: { displayName: $displayName phone: $phone })
 }
 
 mutation ChangeOrganizationAdministratorStatus($organizationId: UUID!, $userId: UUID!, $status: AppUserStatus!, $membershipStatus: MembershipStatus!) @auth(level: NO_ACCESS) @transaction {
-  appUser_update(id: $userId, data: { status: $status updatedAt_expr: "request.time" })
+  appUser_update(id: $userId, data: { status: $status })
   organizationMembership_update(key: { organizationId: $organizationId, userId: $userId }, data: { status: $membershipStatus updatedAt_expr: "request.time" })
 }
 
@@ -371,7 +355,7 @@ query GetOrganizationAdministratorTrusted($organizationId: UUID!, $userId: UUID!
   organizationMemberships(where: { organizationId: { eq: $organizationId }, userId: { eq: $userId } }, limit: 1) {
     createdAt
     status
-    user { id username email displayName phone status createdAt updatedAt lastLoginAt }
+    user { id username email displayName phone status }
   }
 }
 
@@ -514,7 +498,7 @@ query ListTenantCategories($organizationId: UUID!) @auth(level: USER) {
 query ListTenantProducts($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'products.read'))", message: "Product access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   products(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
-    id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description imageUrl createdAt updatedAt
+    id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description
   }
 }
 
@@ -542,7 +526,7 @@ query ListTenantCustomerPurchaseHistory($organizationId: UUID!, $customerId: UUI
 query ListTenantSuppliers($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'suppliers.read'))", message: "Supplier access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   suppliers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }]) {
-    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes createdAt updatedAt
+    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes
   }
 }
 
@@ -636,17 +620,17 @@ mutation CreateTenantSupplier($id: UUID!, $organizationId: UUID!, $name: String!
 
 mutation UpdateTenantSupplier($organizationId: UUID!, $id: UUID!, $name: String!, $contactPerson: String!, $phone: String!, $email: String!, $taxId: String!, $address: String, $city: String!, $state: String, $postalCode: String, $country: String, $category: String!, $paymentTerms: String!, $creditLimit: Float!, $notes: String) @auth(level: NO_ACCESS) @transaction {
   query @redact { suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id } }
-  supplier_update(id: $id, data: { name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes updatedAt_expr: "request.time" })
+  supplier_update(id: $id, data: { name: $name contactPerson: $contactPerson phone: $phone email: $email taxId: $taxId address: $address city: $city state: $state postalCode: $postalCode country: $country category: $category paymentTerms: $paymentTerms creditLimit: $creditLimit notes: $notes })
 }
 
 mutation ChangeTenantSupplierStatus($organizationId: UUID!, $id: UUID!, $status: SupplierStatus!) @auth(level: NO_ACCESS) @transaction {
   query @redact { suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Supplier is not in this organization.") { id } }
-  supplier_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  supplier_update(id: $id, data: { status: $status })
 }
 
 query GetTenantSupplierTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   suppliers(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes createdAt updatedAt
+    id organization { id } supplierCode name contactPerson phone email taxId address city state postalCode country category paymentTerms creditLimit status notes
   }
 }
 
@@ -684,23 +668,23 @@ mutation CreateTenantSubcategoryTrusted($id: UUID!, $organizationId: UUID!, $cat
   subcategory_insert(data: { id: $id category: { id: $categoryId } value: $value })
 }
 
-mutation CreateTenantProduct($id: UUID!, $organizationId: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String, $imageUrl: String) @auth(level: NO_ACCESS) @transaction {
-  product_insert(data: { id: $id organization: { id: $organizationId } name: $name brand: $brand category: { id: $categoryId } subcategory: { id: $subcategoryId } type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory status: ACTIVE reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier description: $description imageUrl: $imageUrl })
+mutation CreateTenantProduct($id: UUID!, $organizationId: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String) @auth(level: NO_ACCESS) @transaction {
+  product_insert(data: { id: $id organization: { id: $organizationId } name: $name brand: $brand category: { id: $categoryId } subcategory: { id: $subcategoryId } type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory status: ACTIVE reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier description: $description })
 }
 
-mutation UpdateTenantProduct($organizationId: UUID!, $id: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String, $imageUrl: String) @auth(level: NO_ACCESS) @transaction {
+mutation UpdateTenantProduct($organizationId: UUID!, $id: UUID!, $name: String!, $brand: String!, $categoryId: UUID!, $subcategoryId: UUID, $type: ProductType!, $sku: String!, $barcode: String, $hsnCode: String, $unitOfMeasure: String, $sellingPrice: Float!, $mrp: Float, $cost: Float, $minSellingPrice: Float, $discountAllowed: Boolean!, $taxCategory: String, $reorderLevel: Float, $reorderQuantity: Float, $primarySupplier: String, $description: String) @auth(level: NO_ACCESS) @transaction {
   query @redact { products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } }
-  product_update(id: $id, data: { name: $name brand: $brand category: { id: $categoryId } subcategory: { id: $subcategoryId } type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier description: $description imageUrl: $imageUrl updatedAt_expr: "request.time" })
+  product_update(id: $id, data: { name: $name brand: $brand category: { id: $categoryId } subcategory: { id: $subcategoryId } type: $type sku: $sku barcode: $barcode hsnCode: $hsnCode unitOfMeasure: $unitOfMeasure sellingPrice: $sellingPrice mrp: $mrp cost: $cost minSellingPrice: $minSellingPrice discountAllowed: $discountAllowed taxCategory: $taxCategory reorderLevel: $reorderLevel reorderQuantity: $reorderQuantity primarySupplier: $primarySupplier description: $description })
 }
 
 mutation ChangeTenantProductStatus($organizationId: UUID!, $id: UUID!, $status: ProductStatus!) @auth(level: NO_ACCESS) @transaction {
   query @redact { products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } }
-  product_update(id: $id, data: { status: $status updatedAt_expr: "request.time" })
+  product_update(id: $id, data: { status: $status })
 }
 
 query GetTenantProductTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   products(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description imageUrl createdAt updatedAt
+    id organization { id } productCode name brand category { id value } subcategory { id value } type sku barcode hsnCode unitOfMeasure sellingPrice mrp cost minSellingPrice discountAllowed taxCategory status reorderLevel reorderQuantity primarySupplier description
   }
 }
 
@@ -889,7 +873,7 @@ mutation UpdateTenantEmployeeLoginTrusted($organizationId: UUID!, $employeeId: U
   query @redact {
     employees(where: { id: { eq: $employeeId }, organization: { id: { eq: $organizationId } }, user: { id: { eq: $userId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee identity is not in this organization.") { id }
   }
-  appUser_update(id: $userId, data: { username: $username email: $email updatedAt_expr: "request.time" })
+  appUser_update(id: $userId, data: { username: $username email: $email })
   organizationMembership_update(key: { organizationId: $organizationId userId: $userId }, data: { roleId: $roleId status: ACTIVE updatedAt_expr: "request.time" })
   removeAdminRole: userRole_delete(key: { userId: $userId roleId: "00000000-0000-4000-8000-000000000002" })
   removeEmployeeRole: userRole_delete(key: { userId: $userId roleId: "00000000-0000-4000-8000-000000000003" })
@@ -910,7 +894,7 @@ mutation ChangeTenantEmployeeStatusTrusted($organizationId: UUID!, $id: UUID!, $
 mutation ChangeTenantEmployeeLoginAccessTrusted($organizationId: UUID!, $id: UUID!, $userId: UUID!, $loginAccess: LoginAccessStatus!) @auth(level: NO_ACCESS) @transaction {
   query @redact { employees(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } }, user: { id: { eq: $userId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Employee identity is not in this organization.") { organization { id } user { id } } }
   employee_update(id: $id, data: { loginAccess: $loginAccess })
-  appUser_update(id: $userId, data: { status: ACTIVE updatedAt_expr: "request.time" })
+  appUser_update(id: $userId, data: { status: ACTIVE })
 }
 
 # Trusted, server-side read-back for the Employee update/status/login-access

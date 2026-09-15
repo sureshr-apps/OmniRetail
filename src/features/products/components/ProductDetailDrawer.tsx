@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Product } from '../types';
 import { formatProductCode } from '../utils/formatProductCode';
 
@@ -21,8 +20,6 @@ export function ProductDetailDrawer({
   onNavigateToInventory,
   onDuplicate,
 }: ProductDetailDrawerProps) {
-  const [imgError, setImgError] = useState(false);
-
   if (!product) return null;
 
   // Calculate gross margin if cost and selling price available
@@ -79,20 +76,11 @@ export function ProductDetailDrawer({
         <div className="flex-1 overflow-y-auto p-space-xl space-y-space-xl text-on-surface">
           {/* Core Product Visual & Description */}
           <div className="flex items-start gap-space-base bg-surface-container-low/40 p-space-base rounded-lg border border-outline-variant/20">
-            {product.imageUrl && !imgError ? (
-              <img
-                src={product.imageUrl}
-                alt={product.imageAlt || product.name}
-                onError={() => setImgError(true)}
-                className="w-20 h-20 rounded-lg object-cover bg-surface-container-high shrink-0 border border-outline-variant/30"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0 border border-outline-variant/30">
-                <span className="material-symbols-outlined text-[32px]">
-                  {product.type === 'service' ? 'design_services' : 'inventory_2'}
-                </span>
-              </div>
-            )}
+            <div className="w-20 h-20 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant shrink-0 border border-outline-variant/30">
+              <span className="material-symbols-outlined text-[32px]">
+                {product.type === 'service' ? 'design_services' : 'inventory_2'}
+              </span>
+            </div>
             <div className="flex flex-col">
               <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold leading-snug">
                 {product.name}

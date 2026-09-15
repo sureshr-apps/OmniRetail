@@ -58,7 +58,6 @@ This README will guide you through the process of using the generated JavaScript
   - [*GetTenantEmployeeTrusted*](#gettenantemployeetrusted)
   - [*GetTenantServicePersonTrusted*](#gettenantservicepersontrusted)
 - [**Mutations**](#mutations)
-  - [*RecordSuccessfulLogin*](#recordsuccessfullogin)
   - [*UpdateAppUserProfile*](#updateappuserprofile)
   - [*BootstrapMasterAdmin*](#bootstrapmasteradmin)
   - [*CreateLicensePlan*](#createlicenseplan)
@@ -222,8 +221,6 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -357,8 +354,6 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -729,8 +724,6 @@ export interface GetCurrentAppUserData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & AppUser_Key)[];
 }
 ```
@@ -1873,9 +1866,6 @@ export interface ListOrganizationAdministratorsData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1997,9 +1987,6 @@ export interface GetOrganizationAdministratorData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -2123,9 +2110,6 @@ export interface GetOrganizationAdministratorTrustedData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -3864,9 +3848,6 @@ export interface ListTenantProductsData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 ```
@@ -4448,8 +4429,6 @@ export interface ListTenantSuppliersData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 ```
@@ -5197,8 +5176,6 @@ export interface GetTenantSupplierTrustedData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 ```
@@ -5598,9 +5575,6 @@ export interface GetTenantProductTrustedData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 ```
@@ -6338,115 +6312,6 @@ The following is true for both the action shortcut function and the `MutationRef
 - Both functions can be called with or without passing in a `DataConnect` instance as an argument. If no `DataConnect` argument is passed in, then the generated SDK will call `getDataConnect(connectorConfig)` behind the scenes for you.
 
 Below are examples of how to use the `master-admin` connector's generated functions to execute each mutation. You can also follow the examples from the [Data Connect documentation](https://firebase.google.com/docs/data-connect/web-sdk#using-mutations).
-
-## RecordSuccessfulLogin
-You can execute the `RecordSuccessfulLogin` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
-```typescript
-recordSuccessfulLogin(vars: RecordSuccessfulLoginVariables): MutationPromise<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-
-interface RecordSuccessfulLoginRef {
-  ...
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: RecordSuccessfulLoginVariables): MutationRef<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-}
-export const recordSuccessfulLoginRef: RecordSuccessfulLoginRef;
-```
-You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
-```typescript
-recordSuccessfulLogin(dc: DataConnect, vars: RecordSuccessfulLoginVariables): MutationPromise<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-
-interface RecordSuccessfulLoginRef {
-  ...
-  (dc: DataConnect, vars: RecordSuccessfulLoginVariables): MutationRef<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-}
-export const recordSuccessfulLoginRef: RecordSuccessfulLoginRef;
-```
-
-If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the recordSuccessfulLoginRef:
-```typescript
-const name = recordSuccessfulLoginRef.operationName;
-console.log(name);
-```
-
-### Variables
-The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-
-```typescript
-export interface RecordSuccessfulLoginVariables {
-  userId: UUIDString;
-}
-```
-### Return Type
-Recall that executing the `RecordSuccessfulLogin` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
-
-The `data` property is an object of type `RecordSuccessfulLoginData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
-```typescript
-export interface RecordSuccessfulLoginData {
-  appUser_update?: AppUser_Key | null;
-}
-```
-### Using `RecordSuccessfulLogin`'s action shortcut function
-
-```typescript
-import { getDataConnect } from 'firebase/data-connect';
-import { connectorConfig, recordSuccessfulLogin, RecordSuccessfulLoginVariables } from '@omniretail/sql-connect';
-
-// The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`:
-const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
-  userId: ...,
-};
-
-// Call the `recordSuccessfulLogin()` function to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await recordSuccessfulLogin(recordSuccessfulLoginVars);
-// Variables can be defined inline as well.
-const { data } = await recordSuccessfulLogin({ userId: ..., });
-
-// You can also pass in a `DataConnect` instance to the action shortcut function.
-const dataConnect = getDataConnect(connectorConfig);
-const { data } = await recordSuccessfulLogin(dataConnect, recordSuccessfulLoginVars);
-
-console.log(data.appUser_update);
-
-// Or, you can use the `Promise` API.
-recordSuccessfulLogin(recordSuccessfulLoginVars).then((response) => {
-  const data = response.data;
-  console.log(data.appUser_update);
-});
-```
-
-### Using `RecordSuccessfulLogin`'s `MutationRef` function
-
-```typescript
-import { getDataConnect, executeMutation } from 'firebase/data-connect';
-import { connectorConfig, recordSuccessfulLoginRef, RecordSuccessfulLoginVariables } from '@omniretail/sql-connect';
-
-// The `RecordSuccessfulLogin` mutation requires an argument of type `RecordSuccessfulLoginVariables`:
-const recordSuccessfulLoginVars: RecordSuccessfulLoginVariables = {
-  userId: ...,
-};
-
-// Call the `recordSuccessfulLoginRef()` function to get a reference to the mutation.
-const ref = recordSuccessfulLoginRef(recordSuccessfulLoginVars);
-// Variables can be defined inline as well.
-const ref = recordSuccessfulLoginRef({ userId: ..., });
-
-// You can also pass in a `DataConnect` instance to the `MutationRef` function.
-const dataConnect = getDataConnect(connectorConfig);
-const ref = recordSuccessfulLoginRef(dataConnect, recordSuccessfulLoginVars);
-
-// Call `executeMutation()` on the reference to execute the mutation.
-// You can use the `await` keyword to wait for the promise to resolve.
-const { data } = await executeMutation(ref);
-
-console.log(data.appUser_update);
-
-// Or, you can use the `Promise` API.
-executeMutation(ref).then((response) => {
-  const data = response.data;
-  console.log(data.appUser_update);
-});
-```
 
 ## UpdateAppUserProfile
 You can execute the `UpdateAppUserProfile` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
@@ -11643,7 +11508,6 @@ export interface CreateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 ```
 ### Return Type
@@ -11684,14 +11548,13 @@ const createTenantProductVars: CreateTenantProductVariables = {
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
-  imageUrl: ..., // optional
 };
 
 // Call the `createTenantProduct()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await createTenantProduct(createTenantProductVars);
 // Variables can be defined inline as well.
-const { data } = await createTenantProduct({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
+const { data } = await createTenantProduct({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11735,13 +11598,12 @@ const createTenantProductVars: CreateTenantProductVariables = {
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
-  imageUrl: ..., // optional
 };
 
 // Call the `createTenantProductRef()` function to get a reference to the mutation.
 const ref = createTenantProductRef(createTenantProductVars);
 // Variables can be defined inline as well.
-const ref = createTenantProductRef({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
+const ref = createTenantProductRef({ id: ..., organizationId: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11815,7 +11677,6 @@ export interface UpdateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 ```
 ### Return Type
@@ -11856,14 +11717,13 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
-  imageUrl: ..., // optional
 };
 
 // Call the `updateTenantProduct()` function to execute the mutation.
 // You can use the `await` keyword to wait for the promise to resolve.
 const { data } = await updateTenantProduct(updateTenantProductVars);
 // Variables can be defined inline as well.
-const { data } = await updateTenantProduct({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
+const { data } = await updateTenantProduct({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., });
 
 // You can also pass in a `DataConnect` instance to the action shortcut function.
 const dataConnect = getDataConnect(connectorConfig);
@@ -11907,13 +11767,12 @@ const updateTenantProductVars: UpdateTenantProductVariables = {
   reorderQuantity: ..., // optional
   primarySupplier: ..., // optional
   description: ..., // optional
-  imageUrl: ..., // optional
 };
 
 // Call the `updateTenantProductRef()` function to get a reference to the mutation.
 const ref = updateTenantProductRef(updateTenantProductVars);
 // Variables can be defined inline as well.
-const ref = updateTenantProductRef({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., imageUrl: ..., });
+const ref = updateTenantProductRef({ organizationId: ..., id: ..., name: ..., brand: ..., categoryId: ..., subcategoryId: ..., type: ..., sku: ..., barcode: ..., hsnCode: ..., unitOfMeasure: ..., sellingPrice: ..., mrp: ..., cost: ..., minSellingPrice: ..., discountAllowed: ..., taxCategory: ..., reorderLevel: ..., reorderQuantity: ..., primarySupplier: ..., description: ..., });
 
 // You can also pass in a `DataConnect` instance to the `MutationRef` function.
 const dataConnect = getDataConnect(connectorConfig);

@@ -10,7 +10,6 @@ import {
   UserX,
   UserCheck,
   RotateCcw,
-  Clock,
   Shield,
   X,
 } from 'lucide-react';
@@ -288,18 +287,6 @@ export function OrganizationAdministratorsTab({
                       {/* Created Date */}
                       <td className="px-4 py-2.5 hidden md:table-cell text-text-secondary font-mono text-[11px]">
                         {admin.createdAt}
-                      </td>
-
-                      {/* Last Login */}
-                      <td className="px-4 py-2.5 hidden lg:table-cell text-text-secondary text-[11px]">
-                        {admin.lastLoginAt ? (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-text-muted" />
-                            <span>{admin.lastLoginAt}</span>
-                          </div>
-                        ) : (
-                          <span className="text-text-muted italic">Never logged in</span>
-                        )}
                       </td>
 
                       {/* Actions */}

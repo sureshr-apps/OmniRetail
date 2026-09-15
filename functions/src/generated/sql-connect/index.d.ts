@@ -547,7 +547,6 @@ export interface CreateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 
 export interface CreateTenantPurchaseData {
@@ -858,8 +857,6 @@ export interface GetCurrentAppUserData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & AppUser_Key)[];
 }
 
@@ -872,8 +869,6 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -967,9 +962,6 @@ export interface GetOrganizationAdministratorData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -985,9 +977,6 @@ export interface GetOrganizationAdministratorTrustedData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1381,9 +1370,6 @@ export interface GetTenantProductTrustedData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 
@@ -1445,8 +1431,6 @@ export interface GetTenantSupplierTrustedData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 
@@ -1464,8 +1448,6 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -1549,9 +1531,6 @@ export interface ListOrganizationAdministratorsData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1966,9 +1945,6 @@ export interface ListTenantProductsData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 
@@ -2184,8 +2160,6 @@ export interface ListTenantSuppliersData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 
@@ -2337,14 +2311,6 @@ export interface ReceiveTenantPurchaseLineVariables {
   batchNumber?: string | null;
   mfgDate?: DateString | null;
   expiryDate?: DateString | null;
-}
-
-export interface RecordSuccessfulLoginData {
-  appUser_update?: AppUser_Key | null;
-}
-
-export interface RecordSuccessfulLoginVariables {
-  userId: UUIDString;
 }
 
 export interface RenewOrganizationLicenseTrustedData {
@@ -2653,7 +2619,6 @@ export interface UpdateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 
 export interface UpdateTenantServicePersonTrustedData {
@@ -2736,11 +2701,6 @@ export function getUserAuthorizationByFirebaseUid(vars: GetUserAuthorizationByFi
 export function resolveUsernameLogin(dc: DataConnect, vars: ResolveUsernameLoginVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ResolveUsernameLoginData>>;
 /** Generated Node Admin SDK operation action function for the 'ResolveUsernameLogin' Query. Allow users to pass in custom DataConnect instances. */
 export function resolveUsernameLogin(vars: ResolveUsernameLoginVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ResolveUsernameLoginData>>;
-
-/** Generated Node Admin SDK operation action function for the 'RecordSuccessfulLogin' Mutation. Allow users to execute without passing in DataConnect. */
-export function recordSuccessfulLogin(dc: DataConnect, vars: RecordSuccessfulLoginVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordSuccessfulLoginData>>;
-/** Generated Node Admin SDK operation action function for the 'RecordSuccessfulLogin' Mutation. Allow users to pass in custom DataConnect instances. */
-export function recordSuccessfulLogin(vars: RecordSuccessfulLoginVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<RecordSuccessfulLoginData>>;
 
 /** Generated Node Admin SDK operation action function for the 'UpdateAppUserProfile' Mutation. Allow users to execute without passing in DataConnect. */
 export function updateAppUserProfile(dc: DataConnect, vars: UpdateAppUserProfileVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<UpdateAppUserProfileData>>;

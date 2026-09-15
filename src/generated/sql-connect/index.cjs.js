@@ -200,20 +200,6 @@ exports.resolveUsernameLogin = function resolveUsernameLogin(dcOrVars, varsOrOpt
 }
 ;
 
-const recordSuccessfulLoginRef = (dcOrVars, vars) => {
-  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
-  dcInstance._useGeneratedSdk();
-  return mutationRef(dcInstance, 'RecordSuccessfulLogin', inputVars);
-}
-recordSuccessfulLoginRef.operationName = 'RecordSuccessfulLogin';
-exports.recordSuccessfulLoginRef = recordSuccessfulLoginRef;
-
-exports.recordSuccessfulLogin = function recordSuccessfulLogin(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(recordSuccessfulLoginRef(dcInstance, inputVars));
-}
-;
-
 const updateAppUserProfileRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

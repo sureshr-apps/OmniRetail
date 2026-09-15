@@ -45,17 +45,15 @@ interface SupplierMutationResponse {
   creditLimit: number;
   status: string;
   notes?: string | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 const SUPPLIER_MUTATION_RESPONSE_KEYS: (keyof SupplierMutationResponse)[] = [
   'id', 'supplierCode', 'name', 'contactPerson', 'phone', 'email', 'taxId', 'city',
-  'category', 'paymentTerms', 'creditLimit', 'status', 'createdAt', 'updatedAt',
+  'category', 'paymentTerms', 'creditLimit', 'status',
 ];
 
 function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): Supplier {
-  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId, address: row.address ?? undefined, city: row.city, state: row.state ?? undefined, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, category: row.category as Supplier['category'], paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, createdAt: row.createdAt, updatedAt: row.updatedAt, outstandingBalance: 0, pendingDeliveriesCount: 0, totalOrdersCount: 0 };
+  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId, address: row.address ?? undefined, city: row.city, state: row.state ?? undefined, postalCode: row.postalCode ?? undefined, country: row.country ?? undefined, category: row.category as Supplier['category'], paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, outstandingBalance: 0, pendingDeliveriesCount: 0, totalOrdersCount: 0 };
 }
 
 /**

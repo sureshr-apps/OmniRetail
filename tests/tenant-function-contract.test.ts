@@ -7,6 +7,8 @@ const connectorSource = readFileSync(new URL('../dataconnect/master-admin/identi
 const schemaMigrationSource = readFileSync(new URL('../scripts/drop-service-person-skills.mjs', import.meta.url), 'utf8');
 const taxonomyMigrationSource = readFileSync(new URL('../scripts/migrate-product-taxonomy.mjs', import.meta.url), 'utf8');
 const lifecycleRemovalSource = readFileSync(new URL('../scripts/drop-lifecycle-idempotency.mjs', import.meta.url), 'utf8');
+const appUserColumnRemovalSource = readFileSync(new URL('../scripts/drop-app-user-legacy-columns.mjs', import.meta.url), 'utf8');
+const tenantColumnRemovalSource = readFileSync(new URL('../scripts/drop-tenant-legacy-columns.mjs', import.meta.url), 'utf8');
 const taxonomyIndexRestoreSource = readFileSync(new URL('../scripts/restore-product-taxonomy-indexes.mjs', import.meta.url), 'utf8');
 const cloudSqlMigrationHelperSource = readFileSync(new URL('../scripts/cloud-sql-migration-helpers.mjs', import.meta.url), 'utf8');
 
@@ -37,7 +39,7 @@ describe('tenant callable contract', () => {
   it('deploys only the targets affected by the pushed commit, defaulting to everything when in doubt', () => {
     expect(deploymentSource).toContain('TARGETS="${{ steps.changes.outputs.targets }}"');
     expect(deploymentSource).toContain('targets=hosting,functions,dataconnect');
-    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
+    expect(deploymentSource).toContain("scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|migrate-product-taxonomy|restore-product-taxonomy-indexes)\\.mjs");
     expect(deploymentSource).toContain("if: contains(steps.changes.outputs.targets, 'dataconnect')");
     expect(deploymentSource).toContain('deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect:omniretail-platform:master-admin --non-interactive --force');
     expect(deploymentSource).toContain('dataconnect:sql:migrate');
@@ -52,6 +54,8 @@ describe('tenant callable contract', () => {
     expect(deploymentSource).toContain('node scripts/drop-service-person-skills.mjs');
     expect(deploymentSource).toContain('node scripts/migrate-product-taxonomy.mjs');
     expect(deploymentSource).toContain('node scripts/drop-lifecycle-idempotency.mjs');
+    expect(deploymentSource).toContain('node scripts/drop-app-user-legacy-columns.mjs');
+    expect(deploymentSource).toContain('node scripts/drop-tenant-legacy-columns.mjs');
     expect(deploymentSource).toContain('node scripts/restore-product-taxonomy-indexes.mjs');
     expect(deploymentSource).toContain('Prepare Product category migration');
     expect(deploymentSource).toContain('Remove retired lifecycle, reconciliation, and audit storage');
@@ -96,6 +100,30 @@ describe('tenant callable contract', () => {
     expect(taxonomyMigrationSource).toContain('category_id');
     expect(taxonomyMigrationSource).toContain('await client.query(\'BEGIN\')');
     expect(taxonomyMigrationSource).toContain('await client.query(\'COMMIT\')');
+  });
+
+  it('removes AppUser legacy columns with an idempotent transactional migration', () => {
+    expect(appUserColumnRemovalSource).toContain("quoteIdentifier('app_user')");
+    for (const column of ['last_login_at', 'created_at', 'updated_at']) {
+      expect(appUserColumnRemovalSource).toContain(`quoteIdentifier('${column}')`);
+    }
+    expect(appUserColumnRemovalSource).toContain('DROP COLUMN IF EXISTS');
+    expect(appUserColumnRemovalSource).toContain("await client.query('BEGIN')");
+    expect(appUserColumnRemovalSource).toContain("await client.query('COMMIT')");
+    expect(appUserColumnRemovalSource).toContain("await client.query('ROLLBACK')");
+  });
+
+  it('removes tenant legacy columns with an idempotent transactional migration', () => {
+    for (const table of ['employee_outlet', 'service_person_outlet', 'product', 'supplier']) {
+      expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${table}')`);
+    }
+    for (const column of ['image_url', 'created_at', 'updated_at']) {
+      expect(tenantColumnRemovalSource).toContain(`quoteIdentifier('${column}')`);
+    }
+    expect(tenantColumnRemovalSource).toContain('DROP COLUMN IF EXISTS');
+    expect(tenantColumnRemovalSource).toContain("await client.query('BEGIN')");
+    expect(tenantColumnRemovalSource).toContain("await client.query('COMMIT')");
+    expect(tenantColumnRemovalSource).toContain("await client.query('ROLLBACK')");
   });
 
   it('exposes the outlet create callable with server-side authorization and idempotency checks', () => {

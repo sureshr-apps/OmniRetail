@@ -46,8 +46,7 @@ class OrganizationAdminService implements IOrganizationAdminService {
         email: membership.user.email,
         phone: membership.user.phone ?? '',
         status: membership.user.status === 'ACTIVE' ? 'active' : 'inactive',
-        createdAt: membership.user.createdAt.slice(0, 10),
-        lastLoginAt: membership.user.lastLoginAt ?? null,
+        createdAt: membership.createdAt.slice(0, 10),
       }));
     } catch {
       throw new Error('Unable to load organization administrators.');
@@ -77,7 +76,6 @@ class OrganizationAdminService implements IOrganizationAdminService {
         phone: created.phone,
         status: created.status,
         createdAt: new Date().toISOString().slice(0, 10),
-        lastLoginAt: null,
       };
     } catch (error: unknown) {
       const code = typeof error === 'object' && error !== null && 'code' in error ? String((error as { code?: unknown }).code) : '';
@@ -114,8 +112,7 @@ class OrganizationAdminService implements IOrganizationAdminService {
         email: membership.user.email,
         phone: membership.user.phone ?? '',
         status: membership.user.status === 'ACTIVE' ? 'active' : 'inactive',
-        createdAt: membership.user.createdAt.slice(0, 10),
-        lastLoginAt: membership.user.lastLoginAt ?? null,
+        createdAt: membership.createdAt.slice(0, 10),
       };
     } catch {
       throw new Error('Unable to update the organization administrator.');

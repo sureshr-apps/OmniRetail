@@ -102,7 +102,7 @@ describe('FirebaseAuthService', () => {
     mocks.auth.currentUser = { ...firebaseUser, emailVerified: false };
     const user = await new FirebaseAuthService().getCurrentUser();
     expect(user?.id).toBe('user-1');
-    expect(mocks.callables.get('bootstrapAuthenticatedUser')).toHaveBeenCalledWith({ recordLogin: false });
+    expect(mocks.callables.get('bootstrapAuthenticatedUser')).toHaveBeenCalledWith({});
   });
 
   it('rejects a bootstrap response belonging to a different Firebase identity', async () => {

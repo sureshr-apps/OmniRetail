@@ -81,8 +81,7 @@ export interface OrganizationAdministrator {
   email: string;
   phone: string;
   status: AdminStatus;
-  createdAt: string; // YYYY-MM-DD
-  lastLoginAt: string | null; // e.g., '2026-09-08 14:22 IST' or null
+  createdAt: string; // Organization membership creation date, YYYY-MM-DD
 }
 
 export interface CreateAdminInput {

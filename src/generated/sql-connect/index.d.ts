@@ -571,7 +571,6 @@ export interface CreateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 
 export interface CreateTenantPurchaseData {
@@ -882,8 +881,6 @@ export interface GetCurrentAppUserData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & AppUser_Key)[];
 }
 
@@ -896,8 +893,6 @@ export interface GetCurrentUserAuthorizationData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -991,9 +986,6 @@ export interface GetOrganizationAdministratorData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1009,9 +1001,6 @@ export interface GetOrganizationAdministratorTrustedData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1405,9 +1394,6 @@ export interface GetTenantProductTrustedData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 
@@ -1469,8 +1455,6 @@ export interface GetTenantSupplierTrustedData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 
@@ -1488,8 +1472,6 @@ export interface GetUserAuthorizationByFirebaseUidData {
     displayName: string;
     phone?: string | null;
     status: AppUserStatus;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
     userRoles_on_user: ({
       role: {
         code: string;
@@ -1573,9 +1555,6 @@ export interface ListOrganizationAdministratorsData {
       displayName: string;
       phone?: string | null;
       status: AppUserStatus;
-      createdAt: TimestampString;
-      updatedAt: TimestampString;
-      lastLoginAt?: TimestampString | null;
     } & AppUser_Key;
   })[];
 }
@@ -1990,9 +1969,6 @@ export interface ListTenantProductsData {
     reorderQuantity?: number | null;
     primarySupplier?: string | null;
     description?: string | null;
-    imageUrl?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Product_Key)[];
 }
 
@@ -2208,8 +2184,6 @@ export interface ListTenantSuppliersData {
     creditLimit: number;
     status: SupplierStatus;
     notes?: string | null;
-    createdAt: TimestampString;
-    updatedAt: TimestampString;
   } & Supplier_Key)[];
 }
 
@@ -2361,14 +2335,6 @@ export interface ReceiveTenantPurchaseLineVariables {
   batchNumber?: string | null;
   mfgDate?: DateString | null;
   expiryDate?: DateString | null;
-}
-
-export interface RecordSuccessfulLoginData {
-  appUser_update?: AppUser_Key | null;
-}
-
-export interface RecordSuccessfulLoginVariables {
-  userId: UUIDString;
 }
 
 export interface RenewOrganizationLicenseTrustedData {
@@ -2677,7 +2643,6 @@ export interface UpdateTenantProductVariables {
   reorderQuantity?: number | null;
   primarySupplier?: string | null;
   description?: string | null;
-  imageUrl?: string | null;
 }
 
 export interface UpdateTenantServicePersonTrustedData {
@@ -2781,18 +2746,6 @@ export const resolveUsernameLoginRef: ResolveUsernameLoginRef;
 
 export function resolveUsernameLogin(vars: ResolveUsernameLoginVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveUsernameLoginData, ResolveUsernameLoginVariables>;
 export function resolveUsernameLogin(dc: DataConnect, vars: ResolveUsernameLoginVariables, options?: ExecuteQueryOptions): QueryPromise<ResolveUsernameLoginData, ResolveUsernameLoginVariables>;
-
-interface RecordSuccessfulLoginRef {
-  /* Allow users to create refs without passing in DataConnect */
-  (vars: RecordSuccessfulLoginVariables): MutationRef<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-  /* Allow users to pass in custom DataConnect instances */
-  (dc: DataConnect, vars: RecordSuccessfulLoginVariables): MutationRef<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-  operationName: string;
-}
-export const recordSuccessfulLoginRef: RecordSuccessfulLoginRef;
-
-export function recordSuccessfulLogin(vars: RecordSuccessfulLoginVariables): MutationPromise<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
-export function recordSuccessfulLogin(dc: DataConnect, vars: RecordSuccessfulLoginVariables): MutationPromise<RecordSuccessfulLoginData, RecordSuccessfulLoginVariables>;
 
 interface UpdateAppUserProfileRef {
   /* Allow users to create refs without passing in DataConnect */

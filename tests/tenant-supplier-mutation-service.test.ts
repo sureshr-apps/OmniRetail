@@ -39,8 +39,6 @@ const supplierRow = (overrides: Record<string, unknown> = {}) => ({
   creditLimit: 50000,
   status: 'ACTIVE',
   notes: null,
-  createdAt: '2024-01-01T00:00:00.000Z',
-  updatedAt: '2024-01-01T00:00:00.000Z',
   ...overrides,
 });
 

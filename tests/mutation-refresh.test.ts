@@ -39,7 +39,7 @@ beforeEach(() => {
   mocks.updateOrganization.mockResolvedValue({ data: {} });
   mocks.getOrganization.mockResolvedValue({ data: { organization: orgRow() } });
   mocks.updateOrganizationAdministrator.mockResolvedValue({ data: {} });
-  const adminMembershipRow = { createdAt: '2026-01-01T00:00:00Z', status: 'ACTIVE', user: { id: 'admin-1', username: 'owner', email: 'owner@example.com', displayName: 'Updated Owner', phone: '+919876543210', status: 'ACTIVE', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', lastLoginAt: null } };
+  const adminMembershipRow = { createdAt: '2026-01-01T00:00:00Z', status: 'ACTIVE', user: { id: 'admin-1', username: 'owner', email: 'owner@example.com', displayName: 'Updated Owner', phone: '+919876543210', status: 'ACTIVE' } };
   mocks.listOrganizationAdministrators.mockResolvedValue({ data: { organizationMemberships: [adminMembershipRow] } });
   mocks.getOrganizationAdministrator.mockResolvedValue({ data: { organizationMemberships: [adminMembershipRow] } });
   mocks.httpsCallable.mockImplementation((_functions: unknown, name: string) => {
@@ -91,6 +91,7 @@ describe('mutation refresh regressions', () => {
     expect(mocks.listOrganizationAdministrators).not.toHaveBeenCalled();
     expect(updated.id).toBe('admin-1');
     expect(updated.name).toBe('Updated Owner');
+    expect(updated.createdAt).toBe('2026-01-01');
   });
 
   it('returns the production administrator created by the callable for immediate list refresh', async () => {
@@ -101,7 +102,7 @@ describe('mutation refresh regressions', () => {
   });
 
   it('returns the enriched administrator from changeAdministratorStatus with no follow-up query', async () => {
-    mocks.changeOrganizationAdministratorStatus.mockResolvedValue({ data: { success: true, id: 'admin-1', organizationId: 'org-1', name: 'Owner', username: 'owner', email: 'owner@example.com', phone: '+919876543210', status: 'inactive', createdAt: '2026-01-01T00:00:00Z', lastLoginAt: null } });
+    mocks.changeOrganizationAdministratorStatus.mockResolvedValue({ data: { success: true, id: 'admin-1', organizationId: 'org-1', name: 'Owner', username: 'owner', email: 'owner@example.com', phone: '+919876543210', status: 'inactive', createdAt: '2026-01-01T00:00:00Z' } });
     const updated = await organizationAdminService.changeAdministratorStatus('org-1', 'admin-1', 'inactive');
     expect(updated).toMatchObject({ id: 'admin-1', organizationId: 'org-1', status: 'inactive' });
     expect(mocks.listOrganizationAdministrators).not.toHaveBeenCalled();

@@ -101,6 +101,14 @@ jobs:
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/drop-product-taxonomy-helper-indexes.mjs
 
+      - name: Remove retired Service Person and Product columns
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: node scripts/drop-service-person-skills.mjs
+
+      - name: Apply Data Connect SQL schema migration
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: npx --no-install firebase-tools dataconnect:sql:migrate --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --force
+
       - name: Deploy Data Connect schema and connectors
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: npx --no-install firebase-tools deploy --project "$FIREBASE_PROJECT_ID" --only dataconnect --non-interactive --force
@@ -112,10 +120,6 @@ jobs:
       - name: Bootstrap RBAC role permissions
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: npx --no-install firebase-tools dataconnect:execute dataconnect/bootstrap_rbac_permissions.gql BootstrapPlatformRbacPermissions --project "$FIREBASE_PROJECT_ID" --service omniretail-platform --location asia-south1 --non-interactive --no-debug-details
-
-      - name: Remove retired Service Person and Product columns
-        if: contains(steps.changes.outputs.targets, 'dataconnect')
-        run: node scripts/drop-service-person-skills.mjs
 
       - name: Build frontend
         env:

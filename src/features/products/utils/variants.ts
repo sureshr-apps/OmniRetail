@@ -3,7 +3,6 @@ import { CreateProductInput } from '../types';
 export const PRODUCT_VARIANT_COMBINATION_LIMIT = 50;
 
 export interface ProductVariantDimension {
-  name: string;
   values: string[];
 }
 
@@ -43,7 +42,7 @@ function variantSuffix(variant: string, index: number, usedSuffixes: Set<string>
 }
 
 export function expandProductVariants(input: CreateProductInput, variants: string[]): CreateProductInput[] {
-  return expandProductVariantDimensions(input, variants.length > 0 ? [{ name: 'Variant', values: variants }] : []);
+  return expandProductVariantDimensions(input, variants.length > 0 ? [{ values: variants }] : []);
 }
 
 export function expandProductVariantDimensions(
@@ -52,15 +51,11 @@ export function expandProductVariantDimensions(
 ): CreateProductInput[] {
   const normalizedDimensions = dimensions
     .map((dimension) => ({
-      name: dimension.name.trim(),
       values: parseProductVariants(dimension.values.join(',')).map((value) => value.trim()),
     }))
-    .filter((dimension) => dimension.name || dimension.values.length > 0);
+    .filter((dimension) => dimension.values.length > 0);
 
   if (normalizedDimensions.length === 0) return [input];
-  if (normalizedDimensions.some((dimension) => !dimension.name || dimension.values.length === 0)) {
-    throw new Error('Each variant dimension must have a name and at least one value.');
-  }
 
   const combinationCount = getProductVariantCombinationCount(normalizedDimensions);
   if (combinationCount > PRODUCT_VARIANT_COMBINATION_LIMIT) {
@@ -75,9 +70,6 @@ export function expandProductVariantDimensions(
 
   return combinations.map((combination, index) => {
     const suffix = variantSuffix(combination.join('-'), index, usedSuffixes);
-    const variantDescription = normalizedDimensions.length === 1
-      ? combination[0]
-      : normalizedDimensions.map((dimension, dimensionIndex) => `${dimension.name}: ${combination[dimensionIndex]}`).join(' / ');
     return {
       ...input,
       name: `${input.name.trim()} - ${combination.join(' - ')}`,
@@ -85,7 +77,7 @@ export function expandProductVariantDimensions(
       // A shared master barcode cannot identify a specific variant. Leave it
       // unset instead of creating a non-standard value such as 890123-1.
       barcode: undefined,
-      variantsConfigured: variantDescription,
+      variantsConfigured: combination.join(' / '),
     };
   });
 }

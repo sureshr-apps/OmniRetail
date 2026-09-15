@@ -11,7 +11,6 @@ import {
 
 interface VariantDimensionDraft {
   id: number;
-  name: string;
   valuesInput: string;
 }
 
@@ -46,7 +45,7 @@ export function AddProductModal({
   const [hsnCode, setHsnCode] = useState('');
   const [unitOfMeasure, setUnitOfMeasure] = useState('Pieces (Pcs)');
   const [variantDimensions, setVariantDimensions] = useState<VariantDimensionDraft[]>([
-    { id: 1, name: '', valuesInput: '' },
+    { id: 1, valuesInput: '' },
   ]);
 
   const [cost, setCost] = useState('');
@@ -66,8 +65,8 @@ export function AddProductModal({
   const availableSubcategories = selectedCategory?.subcategories.map((subcategoryOption) => subcategoryOption.value) ?? [];
   const activeSuppliers = suppliers.filter((supplier) => supplier.status === 'Active');
   const normalizedVariantDimensions = variantDimensions
-    .map((dimension) => ({ name: dimension.name.trim(), values: parseProductVariants(dimension.valuesInput) }))
-    .filter((dimension) => dimension.name || dimension.values.length > 0);
+    .map((dimension) => ({ values: parseProductVariants(dimension.valuesInput) }))
+    .filter((dimension) => dimension.values.length > 0);
   const variantCombinationCount = getProductVariantCombinationCount(normalizedVariantDimensions);
 
   if (!isOpen) return null;
@@ -95,19 +94,6 @@ export function AddProductModal({
       errs.barcode = 'Barcode is already assigned to another item';
     }
 
-    const dimensionNames = new Set<string>();
-    for (const dimension of configuredVariants) {
-      const normalizedName = dimension.name.toLowerCase();
-      if (!dimension.name || dimension.values.length === 0) {
-        errs.variants = 'Each variant dimension must have a name and at least one value.';
-        break;
-      }
-      if (dimensionNames.has(normalizedName)) {
-        errs.variants = 'Variant dimension names must be unique.';
-        break;
-      }
-      dimensionNames.add(normalizedName);
-    }
     if (!errs.variants && variantCombinationCount > PRODUCT_VARIANT_COMBINATION_LIMIT) {
       errs.variants = `You can create up to ${PRODUCT_VARIANT_COMBINATION_LIMIT} products at once. Reduce the number of variant values.`;
     }
@@ -164,20 +150,20 @@ export function AddProductModal({
     };
 
     await onCreated(expandProductVariantDimensions(payload, normalizedVariantDimensions));
-    setVariantDimensions([{ id: Date.now(), name: '', valuesInput: '' }]);
+    setVariantDimensions([{ id: Date.now(), valuesInput: '' }]);
   };
 
   const addVariantDimension = () => {
-    setVariantDimensions((previous) => [...previous, { id: Date.now(), name: '', valuesInput: '' }]);
+    setVariantDimensions((previous) => [...previous, { id: Date.now(), valuesInput: '' }]);
   };
 
-  const updateVariantDimension = (id: number, field: 'name' | 'valuesInput', value: string) => {
-    setVariantDimensions((previous) => previous.map((dimension) => dimension.id === id ? { ...dimension, [field]: value } : dimension));
+  const updateVariantDimension = (id: number, value: string) => {
+    setVariantDimensions((previous) => previous.map((dimension) => dimension.id === id ? { ...dimension, valuesInput: value } : dimension));
   };
 
   const removeVariantDimension = (id: number) => {
     setVariantDimensions((previous) => previous.length === 1
-      ? [{ id: Date.now(), name: '', valuesInput: '' }]
+      ? [{ id: Date.now(), valuesInput: '' }]
       : previous.filter((dimension) => dimension.id !== id));
   };
 
@@ -421,10 +407,10 @@ export function AddProductModal({
                 <div className="flex items-start justify-between gap-space-sm">
                   <div>
                     <label className="font-caption text-caption text-on-surface font-medium block">
-                      Variant Dimensions (optional)
+                      Variant Values (optional)
                     </label>
                     <p className="mt-1 text-[10px] text-on-surface-variant">
-                      Add dimensions such as Color and Size. Every combination becomes a separate product and SKU.
+                      Add one value group per row, such as Red, Blue, Green or S, M, L. Every combination becomes a separate product and SKU.
                     </p>
                   </div>
                   <button
@@ -432,27 +418,19 @@ export function AddProductModal({
                     onClick={addVariantDimension}
                     className="shrink-0 rounded border border-primary/30 px-2 py-1 font-caption text-caption font-semibold text-primary hover:bg-primary/10"
                   >
-                    + Add Dimension
+                    + Add Value Group
                   </button>
                 </div>
 
                 <div className="mt-space-sm space-y-space-xs">
                   {variantDimensions.map((dimension, index) => (
-                    <div key={dimension.id} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)_auto] items-center gap-space-xs">
-                      <input
-                        type="text"
-                        value={dimension.name}
-                        onChange={(event) => updateVariantDimension(dimension.id, 'name', event.target.value)}
-                        placeholder={index === 0 ? 'e.g. Color' : 'e.g. Size'}
-                        aria-label={`Variant dimension ${index + 1} name`}
-                        className="h-9 min-w-0 rounded bg-surface-container-lowest border border-outline-variant/40 px-3 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                      />
+                    <div key={dimension.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-space-xs">
                       <input
                         type="text"
                         value={dimension.valuesInput}
-                        onChange={(event) => updateVariantDimension(dimension.id, 'valuesInput', event.target.value)}
+                        onChange={(event) => updateVariantDimension(dimension.id, event.target.value)}
                         placeholder={index === 0 ? 'e.g. Red, Blue, Green' : 'e.g. S, M, L'}
-                        aria-label={`Variant dimension ${index + 1} values`}
+                        aria-label={`Variant value group ${index + 1}`}
                         className="h-9 min-w-0 rounded bg-surface-container-lowest border border-outline-variant/40 px-3 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
                       />
                       <button

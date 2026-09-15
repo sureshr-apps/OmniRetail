@@ -31,8 +31,8 @@ describe('product variant expansion', () => {
 
   it('creates the Cartesian product for multiple variant dimensions', () => {
     const dimensions = [
-      { name: 'Color', values: ['Red', 'Blue', 'Green'] },
-      { name: 'Size', values: ['S', 'M', 'L'] },
+      { values: ['Red', 'Blue', 'Green'] },
+      { values: ['S', 'M', 'L'] },
     ];
 
     expect(getProductVariantCombinationCount(dimensions)).toBe(9);
@@ -41,15 +41,15 @@ describe('product variant expansion', () => {
       sku: product.sku,
       variantsConfigured: product.variantsConfigured,
     }))).toEqual([
-      { name: 'Lays Onion - Red - S', sku: 'LAYS-ONION-RED-S', variantsConfigured: 'Color: Red / Size: S' },
-      { name: 'Lays Onion - Red - M', sku: 'LAYS-ONION-RED-M', variantsConfigured: 'Color: Red / Size: M' },
-      { name: 'Lays Onion - Red - L', sku: 'LAYS-ONION-RED-L', variantsConfigured: 'Color: Red / Size: L' },
-      { name: 'Lays Onion - Blue - S', sku: 'LAYS-ONION-BLUE-S', variantsConfigured: 'Color: Blue / Size: S' },
-      { name: 'Lays Onion - Blue - M', sku: 'LAYS-ONION-BLUE-M', variantsConfigured: 'Color: Blue / Size: M' },
-      { name: 'Lays Onion - Blue - L', sku: 'LAYS-ONION-BLUE-L', variantsConfigured: 'Color: Blue / Size: L' },
-      { name: 'Lays Onion - Green - S', sku: 'LAYS-ONION-GREEN-S', variantsConfigured: 'Color: Green / Size: S' },
-      { name: 'Lays Onion - Green - M', sku: 'LAYS-ONION-GREEN-M', variantsConfigured: 'Color: Green / Size: M' },
-      { name: 'Lays Onion - Green - L', sku: 'LAYS-ONION-GREEN-L', variantsConfigured: 'Color: Green / Size: L' },
+      { name: 'Lays Onion - Red - S', sku: 'LAYS-ONION-RED-S', variantsConfigured: 'Red / S' },
+      { name: 'Lays Onion - Red - M', sku: 'LAYS-ONION-RED-M', variantsConfigured: 'Red / M' },
+      { name: 'Lays Onion - Red - L', sku: 'LAYS-ONION-RED-L', variantsConfigured: 'Red / L' },
+      { name: 'Lays Onion - Blue - S', sku: 'LAYS-ONION-BLUE-S', variantsConfigured: 'Blue / S' },
+      { name: 'Lays Onion - Blue - M', sku: 'LAYS-ONION-BLUE-M', variantsConfigured: 'Blue / M' },
+      { name: 'Lays Onion - Blue - L', sku: 'LAYS-ONION-BLUE-L', variantsConfigured: 'Blue / L' },
+      { name: 'Lays Onion - Green - S', sku: 'LAYS-ONION-GREEN-S', variantsConfigured: 'Green / S' },
+      { name: 'Lays Onion - Green - M', sku: 'LAYS-ONION-GREEN-M', variantsConfigured: 'Green / M' },
+      { name: 'Lays Onion - Green - L', sku: 'LAYS-ONION-GREEN-L', variantsConfigured: 'Green / L' },
     ]);
   });
 
@@ -62,12 +62,11 @@ describe('product variant expansion', () => {
     expect(expandProductVariants(baseProduct, [])).toEqual([baseProduct]);
   });
 
-  it('rejects incomplete dimensions and combinations over the batch limit', () => {
-    expect(() => expandProductVariantDimensions(baseProduct, [{ name: 'Color', values: [] }]))
-      .toThrow('Each variant dimension must have a name and at least one value.');
+  it('ignores empty value groups and rejects combinations over the batch limit', () => {
+    expect(expandProductVariantDimensions(baseProduct, [{ values: [] }])).toEqual([baseProduct]);
     expect(() => expandProductVariantDimensions(baseProduct, [
-      { name: 'Color', values: Array.from({ length: 10 }, (_, index) => `C${index}`) },
-      { name: 'Size', values: Array.from({ length: 6 }, (_, index) => `S${index}`) },
+      { values: Array.from({ length: 10 }, (_, index) => `C${index}`) },
+      { values: Array.from({ length: 6 }, (_, index) => `S${index}`) },
     ])).toThrow('A maximum of 50 variant combinations');
   });
 });

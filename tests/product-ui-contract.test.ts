@@ -15,11 +15,13 @@ describe('product UI contract', () => {
 
   it('does not prefill HSN and supports multi-dimensional variant creation in the add form', () => {
     expect(addSource).toContain("useState('')");
-    expect(addSource).toContain('Variant Dimensions (optional)');
-    expect(addSource).toContain('+ Add Dimension');
+    expect(addSource).toContain('Variant Values (optional)');
+    expect(addSource).toContain('+ Add Value Group');
     expect(addSource).toContain('Every combination becomes a separate product and SKU.');
     expect(addSource).toContain('variantCombinationCount');
     expect(addSource).toContain('parseProductVariants');
+    expect(addSource).not.toContain('dimension.name');
+    expect(addSource).not.toContain('Variant dimension');
     expect(addSource).not.toContain('Opening Master Stock');
     expect(addSource).not.toContain('Opening Receiving Store');
     expect(addSource.indexOf('4. Supplier Linkage')).toBeLessThan(addSource.indexOf('5. Inventory &amp; Reorder Thresholds'));

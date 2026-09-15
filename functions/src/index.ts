@@ -116,6 +116,9 @@ const callableOptions = {
     'https://omniretail.web.app',
     'https://omniretail-60c71.firebaseapp.com',
     'https://omniretail-60c71.web.app',
+    // Keep the same callable behavior when the frontend is run locally.
+    'http://localhost:3000',
+    'http://localhost:5173',
   ],
   enforceAppCheck,
   consumeAppCheckToken: true,

@@ -16,6 +16,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain("'https://omniretail.web.app'");
     expect(source).toContain("'https://omniretail-60c71.firebaseapp.com'");
     expect(source).toContain("'https://omniretail-60c71.web.app'");
+    expect(source).toContain("'http://localhost:3000'");
+    expect(source).toContain("'http://localhost:5173'");
   });
 
   it('uses function source as the public-invoker authority without serial IAM rebinding', () => {

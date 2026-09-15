@@ -59,6 +59,20 @@ describe('servicePersonService mutations return the canonical entity directly', 
     expect(mocks.listTenantServicePersons).not.toHaveBeenCalled();
   });
 
+  it('passes the single address field through to the service-person callable', async () => {
+    const callable = vi.fn().mockResolvedValue({
+      data: { success: true, organizationId: 'org-1', ...servicePersonRow({ address: '12 MG Road, Bengaluru' }) },
+    });
+    mocks.httpsCallable.mockReturnValue(callable);
+
+    const created = await servicePersonService.createServicePerson({
+      firstName: 'Asha', lastName: 'Rao', phone: '+919876543210', address: '12 MG Road, Bengaluru', assignmentScope: 'Entire Organization',
+    });
+
+    expect(created.address).toBe('12 MG Road, Bengaluru');
+    expect(callable).toHaveBeenCalledWith(expect.objectContaining({ address: '12 MG Road, Bengaluru' }));
+  });
+
   it('accepts omitted nullable specialization and notes from the callable response', async () => {
     const responseRow = servicePersonRow({ id: 'sp-3', servicePersonCode: 103 });
     delete (responseRow as { specialization?: string }).specialization;

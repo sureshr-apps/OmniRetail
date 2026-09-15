@@ -205,6 +205,7 @@ type ServicePerson @table {
   fullName: String!
   email: String
   phone: String!
+  address: String
   specialization: String
   yearsOfExperience: Int
   assignmentScope: String!

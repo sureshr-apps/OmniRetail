@@ -19,7 +19,7 @@ export const TENANT_NAVIGATION: readonly TenantNavItem[] = [
   { label: 'Expenses', href: '/expenses', capability: 'expenses.read' },
   { label: 'Outlet Master', href: '/outlets', capability: 'outlets.read', administrationOnly: true },
   { label: 'Employee Master', href: '/employees', capability: 'employees.read', administrationOnly: true },
-  { label: 'Service Person Master', href: '/service-persons', capability: 'service_persons.read', administrationOnly: true },
+  { label: 'Service Network', href: '/service-persons', capability: 'service_persons.read', administrationOnly: true },
 ];
 
 export function getTenantNavigation(user: User | null): TenantNavItem[] {

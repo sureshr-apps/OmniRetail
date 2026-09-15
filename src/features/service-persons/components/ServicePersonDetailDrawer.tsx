@@ -114,14 +114,13 @@ export function ServicePersonDetailDrawer({
           </div>
 
           {/* Address Information */}
-          {(person.address || person.city) && (
+          {person.address && (
             <div className="p-space-base rounded-xl bg-surface-container-low border border-outline-variant/10">
               <span className="font-micro-label text-micro-label uppercase text-on-surface-variant">
                 Location &amp; Address
               </span>
               <div className="font-body-default text-body-default text-on-surface mt-1">
-                {person.address ? `${person.address}, ` : ''}
-                {person.city || 'Austin'} {person.postalCode ? `· ${person.postalCode}` : ''}
+                {person.address}
               </div>
             </div>
           )}

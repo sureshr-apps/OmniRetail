@@ -160,6 +160,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain('export const updateTenantServicePerson = onCall');
     expect(source).toContain('export const changeTenantServicePersonStatus = onCall');
     expect(source).toContain('createTenantServicePersonTrusted');
+    expect(source).toContain("const address = typeof d.address === 'string' ? d.address.trim() || null : null");
+    expect(source).toContain('address, specialization');
     expect(source).toContain('const notes = typeof d.notes === \'string\' ? d.notes.trim() || null : null');
     expect(source).toContain('notes, auditId: randomUUID()');
     expect(source).toContain('export const assignTenantEmployeeOutlet = onCall');

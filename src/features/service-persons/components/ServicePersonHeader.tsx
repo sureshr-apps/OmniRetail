@@ -16,7 +16,7 @@ export function ServicePersonHeader({ activeCount, onAddClick }: ServicePersonHe
           >
             badge
           </span>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface">Service Person Master</h1>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface">Service Network</h1>
           <span className="font-micro-label text-micro-label px-2 py-0.5 rounded bg-primary-container text-on-primary-container font-semibold">
             {activeCount} Active Personnel
           </span>

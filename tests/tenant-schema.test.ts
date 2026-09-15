@@ -139,6 +139,7 @@ describe('tenant Data Connect foundation schema', () => {
     const servicePerson = schema.match(/type ServicePerson @table \{[\s\S]*?\n\}/)?.[0] ?? '';
     expect(servicePerson).toContain('specialization: String');
     expect(servicePerson).toContain('notes: String');
+    expect(servicePerson).toContain('address: String');
     expect(servicePerson).not.toContain('specialization: String!');
     expect(servicePerson).not.toContain('skills');
     expect(servicePerson).not.toContain('createdAt');
@@ -154,6 +155,8 @@ describe('tenant Data Connect foundation schema', () => {
     }
     expect(servicePersonOperations.find((operation) => operation.includes('CreateTenantServicePersonTrusted'))).toContain('notes: $notes');
     expect(servicePersonOperations.find((operation) => operation.includes('UpdateTenantServicePersonTrusted'))).toContain('notes: $notes');
+    expect(servicePersonOperations.find((operation) => operation.includes('CreateTenantServicePersonTrusted'))).toContain('address: $address');
+    expect(servicePersonOperations.find((operation) => operation.includes('UpdateTenantServicePersonTrusted'))).toContain('address: $address');
   });
 
   it('allows organization admins to read the product catalogue', () => {

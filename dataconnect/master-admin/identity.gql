@@ -600,7 +600,7 @@ query ListTenantEmployees($organizationId: UUID!) @auth(level: USER) {
 query ListTenantServicePersons($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'service_persons.read'))", message: "Service person access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
   servicePeople(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ fullName: ASC }, { id: ASC }]) {
-    id organization { id } servicePersonCode fullName email phone specialization yearsOfExperience assignmentScope status notes
+    id organization { id } servicePersonCode fullName email phone address specialization yearsOfExperience assignmentScope status notes
     servicePersonOutlets_on_servicePerson { outlet { id outletCode name } }
   }
 }
@@ -1034,14 +1034,14 @@ query GetTenantEmployeeTrusted($organizationId: UUID!, $id: UUID!) @auth(level: 
   }
 }
 
-mutation CreateTenantServicePersonTrusted($id: UUID!, $organizationId: UUID!, $fullName: String!, $email: String, $phone: String!, $specialization: String, $yearsOfExperience: Int, $assignmentScope: String!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
-  servicePerson_insert(data: { id: $id organization: { id: $organizationId } fullName: $fullName email: $email phone: $phone specialization: $specialization yearsOfExperience: $yearsOfExperience assignmentScope: $assignmentScope notes: $notes status: ACTIVE })
+mutation CreateTenantServicePersonTrusted($id: UUID!, $organizationId: UUID!, $fullName: String!, $email: String, $phone: String!, $address: String, $specialization: String, $yearsOfExperience: Int, $assignmentScope: String!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+  servicePerson_insert(data: { id: $id organization: { id: $organizationId } fullName: $fullName email: $email phone: $phone address: $address specialization: $specialization yearsOfExperience: $yearsOfExperience assignmentScope: $assignmentScope notes: $notes status: ACTIVE })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.created" targetType: "ServicePerson" requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
-mutation UpdateTenantServicePersonTrusted($organizationId: UUID!, $id: UUID!, $fullName: String!, $email: String, $phone: String!, $specialization: String, $yearsOfExperience: Int, $assignmentScope: String!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
+mutation UpdateTenantServicePersonTrusted($organizationId: UUID!, $id: UUID!, $fullName: String!, $email: String, $phone: String!, $address: String, $specialization: String, $yearsOfExperience: Int, $assignmentScope: String!, $notes: String, $auditId: UUID!, $requestId: String!, $actorFirebaseUid: String!) @auth(level: NO_ACCESS) @transaction {
   query @redact { servicePeople(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Service person is not in this organization.") { organization { id } } }
-  servicePerson_update(id: $id, data: { fullName: $fullName email: $email phone: $phone specialization: $specialization yearsOfExperience: $yearsOfExperience assignmentScope: $assignmentScope notes: $notes })
+  servicePerson_update(id: $id, data: { fullName: $fullName email: $email phone: $phone address: $address specialization: $specialization yearsOfExperience: $yearsOfExperience assignmentScope: $assignmentScope notes: $notes })
   auditEvent_insert(data: { id: $auditId actorFirebaseUid: $actorFirebaseUid action: "service_person.updated" targetType: "ServicePerson" targetId: $id requestId: $requestId metadata: { organizationId: $organizationId } })
 }
 
@@ -1053,7 +1053,7 @@ mutation ChangeTenantServicePersonStatusTrusted($organizationId: UUID!, $id: UUI
 
 query GetTenantServicePersonTrusted($organizationId: UUID!, $id: UUID!) @auth(level: NO_ACCESS) {
   servicePeople(where: { id: { eq: $id }, organization: { id: { eq: $organizationId } } }, limit: 1) {
-    id organization { id } servicePersonCode fullName email phone specialization yearsOfExperience assignmentScope status notes
+    id organization { id } servicePersonCode fullName email phone address specialization yearsOfExperience assignmentScope status notes
     servicePersonOutlets_on_servicePerson { outlet { id outletCode name } }
   }
 }

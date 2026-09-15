@@ -36,8 +36,6 @@ export function ServicePersonModal({
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [postalCode, setPostalCode] = useState('');
 
   const [specialization, setSpecialization] = useState('');
   const [yearsOfExperience, setYearsOfExperience] = useState(4);
@@ -59,8 +57,6 @@ export function ServicePersonModal({
       setPhone(formatIndianPhone(personToEdit.phone));
       setEmail(personToEdit.email);
       setAddress(personToEdit.address || '');
-      setCity(personToEdit.city || '');
-      setPostalCode(personToEdit.postalCode || '');
       setSpecialization(personToEdit.specialization || '');
       setYearsOfExperience(personToEdit.yearsOfExperience ?? 4);
       setNotes(personToEdit.notes || '');
@@ -72,8 +68,6 @@ export function ServicePersonModal({
       setPhone('');
       setEmail('');
       setAddress('');
-      setCity('');
-      setPostalCode('');
       setSpecialization('');
       setYearsOfExperience(4);
       setNotes('');
@@ -118,8 +112,6 @@ export function ServicePersonModal({
         phone: phone.trim(),
         email: email.trim() || undefined,
         address: address.trim() || undefined,
-        city: city.trim() || undefined,
-        postalCode: postalCode.trim() || undefined,
         specialization: specialization.trim() || undefined,
         yearsOfExperience: Number(yearsOfExperience),
         notes: notes.trim() || undefined,
@@ -265,43 +257,17 @@ export function ServicePersonModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-space-base">
-                <div className="md:col-span-2">
-                  <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                    Street Address
-                  </label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="123 Retail Parkway, Suite 400"
-                    className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Enter city"
-                    className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
-                    Postal Code
-                  </label>
-                  <input
-                    type="text"
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="Enter postal code"
-                    className="w-full h-9 px-space-base rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
-                  />
-                </div>
+              <div>
+                <label className="block font-micro-label text-micro-label uppercase text-on-surface-variant mb-1">
+                  Address
+                </label>
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Enter complete address"
+                  rows={2}
+                  className="w-full px-space-base py-2 rounded-xl bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary resize-y"
+                />
               </div>
             </div>
 

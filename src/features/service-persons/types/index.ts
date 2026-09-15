@@ -24,8 +24,6 @@ export interface ServicePerson {
   status: ServicePersonStatus;
   avatarUrl?: string;
   address?: string;
-  city?: string;
-  postalCode?: string;
   yearsOfExperience?: number;
   notes?: string;
 }
@@ -60,8 +58,6 @@ export interface CreateServicePersonInput {
   outletName?: string;
   status?: ServicePersonStatus;
   address?: string;
-  city?: string;
-  postalCode?: string;
   yearsOfExperience?: number;
   notes?: string;
 }
@@ -77,8 +73,6 @@ export interface UpdateServicePersonInput {
   outletName?: string;
   status?: ServicePersonStatus;
   address?: string;
-  city?: string;
-  postalCode?: string;
   yearsOfExperience?: number;
   notes?: string;
 }

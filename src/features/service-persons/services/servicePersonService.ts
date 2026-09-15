@@ -32,6 +32,7 @@ interface ServicePersonMutationResponse {
   fullName: string;
   email: string | null;
   phone: string;
+  address: string | null;
   specialization: string | null;
   yearsOfExperience: number | null;
   assignmentScope: string;
@@ -55,6 +56,7 @@ function mapTenantServicePerson(row: TenantServicePersonRow | ServicePersonMutat
     displayName: row.fullName,
     email: row.email ?? '',
     phone: row.phone,
+    address: row.address ?? undefined,
     specialization: row.specialization ?? '',
     assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlet',
     outletId: row.servicePersonOutlets_on_servicePerson[0]?.outlet.id,
@@ -123,6 +125,7 @@ class ProductionServicePersonService implements IServicePersonService {
       fullName: `${input.firstName.trim()} ${input.lastName.trim()}`.trim(),
       email: input.email,
       phone: input.phone,
+      address: input.address,
       specialization: input.specialization,
       yearsOfExperience: input.yearsOfExperience,
       notes: input.notes,
@@ -142,6 +145,7 @@ class ProductionServicePersonService implements IServicePersonService {
       fullName: `${input.firstName ?? ''} ${input.lastName ?? ''}`.trim(),
       email: input.email,
       phone: input.phone,
+      address: input.address,
       specialization: input.specialization,
       yearsOfExperience: input.yearsOfExperience,
       notes: input.notes,

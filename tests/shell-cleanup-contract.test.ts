@@ -61,6 +61,17 @@ describe('requested shell cleanup', () => {
     expect(drawer).toContain('{person.notes}');
   });
 
+  it('keeps Service Person detail actions ordered with edit as the green right-side action', () => {
+    const drawer = read('features/service-persons/components/ServicePersonDetailDrawer.tsx');
+    const footer = drawer.slice(drawer.indexOf('{/* Panel Footer Actions */'));
+    expect(footer.indexOf('<span>Delete</span>')).toBeLessThan(footer.indexOf('<span>{isInactive ? \'Activate\' : \'Deactivate\'}</span>'));
+    expect(footer.indexOf('<span>{isInactive ? \'Activate\' : \'Deactivate\'}</span>')).toBeLessThan(footer.indexOf('<span>Edit Profile</span>'));
+
+    const editButton = footer.slice(footer.indexOf('onClick={() => onEdit(person)}'), footer.indexOf('onClick={() => onEdit(person)}') + 300);
+    expect(editButton).toContain('bg-primary');
+    expect(editButton).toContain('text-on-primary');
+  });
+
   it('does not present the removed Outlet activity section', () => {
     const drawer = read('features/outlets/components/OutletDetailDrawer.tsx');
     const types = read('features/outlets/types/index.ts');

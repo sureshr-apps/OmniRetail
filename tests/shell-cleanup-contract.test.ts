@@ -102,6 +102,10 @@ describe('requested shell cleanup', () => {
     expect(supplierFooter.indexOf('Edit Supplier')).toBeGreaterThan(supplierFooter.indexOf('onClick={() => onDelete(supplier)}'));
     expect(supplierFooter).toContain('rounded-xl bg-primary');
     expect(supplierFooter).toContain('text-on-primary');
+    expect(supplier).toMatch(/supplier\.status === 'Active' \? 'person_off' : 'power_settings_new'/);
+    expect(supplier).toContain("supplier.status === 'Active' ? 'Deactivate' : 'Activate'");
+    expect(supplierFooter).not.toContain('>Close</button>');
+    expect(supplier.indexOf('New PO')).toBeLessThan(supplier.indexOf('{/* Footer Actions */'));
   });
 
   it('does not present the removed Outlet activity section', () => {

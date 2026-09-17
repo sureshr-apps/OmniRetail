@@ -158,6 +158,17 @@ export function SupplierDetailDrawer({
           </div>
 
           <div className="flex items-center gap-1">
+            {onNewPurchaseOrder && !isEditing && (
+              <button
+                type="button"
+                onClick={() => onNewPurchaseOrder(supplier)}
+                className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
+                title="Create a new purchase order"
+              >
+                <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+                <span>New PO</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}
@@ -541,14 +552,16 @@ export function SupplierDetailDrawer({
                   }
                 }}
                 disabled={isSubmitting}
-                className="h-9 px-space-base rounded-xl border border-outline-variant/50 bg-surface hover:bg-surface-container-high font-body-medium text-caption text-on-surface-variant transition-colors flex items-center justify-center gap-1"
+                className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                  supplier.status === 'Active'
+                    ? 'bg-surface hover:bg-error-container/20 text-error'
+                    : 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
+                }`}
               >
                 <span className="material-symbols-outlined text-[16px]">
-                  {supplier.status === 'Active' ? 'do_not_disturb_on' : 'check_circle'}
+                  {supplier.status === 'Active' ? 'person_off' : 'power_settings_new'}
                 </span>
-                <span>
-                  {supplier.status === 'Active' ? 'Deactivate Supplier' : 'Activate Supplier'}
-                </span>
+                <span>{supplier.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
               </button>
             )}
           </div>
@@ -575,23 +588,6 @@ export function SupplierDetailDrawer({
               </>
             ) : (
               <>
-                {onNewPurchaseOrder && (
-                  <button
-                    type="button"
-                    onClick={() => onNewPurchaseOrder(supplier)}
-                    className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
-                    <span>New PO</span>
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
-                >
-                  Close
-                </button>
                 <button
                   type="button"
                   onClick={() => setIsEditing(true)}

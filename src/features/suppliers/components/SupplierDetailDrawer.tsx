@@ -158,16 +158,6 @@ export function SupplierDetailDrawer({
           </div>
 
           <div className="flex items-center gap-1">
-            {!isEditing && (
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors"
-                title="Edit supplier details"
-              >
-                <span className="material-symbols-outlined text-[20px]">edit</span>
-              </button>
-            )}
             <button
               type="button"
               onClick={onClose}
@@ -509,9 +499,18 @@ export function SupplierDetailDrawer({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-3.5 border-t border-outline-variant/30 bg-surface-container-lowest flex items-center justify-between shrink-0 shadow-md">
+        <div className="p-space-base bg-surface-container-low border-t border-outline-variant/20 flex items-center justify-between gap-space-base shrink-0">
           {/* Status Toggle / Confirmation */}
-          <div>
+          <div className="flex items-center gap-space-base">
+            <button
+              type="button"
+              onClick={() => onDelete(supplier)}
+              className="h-9 px-space-base rounded-xl border border-error/30 bg-surface hover:bg-error-container/20 text-error font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              title="Delete Supplier"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
+            </button>
             {isConfirmingDeactivate ? (
               <div className="flex items-center gap-2">
                 <span className="text-xs text-error font-medium">Deactivate partner?</span>
@@ -519,14 +518,14 @@ export function SupplierDetailDrawer({
                   type="button"
                   onClick={handleStatusToggle}
                   disabled={isSubmitting}
-                  className="px-2.5 py-1 text-xs font-semibold rounded bg-error text-on-error hover:bg-error/90 transition-colors"
+                  className="h-9 px-space-base rounded-xl bg-error text-on-error font-body-medium text-caption hover:bg-error/90 transition-colors"
                 >
                   Yes, Deactivate
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsConfirmingDeactivate(false)}
-                  className="px-2 py-1 text-xs text-on-surface-variant hover:text-on-surface"
+                  className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors"
                 >
                   Cancel
                 </button>
@@ -542,7 +541,7 @@ export function SupplierDetailDrawer({
                   }
                 }}
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                className="h-9 px-space-base rounded-xl border border-outline-variant/50 bg-surface hover:bg-surface-container-high font-body-medium text-caption text-on-surface-variant transition-colors flex items-center justify-center gap-1"
               >
                 <span className="material-symbols-outlined text-[16px]">
                   {supplier.status === 'Active' ? 'do_not_disturb_on' : 'check_circle'}
@@ -554,13 +553,13 @@ export function SupplierDetailDrawer({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-space-base">
             {isEditing ? (
               <>
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-3 py-1.5 text-sm font-medium rounded text-on-surface-variant hover:text-on-surface"
+                  className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
                 >
                   Cancel
                 </button>
@@ -568,8 +567,9 @@ export function SupplierDetailDrawer({
                   type="button"
                   onClick={handleSaveEdit}
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold rounded bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-xs"
+                  className="h-9 px-space-xl rounded-xl bg-primary hover:bg-primary-container text-on-primary border border-primary font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
                 >
+                  <span className="material-symbols-outlined text-[16px]">save</span>
                   Save Changes
                 </button>
               </>
@@ -579,7 +579,7 @@ export function SupplierDetailDrawer({
                   <button
                     type="button"
                     onClick={() => onNewPurchaseOrder(supplier)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded bg-secondary-container text-on-secondary-container hover:bg-secondary-container/80 transition-colors shadow-xs"
+                    className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
                   >
                     <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
                     <span>New PO</span>
@@ -587,19 +587,18 @@ export function SupplierDetailDrawer({
                 )}
                 <button
                   type="button"
-                  onClick={() => onDelete(supplier)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded border border-error/30 text-error hover:bg-error-container/20 transition-colors cursor-pointer"
-                  title="Delete Supplier"
+                  onClick={onClose}
+                  className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                  <span>Delete</span>
+                  Close
                 </button>
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-4 py-1.5 text-sm font-medium rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface transition-colors"
+                  onClick={() => setIsEditing(true)}
+                  className="h-9 px-space-xl rounded-xl bg-primary hover:bg-primary-container text-on-primary border border-primary font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
-                  Close
+                  <span className="material-symbols-outlined text-[16px]">edit</span>
+                  Edit Supplier
                 </button>
               </>
             )}

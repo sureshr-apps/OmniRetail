@@ -72,6 +72,38 @@ describe('requested shell cleanup', () => {
     expect(editButton).toContain('text-on-primary');
   });
 
+  it('uses the Service Person detail action layout across master detail drawers', () => {
+    const drawers = [
+      ['employees/components/EmployeeDetailDrawer.tsx', 'onClick={() => onDelete(employee)}', 'onClick={() => onToggleStatus(employee)}', 'Edit Employee'],
+      ['outlets/components/OutletDetailDrawer.tsx', 'onClick={() => onDelete(outlet)}', 'onClick={() => onToggleStatus(outlet)}', 'Edit Outlet'],
+      ['customers/components/CustomerDetailDrawer.tsx', 'onClick={() => onDelete(customer)}', 'onClick={() => onToggleStatus(customer)}', 'Edit Profile'],
+      ['products/components/ProductDetailDrawer.tsx', 'onClick={() => onDelete(product)}', 'onClick={() => onToggleStatus(product)}', 'Edit Product'],
+    ] as const;
+
+    for (const [path, deleteMarker, statusMarker, editLabel] of drawers) {
+      const source = read(`features/${path}`);
+      const footer = source.slice(source.indexOf('Footer'));
+      const deleteIndex = footer.indexOf(deleteMarker);
+      const statusIndex = footer.indexOf(statusMarker);
+      const editIndex = footer.indexOf(editLabel);
+      expect(deleteIndex, `${path} should render Delete`).toBeGreaterThanOrEqual(0);
+      expect(statusIndex, `${path} should render the status action`).toBeGreaterThan(deleteIndex);
+      expect(editIndex, `${path} should render the edit action`).toBeGreaterThan(statusIndex);
+
+      const editButton = footer.slice(Math.max(0, footer.lastIndexOf('<button', editIndex)), editIndex + editLabel.length);
+      expect(editButton).toContain('bg-primary');
+      expect(editButton).toContain('text-on-primary');
+      expect(editButton).toContain('rounded-xl');
+    }
+
+    const supplier = read('features/suppliers/components/SupplierDetailDrawer.tsx');
+    const supplierFooter = supplier.slice(supplier.indexOf('{/* Footer Actions */'));
+    expect(supplierFooter.indexOf('onClick={() => onDelete(supplier)}')).toBeLessThan(supplierFooter.indexOf('setIsConfirmingDeactivate(true)'));
+    expect(supplierFooter.indexOf('Edit Supplier')).toBeGreaterThan(supplierFooter.indexOf('onClick={() => onDelete(supplier)}'));
+    expect(supplierFooter).toContain('rounded-xl bg-primary');
+    expect(supplierFooter).toContain('text-on-primary');
+  });
+
   it('does not present the removed Outlet activity section', () => {
     const drawer = read('features/outlets/components/OutletDetailDrawer.tsx');
     const types = read('features/outlets/types/index.ts');

@@ -213,44 +213,50 @@ export function CustomerDetailDrawer({
         </div>
 
         {/* Slide-Over Footer Actions */}
-        <div className="px-space-2xl py-space-base bg-surface-container-low border-t border-outline-variant/30 flex items-center justify-between gap-space-base">
-          <button
-            type="button"
-            onClick={onClose}
-            className="h-9 px-space-base bg-surface-container hover:bg-surface-container-high text-on-surface rounded font-body-medium text-body-medium transition-colors"
-          >
-            Close Panel
-          </button>
-          <div className="flex items-center gap-space-sm">
+        <div className="p-space-base bg-surface-container-low border-t border-outline-variant/20 flex items-center justify-between gap-space-base shrink-0">
+          <div className="flex items-center gap-space-base">
+            <button
+              type="button"
+              onClick={() => onDelete(customer)}
+              className="h-9 px-space-base rounded-xl border border-error/30 bg-surface hover:bg-error-container/20 text-error font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              title="Delete Customer"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToggleStatus(customer)}
+              className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                customer.status === 'Active'
+                  ? 'bg-surface hover:bg-error-container/20 text-error'
+                  : 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                {customer.status === 'Active' ? 'lock' : 'lock_open'}
+              </span>
+              <span>{customer.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-space-base">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1"
+            >
+              Close Panel
+            </button>
             <button
               type="button"
               onClick={() => {
                 onClose();
                 onEdit(customer);
               }}
-              className="h-9 px-space-base bg-surface-container-lowest hover:bg-surface-container text-on-surface border border-outline-variant/50 rounded font-body-medium text-body-medium transition-colors"
+              className="h-9 px-space-xl rounded-xl bg-primary hover:bg-primary-container text-on-primary border border-primary font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
             >
+              <span className="material-symbols-outlined text-[16px]">edit</span>
               Edit Profile
-            </button>
-            <button
-              type="button"
-              onClick={() => onToggleStatus(customer)}
-              className={`h-9 px-space-base rounded font-body-medium text-body-medium transition-colors ${
-                customer.status === 'Active'
-                  ? 'bg-error hover:bg-error/90 text-on-error'
-                  : 'bg-primary hover:bg-primary-container text-on-primary'
-              }`}
-            >
-              {customer.status === 'Active' ? 'Deactivate' : 'Activate'}
-            </button>
-            <button
-              type="button"
-              onClick={() => onDelete(customer)}
-              className="h-9 px-space-base rounded border border-error/30 font-body-medium text-body-medium text-error transition-colors hover:bg-error-container/20 flex items-center gap-1 cursor-pointer"
-              title="Delete Customer"
-            >
-              <span className="material-symbols-outlined text-[16px]">delete</span>
-              <span>Delete</span>
             </button>
           </div>
         </div>

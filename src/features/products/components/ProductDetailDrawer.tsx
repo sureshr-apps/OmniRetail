@@ -300,58 +300,60 @@ export function ProductDetailDrawer({
         </div>
 
         {/* Drawer Action Footer */}
-        <div className="p-space-base bg-surface-container-low flex items-center justify-between gap-space-xs border-t border-outline-variant/20 shrink-0">
-          <button
-            type="button"
-            onClick={() => onEdit(product)}
-            className="flex-1 h-9 bg-primary hover:bg-primary-container text-on-primary font-body-medium text-body-medium rounded-lg shadow-sm flex items-center justify-center gap-1 transition-colors cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[16px]">edit</span>
-            <span>Edit Product</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onNavigateToInventory}
-            className="h-9 px-space-base bg-surface-container-lowest hover:bg-surface-container text-on-surface font-body-medium text-body-medium rounded-lg flex items-center gap-1 shadow-sm border border-outline-variant/30 transition-colors cursor-pointer"
-            title="View live quantities in Inventory screen"
-          >
-            <span className="material-symbols-outlined text-[16px]">tune</span>
-            <span>Stock</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onDuplicate(product)}
-            className="h-9 px-space-base bg-surface-container-lowest hover:bg-surface-container text-on-surface font-body-medium text-body-medium rounded-lg flex items-center gap-1 shadow-sm border border-outline-variant/30 transition-colors cursor-pointer"
-            title="Duplicate as new product"
-          >
-            <span className="material-symbols-outlined text-[16px]">content_copy</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onToggleStatus(product)}
-            className={`h-9 px-space-base rounded-lg flex items-center gap-1 transition-colors cursor-pointer ${
-              product.status === 'active'
-                ? 'bg-error-container hover:bg-error-container/80 text-on-error-container'
-                : 'bg-primary/15 hover:bg-primary/25 text-primary'
-            }`}
-            title={product.status === 'active' ? 'Deactivate Product' : 'Activate Product'}
-          >
-            <span className="material-symbols-outlined text-[16px]">
-              power_settings_new
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(product)}
-            className="h-9 px-space-base rounded-lg border border-error/30 bg-surface-container-lowest text-error hover:bg-error-container/20 flex items-center gap-1 transition-colors cursor-pointer"
-            title="Delete Product"
-          >
-            <span className="material-symbols-outlined text-[16px]">delete</span>
-            <span>Delete</span>
-          </button>
+        <div className="p-space-base bg-surface-container-low border-t border-outline-variant/20 flex items-center justify-between gap-space-base shrink-0">
+          <div className="flex items-center gap-space-base">
+            <button
+              type="button"
+              onClick={() => onDelete(product)}
+              className="h-9 px-space-base rounded-xl border border-error/30 bg-surface hover:bg-error-container/20 text-error font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              title="Delete Product"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToggleStatus(product)}
+              className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                product.status === 'active'
+                  ? 'bg-surface hover:bg-error-container/20 text-error'
+                  : 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}
+              title={product.status === 'active' ? 'Deactivate Product' : 'Activate Product'}
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                {product.status === 'active' ? 'power_settings_new' : 'check_circle'}
+              </span>
+              <span>{product.status === 'active' ? 'Deactivate' : 'Activate'}</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-space-xs">
+            <button
+              type="button"
+              onClick={onNavigateToInventory}
+              className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              title="View live quantities in Inventory screen"
+            >
+              <span className="material-symbols-outlined text-[16px]">tune</span>
+              <span>Stock</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onDuplicate(product)}
+              className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              title="Duplicate as new product"
+            >
+              <span className="material-symbols-outlined text-[16px]">content_copy</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onEdit(product)}
+              className="h-9 px-space-xl rounded-xl bg-primary hover:bg-primary-container text-on-primary border border-primary font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">edit</span>
+              <span>Edit Product</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

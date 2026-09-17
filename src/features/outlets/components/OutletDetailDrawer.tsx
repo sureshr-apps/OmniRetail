@@ -112,42 +112,42 @@ export function OutletDetailDrawer({
           </div>
 
           {/* Drawer Footer Actions */}
-          <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center gap-2 shrink-0">
+          <div className="p-space-base bg-surface-container-low border-t border-outline-variant/20 flex items-center justify-between gap-space-base shrink-0">
+            <div className="flex items-center gap-space-base">
+              <button
+                type="button"
+                onClick={() => onDelete(outlet)}
+                className="h-9 px-space-base rounded-xl border border-error/30 bg-surface hover:bg-error-container/20 text-error font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                title="Delete Outlet"
+              >
+                <span className="material-symbols-outlined text-[16px]">delete</span>
+                <span>Delete</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleStatus(outlet)}
+                className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                  outlet.status === 'Active'
+                    ? 'bg-surface hover:bg-error-container/20 text-error'
+                    : 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {outlet.status === 'Active' ? 'power_settings_new' : 'check_circle'}
+                </span>
+                <span>{outlet.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => {
                 onClose();
                 onEdit(outlet);
               }}
-              className="flex-1 inline-flex items-center justify-center space-x-1.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs py-2 rounded shadow-2xs transition-colors cursor-pointer"
+              className="h-9 px-space-xl rounded-xl bg-primary hover:bg-primary-container text-on-primary border border-primary font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">edit</span>
               <span>Edit Outlet</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onToggleStatus(outlet);
-              }}
-              className={`inline-flex items-center space-x-1 border font-semibold text-xs py-2 px-3 rounded shadow-2xs transition-colors cursor-pointer ${
-                outlet.status === 'Active'
-                  ? 'bg-white hover:bg-rose-50 text-rose-700 border-rose-300'
-                  : 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-300'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[16px]">
-                {outlet.status === 'Active' ? 'power_settings_new' : 'check_circle'}
-              </span>
-              <span>{outlet.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => onDelete(outlet)}
-              className="inline-flex items-center justify-center border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 font-semibold text-xs py-2 px-3 rounded shadow-2xs transition-colors cursor-pointer"
-              title="Delete Outlet"
-            >
-              <span className="material-symbols-outlined text-[16px]">delete</span>
-              <span>Delete</span>
             </button>
           </div>
         </div>

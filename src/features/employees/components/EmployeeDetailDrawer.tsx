@@ -199,15 +199,24 @@ export function EmployeeDetailDrawer({
         </div>
 
         {/* Panel Footer Actions */}
-        <div className="px-space-xl py-space-base bg-surface-container-low border-t border-outline-variant/30 flex items-center justify-between gap-space-sm shrink-0">
-          <div className="flex items-center gap-space-sm">
+        <div className="p-space-base bg-surface-container-low border-t border-outline-variant/20 flex items-center justify-between gap-space-base shrink-0">
+          <div className="flex items-center gap-space-base">
+            <button
+              type="button"
+              onClick={() => onDelete(employee)}
+              className="h-9 px-space-base rounded-xl border border-error/30 bg-surface hover:bg-error-container/20 text-error font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              title="Delete Employee"
+            >
+              <span className="material-symbols-outlined text-[16px]">delete</span>
+              <span>Delete</span>
+            </button>
             <button
               type="button"
               onClick={() => onToggleStatus(employee)}
-              className={`h-9 px-3 rounded border font-body-medium text-body-medium flex items-center gap-1 transition-colors cursor-pointer ${
+              className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
                 isInactive
-                  ? 'border-emerald-600/30 text-emerald-700 hover:bg-emerald-50'
-                  : 'border-error/30 text-error hover:bg-error-container/20'
+                  ? 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-surface hover:bg-error-container/20 text-error'
               }`}
             >
               <span className="material-symbols-outlined text-[16px]">
@@ -215,20 +224,11 @@ export function EmployeeDetailDrawer({
               </span>
               <span>{isInactive ? 'Activate' : 'Deactivate'}</span>
             </button>
-            <button
-              type="button"
-              onClick={() => onDelete(employee)}
-              className="h-9 rounded border border-error/30 px-3 font-body-medium text-body-medium text-error transition-colors hover:bg-error-container/20 cursor-pointer flex items-center gap-1"
-              title="Delete Employee"
-            >
-              <span className="material-symbols-outlined text-[16px]">delete</span>
-              <span>Delete</span>
-            </button>
           </div>
           <button
             type="button"
             onClick={() => onEdit(employee)}
-            className="h-9 ml-auto px-space-lg rounded bg-primary hover:bg-primary-container text-on-primary font-body-medium text-body-medium font-semibold shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+            className="h-9 px-space-xl rounded-xl bg-primary hover:bg-primary-container text-on-primary border border-primary font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">edit</span>
             <span>Edit Employee</span>

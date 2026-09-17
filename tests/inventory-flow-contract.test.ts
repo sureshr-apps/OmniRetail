@@ -27,6 +27,9 @@ describe('inventory receiving flow contract', () => {
     expect(addInventoryModal).toContain('currentOutletName');
     expect(addInventoryModal).toContain('No outlet selected');
     expect(addInventoryModal).toContain('outletId: currentOutletId ?? \'\'');
+    expect(addInventoryModal).toContain('placeholder="DD/MM/YYYY"');
+    expect(addInventoryModal).toContain('parseInventoryDate');
+    expect(addInventoryModal).not.toContain('type="date"');
     expect(addInventoryModal).not.toContain('Reorder');
     expect(addInventoryModal).not.toContain('availableLocations');
     expect(inventoryPage).toContain("Please select an outlet before adding inventory.");

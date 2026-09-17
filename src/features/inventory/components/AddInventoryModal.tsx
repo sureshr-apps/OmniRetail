@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import type { Product } from '@/features/products/types';
 import type { AddInventoryInput } from '../types';
+import { parseInventoryDate } from '../utils/date';
 
 interface AddInventoryModalProps {
   currentOutletId: string | null;
@@ -16,6 +17,7 @@ export function AddInventoryModal({ currentOutletId, currentOutletName, products
   const [batchNumber, setBatchNumber] = useState('');
   const [mfgDate, setMfgDate] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
+  const [dateErrors, setDateErrors] = useState<{ mfgDate?: string; expiryDate?: string }>({});
 
   const selectedProduct = useMemo(() => products.find((product) => product.id === productId), [productId, products]);
 
@@ -23,7 +25,30 @@ export function AddInventoryModal({ currentOutletId, currentOutletName, products
     event.preventDefault();
     const parsedQuantity = Number(quantity);
     if (!productId || !Number.isFinite(parsedQuantity) || parsedQuantity <= 0) return;
-    await onSave({ productId, outletId: currentOutletId ?? '', quantity: parsedQuantity, batchNumber: batchNumber.trim() || undefined, mfgDate: mfgDate || undefined, expiryDate: expiryDate || undefined });
+
+    const parsedMfgDate = parseInventoryDate(mfgDate);
+    const parsedExpiryDate = parseInventoryDate(expiryDate);
+    const nextDateErrors: { mfgDate?: string; expiryDate?: string } = {};
+    if (mfgDate.trim() && !parsedMfgDate) {
+      nextDateErrors.mfgDate = 'Use a valid date in DD/MM/YYYY format';
+    }
+    if (expiryDate.trim() && !parsedExpiryDate) {
+      nextDateErrors.expiryDate = 'Use a valid date in DD/MM/YYYY format';
+    }
+    if (parsedMfgDate && parsedExpiryDate && parsedMfgDate > parsedExpiryDate) {
+      nextDateErrors.expiryDate = 'Expiry date must be on or after manufacturing date';
+    }
+    setDateErrors(nextDateErrors);
+    if (Object.keys(nextDateErrors).length > 0) return;
+
+    await onSave({
+      productId,
+      outletId: currentOutletId ?? '',
+      quantity: parsedQuantity,
+      batchNumber: batchNumber.trim() || undefined,
+      mfgDate: parsedMfgDate,
+      expiryDate: parsedExpiryDate,
+    });
   };
 
   return (
@@ -73,11 +98,13 @@ export function AddInventoryModal({ currentOutletId, currentOutletName, products
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-caption text-caption text-on-surface-variant block mb-1">Manufacturing date</label>
-                  <input type="date" value={mfgDate} onChange={(event) => setMfgDate(event.target.value)} className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary" />
+                  <input type="text" inputMode="numeric" maxLength={10} value={mfgDate} onChange={(event) => setMfgDate(event.target.value)} placeholder="DD/MM/YYYY" aria-invalid={Boolean(dateErrors.mfgDate)} className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary" />
+                  {dateErrors.mfgDate && <p className="mt-1 font-micro-label text-error">{dateErrors.mfgDate}</p>}
                 </div>
                 <div>
                   <label className="font-caption text-caption text-on-surface-variant block mb-1">Expiry date</label>
-                  <input type="date" value={expiryDate} onChange={(event) => setExpiryDate(event.target.value)} className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary" />
+                  <input type="text" inputMode="numeric" maxLength={10} value={expiryDate} onChange={(event) => setExpiryDate(event.target.value)} placeholder="DD/MM/YYYY" aria-invalid={Boolean(dateErrors.expiryDate)} className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary" />
+                  {dateErrors.expiryDate && <p className="mt-1 font-micro-label text-error">{dateErrors.expiryDate}</p>}
                 </div>
               </div>
             </div>

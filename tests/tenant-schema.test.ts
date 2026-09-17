@@ -203,6 +203,20 @@ describe('tenant Data Connect foundation schema', () => {
     }
   });
 
+  it('allows operational employees to load outlet context without exposing Outlet Master access', () => {
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    const outletQuery = connector.match(/query ListTenantOutlets[\s\S]*?(?=\nquery ListTenantEmployees)/)?.[0] ?? '';
+
+    expect(outletQuery).toContain("this[0].role.code == 'organization.employee'");
+    expect(outletQuery).toContain("this[0].role.code == 'organization.admin'");
+    expect(outletQuery).toContain("rp.permission.code == 'outlets.read'");
+    expect(outletQuery).toContain('user: { firebaseUid: { eq_expr: "auth.uid" } }');
+    expect(outletQuery).toContain('status: { eq: ACTIVE }');
+
+    const navigation = readFileSync(new URL('../src/app/navigation/tenantNavigation.ts', import.meta.url), 'utf8');
+    expect(navigation).toContain("capability: 'outlets.read', administrationOnly: true");
+  });
+
   it('does not define retired lifecycle, reconciliation, or database audit storage', () => {
     const schemaSource = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');

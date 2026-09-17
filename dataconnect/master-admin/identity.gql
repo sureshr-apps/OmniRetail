@@ -477,7 +477,9 @@ mutation ChangeOrganizationStatus($id: UUID!, $status: OrganizationStatus!) @aut
 # Tenant reads require both an active organization membership and the relevant
 # capability. The organizationId is therefore always checked against auth.uid.
 query ListTenantOutlets($organizationId: UUID!) @auth(level: USER) {
-  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'outlets.read'))", message: "Outlet access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
+  # Employees need read-only outlet context for the global outlet selector even
+  # though they must not receive the Outlet Master administration capability.
+  organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.code == 'organization.employee' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'outlets.read'))", message: "Outlet access is not available.") { organization { id } role { code rolePermissions_on_role { permission { code } } } }
   outlets(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } outletCode name contactPerson email phone address status
   }

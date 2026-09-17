@@ -341,6 +341,8 @@ describe('tenant callable contract', () => {
     expect(source).toContain('changeTenantEmployeeLoginAccessTrusted');
     expect(source).toContain('provisionTenantEmployeeLoginTrusted');
     expect(source).toContain('updateTenantEmployeeLoginTrusted');
+    expect(connectorSource).toContain("this[0].user == null");
+    expect(connectorSource).not.toContain('user: { id: { isNull: true } }');
     expect(source).toContain('export const createTenantEmployeeProfile = onCall');
     expect(source).toContain('async function syncEmployeeOutletAssignment');
     expect(source).toContain('deleteTenantEmployeeOutletTrusted');

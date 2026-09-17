@@ -115,12 +115,6 @@ export function EmployeeDetailDrawer({
                 </span>
               </div>
               <div>
-                <span className="font-caption text-caption text-on-surface-variant block">Email</span>
-                <span className="font-body-default text-body-default text-on-surface font-medium truncate block">
-                  {employee.email}
-                </span>
-              </div>
-              <div>
                 <span className="font-caption text-caption text-on-surface-variant block">Department</span>
                 <span className="font-body-default text-caption text-on-surface font-medium">
                   {employee.department || 'Retail Operations & Sales'}

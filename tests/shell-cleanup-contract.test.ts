@@ -124,6 +124,7 @@ describe('requested shell cleanup', () => {
     expect(modal).toContain('<option value="Admin">Admin</option>');
     expect(modal).not.toContain('Cashier / Standard POS');
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('onToggleLoginAccess');
+    expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('>Email</span>');
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Enable Access');
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Disable Access');
     expect(read('features/employees/components/EmployeeDetailDrawer.tsx')).not.toContain('Terminal Override PIN');

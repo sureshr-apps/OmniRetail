@@ -19,6 +19,7 @@ import { SuppliersTable } from '../components/SuppliersTable';
 import { SuppliersPagination } from '../components/SuppliersPagination';
 import { AddSupplierDrawer as AddSupplierModal } from '../components/AddSupplierDrawer';
 import { SupplierDetailDrawer } from '../components/SupplierDetailDrawer';
+import { SupplierStatusConfirmDialog } from '../components/SupplierStatusConfirmDialog';
 import { SupplierToast, SupplierToastMessage } from '../components/SupplierToast';
 
 export function SuppliersPage() {
@@ -42,6 +43,7 @@ export function SuppliersPage() {
   // from allSuppliers, so it reflects mutations with no extra sync code.
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [statusDialogSupplier, setStatusDialogSupplier] = useState<Supplier | null>(null);
   const [toast, setToast] = useState<SupplierToastMessage | null>(null);
 
   const data = useMemo(
@@ -223,6 +225,16 @@ export function SuppliersPage() {
     }
   };
 
+  const handleInitiateToggleStatus = (supplier: Supplier) => {
+    setSelectedSupplierId(null);
+    setStatusDialogSupplier(supplier);
+  };
+
+  const handleConfirmToggleStatus = async () => {
+    if (!statusDialogSupplier) return;
+    await handleToggleStatus(statusDialogSupplier.id);
+  };
+
   const handleNewPurchaseOrder = (supplier: Supplier) => {
     setSelectedSupplierId(null);
     navigate('/purchases');
@@ -312,10 +324,17 @@ export function SuppliersPage() {
         isOpen={Boolean(viewingSupplier)}
         onClose={() => setSelectedSupplierId(null)}
         onUpdate={handleUpdateSupplier}
-        onToggleStatus={handleToggleStatus}
+        onToggleStatus={handleInitiateToggleStatus}
         onDelete={handlePromptDelete}
         onNewPurchaseOrder={handleNewPurchaseOrder}
         categories={categories}
+      />
+
+      <SupplierStatusConfirmDialog
+        supplier={statusDialogSupplier}
+        isOpen={Boolean(statusDialogSupplier)}
+        onClose={() => setStatusDialogSupplier(null)}
+        onConfirm={handleConfirmToggleStatus}
       />
 
       <MasterDeleteConfirmDialog

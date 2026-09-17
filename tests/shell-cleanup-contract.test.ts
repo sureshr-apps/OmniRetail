@@ -98,7 +98,7 @@ describe('requested shell cleanup', () => {
 
     const supplier = read('features/suppliers/components/SupplierDetailDrawer.tsx');
     const supplierFooter = supplier.slice(supplier.indexOf('{/* Footer Actions */'));
-    expect(supplierFooter.indexOf('onClick={() => onDelete(supplier)}')).toBeLessThan(supplierFooter.indexOf('setIsConfirmingDeactivate(true)'));
+    expect(supplierFooter.indexOf('onClick={() => onDelete(supplier)}')).toBeLessThan(supplierFooter.indexOf('onClick={() => onToggleStatus(supplier)}'));
     expect(supplierFooter.indexOf('Edit Supplier')).toBeGreaterThan(supplierFooter.indexOf('onClick={() => onDelete(supplier)}'));
     expect(supplierFooter).toContain('rounded-xl bg-primary');
     expect(supplierFooter).toContain('text-on-primary');
@@ -106,6 +106,19 @@ describe('requested shell cleanup', () => {
     expect(supplier).toContain("supplier.status === 'Active' ? 'Deactivate' : 'Activate'");
     expect(supplierFooter).not.toContain('>Close</button>');
     expect(supplier.indexOf('New PO')).toBeLessThan(supplier.indexOf('{/* Footer Actions */'));
+  });
+
+  it('uses a modal for Supplier status confirmation instead of an inline prompt', () => {
+    const drawer = read('features/suppliers/components/SupplierDetailDrawer.tsx');
+    const page = read('features/suppliers/pages/SuppliersPage.tsx');
+    const dialog = read('features/suppliers/components/SupplierStatusConfirmDialog.tsx');
+
+    expect(drawer).not.toContain('isConfirmingDeactivate');
+    expect(drawer).not.toContain('Deactivate partner?');
+    expect(page).toContain('SupplierStatusConfirmDialog');
+    expect(page).toContain('statusDialogSupplier');
+    expect(dialog).toContain('isDeactivating');
+    expect(dialog).toContain('onConfirm');
   });
 
   it('does not present the removed Outlet activity section', () => {

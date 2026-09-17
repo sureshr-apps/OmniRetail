@@ -8,7 +8,7 @@ interface SupplierDetailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: (id: string, updates: UpdateSupplierInput) => Promise<void>;
-  onToggleStatus: (id: string) => Promise<void>;
+  onToggleStatus: (supplier: Supplier) => void;
   onDelete: (supplier: Supplier) => void;
   onNewPurchaseOrder?: (supplier: Supplier) => void;
   categories?: string[];
@@ -47,7 +47,6 @@ export function SupplierDetailDrawer({
 }: SupplierDetailDrawerProps) {
   const availableCategories = Array.from(new Set([...CATEGORIES, ...categories]));
   const [isEditing, setIsEditing] = useState(false);
-  const [isConfirmingDeactivate, setIsConfirmingDeactivate] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Edit fields
@@ -75,7 +74,6 @@ export function SupplierDetailDrawer({
       setCreditLimit(supplier.creditLimit.toString());
       setNotes(supplier.notes || '');
       setIsEditing(false);
-      setIsConfirmingDeactivate(false);
     }
   }, [supplier]);
 
@@ -99,18 +97,6 @@ export function SupplierDetailDrawer({
       setIsEditing(false);
     } catch (e) {
       console.error('Failed to update supplier:', e);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleStatusToggle = async () => {
-    setIsSubmitting(true);
-    try {
-      await onToggleStatus(supplier.id);
-      setIsConfirmingDeactivate(false);
-    } catch (e) {
-      console.error('Failed to toggle status:', e);
     } finally {
       setIsSubmitting(false);
     }
@@ -522,48 +508,21 @@ export function SupplierDetailDrawer({
               <span className="material-symbols-outlined text-[16px]">delete</span>
               <span>Delete</span>
             </button>
-            {isConfirmingDeactivate ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-error font-medium">Deactivate partner?</span>
-                <button
-                  type="button"
-                  onClick={handleStatusToggle}
-                  disabled={isSubmitting}
-                  className="h-9 px-space-base rounded-xl bg-error text-on-error font-body-medium text-caption hover:bg-error/90 transition-colors"
-                >
-                  Yes, Deactivate
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsConfirmingDeactivate(false)}
-                  className="h-9 px-space-base rounded-xl bg-surface hover:bg-surface-container-high border border-outline-variant/50 text-on-surface font-body-medium text-caption transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (supplier.status === 'Active') {
-                    setIsConfirmingDeactivate(true);
-                  } else {
-                    handleStatusToggle();
-                  }
-                }}
-                disabled={isSubmitting}
-                className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
-                  supplier.status === 'Active'
-                    ? 'bg-surface hover:bg-error-container/20 text-error'
-                    : 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  {supplier.status === 'Active' ? 'person_off' : 'power_settings_new'}
-                </span>
-                <span>{supplier.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => onToggleStatus(supplier)}
+              disabled={isSubmitting}
+              className={`h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                supplier.status === 'Active'
+                  ? 'bg-surface hover:bg-error-container/20 text-error'
+                  : 'bg-surface hover:bg-emerald-50 text-emerald-800 border-emerald-300'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px]">
+                {supplier.status === 'Active' ? 'person_off' : 'power_settings_new'}
+              </span>
+              <span>{supplier.status === 'Active' ? 'Deactivate' : 'Activate'}</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-space-base">

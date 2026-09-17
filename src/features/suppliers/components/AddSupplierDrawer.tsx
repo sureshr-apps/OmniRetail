@@ -8,18 +8,6 @@ interface AddSupplierDrawerProps {
   categories: string[];
 }
 
-const DEFAULT_CATEGORIES: SupplierCategory[] = [
-  'Consumer Electronics',
-  'Apparel & Textiles',
-  'Beverages & Groceries',
-  'Tools & Hardware',
-  'Office Supplies',
-  'Packaging & Shipping',
-  'Leather & Accessories',
-  'Point of Sale & Tech',
-  'General Merchandise',
-];
-
 const PAYMENT_TERMS_OPTIONS: PaymentTerms[] = [
   'Net 30 Days',
   'Net 15 Days',
@@ -35,13 +23,13 @@ export function AddSupplierDrawer({
   onSubmit,
   categories,
 }: AddSupplierDrawerProps) {
-  const availableCategories = Array.from(new Set([...DEFAULT_CATEGORIES, ...categories]));
+  const availableCategories = Array.from(new Set(categories));
   const [name, setName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [category, setCategory] = useState<SupplierCategory>('Consumer Electronics');
+  const [category, setCategory] = useState<SupplierCategory>('');
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('Net 30 Days');
   const [creditLimit, setCreditLimit] = useState('25000');
   const [address, setAddress] = useState('');
@@ -91,7 +79,7 @@ export function AddSupplierDrawer({
       setPhone('');
       setEmail('');
       setTaxId('');
-      setCategory('Consumer Electronics');
+      setCategory('');
       setPaymentTerms('Net 30 Days');
       setCreditLimit('25000');
       setAddress('');
@@ -167,18 +155,15 @@ export function AddSupplierDrawer({
                 <label className="block text-xs font-medium text-on-surface mb-1">
                   Primary Category <span className="text-error">*</span>
                 </label>
-                <input
-                  type="text"
-                  list="supplier-categories"
+                <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   required
-                  placeholder="e.g. Consumer Electronics"
                   className="w-full px-3 py-2 text-sm rounded bg-surface-container border border-outline-variant/40 text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                />
-                <datalist id="supplier-categories">
-                  {availableCategories.map((cat) => <option key={cat} value={cat} />)}
-                </datalist>
+                >
+                  <option value="">Select a category</option>
+                  {availableCategories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
               </div>
 
               <div>

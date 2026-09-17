@@ -7,6 +7,7 @@ import {
   UpdateSupplierInput,
 } from '../types';
 import { supplierService, deriveSupplierView } from '../services/supplierService';
+import { productService } from '@/features/products/services/productService';
 import { exportSuppliersToCsv } from '../utils/calculations';
 import { formatSupplierCode } from '../utils/formatSupplierCode';
 import { upsertById, removeById } from '@/shared/utils/listState';
@@ -77,11 +78,11 @@ export function SuppliersPage() {
     },
   });
 
-  // Load the reusable supplier category list from the organization catalogue.
+  // Load Primary Category options from the shared organization Category master.
   useEffect(() => {
     async function loadAux() {
       try {
-        setCategories(await supplierService.getCategories());
+        setCategories(await productService.getCategories());
       } catch (e) {
         console.error('Failed to load auxiliary supplier options:', e);
       }
@@ -190,7 +191,6 @@ export function SuppliersPage() {
       description: `${created.name} (${formatSupplierCode(created.supplierCode)}) is now registered.`,
     });
     setAllSuppliers((prev) => upsertById(prev, created));
-    setCategories((prev) => Array.from(new Set([...prev, created.category])));
     // Open created supplier in detail drawer
     setSelectedSupplierId(created.id);
   };
@@ -204,7 +204,6 @@ export function SuppliersPage() {
       description: `Changes to ${updated.name} have been saved.`,
     });
     setAllSuppliers((prev) => upsertById(prev, updated));
-    setCategories((prev) => Array.from(new Set([...prev, updated.category])));
   };
 
   const handlePromptDelete = (supplier: Supplier) => {

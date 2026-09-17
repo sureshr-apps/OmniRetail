@@ -34,9 +34,12 @@ describe('supplier add form presentation contract', () => {
     expect(pageSource).not.toContain('isAddDrawerOpen');
   });
 
-  it('uses one address field, optional GST, and an editable category history', () => {
+  it('uses one address field, optional GST, and the shared Category master', () => {
     expect(formSource).toContain('Address');
-    expect(formSource).toContain('list="supplier-categories"');
+    expect(formSource).toContain('availableCategories.map');
+    expect(formSource).toContain('Select a category');
+    expect(formSource).not.toContain('datalist');
+    expect(formSource).not.toContain('DEFAULT_CATEGORIES');
     expect(formSource).toContain('GST');
     expect(formSource).toContain('(optional)');
     for (const removedField of ['setCity', 'setState', 'setPostalCode', 'setCountry', 'City', 'State / Province', 'Postal Code', 'Country', 'Tax ID / EIN']) {
@@ -53,6 +56,17 @@ describe('supplier add form presentation contract', () => {
     }
     expect(types).toContain('taxId?: string');
     expect(service).toContain('taxId?: string | null');
+  });
+
+  it('loads supplier Primary Category options from the shared product Category master', () => {
+    expect(pageSource).toContain('productService.getCategories()');
+    expect(pageSource).not.toContain('supplierService.getCategories()');
+    const supplierServiceSource = readFileSync(new URL('../src/features/suppliers/services/supplierService.ts', import.meta.url), 'utf8');
+    expect(supplierServiceSource).not.toContain('getCategories()');
+    expect(editFormSource).toContain('availableCategories.map');
+    expect(editFormSource).toContain('Select a category');
+    expect(editFormSource).not.toContain('datalist');
+    expect(editFormSource).not.toContain('DEFAULT_CATEGORIES');
   });
 
   it('opens supplier editing in a centered modal from the read-only detail drawer', () => {

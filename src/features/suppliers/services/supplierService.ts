@@ -21,7 +21,6 @@ export interface ISupplierService {
   updateSupplier(id: string, input: UpdateSupplierInput): Promise<Supplier>;
   toggleSupplierStatus(id: string): Promise<Supplier>;
   deleteSupplier(id: string): Promise<void>;
-  getCategories(): Promise<string[]>;
 }
 
 type TenantSupplierRow = Awaited<ReturnType<typeof listTenantSuppliers>>['data']['suppliers'][number];
@@ -107,8 +106,6 @@ class ProductionSupplierService implements ISupplierService {
     return deriveSupplierView(await this.getAllSuppliers(), query);
   }
   async getSupplierById(id: string): Promise<Supplier | null> { return (await this.getAllSuppliers()).find((s) => s.id === id || String(s.supplierCode) === id || formatSupplierCode(s.supplierCode) === id) ?? null; }
-  async getCategories(): Promise<string[]> { return Array.from(new Set((await this.getAllSuppliers()).map((s) => s.category))).sort(); }
-
   async createSupplier(input: CreateSupplierInput): Promise<Supplier> {
     const organizationId = await this.organizationId();
     const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantSupplierRecord')({

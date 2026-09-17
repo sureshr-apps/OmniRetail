@@ -9,18 +9,6 @@ interface EditSupplierModalProps {
   categories: string[];
 }
 
-const DEFAULT_CATEGORIES: SupplierCategory[] = [
-  'Consumer Electronics',
-  'Apparel & Textiles',
-  'Beverages & Groceries',
-  'Tools & Hardware',
-  'Office Supplies',
-  'Packaging & Shipping',
-  'Leather & Accessories',
-  'Point of Sale & Tech',
-  'General Merchandise',
-];
-
 const PAYMENT_TERMS_OPTIONS: PaymentTerms[] = [
   'Net 30 Days',
   'Net 15 Days',
@@ -37,13 +25,13 @@ export function EditSupplierModal({
   onSubmit,
   categories,
 }: EditSupplierModalProps) {
-  const availableCategories = Array.from(new Set([...DEFAULT_CATEGORIES, ...categories]));
+  const availableCategories = Array.from(new Set(categories));
   const [name, setName] = useState('');
   const [contactPerson, setContactPerson] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [taxId, setTaxId] = useState('');
-  const [category, setCategory] = useState<SupplierCategory>('Consumer Electronics');
+  const [category, setCategory] = useState<SupplierCategory>('');
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('Net 30 Days');
   const [creditLimit, setCreditLimit] = useState('25000');
   const [address, setAddress] = useState('');
@@ -173,16 +161,15 @@ export function EditSupplierModal({
                   <label className="block text-xs font-medium text-on-surface mb-1">
                     Primary Category <span className="text-error">*</span>
                   </label>
-                  <input
-                    type="text"
-                    list="edit-supplier-categories"
+                  <select
                     value={category}
                     onChange={(event) => setCategory(event.target.value)}
+                    required
                     className={inputClass('category')}
-                  />
-                  <datalist id="edit-supplier-categories">
-                    {availableCategories.map((option) => <option key={option} value={option} />)}
-                  </datalist>
+                  >
+                    <option value="">Select a category</option>
+                    {availableCategories.map((option) => <option key={option} value={option}>{option}</option>)}
+                  </select>
                   {errors.category && <p className="text-xs text-error mt-1">{errors.category}</p>}
                 </div>
 

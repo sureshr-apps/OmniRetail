@@ -19,6 +19,7 @@ import { SuppliersTable } from '../components/SuppliersTable';
 import { SuppliersPagination } from '../components/SuppliersPagination';
 import { AddSupplierDrawer as AddSupplierModal } from '../components/AddSupplierDrawer';
 import { SupplierDetailDrawer } from '../components/SupplierDetailDrawer';
+import { EditSupplierModal } from '../components/EditSupplierModal';
 import { SupplierStatusConfirmDialog } from '../components/SupplierStatusConfirmDialog';
 import { SupplierToast, SupplierToastMessage } from '../components/SupplierToast';
 
@@ -43,6 +44,7 @@ export function SuppliersPage() {
   // from allSuppliers, so it reflects mutations with no extra sync code.
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [statusDialogSupplier, setStatusDialogSupplier] = useState<Supplier | null>(null);
   const [toast, setToast] = useState<SupplierToastMessage | null>(null);
 
@@ -133,13 +135,14 @@ export function SuppliersPage() {
       // Escape -> Close modal or detail drawer
       if (e.key === 'Escape') {
         if (isAddModalOpen) setIsAddModalOpen(false);
+        else if (editingSupplier) setEditingSupplier(null);
         else if (selectedSupplierId) setSelectedSupplierId(null);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAddModalOpen, selectedSupplierId]);
+  }, [isAddModalOpen, editingSupplier, selectedSupplierId]);
 
   // Handlers
   const handleResetFilters = () => {
@@ -207,6 +210,11 @@ export function SuppliersPage() {
   const handlePromptDelete = (supplier: Supplier) => {
     setSelectedSupplierId(null);
     deleteConfirmation.open(supplier);
+  };
+
+  const handleEditSupplier = (supplier: Supplier) => {
+    setSelectedSupplierId(null);
+    setEditingSupplier(supplier);
   };
 
   const handleToggleStatus = async (id: string, e?: React.MouseEvent) => {
@@ -323,10 +331,17 @@ export function SuppliersPage() {
         supplier={viewingSupplier}
         isOpen={Boolean(viewingSupplier)}
         onClose={() => setSelectedSupplierId(null)}
-        onUpdate={handleUpdateSupplier}
+        onEdit={handleEditSupplier}
         onToggleStatus={handleInitiateToggleStatus}
         onDelete={handlePromptDelete}
         onNewPurchaseOrder={handleNewPurchaseOrder}
+      />
+
+      <EditSupplierModal
+        isOpen={Boolean(editingSupplier)}
+        supplier={editingSupplier}
+        onClose={() => setEditingSupplier(null)}
+        onSubmit={handleUpdateSupplier}
         categories={categories}
       />
 

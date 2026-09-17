@@ -9,6 +9,14 @@ const pageSource = readFileSync(
   new URL('../src/features/suppliers/pages/SuppliersPage.tsx', import.meta.url),
   'utf8',
 );
+const editFormSource = readFileSync(
+  new URL('../src/features/suppliers/components/EditSupplierModal.tsx', import.meta.url),
+  'utf8',
+);
+const detailSource = readFileSync(
+  new URL('../src/features/suppliers/components/SupplierDetailDrawer.tsx', import.meta.url),
+  'utf8',
+);
 
 describe('supplier add form presentation contract', () => {
   it('uses the centered modal presentation shared by other add forms', () => {
@@ -45,5 +53,25 @@ describe('supplier add form presentation contract', () => {
     }
     expect(types).toContain('taxId?: string');
     expect(service).toContain('taxId?: string | null');
+  });
+
+  it('opens supplier editing in a centered modal from the read-only detail drawer', () => {
+    expect(pageSource).toContain("import { EditSupplierModal }");
+    expect(pageSource).toContain('editingSupplier');
+    expect(pageSource).toContain('<EditSupplierModal');
+    expect(pageSource).toContain('onEdit={handleEditSupplier}');
+    expect(detailSource).toContain('onClick={() => onEdit(supplier)}');
+    expect(detailSource).not.toContain('isEditing');
+    expect(detailSource).not.toContain('handleSaveEdit');
+  });
+
+  it('keeps the edit form presentation and persisted supplier fields aligned with add', () => {
+    expect(editFormSource).toContain('items-center justify-center');
+    expect(editFormSource).toContain('max-w-3xl max-h-[90vh]');
+    expect(editFormSource).toContain('onSubmit(supplier.id');
+    for (const field of ['name', 'contactPerson', 'phone', 'email', 'taxId', 'category', 'paymentTerms', 'creditLimit', 'address', 'notes']) {
+      expect(editFormSource).toContain(`set${field[0].toUpperCase()}${field.slice(1)}`);
+    }
+    expect(editFormSource).toContain('Save Changes');
   });
 });

@@ -23,6 +23,16 @@ const supplier = (overrides: Partial<Supplier> = {}): Supplier => ({
 });
 
 describe('deriveSupplierView', () => {
+  it('shows all suppliers for the default All Categories filter', () => {
+    const view = deriveSupplierView([
+      supplier({ id: 's1', category: 'Consumer Electronics' }),
+      supplier({ id: 's2', category: 'Apparel & Textiles' }),
+    ], { category: 'All Categories', page: 1, pageSize: 10 });
+
+    expect(view.items.map((item) => item.id)).toEqual(['s1', 's2']);
+    expect(view.filteredCount).toBe(2);
+  });
+
   it('honors the active status filter after a mutation deactivates a row', () => {
     const all = [supplier({ id: 's1', status: 'Active' }), supplier({ id: 's2', status: 'Active' })];
     const afterDeactivation = upsertById(all, supplier({ id: all[0].id, status: 'Inactive' }));

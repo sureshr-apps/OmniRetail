@@ -60,7 +60,12 @@ export function deriveSupplierView(all: Supplier[], query: SupplierQuery = {}): 
   const totalCount = all.length;
   let suppliers = [...all];
   const search = query.search?.trim().toLowerCase() ?? '';
-  suppliers = suppliers.filter((s) => (!search || `${formatSupplierCode(s.supplierCode)} ${s.name} ${s.contactPerson} ${s.phone} ${s.email} ${s.taxId ?? ''} ${s.address ?? ''}`.toLowerCase().includes(search)) && (!query.status || query.status === 'ALL' || s.status === query.status) && (!query.category || s.category === query.category));
+  const categoryFilter = query.category?.trim();
+  suppliers = suppliers.filter((s) => (
+    (!search || `${formatSupplierCode(s.supplierCode)} ${s.name} ${s.contactPerson} ${s.phone} ${s.email} ${s.taxId ?? ''} ${s.address ?? ''}`.toLowerCase().includes(search))
+    && (!query.status || query.status === 'ALL' || s.status === query.status)
+    && (!categoryFilter || categoryFilter === 'All Categories' || s.category === categoryFilter)
+  ));
   const page = Math.max(1, query.page ?? 1);
   const pageSize = Math.max(1, query.pageSize ?? 10);
   const totalPages = Math.max(1, Math.ceil(suppliers.length / pageSize));

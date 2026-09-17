@@ -18,7 +18,6 @@ interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated: (newProducts: CreateProductInput[]) => Promise<void>;
-  categories: string[];
   categoryOptions: ProductCategoryOption[];
   brands: string[];
   suppliers: Supplier[];
@@ -28,7 +27,6 @@ export function AddProductModal({
   isOpen,
   onClose,
   onCreated,
-  categories,
   categoryOptions,
   brands,
   suppliers,
@@ -36,7 +34,7 @@ export function AddProductModal({
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('');
   const [type, setType] = useState<ProductType>('stockable');
-  const [categoryName, setCategoryName] = useState('Apparel / Shirts');
+  const [categoryName, setCategoryName] = useState('');
   const [subcategory, setSubcategory] = useState('');
   const [description, setDescription] = useState('');
 
@@ -62,7 +60,7 @@ export function AddProductModal({
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const selectedCategory = categoryOptions.find((category) => category.value.trim().toLowerCase() === categoryName.trim().toLowerCase());
-  const availableSubcategories = selectedCategory?.subcategories.map((subcategoryOption) => subcategoryOption.value) ?? [];
+  const availableSubcategories = selectedCategory?.subcategories ?? [];
   const activeSuppliers = suppliers.filter((supplier) => supplier.status === 'Active');
   const normalizedVariantDimensions = variantDimensions
     .map((dimension) => ({ values: parseProductVariants(dimension.valuesInput) }))
@@ -285,16 +283,20 @@ export function AddProductModal({
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
                   Category *
                 </label>
-                <input
-                  list="product-category-options"
-                  type="text"
+                <select
                   value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary cursor-pointer"
-                />
-                <datalist id="product-category-options">
-                  {categories.map((category) => <option key={category} value={category} />)}
-                </datalist>
+                  onChange={(e) => {
+                    setCategoryName(e.target.value);
+                    setSubcategory('');
+                  }}
+                  required
+                  className={`w-full h-9 px-3 rounded bg-surface-container-low border text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary cursor-pointer ${errors.categoryName ? 'border-error ring-1 ring-error' : 'border-outline-variant/40'}`}
+                >
+                  <option value="">Select a category</option>
+                  {categoryOptions.map((category) => (
+                    <option key={category.id} value={category.value}>{category.value}</option>
+                  ))}
+                </select>
                 {errors.categoryName && <span className="text-error text-[10px]">{errors.categoryName}</span>}
               </div>
 
@@ -302,17 +304,17 @@ export function AddProductModal({
                 <label className="font-caption text-caption text-on-surface font-medium block mb-1">
                   Subcategory
                 </label>
-                <input
-                  list="product-subcategory-options"
-                  type="text"
+                <select
                   value={subcategory}
                   onChange={(e) => setSubcategory(e.target.value)}
-                  placeholder="e.g. Linen Tops / Cuban Collar"
-                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary"
-                />
-                <datalist id="product-subcategory-options">
-                  {availableSubcategories.map((subcategoryOption) => <option key={subcategoryOption} value={subcategoryOption} />)}
-                </datalist>
+                  disabled={!selectedCategory || availableSubcategories.length === 0}
+                  className="w-full h-9 px-3 rounded bg-surface-container-low border border-outline-variant/40 text-body-default text-on-surface outline-none focus:ring-1 focus:ring-primary cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <option value="">No subcategory</option>
+                  {availableSubcategories.map((subcategoryOption) => (
+                    <option key={subcategoryOption.id} value={subcategoryOption.value}>{subcategoryOption.value}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="col-span-1 sm:col-span-2">

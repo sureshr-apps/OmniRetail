@@ -144,8 +144,10 @@ describe('requested shell cleanup', () => {
     for (const rate of ['GST 0%', 'GST 5%', 'GST 12%', 'GST 18%', 'GST 28%']) {
       expect(modal).toContain(rate);
     }
-    expect(modal).toContain('list="product-category-options"');
-    expect(modal).toContain('list="product-subcategory-options"');
+    expect(modal).toContain('categoryOptions.map');
+    expect(modal).toContain('availableSubcategories.map');
+    expect(modal).not.toContain('datalist id="product-category-options"');
+    expect(modal).not.toContain('datalist id="product-subcategory-options"');
     expect(modal).toContain('list="product-brand-options"');
     expect(modal).toContain("type !== 'service' ? Number(reorderLevel)");
     expect(modal).toContain("suppliers.filter((supplier) => supplier.status === 'Active')");

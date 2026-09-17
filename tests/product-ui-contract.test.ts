@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 const tableSource = readFileSync(new URL('../src/features/products/components/ProductsTable.tsx', import.meta.url), 'utf8');
 const addSource = readFileSync(new URL('../src/features/products/components/AddProductModal.tsx', import.meta.url), 'utf8');
+const editSource = readFileSync(new URL('../src/features/products/components/EditProductModal.tsx', import.meta.url), 'utf8');
 const taxonomySource = readFileSync(new URL('../src/features/products/components/ManageProductTaxonomyModal.tsx', import.meta.url), 'utf8');
 
 describe('product UI contract', () => {
@@ -26,6 +27,21 @@ describe('product UI contract', () => {
     expect(addSource).not.toContain('Opening Receiving Store');
     expect(addSource.indexOf('4. Supplier Linkage')).toBeLessThan(addSource.indexOf('5. Inventory &amp; Reorder Thresholds'));
     expect(addSource).not.toContain("useState('6205.20.00')");
+  });
+
+  it('uses organization taxonomy tables as non-editable category and subcategory selects', () => {
+    for (const formSource of [addSource, editSource]) {
+      expect(formSource).toContain('<select');
+      expect(formSource).toContain('categoryOptions.map');
+      expect(formSource).toContain('availableSubcategories.map');
+      expect(formSource).toContain('Select a category');
+      expect(formSource).toContain('No subcategory');
+      expect(formSource).not.toContain('datalist id="product-category-options"');
+      expect(formSource).not.toContain('datalist id="edit-product-category-options"');
+      expect(formSource).not.toContain('datalist id="product-subcategory-options"');
+      expect(formSource).not.toContain('datalist id="edit-product-subcategory-options"');
+      expect(formSource).not.toContain('categories: string[]');
+    }
   });
 
   it('does not generate shared synthetic barcodes for variants', () => {

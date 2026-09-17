@@ -579,7 +579,6 @@ export function ProductsPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
             onCreated={handleCreateProducts}
-        categories={categories}
         categoryOptions={categoryOptions}
         brands={brands}
         suppliers={suppliers}
@@ -591,7 +590,6 @@ export function ProductsPage() {
         isOpen={!!editingProduct}
         onClose={() => setEditingProductId(null)}
         onUpdated={handleUpdateProduct}
-        categories={categories}
         categoryOptions={categoryOptions}
         brands={brands}
         suppliers={suppliers}

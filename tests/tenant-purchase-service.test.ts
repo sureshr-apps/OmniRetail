@@ -121,4 +121,8 @@ describe('tenant purchase service adapter', () => {
     expect(inventoryBatches).toContain('batch_number, on_hand_qty, received_at)');
     expect(inventoryBatches).toContain("\\'UNTRACKED\\'");
   });
+
+  it('initializes inventory movement creation timestamps for raw SQL inserts', () => {
+    expect(inventoryBatches).toContain('actor_firebase_uid, request_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())');
+  });
 });

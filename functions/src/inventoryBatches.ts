@@ -236,7 +236,7 @@ async function insertMovement(
   input: { organizationId: string; outletId: string; productId: string; batchId?: string; mode: 'INCREASE' | 'DECREASE' | 'RECONCILE'; quantity: number; previousQty: number; newQty: number; reasonCode: string; auditNote?: string | null; actorFirebaseUid: string; requestId: string },
 ): Promise<void> {
   await client.query(
-    'INSERT INTO "inventory_movement" (organization_id, outlet_id, product_id, inventory_batch_id, mode, quantity, previous_qty, new_qty, reason_code, audit_note, actor_firebase_uid, request_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
+    'INSERT INTO "inventory_movement" (organization_id, outlet_id, product_id, inventory_batch_id, mode, quantity, previous_qty, new_qty, reason_code, audit_note, actor_firebase_uid, request_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())',
     [input.organizationId, input.outletId, input.productId, input.batchId ?? null, input.mode, input.quantity, input.previousQty, input.newQty, input.reasonCode, input.auditNote ?? null, input.actorFirebaseUid, input.requestId],
   );
 }

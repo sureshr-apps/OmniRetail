@@ -5,6 +5,7 @@ import {
   PaymentStatus,
   CreatePurchaseInput,
   PurchaseReceiptLine,
+  RecordPurchasePaymentInput,
 } from '../types';
 import { purchaseService } from '../services/purchaseService';
 import { SupplierOption, OutletOption } from '../services/purchaseService';
@@ -305,6 +306,29 @@ export function PurchasesPage() {
     }
   };
 
+  const handleRecordPayment = async (purchaseId: string, payment: RecordPurchasePaymentInput) => {
+    try {
+      const updated = await purchaseService.recordPayment(purchaseId, payment);
+      setViewingPurchase(updated);
+      await loadLedger();
+      setToast({
+        id: `toast-${Date.now()}`,
+        type: 'success',
+        title: 'Payment Recorded',
+        description: `₹${payment.amount.toFixed(2)} has been recorded against ${updated.purchaseNumber}.`,
+      });
+    } catch (err) {
+      console.error('Failed to record purchase payment:', err);
+      setToast({
+        id: `toast-${Date.now()}`,
+        type: 'warning',
+        title: 'Payment Failed',
+        description: err instanceof Error ? err.message : 'Unable to record the supplier payment.',
+      });
+      throw err;
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full min-h-0 overflow-y-auto pr-1 select-none">
       <div className="py-space-base space-y-space-base pb-16">
@@ -391,6 +415,7 @@ export function PurchasesPage() {
         onClose={() => setViewingPurchase(null)}
         onCancelPurchase={handleCancelPurchase}
         onReceiveStock={handleReceiveStock}
+        onRecordPayment={handleRecordPayment}
       />
 
       {/* Create Purchase Form Modal */}

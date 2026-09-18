@@ -2,6 +2,7 @@ export type PurchaseStatus = 'active' | 'draft' | 'cancelled';
 export type PaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'UNPAID';
 export type ReceiptStatus = 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED';
 export type PurchaseScope = 'outlet' | 'organization';
+export type PurchasePaymentMethod = 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Cheque' | 'Other';
 
 export interface PurchaseItem {
   id: string;
@@ -40,6 +41,25 @@ export interface PurchaseReceiptLine {
   batches: PurchaseReceiptBatch[];
 }
 
+export interface PurchasePayment {
+  id: string;
+  amount: number;
+  paymentDate: string;
+  paymentMethod: string;
+  reference?: string;
+  notes?: string;
+  recordedBy: string;
+  createdAt: string;
+}
+
+export interface RecordPurchasePaymentInput {
+  amount: number;
+  paymentDate: string;
+  paymentMethod: PurchasePaymentMethod;
+  reference?: string;
+  notes?: string;
+}
+
 export interface Purchase {
   id: string;
   purchaseNumber: string; // e.g. PUR-2024-104
@@ -66,6 +86,7 @@ export interface Purchase {
   amountPaid: number;
   outstandingAmount: number;
   paymentStatus: PaymentStatus;
+  payments?: PurchasePayment[];
   receiptStatus: ReceiptStatus;
   status: PurchaseStatus;
   paymentMethodNote?: string; // e.g. "Tax Incl.", "Fully Settled", "Due in 10 days", "Paid via ACH", "Draft Est.", "Voided"

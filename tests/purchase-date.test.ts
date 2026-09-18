@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPurchaseDateForDisplay, parsePurchaseDate } from '@/features/purchases/utils/date';
+import { formatPurchaseDateForDisplay, getTodayPurchaseDate, parsePurchaseDate } from '@/features/purchases/utils/date';
 
 describe('purchase batch date format', () => {
   it('formats persisted ISO dates as DD/MM/YYYY', () => {
@@ -13,5 +13,11 @@ describe('purchase batch date format', () => {
   it('rejects invalid or non-Indian date formats', () => {
     expect(parsePurchaseDate('31/02/2026')).toBeUndefined();
     expect(parsePurchaseDate('09/15/2026')).toBeUndefined();
+  });
+
+  it('provides the payment form default date in India time', () => {
+    const today = getTodayPurchaseDate();
+    expect(today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(parsePurchaseDate(formatPurchaseDateForDisplay(today))).toBe(today);
   });
 });

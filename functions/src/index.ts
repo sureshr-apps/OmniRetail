@@ -95,6 +95,7 @@ import {
 import { LoginRateLimiter } from './auth/rateLimit.js';
 import { orchestrateProvision } from './auth/provisioning.js';
 import { deriveLicenseStatus } from './licenses/licenseStatus.js';
+import { recordPurchasePayment } from './purchasePayments.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -1455,6 +1456,38 @@ export const receiveTenantPurchaseLineRecord = onCall(callableOptions, async (re
     const result = await withSqlTransaction((client) => receiveInventoryForPurchase(client, { organizationId, purchaseId, lineId, quantityReceived, batchNumber: typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null, mfgDate: typeof d.mfgDate === 'string' ? d.mfgDate.trim() || null : null, expiryDate: typeof d.expiryDate === 'string' ? d.expiryDate.trim() || null : null, requestId, actorFirebaseUid: actor }));
     return { success: true, organizationId, purchaseId, lineId, batchNumber: result.batchNumber, newStockQty: result.newStockQty, receiptStatus: result.receiptStatus };
   } catch (error) { logCallableFailure('receiveTenantPurchaseLineRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to receive the purchase line.'); }
+});
+
+export const recordTenantPurchasePayment = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : '';
+    const amount = Number(d.amount);
+    const paymentDate = typeof d.paymentDate === 'string' ? d.paymentDate : '';
+    const paymentMethod = typeof d.paymentMethod === 'string' ? d.paymentMethod.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !purchaseId || !Number.isFinite(amount) || amount <= 0 || !paymentDate || !paymentMethod || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+    const result = await withSqlTransaction((client) => recordPurchasePayment(client, {
+      organizationId,
+      purchaseId,
+      amount,
+      paymentDate,
+      paymentMethod,
+      reference: typeof d.reference === 'string' ? d.reference.trim() || null : null,
+      notes: typeof d.notes === 'string' ? d.notes.trim() || null : null,
+      recordedBy: actor,
+      requestId,
+    }));
+    return { success: true, organizationId, purchaseId, ...result.settlement, payment: result.payment };
+  } catch (error) {
+    logCallableFailure('recordTenantPurchasePayment', error);
+    throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to record the purchase payment.');
+  }
 });
 
 export const createTenantExpenseRecord = onCall(callableOptions, async (request) => {

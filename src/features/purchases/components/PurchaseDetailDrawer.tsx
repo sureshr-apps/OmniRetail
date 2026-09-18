@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Purchase, PurchaseReceiptBatch, PurchaseReceiptLine } from '../types';
+import { Purchase, PurchasePaymentMethod, PurchaseReceiptBatch, PurchaseReceiptLine, RecordPurchasePaymentInput } from '../types';
 import { calculateOutstandingAmount, formatCurrency } from '../utils/calculations';
 import { validatePurchaseReceiptLines } from '../utils/receiving';
-import { formatPurchaseDateForDisplay, parsePurchaseDate } from '../utils/date';
+import { formatPurchaseDateForDisplay, getTodayPurchaseDate, parsePurchaseDate } from '../utils/date';
 
 type ReceiptBatchRow = PurchaseReceiptBatch & { rowId: string };
 
@@ -15,6 +15,7 @@ interface PurchaseDetailDrawerProps {
   onClose: () => void;
   onCancelPurchase: (id: string) => void;
   onReceiveStock: (purchaseId: string, receipts: PurchaseReceiptLine[]) => void;
+  onRecordPayment: (purchaseId: string, payment: RecordPurchasePaymentInput) => Promise<void>;
 }
 
 export function PurchaseDetailDrawer({
@@ -22,15 +23,36 @@ export function PurchaseDetailDrawer({
   onClose,
   onCancelPurchase,
   onReceiveStock,
+  onRecordPayment,
 }: PurchaseDetailDrawerProps) {
   const [receiptBatches, setReceiptBatches] = useState<Record<string, ReceiptBatchRow[]>>({});
   const [receiveError, setReceiveError] = useState<string | null>(null);
+  const [isPaymentFormOpen, setIsPaymentFormOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentDate, setPaymentDate] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PurchasePaymentMethod>('UPI');
+  const [paymentReference, setPaymentReference] = useState('');
+  const [paymentNotes, setPaymentNotes] = useState('');
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [isPaymentSaving, setIsPaymentSaving] = useState(false);
   const receiptProgressKey = purchase?.items.map((item) => `${item.id}:${item.quantityReceived}`).join('|') ?? '';
 
   useEffect(() => {
     setReceiptBatches({});
     setReceiveError(null);
   }, [purchase?.id, receiptProgressKey]);
+
+  useEffect(() => {
+    const balance = purchase ? calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid) : 0;
+    setIsPaymentFormOpen(false);
+    setPaymentAmount(balance > 0 ? balance.toFixed(2) : '');
+    setPaymentDate(formatPurchaseDateForDisplay(getTodayPurchaseDate()));
+    setPaymentMethod('UPI');
+    setPaymentReference('');
+    setPaymentNotes('');
+    setPaymentError(null);
+    setIsPaymentSaving(false);
+  }, [purchase?.id, purchase?.amountPaid, purchase?.totalAmount]);
 
   if (!purchase) return null;
 
@@ -42,6 +64,44 @@ export function PurchaseDetailDrawer({
   const balanceDue = calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid);
 
   const pendingItems = purchase.items.filter((item) => item.quantityOrdered - item.quantityReceived > 0);
+
+  const handleRecordPayment = async () => {
+    const amount = Number(paymentAmount);
+    const parsedPaymentDate = parsePurchaseDate(paymentDate);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setPaymentError('Enter a payment amount greater than zero.');
+      return;
+    }
+    if (amount > balanceDue + 0.000001) {
+      setPaymentError(`Payment cannot exceed the balance due of ${formatCurrency(balanceDue)}.`);
+      return;
+    }
+    if (!parsedPaymentDate) {
+      setPaymentError('Payment date must use DD/MM/YYYY format.');
+      return;
+    }
+    if (!paymentMethod) {
+      setPaymentError('Select a payment method.');
+      return;
+    }
+
+    setPaymentError(null);
+    setIsPaymentSaving(true);
+    try {
+      await onRecordPayment(purchase.id, {
+        amount,
+        paymentDate: parsedPaymentDate,
+        paymentMethod,
+        reference: paymentReference.trim() || undefined,
+        notes: paymentNotes.trim() || undefined,
+      });
+      setIsPaymentFormOpen(false);
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : 'Unable to record the payment.');
+    } finally {
+      setIsPaymentSaving(false);
+    }
+  };
 
   const getReceiptRows = (item: Purchase['items'][number]): ReceiptBatchRow[] => {
     const pending = item.quantityOrdered - item.quantityReceived;
@@ -328,8 +388,155 @@ export function PurchaseDetailDrawer({
                       {formatCurrency(balanceDue)}
                     </span>
                   </div>
+                  {!isCancelled && balanceDue > 0.000001 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsPaymentFormOpen((open) => !open)}
+                      className="w-full mt-2 px-3 py-2 rounded bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 cursor-pointer"
+                    >
+                      {isPaymentFormOpen ? 'Close Payment Form' : 'Record Payment'}
+                    </button>
+                  )}
                 </div>
               </div>
+
+              {!isCancelled && isPaymentFormOpen && balanceDue > 0.000001 && (
+                <div className="mt-3 p-4 rounded border border-primary/30 bg-primary/5 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface">
+                        Record Supplier Payment
+                      </h4>
+                      <p className="text-[11px] text-on-surface-variant mt-1">
+                        Balance due: <strong>{formatCurrency(balanceDue)}</strong>
+                      </p>
+                    </div>
+                    <span className="material-symbols-outlined text-primary">payments</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                        Amount
+                      </label>
+                      <input
+                        type="number"
+                        min="0.01"
+                        max={balanceDue}
+                        step="0.01"
+                        value={paymentAmount}
+                        onChange={(event) => setPaymentAmount(event.target.value)}
+                        className="w-full text-xs font-body-mono-num py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                        Payment Date
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={10}
+                        value={paymentDate}
+                        onChange={(event) => setPaymentDate(event.target.value)}
+                        placeholder="DD/MM/YYYY"
+                        className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                        Payment Method
+                      </label>
+                      <select
+                        value={paymentMethod}
+                        onChange={(event) => setPaymentMethod(event.target.value as PurchasePaymentMethod)}
+                        className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                      >
+                        {(['Cash', 'UPI', 'Bank Transfer', 'Card', 'Cheque', 'Other'] as PurchasePaymentMethod[]).map((method) => (
+                          <option key={method} value={method}>{method}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                        Reference (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={paymentReference}
+                        onChange={(event) => setPaymentReference(event.target.value)}
+                        placeholder="UTR, cheque number, etc."
+                        className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                      Notes (Optional)
+                    </label>
+                    <textarea
+                      value={paymentNotes}
+                      onChange={(event) => setPaymentNotes(event.target.value)}
+                      rows={2}
+                      placeholder="Add a note about this payment"
+                      className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                    />
+                  </div>
+
+                  {paymentError && (
+                    <div className="rounded border border-error/30 bg-error-container/20 px-3 py-2 text-xs font-medium text-error" role="alert">
+                      {paymentError}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsPaymentFormOpen(false)}
+                      className="px-3 py-1.5 rounded border border-outline-variant text-xs font-medium hover:bg-surface-container cursor-pointer"
+                      disabled={isPaymentSaving}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRecordPayment}
+                      disabled={isPaymentSaving}
+                      className="px-3.5 py-1.5 rounded bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold cursor-pointer disabled:opacity-60"
+                    >
+                      {isPaymentSaving ? 'Saving…' : 'Save Payment'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {purchase.payments && purchase.payments.length > 0 && (
+                <div className="mt-3 rounded border border-outline-variant/30 overflow-hidden">
+                  <div className="px-3 py-2 bg-surface-container-low/50 border-b border-outline-variant/30">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                      Payment History
+                    </h4>
+                  </div>
+                  <div className="divide-y divide-outline-variant/20">
+                    {purchase.payments.map((payment) => (
+                      <div key={payment.id} className="px-3 py-2.5 flex items-start justify-between gap-3 text-xs">
+                        <div>
+                          <div className="font-semibold text-on-surface">{payment.paymentMethod}</div>
+                          <div className="text-[11px] text-on-surface-variant">
+                            {formatPurchaseDateForDisplay(payment.paymentDate)} · Recorded by {payment.recordedBy}
+                          </div>
+                          {payment.reference && <div className="text-[11px] text-on-surface-variant">Ref: {payment.reference}</div>}
+                          {payment.notes && <div className="text-[11px] text-on-surface-variant">{payment.notes}</div>}
+                        </div>
+                        <span className="font-body-mono-num font-bold text-emerald-700 whitespace-nowrap">
+                          {formatCurrency(payment.amount)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 2. Receive Stock Action Workflow Box (Only if pending items exist & not cancelled) */}

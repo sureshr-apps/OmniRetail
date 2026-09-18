@@ -1,4 +1,4 @@
-import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine } from '../types';
+import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine, RecordPurchasePaymentInput } from '../types';
 import { calculateOutstandingAmount, calculatePurchaseTotals } from '../utils/calculations';
 import { getCurrentUserAuthorization, listTenantPurchases, listTenantOutlets, listTenantSuppliers } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
@@ -15,6 +15,7 @@ export interface IPurchaseService {
   createPurchase(input: CreatePurchaseInput): Promise<Purchase>;
   cancelPurchase(id: string): Promise<Purchase>;
   receiveItems(purchaseId: string, receipts: PurchaseReceiptLine[]): Promise<Purchase>;
+  recordPayment(purchaseId: string, input: RecordPurchasePaymentInput): Promise<Purchase>;
   getSuppliers(): Promise<SupplierOption[]>;
   getOutlets(): Promise<OutletOption[]>;
 }
@@ -31,6 +32,7 @@ function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
     totalUnits: row.purchaseLines_on_purchase.reduce((sum, line) => sum + line.quantityOrdered, 0), subtotal: row.subtotal,
     shippingFee: row.shippingFee, handlingFee: row.handlingFee, tax: row.tax, totalAmount: row.totalAmount, amountPaid: row.amountPaid,
     outstandingAmount: calculateOutstandingAmount(row.totalAmount, row.amountPaid), paymentStatus: row.paymentStatus, receiptStatus: row.receiptStatus,
+    payments: row.paymentHistory?.map((payment) => ({ id: payment.id, amount: payment.amount, paymentDate: payment.paymentDate, paymentMethod: payment.paymentMethod, reference: payment.reference ?? undefined, notes: payment.notes ?? undefined, recordedBy: payment.recordedBy, createdAt: payment.createdAt })) ?? [],
     status: row.status.toLowerCase() as Purchase['status'], receivingNotes: row.receivingNotes ?? undefined,
     batchNumber: row.batchNumber ?? undefined, mfgDate: row.mfgDate ?? undefined, expiryDate: row.expiryDate ?? undefined,
     paymentTerms: row.paymentTerms ?? undefined, createdBy: row.createdBy, creatorRole: '', createdAt: row.createdAt, updatedAt: row.updatedAt,
@@ -107,6 +109,28 @@ class ProductionPurchaseService implements IPurchaseService {
       }
     }
     const updated = await this.getPurchase(purchaseId); if (!updated) throw new Error('Purchase was received but could not be loaded.'); return updated;
+  }
+
+  async recordPayment(purchaseId: string, input: RecordPurchasePaymentInput): Promise<Purchase> {
+    const purchase = await this.getPurchase(purchaseId);
+    if (!purchase) throw new Error('Purchase not found.');
+    if (!Number.isFinite(input.amount) || input.amount <= 0 || input.amount > purchase.outstandingAmount + 0.000001) {
+      throw new Error('Payment amount must be greater than zero and cannot exceed the balance due.');
+    }
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'recordTenantPurchasePayment')({
+      organizationId,
+      purchaseId: purchase.id,
+      amount: input.amount,
+      paymentDate: input.paymentDate,
+      paymentMethod: input.paymentMethod,
+      reference: input.reference?.trim() || null,
+      notes: input.notes?.trim() || null,
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const updated = await this.getPurchase(purchaseId);
+    if (!updated) throw new Error('Payment was recorded but purchase could not be loaded.');
+    return updated;
   }
 }
 

@@ -326,6 +326,18 @@ type Purchase @table @unique(fields: ["organization", "purchaseNumber"]) {
   updatedAt: Timestamp! @default(expr: "request.time")
 }
 
+type PurchasePayment @table {
+  purchase: Purchase!
+  amount: Float! @col(dataType: "numeric(19,2)")
+  paymentDate: Date!
+  paymentMethod: String!
+  reference: String
+  notes: String
+  recordedBy: String!
+  requestId: String! @unique
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
 type PurchaseLine @table {
   purchase: Purchase!
   product: Product!

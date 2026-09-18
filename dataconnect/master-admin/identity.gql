@@ -550,6 +550,7 @@ query ListTenantPurchases($organizationId: UUID!) @auth(level: USER) {
   purchases(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ purchaseDate: DESC }, { id: DESC }], limit: 1000) {
     id organization { id } purchaseNumber purchaseOrderNumber invoiceNumber purchaseDate supplier { id supplierCode name taxId } outlet { id outletCode name } scope paymentTerms subtotal shippingFee handlingFee tax totalAmount amountPaid outstandingAmount paymentStatus receiptStatus status receivingNotes batchNumber mfgDate expiryDate createdBy createdAt updatedAt
     purchaseLines_on_purchase { id product { id productCode name sku } quantityOrdered quantityReceived unitCost discountPercent taxRate taxAmount lineTotal }
+    paymentHistory: purchasePayments_on_purchase(orderBy: [{ paymentDate: DESC }, { createdAt: DESC }], limit: 100) { id amount paymentDate paymentMethod reference notes recordedBy createdAt }
   }
 }
 

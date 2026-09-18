@@ -2086,6 +2086,16 @@ export interface ListTenantPurchasesData {
       taxAmount: number;
       lineTotal: number;
     } & PurchaseLine_Key)[];
+    paymentHistory: ({
+      id: UUIDString;
+      amount: number;
+      paymentDate: DateString;
+      paymentMethod: string;
+      reference?: string | null;
+      notes?: string | null;
+      recordedBy: string;
+      createdAt: TimestampString;
+    } & PurchasePayment_Key)[];
   } & Purchase_Key)[];
 }
 
@@ -2370,6 +2380,11 @@ export interface PurchaseLineBatchAllocation_Key {
 export interface PurchaseLine_Key {
   id: UUIDString;
   __typename?: 'PurchaseLine_Key';
+}
+
+export interface PurchasePayment_Key {
+  id: UUIDString;
+  __typename?: 'PurchasePayment_Key';
 }
 
 export interface Purchase_Key {

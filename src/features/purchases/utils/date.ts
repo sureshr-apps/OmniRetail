@@ -23,3 +23,14 @@ export function parsePurchaseDate(value: string): string | undefined {
 
   return `${year}-${month}-${day}`;
 }
+
+export function getTodayPurchaseDate(): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}

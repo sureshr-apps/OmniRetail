@@ -185,6 +185,13 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toContain('enum PurchaseReceiptStatus');
   });
 
+  it('defines a purchase payment ledger for subsequent supplier settlements', () => {
+    expect(schema).toMatch(/type PurchasePayment @table[\s\S]*purchase: Purchase![\s\S]*amount: Float![\s\S]*paymentDate: Date![\s\S]*paymentMethod: String![\s\S]*requestId: String! @unique/);
+    const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(connector).toContain('paymentHistory: purchasePayments_on_purchase');
+    expect(connector).toContain('paymentDate paymentMethod reference notes recordedBy createdAt');
+  });
+
   it('defines an organization-scoped expense ledger', () => {
     expect(schema).toMatch(/type Expense @table @unique\(fields: \["organization", "expenseNumber"\]\)/);
     expect(schema).toContain('enum ExpenseApprovalStatus');

@@ -13,6 +13,10 @@ describe('tenant purchase service adapter', () => {
     expect(source).toContain("'changeTenantPurchaseStatus'");
     expect(source).toContain("'receiveTenantPurchaseLineRecord'");
     expect(source).toContain('new ProductionPurchaseService()');
+    expect(source).toContain("'recordTenantPurchasePayment'");
+    expect(source).toContain('async recordPayment');
+    expect(detailDrawer).toContain('onRecordPayment');
+    expect(detailDrawer).toContain('Record Payment');
   });
 
   it('sends the selected purchase status and payment status to the callable', () => {
@@ -109,6 +113,14 @@ describe('tenant purchase service adapter', () => {
   it('does not offer cancellation after all purchase units are received', () => {
     expect(detailDrawer).toContain('!isCancelled && !isFullyReceived');
     expect(detailDrawer).toContain("'Order Fully Received'");
+  });
+
+  it('persists and displays each later supplier payment', () => {
+    expect(functions).toContain('export const recordTenantPurchasePayment');
+    expect(functions).toContain('recordPurchasePayment(client');
+    expect(source).toContain('paymentHistory');
+    expect(detailDrawer).toContain('Payment History');
+    expect(detailDrawer).toContain('Payment date must use DD/MM/YYYY format.');
   });
 
   it('initializes inventory stock timestamps for raw SQL inserts', () => {

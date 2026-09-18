@@ -329,9 +329,11 @@ export async function persistSaleLineWithInventory(client: PoolClient, input: { 
 
 export async function receiveInventoryForPurchase(client: PoolClient, input: { organizationId: string; purchaseId: string; lineId: string; outletId?: string; productId?: string; quantityReceived: number; batchNumber?: string | null; mfgDate?: string | null; expiryDate?: string | null; requestId: string; actorFirebaseUid: string }): Promise<{ newReceivedQty: number; newStockQty: number; batchNumber: string; batchId: string; receiptStatus: 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED' }> {
   if (!Number.isFinite(input.quantityReceived) || input.quantityReceived <= 0) throw new InventoryStockError('INVALID_BATCH', 'Received quantity must be greater than zero.');
-  const lineResult = await client.query('SELECT pl.quantity_ordered, pl.quantity_received, pl.product_id, p.organization_id, p.outlet_id FROM "purchase_line" pl JOIN "purchase" p ON p.id = pl.purchase_id WHERE pl.id = $1 AND pl.purchase_id = $2 AND p.organization_id = $3 FOR UPDATE', [input.lineId, input.purchaseId, input.organizationId]);
+  const lineResult = await client.query('SELECT pl.quantity_ordered, pl.quantity_received, pl.product_id, p.organization_id, p.outlet_id, p.status FROM "purchase_line" pl JOIN "purchase" p ON p.id = pl.purchase_id WHERE pl.id = $1 AND pl.purchase_id = $2 AND p.organization_id = $3 FOR UPDATE', [input.lineId, input.purchaseId, input.organizationId]);
   if (!lineResult.rowCount) throw new InventoryStockError('INVALID_BATCH', 'Purchase line is not valid for this organization.');
   const line = lineResult.rows[0];
+  const purchaseStatus = String(line.status).toUpperCase();
+  if (purchaseStatus === 'CLOSED' || purchaseStatus === 'CANCELLED') throw new InventoryStockError('INVALID_BATCH', 'This purchase is closed and cannot receive additional stock.');
   const productId = String(line.product_id);
   const outletId = line.outlet_id ? String(line.outlet_id) : '';
   if (!outletId) throw new InventoryStockError('INVALID_BATCH', 'Purchase is not assigned to an outlet for stock inward.');

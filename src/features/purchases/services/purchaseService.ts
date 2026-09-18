@@ -14,6 +14,7 @@ export interface IPurchaseService {
   getPurchase(id: string): Promise<Purchase | null>;
   createPurchase(input: CreatePurchaseInput): Promise<Purchase>;
   cancelPurchase(id: string): Promise<Purchase>;
+  closePurchaseWithPartialReceipt(id: string): Promise<Purchase>;
   receiveItems(purchaseId: string, receipts: PurchaseReceiptLine[]): Promise<Purchase>;
   recordPayment(purchaseId: string, input: RecordPurchasePaymentInput): Promise<Purchase>;
   getSuppliers(): Promise<SupplierOption[]>;
@@ -89,6 +90,20 @@ class ProductionPurchaseService implements IPurchaseService {
     const purchase = await this.getPurchase(id); if (!purchase) throw new Error('Purchase not found.'); const organizationId = await this.organizationId();
     await httpsCallable(getFirebaseClientServices().functions, 'changeTenantPurchaseStatus')({ organizationId, id: purchase.id, status: 'CANCELLED', reason: 'Cancelled by operator', requestId: globalThis.crypto.randomUUID() });
     const updated = await this.getPurchase(id); if (!updated) throw new Error('Purchase was cancelled but could not be loaded.'); return updated;
+  }
+
+  async closePurchaseWithPartialReceipt(id: string): Promise<Purchase> {
+    const purchase = await this.getPurchase(id);
+    if (!purchase) throw new Error('Purchase not found.');
+    const organizationId = await this.organizationId();
+    await httpsCallable(getFirebaseClientServices().functions, 'closeTenantPurchaseWithPartialReceipt')({
+      organizationId,
+      purchaseId: purchase.id,
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const updated = await this.getPurchase(id);
+    if (!updated) throw new Error('Purchase was closed but could not be loaded.');
+    return updated;
   }
 
   async receiveItems(purchaseId: string, receipts: PurchaseReceiptLine[]): Promise<Purchase> {

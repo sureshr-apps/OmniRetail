@@ -14,6 +14,7 @@ interface PurchaseDetailDrawerProps {
   purchase: Purchase | null;
   onClose: () => void;
   onCancelPurchase: (id: string) => void;
+  onClosePartialPurchase: (id: string) => Promise<void>;
   onReceiveStock: (purchaseId: string, receipts: PurchaseReceiptLine[]) => void;
   onRecordPayment: (purchaseId: string, payment: RecordPurchasePaymentInput) => Promise<void>;
 }
@@ -22,6 +23,7 @@ export function PurchaseDetailDrawer({
   purchase,
   onClose,
   onCancelPurchase,
+  onClosePartialPurchase,
   onReceiveStock,
   onRecordPayment,
 }: PurchaseDetailDrawerProps) {
@@ -60,6 +62,7 @@ export function PurchaseDetailDrawer({
   const totalReceived = purchase.items.reduce((acc, it) => acc + it.quantityReceived, 0);
   const totalPending = Math.max(0, totalOrdered - totalReceived);
   const isCancelled = purchase.status === 'cancelled';
+  const isClosed = purchase.status === 'closed';
   const isFullyReceived = totalPending === 0;
   const balanceDue = calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid);
 
@@ -261,6 +264,12 @@ export function PurchaseDetailDrawer({
                     Unpaid
                   </span>
                 )}
+                {isClosed && !isCancelled && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-teal-100 text-teal-800 border border-teal-300">
+                    <span className="size-1.5 rounded-full bg-teal-600"></span>
+                    Closed
+                  </span>
+                )}
               </div>
 
               <p className="text-caption text-on-surface-variant mt-1">
@@ -388,7 +397,7 @@ export function PurchaseDetailDrawer({
                       {formatCurrency(balanceDue)}
                     </span>
                   </div>
-                  {!isCancelled && balanceDue > 0.000001 && (
+                  {!isCancelled && !isClosed && balanceDue > 0.000001 && (
                     <button
                       type="button"
                       onClick={() => setIsPaymentFormOpen((open) => !open)}
@@ -400,7 +409,7 @@ export function PurchaseDetailDrawer({
                 </div>
               </div>
 
-              {!isCancelled && isPaymentFormOpen && balanceDue > 0.000001 && (
+              {!isCancelled && !isClosed && isPaymentFormOpen && balanceDue > 0.000001 && (
                 <div className="mt-3 p-4 rounded border border-primary/30 bg-primary/5 space-y-3">
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -540,7 +549,7 @@ export function PurchaseDetailDrawer({
             </div>
 
             {/* 2. Receive Stock Action Workflow Box (Only if pending items exist & not cancelled) */}
-            {!isCancelled && totalPending > 0 && (
+            {!isCancelled && !isClosed && totalPending > 0 && (
               <div
                 className="p-4 rounded border-2 border-primary/40 bg-primary/5 space-y-3"
                 id="receive-stock-section"
@@ -704,6 +713,22 @@ export function PurchaseDetailDrawer({
                     <span>Print Barcode Labels ({plannedReceiptUnits} Units)</span>
                   </button>
                   <div className="flex items-center gap-2">
+                    {totalReceived > 0 && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!confirm(`Close ${purchase.purchaseNumber} with ${totalReceived} of ${totalOrdered} units received? The remaining units will not be receivable and the purchase totals will be adjusted.`)) return;
+                          try {
+                            await onClosePartialPurchase(purchase.id);
+                          } catch (error) {
+                            setReceiveError(error instanceof Error ? error.message : 'Unable to close the purchase.');
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded border border-amber-500 text-amber-800 bg-amber-50 text-xs font-bold hover:bg-amber-100 cursor-pointer"
+                      >
+                        Close with Partial Receipt
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={onClose}
@@ -767,7 +792,7 @@ export function PurchaseDetailDrawer({
 
           {/* Drawer Footer Actions */}
           <div className="p-4 border-t border-outline-variant/30 bg-surface-container-low flex items-center justify-between">
-            {!isCancelled && !isFullyReceived ? (
+            {!isCancelled && !isClosed && !isFullyReceived ? (
               <button
                 type="button"
                 onClick={() => {
@@ -782,7 +807,7 @@ export function PurchaseDetailDrawer({
               </button>
             ) : (
               <span className="text-xs text-on-surface-variant font-medium">
-                {isCancelled ? 'Order Cancelled / Voided' : 'Order Fully Received'}
+                {isCancelled ? 'Order Cancelled / Voided' : isClosed ? 'Purchase Closed' : 'Order Fully Received'}
               </span>
             )}
 

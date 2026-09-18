@@ -96,6 +96,7 @@ import { LoginRateLimiter } from './auth/rateLimit.js';
 import { orchestrateProvision } from './auth/provisioning.js';
 import { deriveLicenseStatus } from './licenses/licenseStatus.js';
 import { recordPurchasePayment } from './purchasePayments.js';
+import { closePurchaseWithPartialReceipt } from './purchaseClosure.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -1445,6 +1446,25 @@ export const createTenantPurchaseRecord = onCall(callableOptions, async (request
 
 export const changeTenantPurchaseStatus = onCall(callableOptions, async (request) => {
   try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'purchases.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'DRAFT' || d.status === 'CANCELLED' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'purchases.read'); await changeTenantPurchaseStatusSql({ organizationId, id, status, reason: typeof d.reason === 'string' ? d.reason.trim() || null : null }); return { success: true, organizationId, id, status }; } catch (error) { logCallableFailure('changeTenantPurchaseStatus', error); throw new HttpsError('permission-denied', 'Unable to change purchase status.'); }
+});
+
+export const closeTenantPurchaseWithPartialReceipt = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !purchaseId || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+    const result = await withSqlTransaction((client) => closePurchaseWithPartialReceipt(client, { organizationId, purchaseId }));
+    return { success: true, organizationId, purchaseId, ...result };
+  } catch (error) {
+    logCallableFailure('closeTenantPurchaseWithPartialReceipt', error);
+    throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to close the purchase with partial receipt.');
+  }
 });
 
 export const receiveTenantPurchaseLineRecord = onCall(callableOptions, async (request) => {

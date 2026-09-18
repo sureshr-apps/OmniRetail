@@ -6,6 +6,7 @@ const modal = readFileSync(new URL('../src/features/purchases/components/CreateP
 const detailDrawer = readFileSync(new URL('../src/features/purchases/components/PurchaseDetailDrawer.tsx', import.meta.url), 'utf8');
 const functions = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
 const inventoryBatches = readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8');
+const closure = readFileSync(new URL('../functions/src/purchaseClosure.ts', import.meta.url), 'utf8');
 
 describe('tenant purchase service adapter', () => {
   it('uses tenant reads and production lifecycle actions', () => {
@@ -15,8 +16,11 @@ describe('tenant purchase service adapter', () => {
     expect(source).toContain('new ProductionPurchaseService()');
     expect(source).toContain("'recordTenantPurchasePayment'");
     expect(source).toContain('async recordPayment');
+    expect(source).toContain("'closeTenantPurchaseWithPartialReceipt'");
+    expect(source).toContain('closePurchaseWithPartialReceipt');
     expect(detailDrawer).toContain('onRecordPayment');
     expect(detailDrawer).toContain('Record Payment');
+    expect(detailDrawer).toContain('Close with Partial Receipt');
   });
 
   it('sends the selected purchase status and payment status to the callable', () => {
@@ -111,8 +115,16 @@ describe('tenant purchase service adapter', () => {
   });
 
   it('does not offer cancellation after all purchase units are received', () => {
-    expect(detailDrawer).toContain('!isCancelled && !isFullyReceived');
+    expect(detailDrawer).toContain('!isCancelled && !isClosed && !isFullyReceived');
     expect(detailDrawer).toContain("'Order Fully Received'");
+  });
+
+  it('preserves ordered quantities while closing partial receipts and blocks future inward stock', () => {
+    expect(closure).toContain("status === 'CLOSED'");
+    expect(closure).toContain('quantityOrdered');
+    expect(closure).toContain('quantityReceived');
+    expect(inventoryBatches).toContain("purchaseStatus === 'CLOSED' || purchaseStatus === 'CANCELLED'");
+    expect(functions).toContain('export const closeTenantPurchaseWithPartialReceipt');
   });
 
   it('persists and displays each later supplier payment', () => {

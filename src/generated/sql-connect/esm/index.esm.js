@@ -97,6 +97,7 @@ export const PurchaseStatus = {
   ACTIVE: "ACTIVE",
   DRAFT: "DRAFT",
   CANCELLED: "CANCELLED",
+  CLOSED: "CLOSED",
 }
 
 export const SaleStatus = {

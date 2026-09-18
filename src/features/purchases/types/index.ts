@@ -1,4 +1,4 @@
-export type PurchaseStatus = 'active' | 'draft' | 'cancelled';
+export type PurchaseStatus = 'active' | 'draft' | 'cancelled' | 'closed';
 export type PaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'UNPAID';
 export type ReceiptStatus = 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED';
 export type PurchaseScope = 'outlet' | 'organization';

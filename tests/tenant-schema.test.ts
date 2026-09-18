@@ -183,6 +183,7 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/type Purchase @table[\s\S]*organization: Organization![\s\S]*supplier: Supplier!/);
     expect(schema).toMatch(/type PurchaseLine @table[\s\S]*purchase: Purchase![\s\S]*product: Product!/);
     expect(schema).toContain('enum PurchaseReceiptStatus');
+    expect(schema).toMatch(/enum PurchaseStatus[\s\S]*ACTIVE[\s\S]*DRAFT[\s\S]*CANCELLED[\s\S]*CLOSED/);
   });
 
   it('defines a purchase payment ledger for subsequent supplier settlements', () => {

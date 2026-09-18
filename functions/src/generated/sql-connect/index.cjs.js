@@ -114,6 +114,7 @@ const PurchaseStatus = {
   ACTIVE: "ACTIVE",
   DRAFT: "DRAFT",
   CANCELLED: "CANCELLED",
+  CLOSED: "CLOSED",
 }
 exports.PurchaseStatus = PurchaseStatus;
 

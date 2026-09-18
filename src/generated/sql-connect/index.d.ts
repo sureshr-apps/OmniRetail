@@ -106,6 +106,7 @@ export enum PurchaseStatus {
   ACTIVE = "ACTIVE",
   DRAFT = "DRAFT",
   CANCELLED = "CANCELLED",
+  CLOSED = "CLOSED",
 };
 
 export enum SaleStatus {

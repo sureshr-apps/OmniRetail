@@ -285,6 +285,29 @@ export function PurchasesPage() {
     }
   };
 
+  const handleClosePartialPurchase = async (id: string) => {
+    try {
+      const updated = await purchaseService.closePurchaseWithPartialReceipt(id);
+      setViewingPurchase(updated);
+      await loadLedger();
+      setToast({
+        id: `toast-${Date.now()}`,
+        type: 'success',
+        title: 'Purchase Closed',
+        description: `${updated.purchaseNumber} was closed with the received quantities and totals were adjusted.`,
+      });
+    } catch (err) {
+      console.error('Failed to close purchase with partial receipt:', err);
+      setToast({
+        id: `toast-${Date.now()}`,
+        type: 'warning',
+        title: 'Unable to Close Purchase',
+        description: err instanceof Error ? err.message : 'Unable to close the purchase with partial receipt.',
+      });
+      throw err;
+    }
+  };
+
   // Receive stock check-in handler
   const handleReceiveStock = async (
     purchaseId: string,
@@ -414,6 +437,7 @@ export function PurchasesPage() {
         purchase={viewingPurchase}
         onClose={() => setViewingPurchase(null)}
         onCancelPurchase={handleCancelPurchase}
+        onClosePartialPurchase={handleClosePartialPurchase}
         onReceiveStock={handleReceiveStock}
         onRecordPayment={handleRecordPayment}
       />

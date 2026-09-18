@@ -34,6 +34,11 @@ describe('tenant purchase service adapter', () => {
     expect(modal).not.toContain('value={line.productName}');
   });
 
+  it('does not render the unsupported vendor attachment upload section', () => {
+    expect(modal).not.toContain('Vendor Invoice / Challan Attachment');
+    expect(modal).not.toContain('Drag &amp; drop vendor receipt');
+  });
+
   it('persists draft and active purchase statuses and rejects empty purchases', () => {
     expect(functions).toContain("const status = d.status === 'DRAFT' || d.status === 'ACTIVE' ? d.status : ''");
     expect(functions).toContain('status, createdBy');

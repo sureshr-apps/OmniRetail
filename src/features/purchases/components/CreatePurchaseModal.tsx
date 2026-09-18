@@ -489,21 +489,6 @@ export function CreatePurchaseModal({
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-micro-label font-semibold text-on-surface-variant mb-1">
-                    Vendor Invoice / Challan Attachment
-                  </label>
-                  <div className="border-2 border-dashed border-outline-variant/60 rounded p-3 text-center hover:bg-surface-container-low transition-colors cursor-pointer">
-                    <span className="material-symbols-outlined text-[24px] text-on-surface-variant">
-                      cloud_upload
-                    </span>
-                    <p className="text-caption text-on-surface font-medium">
-                      Drag &amp; drop vendor receipt or{' '}
-                      <span className="text-primary underline">browse file</span>
-                    </p>
-                    <p className="text-[10px] text-on-surface-variant">PDF, PNG, JPG up to 15MB</p>
-                  </div>
-                </div>
               </div>
 
               {/* Settlement Summary */}

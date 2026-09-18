@@ -28,6 +28,18 @@ export interface PurchaseAuditEntry {
   dotType: 'primary' | 'outline' | 'variant';
 }
 
+export interface PurchaseReceiptBatch {
+  quantity: number;
+  batchNumber: string;
+  mfgDate: string;
+  expiryDate: string;
+}
+
+export interface PurchaseReceiptLine {
+  lineId: string;
+  batches: PurchaseReceiptBatch[];
+}
+
 export interface Purchase {
   id: string;
   purchaseNumber: string; // e.g. PUR-2024-104

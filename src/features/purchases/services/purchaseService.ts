@@ -1,9 +1,10 @@
-import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput } from '../types';
+import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine } from '../types';
 import { calculatePurchaseTotals } from '../utils/calculations';
 import { getCurrentUserAuthorization, listTenantPurchases, listTenantOutlets, listTenantSuppliers } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { formatProductCode } from '@/features/products/utils/formatProductCode';
+import { validatePurchaseReceiptLines } from '../utils/receiving';
 
 export interface SupplierOption { id: string; name: string; taxId?: string; note?: string; contact?: string; }
 export interface OutletOption { id: string; name: string; isOrgWide?: boolean; }
@@ -13,7 +14,7 @@ export interface IPurchaseService {
   getPurchase(id: string): Promise<Purchase | null>;
   createPurchase(input: CreatePurchaseInput): Promise<Purchase>;
   cancelPurchase(id: string): Promise<Purchase>;
-  receiveItems(purchaseId: string, receivedCounts: Record<string, number>, batchInfo?: { batchNumber?: string; mfgDate?: string; expiryDate?: string }): Promise<Purchase>;
+  receiveItems(purchaseId: string, receipts: PurchaseReceiptLine[]): Promise<Purchase>;
   getSuppliers(): Promise<SupplierOption[]>;
   getOutlets(): Promise<OutletOption[]>;
 }
@@ -86,9 +87,23 @@ class ProductionPurchaseService implements IPurchaseService {
     const updated = await this.getPurchase(id); if (!updated) throw new Error('Purchase was cancelled but could not be loaded.'); return updated;
   }
 
-  async receiveItems(purchaseId: string, receivedCounts: Record<string, number>, batchInfo?: { batchNumber?: string; mfgDate?: string; expiryDate?: string }): Promise<Purchase> {
+  async receiveItems(purchaseId: string, receipts: PurchaseReceiptLine[]): Promise<Purchase> {
     const purchase = await this.getPurchase(purchaseId); if (!purchase) throw new Error('Purchase not found.'); const organizationId = await this.organizationId(); if (!purchase.outletId) throw new Error('Purchase has no outlet for inventory receipt.');
-    for (const line of purchase.items) { const received = receivedCounts[line.id]; if (received === undefined) continue; await httpsCallable(getFirebaseClientServices().functions, 'receiveTenantPurchaseLineRecord')({ organizationId, purchaseId: purchase.id, lineId: line.id, quantityReceived: received, receiptStatus: received >= line.quantityOrdered ? 'RECEIVED' : 'PARTIALLY_RECEIVED', batchNumber: batchInfo?.batchNumber, mfgDate: batchInfo?.mfgDate, expiryDate: batchInfo?.expiryDate, requestId: globalThis.crypto.randomUUID() }); }
+    const validationError = validatePurchaseReceiptLines(purchase.items, receipts);
+    if (validationError) throw new Error(validationError);
+    for (const receipt of receipts) {
+      const line = purchase.items.find((item) => item.id === receipt.lineId);
+      if (!line) throw new Error('Purchase line not found.');
+      const pending = Math.max(0, line.quantityOrdered - line.quantityReceived);
+      let requested = 0;
+      for (const batch of receipt.batches) {
+        const quantity = Number(batch.quantity);
+        if (!Number.isFinite(quantity) || quantity <= 0) continue;
+        requested += quantity;
+        if (requested > pending + 0.000001) throw new Error(`Received quantity cannot exceed the pending quantity for ${line.productName}.`);
+        await httpsCallable(getFirebaseClientServices().functions, 'receiveTenantPurchaseLineRecord')({ organizationId, purchaseId: purchase.id, lineId: line.id, quantityReceived: quantity, batchNumber: batch.batchNumber.trim() || null, mfgDate: batch.mfgDate || null, expiryDate: batch.expiryDate || null, requestId: globalThis.crypto.randomUUID() });
+      }
+    }
     const updated = await this.getPurchase(purchaseId); if (!updated) throw new Error('Purchase was received but could not be loaded.'); return updated;
   }
 }

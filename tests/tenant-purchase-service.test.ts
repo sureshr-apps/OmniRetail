@@ -93,6 +93,16 @@ describe('tenant purchase service adapter', () => {
     expect(inventoryBatches).not.toContain('p.outlet_id = $4 FOR UPDATE');
   });
 
+  it('sends product-specific and batch-specific receipt details', () => {
+    expect(source).toContain('validatePurchaseReceiptLines(purchase.items, receipts)');
+    expect(source).toContain('for (const batch of receipt.batches)');
+    expect(source).toContain('lineId: line.id');
+    expect(source).toContain('batchNumber: batch.batchNumber.trim() || null');
+    expect(detailDrawer).toContain('Add another batch for this product');
+    expect(detailDrawer).toContain('PurchaseReceiptLine[]');
+    expect(detailDrawer).not.toContain('BATCH-2024-OCT-09');
+  });
+
   it('initializes inventory stock timestamps for raw SQL inserts', () => {
     const inserts = [...inventoryBatches.matchAll(/INSERT INTO "inventory_stock" \(([^)]+)\)/g)];
 

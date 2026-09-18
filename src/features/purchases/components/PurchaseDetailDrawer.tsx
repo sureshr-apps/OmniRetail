@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
-import { Purchase } from '../types';
+import React, { useEffect, useState } from 'react';
+import { Purchase, PurchaseReceiptBatch, PurchaseReceiptLine } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { validatePurchaseReceiptLines } from '../utils/receiving';
+
+type ReceiptBatchRow = PurchaseReceiptBatch & { rowId: string };
+
+function createReceiptBatchRow(itemId: string, quantity: number, suffix: string): ReceiptBatchRow {
+  return { rowId: `${itemId}-batch-${suffix}`, quantity, batchNumber: '', mfgDate: '', expiryDate: '' };
+}
 
 interface PurchaseDetailDrawerProps {
   purchase: Purchase | null;
   onClose: () => void;
   onCancelPurchase: (id: string) => void;
-  onReceiveStock: (
-    purchaseId: string,
-    receivedCounts: Record<string, number>,
-    batchInfo: { batchNumber: string; mfgDate: string; expiryDate: string }
-  ) => void;
+  onReceiveStock: (purchaseId: string, receipts: PurchaseReceiptLine[]) => void;
 }
 
 export function PurchaseDetailDrawer({
@@ -19,12 +22,14 @@ export function PurchaseDetailDrawer({
   onCancelPurchase,
   onReceiveStock,
 }: PurchaseDetailDrawerProps) {
-  const [batchNumber, setBatchNumber] = useState('BATCH-2024-OCT-09');
-  const [mfgDate, setMfgDate] = useState('2024-10-01');
-  const [expiryDate, setExpiryDate] = useState('2027-10-01');
+  const [receiptBatches, setReceiptBatches] = useState<Record<string, ReceiptBatchRow[]>>({});
+  const [receiveError, setReceiveError] = useState<string | null>(null);
+  const receiptProgressKey = purchase?.items.map((item) => `${item.id}:${item.quantityReceived}`).join('|') ?? '';
 
-  // Track inward receive counts per item in state
-  const [receiveCounts, setReceiveCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    setReceiptBatches({});
+    setReceiveError(null);
+  }, [purchase?.id, receiptProgressKey]);
 
   if (!purchase) return null;
 
@@ -33,29 +38,87 @@ export function PurchaseDetailDrawer({
   const totalPending = Math.max(0, totalOrdered - totalReceived);
   const isCancelled = purchase.status === 'cancelled';
 
-  const handleUpdateItemReceiveCount = (itemId: string, maxPending: number, delta: number) => {
-    const current = receiveCounts[itemId] !== undefined ? receiveCounts[itemId] : maxPending;
-    const next = Math.max(0, Math.min(maxPending, current + delta));
-    setReceiveCounts((prev) => ({ ...prev, [itemId]: next }));
+  const pendingItems = purchase.items.filter((item) => item.quantityOrdered - item.quantityReceived > 0);
+
+  const getReceiptRows = (item: Purchase['items'][number]): ReceiptBatchRow[] => {
+    const pending = item.quantityOrdered - item.quantityReceived;
+    return receiptBatches[item.id] ?? [createReceiptBatchRow(item.id, pending, '1')];
+  };
+
+  const updateReceiptBatch = (
+    item: Purchase['items'][number],
+    rowId: string,
+    field: 'batchNumber' | 'mfgDate' | 'expiryDate',
+    value: string,
+  ) => {
+    const rows = getReceiptRows(item);
+    setReceiptBatches((prev) => ({
+      ...prev,
+      [item.id]: rows.map((row) => (row.rowId === rowId ? { ...row, [field]: value } : row)),
+    }));
+    setReceiveError(null);
+  };
+
+  const updateReceiptQuantity = (item: Purchase['items'][number], rowId: string, value: string) => {
+    const rows = getReceiptRows(item);
+    const pending = item.quantityOrdered - item.quantityReceived;
+    const otherQuantity = rows.filter((row) => row.rowId !== rowId).reduce((sum, row) => sum + row.quantity, 0);
+    const maxQuantity = Math.max(0, pending - otherQuantity);
+    const parsed = Number(value);
+    const quantity = Number.isFinite(parsed) ? Math.min(maxQuantity, Math.max(0, parsed)) : 0;
+    setReceiptBatches((prev) => ({
+      ...prev,
+      [item.id]: rows.map((row) => (row.rowId === rowId ? { ...row, quantity } : row)),
+    }));
+    setReceiveError(null);
+  };
+
+  const addReceiptBatch = (item: Purchase['items'][number]) => {
+    const rows = getReceiptRows(item);
+    const pending = item.quantityOrdered - item.quantityReceived;
+    const allocated = rows.reduce((sum, row) => sum + row.quantity, 0);
+    const suffix = `${Date.now()}-${rows.length + 1}`;
+    setReceiptBatches((prev) => ({
+      ...prev,
+      [item.id]: [...rows, createReceiptBatchRow(item.id, Math.max(0, pending - allocated), suffix)],
+    }));
+    setReceiveError(null);
+  };
+
+  const removeReceiptBatch = (item: Purchase['items'][number], rowId: string) => {
+    const rows = getReceiptRows(item);
+    if (rows.length <= 1) return;
+    setReceiptBatches((prev) => ({ ...prev, [item.id]: rows.filter((row) => row.rowId !== rowId) }));
+    setReceiveError(null);
   };
 
   const handleConfirmInward = () => {
-    // If no explicit counts touched, default to checking in all pending
-    const countsToApply: Record<string, number> = {};
-    purchase.items.forEach((it) => {
-      const pending = it.quantityOrdered - it.quantityReceived;
-      if (pending > 0) {
-        countsToApply[it.id] =
-          receiveCounts[it.id] !== undefined ? receiveCounts[it.id] : pending;
-      }
-    });
+    const receipts: PurchaseReceiptLine[] = [];
 
-    onReceiveStock(purchase.id, countsToApply, {
-      batchNumber,
-      mfgDate,
-      expiryDate,
-    });
+    for (const item of pendingItems) {
+      const rows = getReceiptRows(item);
+      const batches = rows.filter((row) => row.quantity > 0).map(({ rowId: _rowId, ...batch }) => batch);
+      if (batches.length > 0) receipts.push({ lineId: item.id, batches });
+    }
+
+    const validationError = validatePurchaseReceiptLines(purchase.items, receipts);
+    if (validationError) {
+      setReceiveError(validationError);
+      return;
+    }
+
+    setReceiveError(null);
+    onReceiveStock(purchase.id, receipts);
   };
+
+  const plannedReceiptUnits = pendingItems.reduce(
+    (sum, item) => sum + getReceiptRows(item).reduce((itemSum, row) => itemSum + row.quantity, 0),
+    0,
+  );
+  const plannedBatchCount = pendingItems.reduce(
+    (count, item) => count + getReceiptRows(item).filter((row) => row.quantity > 0).length,
+    0,
+  );
 
   return (
     <div
@@ -276,111 +339,138 @@ export function PurchaseDetailDrawer({
                   for store lot tracking.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                  <div>
-                    <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
-                      Batch / Lot Number
-                    </label>
-                    <input
-                      type="text"
-                      value={batchNumber}
-                      onChange={(e) => setBatchNumber(e.target.value)}
-                      className="w-full text-xs font-mono py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
-                      Manufacturing Date
-                    </label>
-                    <input
-                      type="date"
-                      value={mfgDate}
-                      onChange={(e) => setMfgDate(e.target.value)}
-                      className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
-                      Expiry / Shelf Life
-                    </label>
-                    <input
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-
-                {/* Items with pending quantities stepper */}
-                {purchase.items
-                  .filter((it) => it.quantityOrdered - it.quantityReceived > 0)
-                  .map((it) => {
-                    const pending = it.quantityOrdered - it.quantityReceived;
-                    const count =
-                      receiveCounts[it.id] !== undefined ? receiveCounts[it.id] : pending;
+                {/* Product-specific batch rows */}
+                <div className="space-y-3">
+                  {pendingItems.map((item) => {
+                    const pending = item.quantityOrdered - item.quantityReceived;
+                    const rows = getReceiptRows(item);
+                    const planned = rows.reduce((sum, row) => sum + row.quantity, 0);
                     return (
                       <div
-                        key={it.id}
-                        className="p-3 bg-surface-container-lowest rounded border border-outline-variant/40 flex items-center justify-between"
+                        key={item.id}
+                        className="p-3 bg-surface-container-lowest rounded border border-outline-variant/40 space-y-3"
                       >
-                        <div>
-                          <div className="font-bold text-xs text-on-surface">
-                            {it.productName} ({it.productCode})
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="font-bold text-xs text-on-surface">
+                              {item.productName} ({item.productCode})
+                            </div>
+                            <div className="text-[11px] text-amber-700 font-medium">
+                              {pending} remaining units pending receiving
+                            </div>
                           </div>
-                          <div className="text-[11px] text-amber-700 font-medium">
-                            {pending} remaining units pending receiving
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-caption text-on-surface-variant font-medium">
-                            Receive Qty:
+                          <span className="text-[11px] text-on-surface-variant font-medium whitespace-nowrap">
+                            {planned} / {pending} units planned
                           </span>
-                          <div className="flex items-center border border-outline-variant/60 rounded overflow-hidden">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateItemReceiveCount(it.id, pending, -1)}
-                              className="px-2.5 py-1 bg-surface-container-low hover:bg-surface-container text-on-surface font-bold text-xs cursor-pointer"
-                            >
-                              -
-                            </button>
-                            <input
-                              type="number"
-                              min={1}
-                              max={pending}
-                              value={count}
-                              onChange={(e) => {
-                                const val = parseInt(e.target.value, 10) || 0;
-                                setReceiveCounts((prev) => ({
-                                  ...prev,
-                                  [it.id]: Math.min(pending, Math.max(0, val)),
-                                }));
-                              }}
-                              className="w-12 text-center text-xs font-bold border-none focus:ring-0 py-1 bg-surface-container-lowest"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateItemReceiveCount(it.id, pending, 1)}
-                              className="px-2.5 py-1 bg-surface-container-low hover:bg-surface-container text-on-surface font-bold text-xs cursor-pointer"
-                            >
-                              +
-                            </button>
-                          </div>
                         </div>
+
+                        {rows.map((row, index) => {
+                          const otherQuantity = rows
+                            .filter((candidate) => candidate.rowId !== row.rowId)
+                            .reduce((sum, candidate) => sum + candidate.quantity, 0);
+                          const maxQuantity = Math.max(0, pending - otherQuantity);
+                          return (
+                            <div
+                              key={row.rowId}
+                              className="rounded border border-outline-variant/30 bg-surface-container-low/40 p-3 space-y-2"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant">
+                                  Batch {index + 1}
+                                </span>
+                                {rows.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => removeReceiptBatch(item, row.rowId)}
+                                    className="text-[11px] text-error font-semibold hover:underline cursor-pointer"
+                                  >
+                                    Remove batch
+                                  </button>
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div>
+                                  <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                                    Receive Qty
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    max={maxQuantity}
+                                    step="any"
+                                    value={row.quantity}
+                                    onChange={(e) => updateReceiptQuantity(item, row.rowId, e.target.value)}
+                                    className="w-full text-xs font-body-mono-num py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                                    Batch / Lot Number
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={row.batchNumber}
+                                    onChange={(e) => updateReceiptBatch(item, row.rowId, 'batchNumber', e.target.value)}
+                                    placeholder="Optional"
+                                    className="w-full text-xs font-mono py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                                    Manufacturing Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={row.mfgDate}
+                                    onChange={(e) => updateReceiptBatch(item, row.rowId, 'mfgDate', e.target.value)}
+                                    className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">
+                                    Expiry / Shelf Life
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={row.expiryDate}
+                                    onChange={(e) => updateReceiptBatch(item, row.rowId, 'expiryDate', e.target.value)}
+                                    className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <button
+                          type="button"
+                          onClick={() => addReceiptBatch(item)}
+                          className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold cursor-pointer"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add</span>
+                          <span>Add another batch for this product</span>
+                        </button>
                       </div>
                     );
                   })}
+                </div>
+
+                {receiveError && (
+                  <div className="rounded border border-error/30 bg-error-container/20 px-3 py-2 text-xs font-medium text-error" role="alert">
+                    {receiveError}
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between pt-1">
                   <button
                     type="button"
                     onClick={() =>
-                      alert(`Labels queued for ${totalPending} units (${batchNumber}).`)
+                      alert(`Labels queued for ${plannedReceiptUnits} units across ${plannedBatchCount} batch${plannedBatchCount === 1 ? '' : 'es'}.`)
                     }
                     className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[16px]">print</span>
-                    <span>Print Barcode Labels ({totalPending} Units)</span>
+                    <span>Print Barcode Labels ({plannedReceiptUnits} Units)</span>
                   </button>
                   <div className="flex items-center gap-2">
                     <button

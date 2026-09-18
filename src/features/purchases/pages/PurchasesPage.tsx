@@ -5,6 +5,7 @@ import {
   PaymentStatus,
   PurchaseStatus,
   CreatePurchaseInput,
+  PurchaseReceiptLine,
 } from '../types';
 import { purchaseService } from '../services/purchaseService';
 import { SupplierOption, OutletOption } from '../services/purchaseService';
@@ -286,18 +287,18 @@ export function PurchasesPage() {
   // Receive stock check-in handler
   const handleReceiveStock = async (
     purchaseId: string,
-    receivedCounts: Record<string, number>,
-    batchInfo: { batchNumber: string; mfgDate: string; expiryDate: string }
+    receipts: PurchaseReceiptLine[]
   ) => {
     try {
-      const updated = await purchaseService.receiveItems(purchaseId, receivedCounts, batchInfo);
+      const updated = await purchaseService.receiveItems(purchaseId, receipts);
       setViewingPurchase(updated);
       await loadLedger();
+      const batchCount = receipts.reduce((count, receipt) => count + receipt.batches.filter((batch) => batch.quantity > 0).length, 0);
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
         title: 'Stock Check-in Confirmed',
-        description: `Physical count for ${updated.purchaseNumber} recorded. Batch: ${batchInfo.batchNumber}.`,
+        description: `Physical count for ${updated.purchaseNumber} recorded across ${batchCount} batch${batchCount === 1 ? '' : 'es'}.`,
       });
     } catch (err) {
       console.error('Failed to confirm stock receipt:', err);

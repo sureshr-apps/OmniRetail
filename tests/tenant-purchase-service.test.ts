@@ -127,6 +127,11 @@ describe('tenant purchase service adapter', () => {
     expect(functions).toContain('export const closeTenantPurchaseWithPartialReceipt');
   });
 
+  it('does not render a redundant cancel button beside stock inward confirmation', () => {
+    const receiveSection = detailDrawer.slice(detailDrawer.indexOf('Receive Inward Stock Workflow Box'), detailDrawer.indexOf('Procurement Audit Trail'));
+    expect(receiveSection).not.toMatch(/onClick=\{onClose\}[\s\S]*>\s*Cancel\s*</);
+  });
+
   it('persists and displays each later supplier payment', () => {
     expect(functions).toContain('export const recordTenantPurchasePayment');
     expect(functions).toContain('recordPurchasePayment(client');

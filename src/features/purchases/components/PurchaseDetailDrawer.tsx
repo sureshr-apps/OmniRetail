@@ -731,13 +731,6 @@ export function PurchaseDetailDrawer({
                     )}
                     <button
                       type="button"
-                      onClick={onClose}
-                      className="px-3 py-1.5 rounded border border-outline-variant text-xs font-medium hover:bg-surface-container cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
                       onClick={handleConfirmInward}
                       className="px-3.5 py-1.5 rounded bg-primary-container hover:bg-primary text-on-primary text-xs font-bold flex items-center gap-1 shadow-xs cursor-pointer"
                     >

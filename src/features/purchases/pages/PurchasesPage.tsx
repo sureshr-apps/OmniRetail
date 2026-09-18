@@ -3,7 +3,6 @@ import {
   Purchase,
   PurchaseQueryResult,
   PaymentStatus,
-  PurchaseStatus,
   CreatePurchaseInput,
   PurchaseReceiptLine,
 } from '../types';
@@ -17,6 +16,7 @@ import { PurchasesPagination } from '../components/PurchasesPagination';
 import { PurchaseDetailDrawer } from '../components/PurchaseDetailDrawer';
 import { CreatePurchaseModal } from '../components/CreatePurchaseModal';
 import { PurchaseToast, ToastMessage } from '../components/PurchaseToast';
+import { getCurrentMonthDateRange } from '../utils/dateRange';
 
 export function PurchasesPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -29,13 +29,12 @@ export function PurchasesPage() {
 
   // Filter & pagination state
   const [searchQuery, setSearchQuery] = useState('');
-  const [datePeriod, setDatePeriod] = useState('This Month (Oct 2024)');
+  const defaultDateRange = getCurrentMonthDateRange();
+  const [dateRangeStart, setDateRangeStart] = useState(defaultDateRange.start);
+  const [dateRangeEnd, setDateRangeEnd] = useState(defaultDateRange.end);
   const [selectedOutlet, setSelectedOutlet] = useState('All Outlets');
   const [selectedSupplier, setSelectedSupplier] = useState('All Suppliers');
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<PaymentStatus | 'ALL'>('ALL');
-  const [purchaseStatus, setPurchaseStatus] = useState<PurchaseStatus | 'ALL' | 'ACTIVE_NON_CANCELLED'>(
-    'ACTIVE_NON_CANCELLED'
-  );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -70,11 +69,11 @@ export function PurchasesPage() {
     try {
       const result = await purchaseService.getPurchases({
         search: searchQuery,
-        datePeriod,
+        customStartDate: dateRangeStart,
+        customEndDate: dateRangeEnd,
         outlet: selectedOutlet,
         supplier: selectedSupplier,
         paymentStatus: selectedPaymentStatus,
-        purchaseStatus,
         page: currentPage,
         pageSize,
       });
@@ -92,11 +91,11 @@ export function PurchasesPage() {
     }
   }, [
     searchQuery,
-    datePeriod,
+    dateRangeStart,
+    dateRangeEnd,
     selectedOutlet,
     selectedSupplier,
     selectedPaymentStatus,
-    purchaseStatus,
     currentPage,
     pageSize,
   ]);
@@ -159,11 +158,12 @@ export function PurchasesPage() {
   // Reset all filters
   const handleResetFilters = () => {
     setSearchQuery('');
-    setDatePeriod('This Month (Oct 2024)');
+    const currentMonth = getCurrentMonthDateRange();
+    setDateRangeStart(currentMonth.start);
+    setDateRangeEnd(currentMonth.end);
     setSelectedOutlet('All Outlets');
     setSelectedSupplier('All Suppliers');
     setSelectedPaymentStatus('ALL');
-    setPurchaseStatus('ACTIVE_NON_CANCELLED');
     setCurrentPage(1);
   };
 
@@ -326,9 +326,14 @@ export function PurchasesPage() {
               setSearchQuery(q);
               setCurrentPage(1);
             }}
-            datePeriod={datePeriod}
-            onDatePeriodChange={(dp) => {
-              setDatePeriod(dp);
+            dateRangeStart={dateRangeStart}
+            dateRangeEnd={dateRangeEnd}
+            onDateRangeStartChange={(date) => {
+              setDateRangeStart(date);
+              setCurrentPage(1);
+            }}
+            onDateRangeEndChange={(date) => {
+              setDateRangeEnd(date);
               setCurrentPage(1);
             }}
             selectedOutlet={selectedOutlet}
@@ -344,11 +349,6 @@ export function PurchasesPage() {
             selectedPaymentStatus={selectedPaymentStatus}
             onPaymentStatusChange={(st) => {
               setSelectedPaymentStatus(st);
-              setCurrentPage(1);
-            }}
-            purchaseStatus={purchaseStatus}
-            onPurchaseStatusChange={(ps) => {
-              setPurchaseStatus(ps);
               setCurrentPage(1);
             }}
             suppliers={suppliers}

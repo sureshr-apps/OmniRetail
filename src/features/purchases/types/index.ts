@@ -96,13 +96,11 @@ export interface PurchasesKpiSummary {
 
 export interface PurchaseQuery {
   search?: string;
-  datePeriod?: string; // "this_month" | "last_30_days" | "last_quarter" | "custom"
   customStartDate?: string;
   customEndDate?: string;
   outlet?: string;
   supplier?: string;
   paymentStatus?: PaymentStatus | 'ALL';
-  purchaseStatus?: PurchaseStatus | 'ALL' | 'ACTIVE_NON_CANCELLED';
   page: number;
   pageSize: number;
 }

@@ -1,20 +1,21 @@
 import React from 'react';
-import { PaymentStatus, PurchaseStatus } from '../types';
+import { PaymentStatus } from '../types';
 import { SupplierOption, OutletOption } from '../services/purchaseService';
+import { getCurrentMonthDateRange } from '../utils/dateRange';
 
 interface PurchasesFilterToolbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  datePeriod: string;
-  onDatePeriodChange: (period: string) => void;
+  dateRangeStart: string;
+  dateRangeEnd: string;
+  onDateRangeStartChange: (date: string) => void;
+  onDateRangeEndChange: (date: string) => void;
   selectedOutlet: string;
   onOutletChange: (outlet: string) => void;
   selectedSupplier: string;
   onSupplierChange: (supplier: string) => void;
   selectedPaymentStatus: PaymentStatus | 'ALL';
   onPaymentStatusChange: (status: PaymentStatus | 'ALL') => void;
-  purchaseStatus: PurchaseStatus | 'ALL' | 'ACTIVE_NON_CANCELLED';
-  onPurchaseStatusChange: (status: PurchaseStatus | 'ALL' | 'ACTIVE_NON_CANCELLED') => void;
   suppliers: SupplierOption[];
   outlets: OutletOption[];
   onResetFilters: () => void;
@@ -24,28 +25,33 @@ interface PurchasesFilterToolbarProps {
 export function PurchasesFilterToolbar({
   searchQuery,
   onSearchChange,
-  datePeriod,
-  onDatePeriodChange,
+  dateRangeStart,
+  dateRangeEnd,
+  onDateRangeStartChange,
+  onDateRangeEndChange,
   selectedOutlet,
   onOutletChange,
   selectedSupplier,
   onSupplierChange,
   selectedPaymentStatus,
   onPaymentStatusChange,
-  purchaseStatus,
-  onPurchaseStatusChange,
   suppliers,
   outlets,
   onResetFilters,
   searchInputRef,
 }: PurchasesFilterToolbarProps) {
-  const isFiltered =
-    searchQuery.trim() !== '' ||
-    datePeriod !== 'This Month (Oct 2024)' ||
+  const defaultDateRange = getCurrentMonthDateRange();
+  const hasActiveConstraints =
     selectedOutlet !== 'All Outlets' ||
     selectedSupplier !== 'All Suppliers' ||
-    selectedPaymentStatus !== 'ALL' ||
-    purchaseStatus !== 'ACTIVE_NON_CANCELLED';
+    selectedPaymentStatus !== 'ALL';
+  const isFiltered =
+    searchQuery.trim() !== '' ||
+    dateRangeStart !== defaultDateRange.start ||
+    dateRangeEnd !== defaultDateRange.end ||
+    selectedOutlet !== 'All Outlets' ||
+    selectedSupplier !== 'All Suppliers' ||
+    selectedPaymentStatus !== 'ALL';
 
   return (
     <div className="p-4 border-b border-outline-variant/30 space-y-3 bg-surface-container-lowest">
@@ -73,20 +79,28 @@ export function PurchasesFilterToolbar({
         {/* Filter Dropdowns Group */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Date Range */}
-          <div className="relative">
-            <select
-              value={datePeriod}
-              onChange={(e) => onDatePeriodChange(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
-            >
-              <option>This Month (Oct 2024)</option>
-              <option>Last 30 Days</option>
-              <option>Last Quarter (Q3)</option>
-              <option>All Historical Records</option>
-            </select>
-            <span className="material-symbols-outlined absolute right-2 top-2.5 text-[16px] text-on-surface-variant pointer-events-none">
-              calendar_today
-            </span>
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-surface-container-low border border-outline-variant/50 rounded text-xs font-medium text-on-surface">
+            <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">Date Range</span>
+            <label className="flex items-center gap-1">
+              <span className="text-[10px] text-on-surface-variant">From</span>
+              <input
+                type="date"
+                value={dateRangeStart}
+                max={dateRangeEnd || undefined}
+                onChange={(e) => onDateRangeStartChange(e.target.value)}
+                className="bg-transparent text-xs text-on-surface focus:outline-none cursor-pointer"
+              />
+            </label>
+            <label className="flex items-center gap-1">
+              <span className="text-[10px] text-on-surface-variant">To</span>
+              <input
+                type="date"
+                value={dateRangeEnd}
+                min={dateRangeStart || undefined}
+                onChange={(e) => onDateRangeEndChange(e.target.value)}
+                className="bg-transparent text-xs text-on-surface focus:outline-none cursor-pointer"
+              />
+            </label>
           </div>
 
           {/* Outlet */}
@@ -147,34 +161,10 @@ export function PurchasesFilterToolbar({
       </div>
 
       {/* Applied Filter Tags */}
-      <div className="flex items-center flex-wrap gap-2 pt-1">
-        <span className="text-caption text-on-surface-variant font-semibold">
-          Active Constraints:
-        </span>
-
-        {/* Period Constraint Chip */}
-        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container text-on-surface text-caption font-medium border border-outline-variant/40">
-          <span>Period: {datePeriod === 'This Month (Oct 2024)' ? 'Oct 1 - Oct 31, 2024' : datePeriod}</span>
-          <button
-            type="button"
-            onClick={() => onDatePeriodChange('All Historical Records')}
-            className="hover:text-error transition-colors cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[14px]">close</span>
-          </button>
-        </span>
-
-        {/* Status Constraint Chip */}
-        {purchaseStatus === 'ACTIVE_NON_CANCELLED' && (
-          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container text-on-surface text-caption font-medium border border-outline-variant/40">
-            <span>Status: Active (Exclude Cancelled)</span>
-            <button
-              type="button"
-              onClick={() => onPurchaseStatusChange('ALL')}
-              className="hover:text-error transition-colors cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[14px]">close</span>
-            </button>
+      {(hasActiveConstraints || isFiltered) && <div className="flex items-center flex-wrap gap-2 pt-1">
+        {hasActiveConstraints && (
+          <span className="text-caption text-on-surface-variant font-semibold">
+            Active Constraints:
           </span>
         )}
 
@@ -237,7 +227,7 @@ export function PurchasesFilterToolbar({
             Reset Filters
           </button>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

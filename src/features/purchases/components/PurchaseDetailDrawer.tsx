@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Purchase, PurchaseReceiptBatch, PurchaseReceiptLine } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { validatePurchaseReceiptLines } from '../utils/receiving';
+import { formatPurchaseDateForDisplay, parsePurchaseDate } from '../utils/date';
 
 type ReceiptBatchRow = PurchaseReceiptBatch & { rowId: string };
 
@@ -94,11 +95,26 @@ export function PurchaseDetailDrawer({
 
   const handleConfirmInward = () => {
     const receipts: PurchaseReceiptLine[] = [];
+    let dateError: string | null = null;
 
     for (const item of pendingItems) {
       const rows = getReceiptRows(item);
-      const batches = rows.filter((row) => row.quantity > 0).map(({ rowId: _rowId, ...batch }) => batch);
+      const batches = rows.filter((row) => row.quantity > 0).map(({ rowId: _rowId, ...batch }) => {
+        const mfgDate = batch.mfgDate.trim() ? parsePurchaseDate(batch.mfgDate) : '';
+        const expiryDate = batch.expiryDate.trim() ? parsePurchaseDate(batch.expiryDate) : '';
+        if (batch.mfgDate.trim() && !mfgDate) {
+          dateError = `${item.productName}: Manufacturing date must use DD/MM/YYYY format.`;
+        } else if (batch.expiryDate.trim() && !expiryDate) {
+          dateError = `${item.productName}: Expiry date must use DD/MM/YYYY format.`;
+        }
+        return { ...batch, mfgDate: mfgDate ?? '', expiryDate: expiryDate ?? '' };
+      });
       if (batches.length > 0) receipts.push({ lineId: item.id, batches });
+    }
+
+    if (dateError) {
+      setReceiveError(dateError);
+      return;
     }
 
     const validationError = validatePurchaseReceiptLines(purchase.items, receipts);
@@ -420,9 +436,12 @@ export function PurchaseDetailDrawer({
                                     Manufacturing Date
                                   </label>
                                   <input
-                                    type="date"
-                                    value={row.mfgDate}
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={10}
+                                    value={formatPurchaseDateForDisplay(row.mfgDate)}
                                     onChange={(e) => updateReceiptBatch(item, row.rowId, 'mfgDate', e.target.value)}
+                                    placeholder="DD/MM/YYYY"
                                     className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
                                   />
                                 </div>
@@ -431,9 +450,12 @@ export function PurchaseDetailDrawer({
                                     Expiry / Shelf Life
                                   </label>
                                   <input
-                                    type="date"
-                                    value={row.expiryDate}
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={10}
+                                    value={formatPurchaseDateForDisplay(row.expiryDate)}
                                     onChange={(e) => updateReceiptBatch(item, row.rowId, 'expiryDate', e.target.value)}
+                                    placeholder="DD/MM/YYYY"
                                     className="w-full text-xs py-1.5 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
                                   />
                                 </div>

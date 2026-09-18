@@ -18,6 +18,8 @@ describe('tenant purchase service adapter', () => {
     expect(source).toContain('async recordPayment');
     expect(source).toContain("'closeTenantPurchaseWithPartialReceipt'");
     expect(source).toContain('closePurchaseWithPartialReceipt');
+    expect(source).toContain("outstandingAmount: status === 'cancelled' ? 0");
+    expect(functions).toContain('cancelPurchaseWithAccounting');
     expect(detailDrawer).toContain('onRecordPayment');
     expect(detailDrawer).toContain('Record Payment');
     expect(detailDrawer).toContain('Close with Partial Receipt');
@@ -40,7 +42,7 @@ describe('tenant purchase service adapter', () => {
     expect(totals.grandTotal).toBe(382.5);
     expect(totals.outstandingAmount).toBe(282.5);
     expect(calculateOutstandingAmount(382.5, 100)).toBe(282.5);
-    expect(detailDrawer).toContain('calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid)');
+    expect(detailDrawer).toContain('const balanceDue = isCancelled ? 0 : calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid)');
     expect(detailDrawer).not.toContain('-{formatCurrency(purchase.amountPaid)}');
   });
 

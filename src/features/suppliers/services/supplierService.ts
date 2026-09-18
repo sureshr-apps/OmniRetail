@@ -48,6 +48,7 @@ const SUPPLIER_MUTATION_RESPONSE_KEYS: (keyof SupplierMutationResponse)[] = [
 
 function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): Supplier {
   const purchases = 'supplierPurchases' in row ? row.supplierPurchases : [];
+  const operationalPurchases = purchases.filter((purchase) => purchase.status !== 'CANCELLED');
   return {
     id: row.id,
     supplierCode: row.supplierCode,
@@ -62,10 +63,10 @@ function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): S
     creditLimit: row.creditLimit,
     status: row.status === 'ACTIVE' ? 'Active' : 'Inactive',
     notes: row.notes ?? undefined,
-    outstandingBalance: purchases.reduce((sum, purchase) => sum + purchase.outstandingAmount, 0),
-    pendingDeliveriesCount: purchases.filter((purchase) => purchase.receiptStatus !== 'RECEIVED' && purchase.status !== 'CANCELLED').length,
-    totalOrdersCount: purchases.length,
-    recentOrders: purchases.slice(0, 5).map((purchase) => ({
+    outstandingBalance: operationalPurchases.reduce((sum, purchase) => sum + purchase.outstandingAmount, 0),
+    pendingDeliveriesCount: operationalPurchases.filter((purchase) => purchase.receiptStatus !== 'RECEIVED').length,
+    totalOrdersCount: operationalPurchases.length,
+    recentOrders: operationalPurchases.slice(0, 5).map((purchase) => ({
       id: purchase.id,
       purchaseNumber: purchase.purchaseNumber,
       poNumber: purchase.purchaseOrderNumber ?? purchase.purchaseNumber,

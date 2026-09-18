@@ -97,6 +97,7 @@ import { orchestrateProvision } from './auth/provisioning.js';
 import { deriveLicenseStatus } from './licenses/licenseStatus.js';
 import { recordPurchasePayment } from './purchasePayments.js';
 import { closePurchaseWithPartialReceipt } from './purchaseClosure.js';
+import { cancelPurchaseWithAccounting, PurchaseCancellationError } from './purchaseCancellation.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -1445,7 +1446,36 @@ export const createTenantPurchaseRecord = onCall(callableOptions, async (request
 });
 
 export const changeTenantPurchaseStatus = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'purchases.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const status = d.status === 'ACTIVE' || d.status === 'DRAFT' || d.status === 'CANCELLED' ? d.status : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'purchases.read'); await changeTenantPurchaseStatusSql({ organizationId, id, status, reason: typeof d.reason === 'string' ? d.reason.trim() || null : null }); return { success: true, organizationId, id, status }; } catch (error) { logCallableFailure('changeTenantPurchaseStatus', error); throw new HttpsError('permission-denied', 'Unable to change purchase status.'); }
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const id = typeof d.id === 'string' ? d.id : '';
+    const status = d.status === 'ACTIVE' || d.status === 'DRAFT' || d.status === 'CANCELLED' ? d.status : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !id || !status || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+
+    if (status === 'CANCELLED') {
+      const result = await withSqlTransaction((client) => cancelPurchaseWithAccounting(client, {
+        organizationId,
+        purchaseId: id,
+        reason: typeof d.reason === 'string' ? d.reason.trim() || null : null,
+      }));
+      return { success: true, organizationId, id, status, ...result };
+    }
+
+    await changeTenantPurchaseStatusSql({ organizationId, id, status, reason: typeof d.reason === 'string' ? d.reason.trim() || null : null });
+    return { success: true, organizationId, id, status };
+  } catch (error) {
+    logCallableFailure('changeTenantPurchaseStatus', error);
+    if (error instanceof PurchaseCancellationError) {
+      throw new HttpsError('failed-precondition', error.message);
+    }
+    throw new HttpsError('permission-denied', 'Unable to change purchase status.');
+  }
 });
 
 export const closeTenantPurchaseWithPartialReceipt = onCall(callableOptions, async (request) => {

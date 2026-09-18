@@ -15,7 +15,10 @@ describe('tenant supplier service adapter', () => {
   });
 
   it('loads and maps recent supplier purchase orders', () => {
-    expect(source).toContain('recentOrders: purchases.slice(0, 5).map');
+    expect(source).toContain("const operationalPurchases = purchases.filter((purchase) => purchase.status !== 'CANCELLED')");
+    expect(source).toContain('outstandingBalance: operationalPurchases.reduce');
+    expect(source).toContain('totalOrdersCount: operationalPurchases.length');
+    expect(source).toContain('recentOrders: operationalPurchases.slice(0, 5).map');
     expect(source).toContain('poNumber: purchase.purchaseOrderNumber ?? purchase.purchaseNumber');
     expect(source).toContain("outletName: purchase.outlet?.name ?? 'Organization-wide'");
 

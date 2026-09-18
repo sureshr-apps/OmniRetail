@@ -45,7 +45,9 @@ export function PurchaseDetailDrawer({
   }, [purchase?.id, receiptProgressKey]);
 
   useEffect(() => {
-    const balance = purchase ? calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid) : 0;
+    const balance = purchase && purchase.status !== 'cancelled'
+      ? calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid)
+      : 0;
     setIsPaymentFormOpen(false);
     setPaymentAmount(balance > 0 ? balance.toFixed(2) : '');
     setPaymentDate(formatPurchaseDateForDisplay(getTodayPurchaseDate()));
@@ -54,7 +56,7 @@ export function PurchaseDetailDrawer({
     setPaymentNotes('');
     setPaymentError(null);
     setIsPaymentSaving(false);
-  }, [purchase?.id, purchase?.amountPaid, purchase?.totalAmount]);
+  }, [purchase?.id, purchase?.amountPaid, purchase?.status, purchase?.totalAmount]);
 
   if (!purchase) return null;
 
@@ -64,7 +66,7 @@ export function PurchaseDetailDrawer({
   const isCancelled = purchase.status === 'cancelled';
   const isClosed = purchase.status === 'closed';
   const isFullyReceived = totalPending === 0;
-  const balanceDue = calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid);
+  const balanceDue = isCancelled ? 0 : calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid);
 
   const pendingItems = purchase.items.filter((item) => item.quantityOrdered - item.quantityReceived > 0);
 

@@ -24,6 +24,7 @@ export interface IPurchaseService {
 type TenantPurchaseRow = Awaited<ReturnType<typeof listTenantPurchases>>['data']['purchases'][number];
 
 function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
+  const status = row.status.toLowerCase() as Purchase['status'];
   return {
     id: row.id, purchaseNumber: row.purchaseNumber, purchaseOrderNumber: row.purchaseOrderNumber ?? undefined,
     invoiceNumber: row.invoiceNumber ?? undefined, date: row.purchaseDate, time: '', timestamp: Date.parse(row.purchaseDate),
@@ -32,9 +33,9 @@ function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
     items: row.purchaseLines_on_purchase.map((line) => ({ id: line.id, productId: line.product.id, productCode: formatProductCode(line.product.productCode), productName: line.product.name, sku: line.product.sku, quantityOrdered: line.quantityOrdered, quantityReceived: line.quantityReceived, unitCost: line.unitCost, discountPercent: line.discountPercent, taxRate: line.taxRate, taxAmount: line.taxAmount, lineTotal: line.lineTotal })),
     totalUnits: row.purchaseLines_on_purchase.reduce((sum, line) => sum + line.quantityOrdered, 0), subtotal: row.subtotal,
     shippingFee: row.shippingFee, handlingFee: row.handlingFee, tax: row.tax, totalAmount: row.totalAmount, amountPaid: row.amountPaid,
-    outstandingAmount: calculateOutstandingAmount(row.totalAmount, row.amountPaid), paymentStatus: row.paymentStatus, receiptStatus: row.receiptStatus,
+    outstandingAmount: status === 'cancelled' ? 0 : calculateOutstandingAmount(row.totalAmount, row.amountPaid), paymentStatus: row.paymentStatus, receiptStatus: row.receiptStatus,
     payments: row.paymentHistory?.map((payment) => ({ id: payment.id, amount: payment.amount, paymentDate: payment.paymentDate, paymentMethod: payment.paymentMethod, reference: payment.reference ?? undefined, notes: payment.notes ?? undefined, recordedBy: payment.recordedBy, createdAt: payment.createdAt })) ?? [],
-    status: row.status.toLowerCase() as Purchase['status'], receivingNotes: row.receivingNotes ?? undefined,
+    status, receivingNotes: row.receivingNotes ?? undefined,
     batchNumber: row.batchNumber ?? undefined, mfgDate: row.mfgDate ?? undefined, expiryDate: row.expiryDate ?? undefined,
     paymentTerms: row.paymentTerms ?? undefined, createdBy: row.createdBy, creatorRole: '', createdAt: row.createdAt, updatedAt: row.updatedAt,
   };

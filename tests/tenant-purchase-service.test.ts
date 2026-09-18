@@ -75,4 +75,13 @@ describe('tenant purchase service adapter', () => {
     expect(inventoryBatches).toContain('const outletId = line.outlet_id ? String(line.outlet_id) : \'\'');
     expect(inventoryBatches).not.toContain('p.outlet_id = $4 FOR UPDATE');
   });
+
+  it('initializes inventory stock timestamps for raw SQL inserts', () => {
+    const inserts = [...inventoryBatches.matchAll(/INSERT INTO "inventory_stock" \(([^)]+)\)/g)];
+
+    expect(inserts).toHaveLength(2);
+    for (const insert of inserts) expect(insert[1]).toContain('updated_at');
+    expect(inventoryBatches).toContain('overstock_threshold, updated_at) VALUES ($1, $2, $3, 0, $4, $5, NOW())');
+    expect(inventoryBatches).toContain('overstock_threshold, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())');
+  });
 });

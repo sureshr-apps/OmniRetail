@@ -174,7 +174,7 @@ async function loadOrCreateInventoryStock(
   if (!result.rowCount) {
     const overstockThreshold = Math.max(100, reorderLevel * 10);
     await client.query(
-      'INSERT INTO "inventory_stock" (organization_id, outlet_id, product_id, on_hand_qty, reorder_level, overstock_threshold) VALUES ($1, $2, $3, 0, $4, $5) ON CONFLICT (organization_id, outlet_id, product_id) DO NOTHING',
+      'INSERT INTO "inventory_stock" (organization_id, outlet_id, product_id, on_hand_qty, reorder_level, overstock_threshold, updated_at) VALUES ($1, $2, $3, 0, $4, $5, NOW()) ON CONFLICT (organization_id, outlet_id, product_id) DO NOTHING',
       [organizationId, outletId, productId, reorderLevel, overstockThreshold],
     );
     result = await client.query(
@@ -284,7 +284,7 @@ export async function createInventoryStockRecord(client: PoolClient, input: Inve
   await loadProduct(client, input.organizationId, input.productId);
   const existing = await client.query('SELECT on_hand_qty FROM "inventory_stock" WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3 FOR UPDATE', [input.organizationId, input.outletId, input.productId]);
   if (existing.rowCount) throw new InventoryStockError('DUPLICATE_BATCH', 'Inventory is already configured for this product and outlet.');
-  await client.query('INSERT INTO "inventory_stock" (organization_id, outlet_id, product_id, on_hand_qty, reorder_level, overstock_threshold) VALUES ($1, $2, $3, $4, $5, $6)', [input.organizationId, input.outletId, input.productId, input.quantity, input.reorderLevel, input.overstockThreshold]);
+  await client.query('INSERT INTO "inventory_stock" (organization_id, outlet_id, product_id, on_hand_qty, reorder_level, overstock_threshold, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())', [input.organizationId, input.outletId, input.productId, input.quantity, input.reorderLevel, input.overstockThreshold]);
   const batchNumber = resolveBatchNumber(input.batchNumber, input.expiryDate);
   const batch = await loadOrCreateBatch(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, batchNumber, mfgDate: input.mfgDate || null, expiryDate: input.expiryDate || null });
   if (input.quantity > 0) await client.query('UPDATE "inventory_batch" SET on_hand_qty = $2 WHERE id = $1', [batch.id, input.quantity]);

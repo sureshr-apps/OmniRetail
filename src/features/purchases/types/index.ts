@@ -130,6 +130,7 @@ export interface CreatePurchaseLineInput {
 export interface CreatePurchaseInput {
   supplierId: string;
   supplierName: string;
+  outletId?: string;
   outletName: string;
   scope: PurchaseScope;
   purchaseDate: string;

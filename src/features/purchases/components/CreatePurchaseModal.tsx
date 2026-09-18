@@ -9,7 +9,7 @@ import { formatProductCode } from '@/features/products/utils/formatProductCode';
 interface CreatePurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated: (input: CreatePurchaseInput, shouldOpenDetails?: boolean) => void;
+  onCreated: (input: CreatePurchaseInput, shouldOpenDetails?: boolean) => void | Promise<void>;
   suppliers: SupplierOption[];
   outlets: OutletOption[];
 }
@@ -21,12 +21,14 @@ export function CreatePurchaseModal({
   suppliers,
   outlets,
 }: CreatePurchaseModalProps) {
-  const [selectedSupplierId, setSelectedSupplierId] = useState(suppliers[0]?.id || 'sup-101');
-  const [selectedOutletName, setSelectedOutletName] = useState('Downtown Flagship #04');
-  const [purchaseDate, setPurchaseDate] = useState('2024-10-24');
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  const [selectedOutletId, setSelectedOutletId] = useState('');
+  const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [purchaseOrderNumber, setPurchaseOrderNumber] = useState('');
   const [paymentTerms, setPaymentTerms] = useState('Net 15 Days');
+  const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Product Lines
   const [lines, setLines] = useState<CreatePurchaseLineInput[]>([]);
@@ -49,6 +51,16 @@ export function CreatePurchaseModal({
     'PARTIALLY_PAID'
   );
   const [customPaidAmount, setCustomPaidAmount] = useState<string>('1500.00');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedSupplierId((current) =>
+      suppliers.some((supplier) => supplier.id === current) ? current : suppliers[0]?.id ?? ''
+    );
+    setSelectedOutletId((current) =>
+      outlets.some((outlet) => outlet.id === current) ? current : outlets[0]?.id ?? ''
+    );
+  }, [isOpen, outlets, suppliers]);
 
   if (!isOpen) return null;
 
@@ -120,16 +132,35 @@ export function CreatePurchaseModal({
     );
   };
 
-  const handleSubmit = (status: 'active' | 'draft', openDetails: boolean = false) => {
-    const supplier = suppliers.find((s) => s.id === selectedSupplierId) || suppliers[0];
-    const isOrgWide = selectedOutletName === 'Organization-wide';
-    const scope: PurchaseScope = isOrgWide ? 'organization' : 'outlet';
+  const handleSubmit = async (status: 'active' | 'draft', openDetails: boolean = false) => {
+    if (isSubmitting) return;
+    const supplier = suppliers.find((candidate) => candidate.id === selectedSupplierId);
+    const outlet = outlets.find((candidate) => candidate.id === selectedOutletId);
+    if (!supplier) {
+      setFormError('Select a supplier before saving the purchase.');
+      return;
+    }
+    if (!outlet) {
+      setFormError('Select a destination outlet before saving the purchase.');
+      return;
+    }
+    if (lines.length === 0) {
+      setFormError('Add at least one product line before saving the purchase.');
+      return;
+    }
+    if (lines.some((line) => !line.productId || !Number.isFinite(line.quantity) || line.quantity <= 0 || !Number.isFinite(line.unitCost) || line.unitCost < 0)) {
+      setFormError('Check each product line has a valid product, quantity, and unit cost.');
+      return;
+    }
+
+    setFormError('');
 
     const input: CreatePurchaseInput = {
       supplierId: supplier.id,
       supplierName: supplier.name,
-      outletName: selectedOutletName,
-      scope,
+      outletId: outlet.id,
+      outletName: outlet.name,
+      scope: 'outlet' as PurchaseScope,
       purchaseDate,
       invoiceNumber: invoiceNumber.trim() || undefined,
       purchaseOrderNumber: purchaseOrderNumber.trim() || undefined,
@@ -142,7 +173,12 @@ export function CreatePurchaseModal({
       status,
     };
 
-    onCreated(input, openDetails);
+    setIsSubmitting(true);
+    try {
+      await onCreated(input, openDetails);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -214,12 +250,12 @@ export function CreatePurchaseModal({
                     Destination Outlet *
                   </label>
                   <select
-                    value={selectedOutletName}
-                    onChange={(e) => setSelectedOutletName(e.target.value)}
+                    value={selectedOutletId}
+                    onChange={(e) => setSelectedOutletId(e.target.value)}
                     className="w-full text-xs py-2 px-3 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary font-medium"
                   >
                     {outlets.map((o) => (
-                      <option key={o.id} value={o.name}>
+                      <option key={o.id} value={o.id}>
                         {o.name}
                       </option>
                     ))}
@@ -556,6 +592,7 @@ export function CreatePurchaseModal({
 
           {/* Modal Footer Actions */}
           <div className="px-6 py-3.5 border-t border-outline-variant/30 bg-surface-container-low flex items-center justify-between">
+            {formError && <p className="text-xs font-semibold text-error" role="alert">{formError}</p>}
             <button
               type="button"
               onClick={onClose}
@@ -568,6 +605,7 @@ export function CreatePurchaseModal({
               <button
                 type="button"
                 onClick={() => handleSubmit('draft', false)}
+                disabled={isSubmitting}
                 className="px-4 py-2 rounded border border-primary/40 bg-surface-container-lowest hover:bg-primary/5 text-primary text-xs font-semibold cursor-pointer"
               >
                 Save as Draft
@@ -575,6 +613,7 @@ export function CreatePurchaseModal({
               <button
                 type="button"
                 onClick={() => handleSubmit('active', true)}
+                disabled={isSubmitting}
                 className="px-4 py-2 rounded bg-primary-container hover:bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">save</span>

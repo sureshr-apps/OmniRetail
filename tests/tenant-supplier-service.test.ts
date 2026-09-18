@@ -13,4 +13,13 @@ describe('tenant supplier service adapter', () => {
     expect(source).toContain("'updateTenantSupplierRecord'");
     expect(source).toContain("'changeTenantSupplierStatus'");
   });
+
+  it('loads and maps recent supplier purchase orders', () => {
+    expect(source).toContain('recentOrders: purchases.slice(0, 5).map');
+    expect(source).toContain('poNumber: purchase.purchaseOrderNumber ?? purchase.purchaseNumber');
+    expect(source).toContain("outletName: purchase.outlet?.name ?? 'Organization-wide'");
+
+    const query = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+    expect(query).toContain('id purchaseNumber purchaseOrderNumber purchaseDate outlet { name }');
+  });
 });

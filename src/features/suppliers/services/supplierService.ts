@@ -48,7 +48,35 @@ const SUPPLIER_MUTATION_RESPONSE_KEYS: (keyof SupplierMutationResponse)[] = [
 
 function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): Supplier {
   const purchases = 'supplierPurchases' in row ? row.supplierPurchases : [];
-  return { id: row.id, supplierCode: row.supplierCode, name: row.name, contactPerson: row.contactPerson, phone: row.phone, email: row.email, taxId: row.taxId ?? undefined, address: row.address ?? undefined, category: row.category, paymentTerms: row.paymentTerms as Supplier['paymentTerms'], creditLimit: row.creditLimit, status: row.status === 'ACTIVE' ? 'Active' : 'Inactive', notes: row.notes ?? undefined, outstandingBalance: purchases.reduce((sum, purchase) => sum + purchase.outstandingAmount, 0), pendingDeliveriesCount: purchases.filter((purchase) => purchase.receiptStatus !== 'RECEIVED' && purchase.status !== 'CANCELLED').length, totalOrdersCount: purchases.length };
+  return {
+    id: row.id,
+    supplierCode: row.supplierCode,
+    name: row.name,
+    contactPerson: row.contactPerson,
+    phone: row.phone,
+    email: row.email,
+    taxId: row.taxId ?? undefined,
+    address: row.address ?? undefined,
+    category: row.category,
+    paymentTerms: row.paymentTerms as Supplier['paymentTerms'],
+    creditLimit: row.creditLimit,
+    status: row.status === 'ACTIVE' ? 'Active' : 'Inactive',
+    notes: row.notes ?? undefined,
+    outstandingBalance: purchases.reduce((sum, purchase) => sum + purchase.outstandingAmount, 0),
+    pendingDeliveriesCount: purchases.filter((purchase) => purchase.receiptStatus !== 'RECEIVED' && purchase.status !== 'CANCELLED').length,
+    totalOrdersCount: purchases.length,
+    recentOrders: purchases.slice(0, 5).map((purchase) => ({
+      id: purchase.id,
+      purchaseNumber: purchase.purchaseNumber,
+      poNumber: purchase.purchaseOrderNumber ?? purchase.purchaseNumber,
+      date: purchase.purchaseDate,
+      outletName: purchase.outlet?.name ?? 'Organization-wide',
+      totalAmount: purchase.totalAmount,
+      outstandingAmount: purchase.outstandingAmount,
+      paymentStatus: purchase.paymentStatus,
+      receiptStatus: purchase.receiptStatus,
+    })),
+  };
 }
 
 /**

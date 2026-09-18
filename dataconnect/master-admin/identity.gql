@@ -541,7 +541,7 @@ query ListTenantSuppliers($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'suppliers.read'))", message: "Supplier access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   suppliers(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ name: ASC }, { id: ASC }], limit: 1000) {
     id organization { id } supplierCode name contactPerson phone email taxId address category paymentTerms creditLimit status notes
-    supplierPurchases: purchases_on_supplier(where: { organization: { id: { eq: $organizationId } } }, limit: 1000) { totalAmount outstandingAmount receiptStatus status }
+    supplierPurchases: purchases_on_supplier(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ purchaseDate: DESC }, { id: DESC }], limit: 1000) { id purchaseNumber purchaseOrderNumber purchaseDate outlet { name } totalAmount outstandingAmount paymentStatus receiptStatus status }
   }
 }
 

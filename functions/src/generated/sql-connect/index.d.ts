@@ -1494,6 +1494,11 @@ export interface GetUserAuthorizationByFirebaseUidVariables {
   firebaseUid: string;
 }
 
+export interface InventoryBatch_Key {
+  id: UUIDString;
+  __typename?: 'InventoryBatch_Key';
+}
+
 export interface InventoryMovement_Key {
   id: UUIDString;
   __typename?: 'InventoryMovement_Key';
@@ -2197,11 +2202,19 @@ export interface ListTenantSuppliersData {
     status: SupplierStatus;
     notes?: string | null;
     supplierPurchases: ({
+      id: UUIDString;
+      purchaseNumber: string;
+      purchaseOrderNumber?: string | null;
+      purchaseDate: DateString;
+      outlet?: {
+        name: string;
+      };
       totalAmount: number;
       outstandingAmount: number;
+      paymentStatus: PurchasePaymentStatus;
       receiptStatus: PurchaseReceiptStatus;
       status: PurchaseStatus;
-    })[];
+    } & Purchase_Key)[];
   } & Supplier_Key)[];
 }
 
@@ -2325,6 +2338,11 @@ export interface ProvisionTenantEmployeeTrustedVariables {
   roleId: UUIDString;
 }
 
+export interface PurchaseLineBatchAllocation_Key {
+  id: UUIDString;
+  __typename?: 'PurchaseLineBatchAllocation_Key';
+}
+
 export interface PurchaseLine_Key {
   id: UUIDString;
   __typename?: 'PurchaseLine_Key';
@@ -2438,6 +2456,11 @@ export interface RolePermission_Key {
 export interface Role_Key {
   id: UUIDString;
   __typename?: 'Role_Key';
+}
+
+export interface SaleLineBatchAllocation_Key {
+  id: UUIDString;
+  __typename?: 'SaleLineBatchAllocation_Key';
 }
 
 export interface SaleLine_Key {

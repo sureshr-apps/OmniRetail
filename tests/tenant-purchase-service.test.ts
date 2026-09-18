@@ -60,6 +60,15 @@ describe('tenant purchase service adapter', () => {
     expect(detailDrawer).not.toContain('Print Purchase Voucher');
   });
 
+  it('uses the employee detail destructive action style for cancelling a purchase', () => {
+    const cancelAction = detailDrawer.slice(detailDrawer.indexOf('Cancel Purchase Order') - 500, detailDrawer.indexOf('Cancel Purchase Order') + 100);
+
+    expect(cancelAction).toContain('h-9 px-space-base rounded-xl border');
+    expect(cancelAction).toContain('bg-surface hover:bg-error-container/20 text-error');
+    expect(cancelAction).toContain('font-body-medium text-caption');
+    expect(cancelAction).not.toContain('hover:underline');
+  });
+
   it('persists draft and active purchase statuses and rejects empty purchases', () => {
     expect(functions).toContain("const status = d.status === 'DRAFT' || d.status === 'ACTIVE' ? d.status : ''");
     expect(functions).toContain('status, createdBy');

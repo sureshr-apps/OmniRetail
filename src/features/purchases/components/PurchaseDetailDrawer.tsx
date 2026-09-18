@@ -454,7 +454,7 @@ export function PurchaseDetailDrawer({
                     onCancelPurchase(purchase.id);
                   }
                 }}
-                className="flex items-center gap-1.5 text-xs text-error font-medium hover:underline cursor-pointer"
+                className="h-9 px-space-base rounded-xl border font-body-medium text-caption transition-colors flex items-center justify-center gap-1 cursor-pointer bg-surface hover:bg-error-container/20 text-error"
               >
                 <span className="material-symbols-outlined text-[16px]">cancel</span>
                 <span>Cancel Purchase Order</span>

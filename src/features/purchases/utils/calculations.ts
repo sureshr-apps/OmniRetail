@@ -14,6 +14,12 @@ export function calculateLineTotal(
   return { baseSubtotal, taxAmount, lineTotal };
 }
 
+export function calculateOutstandingAmount(totalAmount: number, amountPaid: number): number {
+  const total = Number(totalAmount) || 0;
+  const paid = Number(amountPaid) || 0;
+  return Math.max(0, Number((total - paid).toFixed(2)));
+}
+
 export function calculatePurchaseTotals(
   items: Array<{
     quantity: number;
@@ -49,7 +55,7 @@ export function calculatePurchaseTotals(
   }
 
   const grandTotal = Number((subtotal + totalTax + shippingFee + handlingFee).toFixed(2));
-  const outstandingAmount = Math.max(0, Number((grandTotal - amountPaid).toFixed(2)));
+  const outstandingAmount = calculateOutstandingAmount(grandTotal, amountPaid);
 
   let derivedPaymentStatus: PaymentStatus = 'UNPAID';
   if (amountPaid >= grandTotal && grandTotal > 0) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Purchase, PurchaseReceiptBatch, PurchaseReceiptLine } from '../types';
-import { formatCurrency } from '../utils/calculations';
+import { calculateOutstandingAmount, formatCurrency } from '../utils/calculations';
 import { validatePurchaseReceiptLines } from '../utils/receiving';
 import { formatPurchaseDateForDisplay, parsePurchaseDate } from '../utils/date';
 
@@ -38,6 +38,8 @@ export function PurchaseDetailDrawer({
   const totalReceived = purchase.items.reduce((acc, it) => acc + it.quantityReceived, 0);
   const totalPending = Math.max(0, totalOrdered - totalReceived);
   const isCancelled = purchase.status === 'cancelled';
+  const isFullyReceived = totalPending === 0;
+  const balanceDue = calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid);
 
   const pendingItems = purchase.items.filter((item) => item.quantityOrdered - item.quantityReceived > 0);
 
@@ -317,13 +319,13 @@ export function PurchaseDetailDrawer({
                   <div className="flex justify-between text-caption text-emerald-800 font-medium">
                     <span>Amount Paid:</span>
                     <span className="font-body-mono-num">
-                      -{formatCurrency(purchase.amountPaid)}
+                      {formatCurrency(purchase.amountPaid)}
                     </span>
                   </div>
                   <div className="flex justify-between text-caption text-error font-bold border-t border-outline-variant/30 pt-1">
                     <span>Balance Due:</span>
                     <span className="font-body-mono-num">
-                      {formatCurrency(purchase.outstandingAmount)}
+                      {formatCurrency(balanceDue)}
                     </span>
                   </div>
                 </div>
@@ -558,7 +560,7 @@ export function PurchaseDetailDrawer({
 
           {/* Drawer Footer Actions */}
           <div className="p-4 border-t border-outline-variant/30 bg-surface-container-low flex items-center justify-between">
-            {!isCancelled ? (
+            {!isCancelled && !isFullyReceived ? (
               <button
                 type="button"
                 onClick={() => {
@@ -573,7 +575,7 @@ export function PurchaseDetailDrawer({
               </button>
             ) : (
               <span className="text-xs text-on-surface-variant font-medium">
-                Order Cancelled / Voided
+                {isCancelled ? 'Order Cancelled / Voided' : 'Order Fully Received'}
               </span>
             )}
 

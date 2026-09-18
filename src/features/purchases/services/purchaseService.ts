@@ -1,5 +1,5 @@
 import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine } from '../types';
-import { calculatePurchaseTotals } from '../utils/calculations';
+import { calculateOutstandingAmount, calculatePurchaseTotals } from '../utils/calculations';
 import { getCurrentUserAuthorization, listTenantPurchases, listTenantOutlets, listTenantSuppliers } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
@@ -30,7 +30,7 @@ function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
     items: row.purchaseLines_on_purchase.map((line) => ({ id: line.id, productId: line.product.id, productCode: formatProductCode(line.product.productCode), productName: line.product.name, sku: line.product.sku, quantityOrdered: line.quantityOrdered, quantityReceived: line.quantityReceived, unitCost: line.unitCost, discountPercent: line.discountPercent, taxRate: line.taxRate, taxAmount: line.taxAmount, lineTotal: line.lineTotal })),
     totalUnits: row.purchaseLines_on_purchase.reduce((sum, line) => sum + line.quantityOrdered, 0), subtotal: row.subtotal,
     shippingFee: row.shippingFee, handlingFee: row.handlingFee, tax: row.tax, totalAmount: row.totalAmount, amountPaid: row.amountPaid,
-    outstandingAmount: row.outstandingAmount, paymentStatus: row.paymentStatus, receiptStatus: row.receiptStatus,
+    outstandingAmount: calculateOutstandingAmount(row.totalAmount, row.amountPaid), paymentStatus: row.paymentStatus, receiptStatus: row.receiptStatus,
     status: row.status.toLowerCase() as Purchase['status'], receivingNotes: row.receivingNotes ?? undefined,
     batchNumber: row.batchNumber ?? undefined, mfgDate: row.mfgDate ?? undefined, expiryDate: row.expiryDate ?? undefined,
     paymentTerms: row.paymentTerms ?? undefined, createdBy: row.createdBy, creatorRole: '', createdAt: row.createdAt, updatedAt: row.updatedAt,

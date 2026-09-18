@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { calculatePurchaseTotals } from '@/features/purchases/utils/calculations';
+import { calculateOutstandingAmount, calculatePurchaseTotals } from '@/features/purchases/utils/calculations';
 const source = readFileSync(new URL('../src/features/purchases/services/purchaseService.ts', import.meta.url), 'utf8');
 const modal = readFileSync(new URL('../src/features/purchases/components/CreatePurchaseModal.tsx', import.meta.url), 'utf8');
 const detailDrawer = readFileSync(new URL('../src/features/purchases/components/PurchaseDetailDrawer.tsx', import.meta.url), 'utf8');
@@ -31,6 +31,9 @@ describe('tenant purchase service adapter', () => {
 
     expect(totals.grandTotal).toBe(382.5);
     expect(totals.outstandingAmount).toBe(282.5);
+    expect(calculateOutstandingAmount(382.5, 100)).toBe(282.5);
+    expect(detailDrawer).toContain('calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid)');
+    expect(detailDrawer).not.toContain('-{formatCurrency(purchase.amountPaid)}');
   });
 
   it('initializes production supplier and outlet choices instead of fixture ids', () => {
@@ -101,6 +104,11 @@ describe('tenant purchase service adapter', () => {
     expect(detailDrawer).toContain('Add another batch for this product');
     expect(detailDrawer).toContain('PurchaseReceiptLine[]');
     expect(detailDrawer).not.toContain('BATCH-2024-OCT-09');
+  });
+
+  it('does not offer cancellation after all purchase units are received', () => {
+    expect(detailDrawer).toContain('!isCancelled && !isFullyReceived');
+    expect(detailDrawer).toContain("'Order Fully Received'");
   });
 
   it('initializes inventory stock timestamps for raw SQL inserts', () => {

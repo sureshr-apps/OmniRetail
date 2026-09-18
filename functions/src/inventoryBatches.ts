@@ -327,33 +327,36 @@ export async function persistSaleLineWithInventory(client: PoolClient, input: { 
   return { saleLineId, allocations };
 }
 
-export async function receiveInventoryForPurchase(client: PoolClient, input: { organizationId: string; purchaseId: string; lineId: string; outletId: string; productId: string; quantityReceived: number; batchNumber?: string | null; mfgDate?: string | null; expiryDate?: string | null; requestId: string; actorFirebaseUid: string }): Promise<{ newReceivedQty: number; newStockQty: number; batchNumber: string; batchId: string; receiptStatus: 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED' }> {
+export async function receiveInventoryForPurchase(client: PoolClient, input: { organizationId: string; purchaseId: string; lineId: string; outletId?: string; productId?: string; quantityReceived: number; batchNumber?: string | null; mfgDate?: string | null; expiryDate?: string | null; requestId: string; actorFirebaseUid: string }): Promise<{ newReceivedQty: number; newStockQty: number; batchNumber: string; batchId: string; receiptStatus: 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED' }> {
   if (!Number.isFinite(input.quantityReceived) || input.quantityReceived <= 0) throw new InventoryStockError('INVALID_BATCH', 'Received quantity must be greater than zero.');
-  const lineResult = await client.query('SELECT pl.quantity_ordered, pl.quantity_received, pl.product_id, p.organization_id, p.outlet_id FROM "purchase_line" pl JOIN "purchase" p ON p.id = pl.purchase_id WHERE pl.id = $1 AND pl.purchase_id = $2 AND p.organization_id = $3 AND p.outlet_id = $4 FOR UPDATE', [input.lineId, input.purchaseId, input.organizationId, input.outletId]);
-  if (!lineResult.rowCount || lineResult.rows[0].product_id !== input.productId) throw new InventoryStockError('INVALID_BATCH', 'Purchase line is not valid for this product and outlet.');
+  const lineResult = await client.query('SELECT pl.quantity_ordered, pl.quantity_received, pl.product_id, p.organization_id, p.outlet_id FROM "purchase_line" pl JOIN "purchase" p ON p.id = pl.purchase_id WHERE pl.id = $1 AND pl.purchase_id = $2 AND p.organization_id = $3 FOR UPDATE', [input.lineId, input.purchaseId, input.organizationId]);
+  if (!lineResult.rowCount) throw new InventoryStockError('INVALID_BATCH', 'Purchase line is not valid for this organization.');
   const line = lineResult.rows[0];
+  const productId = String(line.product_id);
+  const outletId = line.outlet_id ? String(line.outlet_id) : '';
+  if (!outletId) throw new InventoryStockError('INVALID_BATCH', 'Purchase is not assigned to an outlet for stock inward.');
   const currentReceived = Number(line.quantity_received);
   const ordered = Number(line.quantity_ordered);
   const newReceivedQty = currentReceived + input.quantityReceived;
   if (newReceivedQty > ordered + EPSILON) throw new InventoryStockError('INVALID_BATCH', 'Received quantity cannot exceed the ordered quantity.');
-  await ensureActiveOutlet(client, input.organizationId, input.outletId);
-  const product = await loadProduct(client, input.organizationId, input.productId);
-  const stock = await loadOrCreateInventoryStock(client, input.organizationId, input.outletId, input.productId, product.reorderLevel);
+  await ensureActiveOutlet(client, input.organizationId, outletId);
+  const product = await loadProduct(client, input.organizationId, productId);
+  const stock = await loadOrCreateInventoryStock(client, input.organizationId, outletId, productId, product.reorderLevel);
   const mfgDate = input.mfgDate || null;
   const expiryDate = input.expiryDate || null;
   validateBatchDates(mfgDate, expiryDate);
   const batchNumber = resolveBatchNumber(input.batchNumber, expiryDate);
-  const batch = await loadOrCreateBatch(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, batchNumber, mfgDate, expiryDate });
+  const batch = await loadOrCreateBatch(client, { organizationId: input.organizationId, outletId, productId, batchNumber, mfgDate, expiryDate });
   await client.query('UPDATE "inventory_batch" SET on_hand_qty = on_hand_qty + $2 WHERE id = $1', [batch.id, input.quantityReceived]);
   const newStockQty = stock.onHandQty + input.quantityReceived;
-  await client.query('UPDATE "inventory_stock" SET on_hand_qty = $4, updated_at = NOW() WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3', [input.organizationId, input.outletId, input.productId, newStockQty]);
+  await client.query('UPDATE "inventory_stock" SET on_hand_qty = $4, updated_at = NOW() WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3', [input.organizationId, outletId, productId, newStockQty]);
   await client.query('UPDATE "purchase_line" SET quantity_received = $2, batch_number = $3, mfg_date = $4, expiry_date = $5 WHERE id = $1', [input.lineId, newReceivedQty, batchNumber, mfgDate, expiryDate]);
   await client.query('INSERT INTO "purchase_line_batch_allocation" (purchase_line_id, inventory_batch_id, quantity) VALUES ($1, $2, $3) ON CONFLICT (purchase_line_id, inventory_batch_id) DO UPDATE SET quantity = purchase_line_batch_allocation.quantity + EXCLUDED.quantity', [input.lineId, batch.id, input.quantityReceived]);
   const purchaseTotals = await client.query('SELECT COUNT(*) FILTER (WHERE quantity_received >= quantity_ordered) AS received_lines, COUNT(*) AS total_lines FROM "purchase_line" WHERE purchase_id = $1', [input.purchaseId]);
   const totals = purchaseTotals.rows[0];
   const receiptStatus = Number(totals.received_lines) === Number(totals.total_lines) ? 'RECEIVED' : 'PARTIALLY_RECEIVED';
   await client.query('UPDATE "purchase" SET receipt_status = $2, batch_number = $3, mfg_date = $4, expiry_date = $5, updated_at = NOW() WHERE id = $1', [input.purchaseId, receiptStatus, batchNumber, mfgDate, expiryDate]);
-  await insertMovement(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, batchId: batch.id, mode: 'INCREASE', quantity: input.quantityReceived, previousQty: stock.onHandQty, newQty: newStockQty, reasonCode: 'PURCHASE_RECEIPT', auditNote: input.purchaseId, actorFirebaseUid: input.actorFirebaseUid, requestId: input.requestId });
+  await insertMovement(client, { organizationId: input.organizationId, outletId, productId, batchId: batch.id, mode: 'INCREASE', quantity: input.quantityReceived, previousQty: stock.onHandQty, newQty: newStockQty, reasonCode: 'PURCHASE_RECEIPT', auditNote: input.purchaseId, actorFirebaseUid: input.actorFirebaseUid, requestId: input.requestId });
   return { newReceivedQty, newStockQty, batchNumber, batchId: batch.id, receiptStatus };
 }
 

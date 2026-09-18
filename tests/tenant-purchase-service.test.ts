@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 const source = readFileSync(new URL('../src/features/purchases/services/purchaseService.ts', import.meta.url), 'utf8');
 const modal = readFileSync(new URL('../src/features/purchases/components/CreatePurchaseModal.tsx', import.meta.url), 'utf8');
 const functions = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
+const inventoryBatches = readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8');
 
 describe('tenant purchase service adapter', () => {
   it('uses tenant reads and production lifecycle actions', () => {
@@ -35,5 +36,15 @@ describe('tenant purchase service adapter', () => {
   it('uses the trusted outlet lookup inside Cloud Functions instead of a user-authenticated outlet query', () => {
     expect(functions).toContain('getTenantOutletTrusted({ organizationId, id: outletId })');
     expect(functions).not.toContain('listTenantOutlets({ organizationId })');
+  });
+
+  it('lets the receipt boundary derive product and outlet from the persisted purchase line', () => {
+    expect(functions).toContain("const result = await withSqlTransaction((client) => receiveInventoryForPurchase(client, { organizationId, purchaseId, lineId, quantityReceived");
+    expect(functions).not.toContain("!organizationId || !purchaseId || !lineId || !outletId || !productId");
+    expect(source).not.toContain('outletId: purchase.outletId, productId: line.productId');
+    expect(inventoryBatches).toContain('WHERE pl.id = $1 AND pl.purchase_id = $2 AND p.organization_id = $3 FOR UPDATE');
+    expect(inventoryBatches).toContain('const productId = String(line.product_id)');
+    expect(inventoryBatches).toContain('const outletId = line.outlet_id ? String(line.outlet_id) : \'\'');
+    expect(inventoryBatches).not.toContain('p.outlet_id = $4 FOR UPDATE');
   });
 });

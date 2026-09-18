@@ -26,6 +26,14 @@ describe('tenant purchase service adapter', () => {
     expect(modal).not.toContain('Downtown Flagship #04');
   });
 
+  it('selects purchase products from the loaded production catalogue', () => {
+    expect(modal).toContain('value={line.productId}');
+    expect(modal).toContain('onChange={(e) => handleSelectProduct(idx, e.target.value)}');
+    expect(modal).toContain('{product.name} · {product.sku}');
+    expect(modal).not.toContain('handleSelectPredefinedProduct');
+    expect(modal).not.toContain('value={line.productName}');
+  });
+
   it('persists draft and active purchase statuses and rejects empty purchases', () => {
     expect(functions).toContain("const status = d.status === 'DRAFT' || d.status === 'ACTIVE' ? d.status : ''");
     expect(functions).toContain('status, createdBy');

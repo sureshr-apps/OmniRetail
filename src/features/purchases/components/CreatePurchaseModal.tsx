@@ -114,16 +114,17 @@ export function CreatePurchaseModal({
     );
   };
 
-  const handleSelectPredefinedProduct = (index: number, code: number) => {
-    const match = productSuggestions.find((p) => p.productCode === code);
+  const handleSelectProduct = (index: number, productId: string) => {
+    const match = productSuggestions.find((p) => p.id === productId);
     if (!match) return;
     setLines((prev) =>
       prev.map((item, idx) => {
         if (idx !== index) return item;
         return {
           ...item,
+          productId: match.id,
           productCode: formatProductCode(match.productCode),
-          productName: `${match.name} (${formatProductCode(match.productCode)})`,
+          productName: match.name,
           sku: match.sku,
           unitCost: match.cost ?? 0,
           taxRate: Number(match.taxCategory?.match(/[0-9]+(?:\.[0-9]+)?/)?.[0] ?? 0),
@@ -357,29 +358,18 @@ export function CreatePurchaseModal({
                       return (
                         <tr key={idx}>
                           <td className="p-2">
-                            <div className="space-y-1">
-                              <input
-                                type="text"
-                                value={line.productName}
-                                onChange={(e) =>
-                                  handleUpdateLine(idx, 'productName', e.target.value)
-                                }
-                                className="w-full text-xs py-1 px-2 border border-outline-variant/50 rounded bg-surface-container-lowest font-medium"
-                              />
-                              <div className="flex items-center gap-1">
-                                <span className="text-[10px] text-on-surface-variant">Quick pick:</span>
-                                {productSuggestions.slice(0, 3).map((p) => (
-                                  <button
-                                    key={p.productCode}
-                                    type="button"
-                                    onClick={() => handleSelectPredefinedProduct(idx, p.productCode)}
-                                    className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container hover:bg-primary/10 text-on-surface font-mono cursor-pointer"
-                                  >
-                                    {formatProductCode(p.productCode)}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                            <select
+                              value={line.productId}
+                              onChange={(e) => handleSelectProduct(idx, e.target.value)}
+                              className="w-full text-xs py-1 px-2 border border-outline-variant/50 rounded bg-surface-container-lowest font-medium"
+                            >
+                              <option value="">Select product / SKU</option>
+                              {productSuggestions.map((product) => (
+                                <option key={product.id} value={product.id}>
+                                  {product.name} · {product.sku} · {formatProductCode(product.productCode)}
+                                </option>
+                              ))}
+                            </select>
                           </td>
                           <td className="p-2 w-20">
                             <input

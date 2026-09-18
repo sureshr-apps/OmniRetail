@@ -33,6 +33,19 @@ export interface InventoryMovementLog {
   balanceAfter: number;
 }
 
+export interface InventoryMovementRecord {
+  id: string;
+  mode: 'INCREASE' | 'DECREASE' | 'RECONCILE';
+  quantity: number;
+  previousQty: number;
+  newQty: number;
+  reasonCode: string;
+  auditNote?: string | null;
+  actorFirebaseUid: string;
+  createdAt: string;
+  batchNumber?: string | null;
+}
+
 export interface InventoryItem {
   id: string;
   productId?: string;
@@ -59,7 +72,6 @@ export interface InventoryItem {
   expiryDate?: string;
   incomingPurchaseOrder?: string;
   badgeMetadata?: string; // e.g., 'Precision Series', 'Serial Tracking', 'Fast Mover'
-  recentMovements?: InventoryMovementLog[];
 }
 
 export interface InventoryKpiSummary {

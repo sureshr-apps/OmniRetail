@@ -7,6 +7,8 @@ describe('tenant inventory service adapter', () => {
   it('uses tenant authorization and the outlet-scoped inventory query', () => {
     expect(source).toContain('getCurrentUserAuthorization');
     expect(source).toContain('listTenantInventory');
+    expect(source).toContain('getMovementHistory');
+    expect(source).toContain("'listTenantInventoryMovementHistory'");
     expect(source).toContain('No active organization membership.');
     expect(source).toContain('export const inventoryService = new ProductionInventoryService()');
   });

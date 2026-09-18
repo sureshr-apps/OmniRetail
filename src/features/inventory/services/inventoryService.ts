@@ -1,4 +1,4 @@
-import { AddInventoryInput, InventoryItem, InventoryQuery, InventoryQueryResult, InventoryStatus, StockAdjustmentInput, InventoryLocation, SupplierSummary } from '../types';
+import { AddInventoryInput, InventoryItem, InventoryMovementLog, InventoryMovementRecord, InventoryQuery, InventoryQueryResult, InventoryStatus, StockAdjustmentInput, InventoryLocation, SupplierSummary } from '../types';
 import { getCurrentUserAuthorization, listTenantInventory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
@@ -27,6 +27,48 @@ export function deriveStockStatus(onHandQty: number, reorderLevel: number, overs
 export function calculateMarginPercent(retailPrice: number, cost: number): number {
   if (retailPrice <= 0) return 0;
   return Math.round(((retailPrice - cost) / retailPrice) * 1000) / 10;
+}
+
+function formatMovementTimestamp(value: string): string {
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return value;
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(timestamp);
+}
+
+function movementType(reasonCode: string): InventoryMovementLog['type'] {
+  if (reasonCode === 'SALE' || reasonCode.startsWith('SALE_VOID')) return 'sale';
+  if (reasonCode === 'PURCHASE_RECEIPT' || reasonCode === 'STOCK_RECEIPT') return 'purchase_order';
+  return 'adjustment';
+}
+
+function movementTitle(record: InventoryMovementRecord): string {
+  if (record.reasonCode === 'SALE') return `Sale${record.auditNote ? ` · ${record.auditNote}` : ''}`;
+  if (record.reasonCode === 'PURCHASE_RECEIPT') return `Purchase receipt${record.auditNote ? ` · ${record.auditNote}` : ''}`;
+  if (record.reasonCode === 'SALE_VOID' || record.reasonCode === 'SALE_VOID_LEGACY') return `Sale voided${record.auditNote ? ` · ${record.auditNote}` : ''}`;
+  return record.reasonCode.replaceAll('_', ' ');
+}
+
+export function mapInventoryMovement(record: InventoryMovementRecord): InventoryMovementLog {
+  const details = [
+    formatMovementTimestamp(record.createdAt),
+    record.actorFirebaseUid ? `Actor: ${record.actorFirebaseUid}` : '',
+    record.batchNumber ? `Batch: ${record.batchNumber}` : '',
+    record.auditNote && !movementTitle(record).includes(record.auditNote) ? record.auditNote : '',
+  ].filter(Boolean).join(' • ');
+  const delta = record.mode === 'DECREASE' ? -Math.abs(record.quantity) : record.mode === 'INCREASE' ? Math.abs(record.quantity) : record.newQty - record.previousQty;
+  return {
+    id: record.id,
+    type: movementType(record.reasonCode),
+    title: movementTitle(record),
+    subtitle: details,
+    timeAgo: formatMovementTimestamp(record.createdAt),
+    delta,
+    balanceAfter: record.newQty,
+  };
 }
 
 type TenantInventoryRow = Awaited<ReturnType<typeof listTenantInventory>>['data']['inventoryStocks'][number];
@@ -69,6 +111,14 @@ class ProductionInventoryService {
   }
 
   async getInventoryItem(id: string): Promise<InventoryItem | null> { return (await this.all()).find((item) => item.id === id || item.sku === id) ?? null; }
+
+  async getMovementHistory(item: InventoryItem): Promise<InventoryMovementLog[]> {
+    const organizationId = await this.organizationId();
+    if (!item.locationId || !item.productId) throw new Error('Inventory movement history is not available for this item.');
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'listTenantInventoryMovementHistory')({ organizationId, outletId: item.locationId, productId: item.productId });
+    const data = response.data as { movements?: InventoryMovementRecord[] };
+    return (data.movements ?? []).map(mapInventoryMovement);
+  }
 
   async addProduct(newItem: Partial<InventoryItem>): Promise<InventoryItem> {
     const organizationId = await this.organizationId(); const outletId = newItem.locationId; const outlet = outletId ? (await outletService.getAllActiveOutlets()).find((candidate) => candidate.id === outletId) : undefined;

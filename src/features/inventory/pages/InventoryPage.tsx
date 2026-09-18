@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   InventoryItem,
+  InventoryMovementLog,
   InventoryQueryResult,
   InventoryLocation,
   SupplierSummary,
@@ -55,6 +56,9 @@ export function InventoryPage() {
   // Modal State
   const [adjustingItem, setAdjustingItem] = useState<InventoryItem | null>(null);
   const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
+  const [historyMovements, setHistoryMovements] = useState<InventoryMovementLog[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [isAddInventoryOpen, setIsAddInventoryOpen] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
@@ -65,6 +69,7 @@ export function InventoryPage() {
 
   // Search input ref for F3 shortcut
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const historyRequestRef = useRef(0);
 
   const showToast = (title: string, message: string) => {
     setToast({ title, message });
@@ -314,6 +319,23 @@ export function InventoryPage() {
     }
   };
 
+  const handleViewHistory = async (item: InventoryItem) => {
+    const requestId = historyRequestRef.current + 1;
+    historyRequestRef.current = requestId;
+    setHistoryItem(item);
+    setHistoryMovements([]);
+    setHistoryError(null);
+    setIsHistoryLoading(true);
+    try {
+      const movements = await inventoryService.getMovementHistory(item);
+      if (historyRequestRef.current === requestId) setHistoryMovements(movements);
+    } catch (error) {
+      if (historyRequestRef.current === requestId) setHistoryError(error instanceof Error ? error.message : 'Unable to load stock movement history.');
+    } finally {
+      if (historyRequestRef.current === requestId) setIsHistoryLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full h-full min-h-0 overflow-y-auto pr-1">
       <div className="flex flex-col gap-space-base py-space-base pb-16">
@@ -370,7 +392,7 @@ export function InventoryPage() {
             onToggleSelectRow={handleToggleSelectRow}
             onToggleSelectAll={handleToggleSelectAll}
             onAdjustStock={(item) => setAdjustingItem(item)}
-            onViewHistory={(item) => setHistoryItem(item)}
+            onViewHistory={handleViewHistory}
             isLoading={isLoading}
           />
 
@@ -416,6 +438,9 @@ export function InventoryPage() {
       {historyItem && (
         <StockAuditHistoryModal
           item={historyItem}
+          movements={historyMovements}
+          isLoading={isHistoryLoading}
+          error={historyError}
           onClose={() => setHistoryItem(null)}
         />
       )}

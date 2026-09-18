@@ -1,44 +1,21 @@
 import React from 'react';
-import { InventoryItem } from '../types';
+import { InventoryItem, InventoryMovementLog } from '../types';
 
 interface StockAuditHistoryModalProps {
   item: InventoryItem;
+  movements: InventoryMovementLog[];
+  isLoading: boolean;
+  error: string | null;
   onClose: () => void;
 }
 
 export function StockAuditHistoryModal({
   item,
+  movements,
+  isLoading,
+  error,
   onClose,
 }: StockAuditHistoryModalProps) {
-  const movements = item.recentMovements || [
-    {
-      id: 'DEF-1',
-      type: 'sale' as const,
-      title: 'Sale Receipt #POS-9812',
-      subtitle: 'Terminal 01 • Cashier: Alex K. • 12 mins ago',
-      timeAgo: '12 mins ago',
-      delta: -2,
-      balanceAfter: item.onHandQty,
-    },
-    {
-      id: 'DEF-2',
-      type: 'purchase_order' as const,
-      title: 'PO Receipt #PO-2024-044',
-      subtitle: 'Whse Inbound • Verified by Sarah J. • Yesterday',
-      timeAgo: 'Yesterday',
-      delta: 25,
-      balanceAfter: item.onHandQty + 2,
-    },
-    {
-      id: 'DEF-3',
-      type: 'adjustment' as const,
-      title: 'Manual Adjustment - Cycle Count',
-      subtitle: 'Stock verification • 3 days ago',
-      timeAgo: '3 days ago',
-      delta: -1,
-      balanceAfter: item.onHandQty - 23,
-    },
-  ];
 
   return (
     <div className="fixed inset-0 z-50 bg-on-surface/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all">
@@ -74,7 +51,13 @@ export function StockAuditHistoryModal({
             <span>Delta &amp; Balance</span>
           </div>
 
-          {movements.map((mov) => {
+          {isLoading ? (
+            <div className="p-6 text-center text-xs text-on-surface-variant">Loading stock movements...</div>
+          ) : error ? (
+            <div className="p-3 rounded border border-error/30 bg-error-container/20 text-xs text-error" role="alert">{error}</div>
+          ) : movements.length === 0 ? (
+            <div className="p-6 text-center text-xs text-on-surface-variant">No stock movements recorded for this item.</div>
+          ) : movements.map((mov) => {
             const isPositive = mov.delta > 0;
             return (
               <div
@@ -125,7 +108,7 @@ export function StockAuditHistoryModal({
         {/* Footer */}
         <div className="px-space-lg py-space-sm border-t border-outline-variant/20 bg-surface-container-low flex items-center justify-between">
           <span className="font-caption text-caption text-on-surface-variant">
-            Showing last {movements.length} logged ledger movements
+            Showing {movements.length} production ledger movement{movements.length === 1 ? '' : 's'}
           </span>
           <button
             type="button"

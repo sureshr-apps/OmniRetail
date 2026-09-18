@@ -98,6 +98,7 @@ import { deriveLicenseStatus } from './licenses/licenseStatus.js';
 import { recordPurchasePayment } from './purchasePayments.js';
 import { closePurchaseWithPartialReceipt } from './purchaseClosure.js';
 import { cancelPurchaseWithAccounting, PurchaseCancellationError } from './purchaseCancellation.js';
+import { listInventoryMovementHistory } from './inventoryMovements.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -1263,6 +1264,25 @@ export const adjustTenantInventoryStock = onCall(callableOptions, async (request
     const result = await withSqlTransaction((client) => adjustInventoryWithBatches(client, { organizationId, outletId, productId, mode, quantity, expectedPreviousQty: previousQty, reasonCode, auditNote: typeof d.auditNote === 'string' ? d.auditNote.trim() || null : null, requestId, actorFirebaseUid: actor }));
     return { success: true, organizationId, outletId, productId, newQty: result.newQty };
   } catch (error) { logCallableFailure('adjustTenantInventoryStock', error); throw new HttpsError('permission-denied', 'Unable to adjust inventory stock.'); }
+});
+
+export const listTenantInventoryMovementHistory = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'inventory.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const productId = typeof d.productId === 'string' ? d.productId : '';
+    if (!organizationId || !outletId || !productId) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'inventory.read');
+    const movements = await withSqlTransaction((client) => listInventoryMovementHistory(client, { organizationId, outletId, productId, limit: 50 }));
+    return { success: true, organizationId, outletId, productId, movements };
+  } catch (error) {
+    logCallableFailure('listTenantInventoryMovementHistory', error);
+    throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to load inventory movement history.');
+  }
 });
 
 export const createTenantInventoryStockRecord = onCall(callableOptions, async (request) => {

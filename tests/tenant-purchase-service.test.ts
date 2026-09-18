@@ -31,4 +31,9 @@ describe('tenant purchase service adapter', () => {
     expect(functions).toContain('lines.length === 0');
     expect(modal).toContain('Add at least one product line before saving the purchase.');
   });
+
+  it('uses the trusted outlet lookup inside Cloud Functions instead of a user-authenticated outlet query', () => {
+    expect(functions).toContain('getTenantOutletTrusted({ organizationId, id: outletId })');
+    expect(functions).not.toContain('listTenantOutlets({ organizationId })');
+  });
 });

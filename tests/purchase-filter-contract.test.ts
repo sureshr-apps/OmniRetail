@@ -14,6 +14,9 @@ describe('purchase filter controls', () => {
   it('uses a selectable from/to date range instead of a period dropdown', () => {
     expect(toolbar).toContain('Date Range');
     expect(toolbar.match(/type="date"/g)).toHaveLength(2);
+    expect(toolbar).toContain('flex h-9 items-center');
+    expect(toolbar).toContain('block w-full h-9');
+    expect(toolbar).toContain('appearance-none h-9');
     expect(toolbar).toContain('dateRangeStart');
     expect(toolbar).toContain('dateRangeEnd');
     expect(toolbar).not.toContain('datePeriod');

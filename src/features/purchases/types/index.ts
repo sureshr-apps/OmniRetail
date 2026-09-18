@@ -20,15 +20,6 @@ export interface PurchaseItem {
   lineTotal: number;
 }
 
-export interface PurchaseAuditEntry {
-  id: string;
-  title: string;
-  timeAgo: string;
-  details: string;
-  timestamp: string;
-  dotType: 'primary' | 'outline' | 'variant';
-}
-
 export interface PurchaseReceiptBatch {
   quantity: number;
   batchNumber: string;
@@ -99,7 +90,6 @@ export interface Purchase {
   expiryDate?: string;
   createdBy: string; // e.g. "Sarah Jenkins"
   creatorRole: string; // e.g. "Store Mgr", "Procurement Head", "Inventory Lead", "Admin"
-  auditTrail?: PurchaseAuditEntry[];
   createdAt: string;
   updatedAt: string;
 }

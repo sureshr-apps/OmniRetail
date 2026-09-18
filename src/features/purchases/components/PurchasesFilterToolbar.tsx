@@ -67,7 +67,7 @@ export function PurchasesFilterToolbar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by purchase number, supplier, invoice number, or reference number..."
-            className="block w-full pl-9 pr-14 py-2 text-xs bg-surface-container-low border border-outline-variant/50 rounded focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/70 text-on-surface"
+            className="block w-full h-9 pl-9 pr-14 text-xs bg-surface-container-low border border-outline-variant/50 rounded focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/70 text-on-surface"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
             <kbd className="px-1.5 py-0.5 text-[10px] font-medium text-on-surface-variant bg-surface-container-lowest rounded border border-outline-variant/40">
@@ -79,7 +79,7 @@ export function PurchasesFilterToolbar({
         {/* Filter Dropdowns Group */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Date Range */}
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-surface-container-low border border-outline-variant/50 rounded text-xs font-medium text-on-surface">
+          <div className="flex h-9 items-center gap-1.5 px-2 bg-surface-container-low border border-outline-variant/50 rounded text-xs font-medium text-on-surface">
             <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">Date Range</span>
             <label className="flex items-center gap-1">
               <span className="text-[10px] text-on-surface-variant">From</span>
@@ -88,7 +88,7 @@ export function PurchasesFilterToolbar({
                 value={dateRangeStart}
                 max={dateRangeEnd || undefined}
                 onChange={(e) => onDateRangeStartChange(e.target.value)}
-                className="bg-transparent text-xs text-on-surface focus:outline-none cursor-pointer"
+                className="h-7 bg-transparent text-xs text-on-surface focus:outline-none cursor-pointer"
               />
             </label>
             <label className="flex items-center gap-1">
@@ -98,7 +98,7 @@ export function PurchasesFilterToolbar({
                 value={dateRangeEnd}
                 min={dateRangeStart || undefined}
                 onChange={(e) => onDateRangeEndChange(e.target.value)}
-                className="bg-transparent text-xs text-on-surface focus:outline-none cursor-pointer"
+                className="h-7 bg-transparent text-xs text-on-surface focus:outline-none cursor-pointer"
               />
             </label>
           </div>
@@ -108,7 +108,7 @@ export function PurchasesFilterToolbar({
             <select
               value={selectedOutlet}
               onChange={(e) => onOutletChange(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
+              className="appearance-none h-9 pl-3 pr-8 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
             >
               <option>All Outlets</option>
               {outlets.map((o) => (
@@ -127,7 +127,7 @@ export function PurchasesFilterToolbar({
             <select
               value={selectedSupplier}
               onChange={(e) => onSupplierChange(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
+              className="appearance-none h-9 pl-3 pr-8 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
             >
               <option>All Suppliers</option>
               {suppliers.map((s) => (
@@ -146,7 +146,7 @@ export function PurchasesFilterToolbar({
             <select
               value={selectedPaymentStatus}
               onChange={(e) => onPaymentStatusChange(e.target.value as PaymentStatus | 'ALL')}
-              className="appearance-none pl-3 pr-8 py-2 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
+              className="appearance-none h-9 pl-3 pr-8 text-xs bg-surface-container-low border border-outline-variant/50 rounded font-medium text-on-surface focus:border-primary focus:ring-0 cursor-pointer"
             >
               <option value="ALL">All Payments: Unpaid, Paid...</option>
               <option value="PAID">Paid</option>

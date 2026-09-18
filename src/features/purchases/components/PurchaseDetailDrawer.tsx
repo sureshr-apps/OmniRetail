@@ -744,45 +744,6 @@ export function PurchaseDetailDrawer({
               </div>
             )}
 
-            {/* 3. Audit Log History */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-                Procurement Audit Trail
-              </h4>
-              <ol className="relative border-l border-outline-variant/40 ml-3 space-y-4">
-                {purchase.auditTrail && purchase.auditTrail.length > 0 ? (
-                  purchase.auditTrail.map((log) => (
-                    <li key={log.id} className="ml-4">
-                      <div
-                        className={`absolute -left-1.5 mt-1.5 size-3 rounded-full border border-surface-container-lowest ${
-                          log.dotType === 'primary'
-                            ? 'bg-primary'
-                            : log.dotType === 'outline'
-                            ? 'bg-outline'
-                            : 'bg-outline-variant'
-                        }`}
-                      />
-                      <time className="mb-1 text-[10px] font-mono text-on-surface-variant block">
-                        {log.timeAgo}
-                      </time>
-                      <h5 className="text-xs font-bold text-on-surface">{log.title}</h5>
-                      <p className="text-[11px] text-on-surface-variant">{log.details}</p>
-                    </li>
-                  ))
-                ) : (
-                  <li className="ml-4">
-                    <div className="absolute -left-1.5 mt-1.5 size-3 rounded-full border border-surface-container-lowest bg-primary" />
-                    <time className="mb-1 text-[10px] font-mono text-on-surface-variant block">
-                      {purchase.date} {purchase.time}
-                    </time>
-                    <h5 className="text-xs font-bold text-on-surface">Purchase Created</h5>
-                    <p className="text-[11px] text-on-surface-variant">
-                      Initiated by {purchase.createdBy} ({purchase.creatorRole}).
-                    </p>
-                  </li>
-                )}
-              </ol>
-            </div>
           </div>
 
           {/* Drawer Footer Actions */}

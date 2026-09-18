@@ -403,49 +403,7 @@ export function PurchaseDetailDrawer({
               </div>
             )}
 
-            {/* 3. Invoices & Supporting Attachments */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-                Attachments &amp; Vendor Documents
-              </h4>
-              <div className="flex items-center gap-3 p-3 rounded border border-outline-variant/40 bg-surface-container-low/30 hover:bg-surface-container-low/60 transition-colors">
-                <div className="size-10 rounded bg-red-100 text-red-700 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[24px]">picture_as_pdf</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-on-surface truncate">
-                    {purchase.invoiceNumber || 'INV-ZTM-8821'}_Signed_Challan.pdf
-                  </p>
-                  <p className="text-[10px] text-on-surface-variant font-mono">
-                    1.8 MB · Uploaded by {purchase.createdBy} · {purchase.date}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alert('Downloading vendor challan attachment.')
-                    }
-                    className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant cursor-pointer"
-                    title="Download"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">download</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alert('Opening PDF document viewer in secure preview.')
-                    }
-                    className="p-1.5 rounded hover:bg-surface-container text-on-surface-variant cursor-pointer"
-                    title="Preview"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. Audit Log History */}
+            {/* 3. Audit Log History */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
                 Procurement Audit Trail
@@ -508,13 +466,6 @@ export function PurchaseDetailDrawer({
             )}
 
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="px-3 py-1.5 rounded border border-outline-variant/60 text-xs font-medium hover:bg-surface-container-high text-on-surface cursor-pointer"
-              >
-                Print Purchase Voucher
-              </button>
               <button
                 type="button"
                 onClick={onClose}

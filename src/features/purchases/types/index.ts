@@ -19,15 +19,6 @@ export interface PurchaseItem {
   lineTotal: number;
 }
 
-export interface PurchaseAttachment {
-  id: string;
-  name: string;
-  size: string;
-  uploader: string;
-  date: string;
-  fileType: 'pdf' | 'img' | 'doc';
-}
-
 export interface PurchaseAuditEntry {
   id: string;
   title: string;
@@ -75,7 +66,6 @@ export interface Purchase {
   expiryDate?: string;
   createdBy: string; // e.g. "Sarah Jenkins"
   creatorRole: string; // e.g. "Store Mgr", "Procurement Head", "Inventory Lead", "Admin"
-  attachments?: PurchaseAttachment[];
   auditTrail?: PurchaseAuditEntry[];
   createdAt: string;
   updatedAt: string;

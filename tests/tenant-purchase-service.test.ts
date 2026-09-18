@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { calculatePurchaseTotals } from '@/features/purchases/utils/calculations';
 const source = readFileSync(new URL('../src/features/purchases/services/purchaseService.ts', import.meta.url), 'utf8');
 const modal = readFileSync(new URL('../src/features/purchases/components/CreatePurchaseModal.tsx', import.meta.url), 'utf8');
+const detailDrawer = readFileSync(new URL('../src/features/purchases/components/PurchaseDetailDrawer.tsx', import.meta.url), 'utf8');
 const functions = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
 const inventoryBatches = readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8');
 
@@ -50,6 +51,13 @@ describe('tenant purchase service adapter', () => {
   it('does not render the unsupported vendor attachment upload section', () => {
     expect(modal).not.toContain('Vendor Invoice / Challan Attachment');
     expect(modal).not.toContain('Drag &amp; drop vendor receipt');
+  });
+
+  it('does not render unsupported purchase attachments or voucher printing', () => {
+    expect(detailDrawer).not.toContain('Attachments &amp; Vendor Documents');
+    expect(detailDrawer).not.toContain('Downloading vendor challan attachment');
+    expect(detailDrawer).not.toContain('Opening PDF document viewer in secure preview');
+    expect(detailDrawer).not.toContain('Print Purchase Voucher');
   });
 
   it('persists draft and active purchase statuses and rejects empty purchases', () => {

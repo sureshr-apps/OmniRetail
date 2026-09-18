@@ -111,4 +111,14 @@ describe('tenant purchase service adapter', () => {
     expect(inventoryBatches).toContain('overstock_threshold, updated_at) VALUES ($1, $2, $3, 0, $4, $5, NOW())');
     expect(inventoryBatches).toContain('overstock_threshold, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())');
   });
+
+  it('initializes inventory batch receipt timestamps for raw SQL inserts', () => {
+    const inserts = [...inventoryBatches.matchAll(/INSERT INTO "inventory_batch" \(([^)]+)\)/g)];
+
+    expect(inserts).toHaveLength(2);
+    for (const insert of inserts) expect(insert[1]).toContain('received_at');
+    expect(inventoryBatches).toContain('expiry_date, on_hand_qty, received_at) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, NOW())');
+    expect(inventoryBatches).toContain('batch_number, on_hand_qty, received_at)');
+    expect(inventoryBatches).toContain("\\'UNTRACKED\\'");
+  });
 });

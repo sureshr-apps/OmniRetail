@@ -225,7 +225,7 @@ async function loadOrCreateBatch(
   }
   const id = randomUUID();
   await client.query(
-    'INSERT INTO "inventory_batch" (id, organization_id, outlet_id, product_id, batch_number, mfg_date, expiry_date, on_hand_qty) VALUES ($1, $2, $3, $4, $5, $6, $7, 0)',
+    'INSERT INTO "inventory_batch" (id, organization_id, outlet_id, product_id, batch_number, mfg_date, expiry_date, on_hand_qty, received_at) VALUES ($1, $2, $3, $4, $5, $6, $7, 0, NOW())',
     [id, input.organizationId, input.outletId, input.productId, input.batchNumber, input.mfgDate, input.expiryDate],
   );
   return { id, batchNumber: input.batchNumber, mfgDate: input.mfgDate, expiryDate: input.expiryDate, onHandQty: 0, receivedAt: null };
@@ -249,7 +249,7 @@ async function loadBatchesForUpdate(client: PoolClient, organizationId: string, 
   if (!result.rowCount) {
     const id = randomUUID();
     await client.query(
-      'INSERT INTO "inventory_batch" (id, organization_id, outlet_id, product_id, batch_number, on_hand_qty) VALUES ($1, $2, $3, $4, \'UNTRACKED\', $5)',
+      'INSERT INTO "inventory_batch" (id, organization_id, outlet_id, product_id, batch_number, on_hand_qty, received_at) VALUES ($1, $2, $3, $4, \'UNTRACKED\', $5, NOW())',
       [id, organizationId, outletId, productId, aggregateQty],
     );
     result = await client.query(

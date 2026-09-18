@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { calculatePurchaseTotals } from '@/features/purchases/utils/calculations';
 const source = readFileSync(new URL('../src/features/purchases/services/purchaseService.ts', import.meta.url), 'utf8');
 const modal = readFileSync(new URL('../src/features/purchases/components/CreatePurchaseModal.tsx', import.meta.url), 'utf8');
 const functions = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
@@ -17,6 +18,18 @@ describe('tenant purchase service adapter', () => {
     expect(source).toContain('paymentStatus: input.paymentOption');
     expect(source).toContain('status: input.status.toUpperCase()');
     expect(source).toContain('input.outletId ? candidate.id === input.outletId');
+    expect(source).toContain('input.handlingFee, input.initialPaymentRecorded');
+  });
+
+  it('calculates balance due after applying the initial payment', () => {
+    const totals = calculatePurchaseTotals([
+      { quantity: 10, unitCost: 10, discountPercent: 0, taxRate: 5 },
+      { quantity: 10, unitCost: 10, discountPercent: 0, taxRate: 5 },
+      { quantity: 10, unitCost: 5, discountPercent: 0, taxRate: 5 },
+    ], 120, 0, 100);
+
+    expect(totals.grandTotal).toBe(382.5);
+    expect(totals.outstandingAmount).toBe(282.5);
   });
 
   it('initializes production supplier and outlet choices instead of fixture ids', () => {
@@ -44,6 +57,8 @@ describe('tenant purchase service adapter', () => {
     expect(functions).toContain('status, createdBy');
     expect(functions).toContain('lines.length === 0');
     expect(modal).toContain('Add at least one product line before saving the purchase.');
+    expect(functions).toContain('const outstandingAmount = Math.max(0, Number((totalAmount - amountPaid).toFixed(2)))');
+    expect(functions).toContain('outstandingAmount, paymentStatus');
   });
 
   it('uses the trusted outlet lookup inside Cloud Functions instead of a user-authenticated outlet query', () => {

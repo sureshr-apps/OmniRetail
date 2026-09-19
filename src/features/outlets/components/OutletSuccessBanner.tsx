@@ -25,7 +25,7 @@ export function OutletSuccessBanner({
           {outletCode !== undefined && (
             <span>
               Outlet <span className="font-mono font-semibold">{formatOutletCode(outletCode)}</span>
-              {outletName ? ` (${outletName})` : ''} has been saved and initialized with cloud POS sync.
+              {outletName ? ` (${outletName})` : ''} has been saved.
             </span>
           )}
         </div>

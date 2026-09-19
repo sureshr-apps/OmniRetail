@@ -32,7 +32,7 @@ export function OutletHeader({
           </span>
         </div>
         <p className="text-xs text-slate-500 mt-0.5">
-          Manage your organization’s outlets, store locations, contact hierarchy, and register licenses.
+          Manage your organization’s outlets, store locations, and contacts.
         </p>
       </div>
 

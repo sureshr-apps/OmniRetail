@@ -45,7 +45,7 @@ export function EmployeeStatusConfirmDialog({
                   Are you sure you want to deactivate{' '}
                   <strong className="text-on-surface">{employee.displayName}</strong> (
                   {formatEmployeeCode(employee.employeeCode)})? This employee will be marked inactive and prevented from
-                  initiating new POS terminal shifts.
+                  login.
                 </>
               ) : (
                 <>

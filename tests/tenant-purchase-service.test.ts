@@ -7,6 +7,15 @@ const detailDrawer = readFileSync(new URL('../src/features/purchases/components/
 const functions = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
 const inventoryBatches = readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8');
 const closure = readFileSync(new URL('../functions/src/purchaseClosure.ts', import.meta.url), 'utf8');
+const purchasesPage = readFileSync(new URL('../src/features/purchases/pages/PurchasesPage.tsx', import.meta.url), 'utf8');
+
+function section(source: string, start: string, end: string): string {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  expect(startIndex).toBeGreaterThanOrEqual(0);
+  expect(endIndex).toBeGreaterThan(startIndex);
+  return source.slice(startIndex, endIndex);
+}
 
 describe('tenant purchase service adapter', () => {
   it('uses tenant reads and production lifecycle actions', () => {
@@ -162,6 +171,14 @@ describe('tenant purchase service adapter', () => {
     expect(detailDrawer).toContain('purchase.amountPaid > purchase.totalAmount');
     expect(detailDrawer).toContain("purchase.receiptStatus === 'RECEIVED'");
     expect(source).not.toContain('Refunds can only be recorded for cancelled purchases.');
+  });
+
+  it('handles the deployed flat refund summary and avoids a redundant ledger refresh', () => {
+    const refundHandler = section(purchasesPage, 'const handleRecordRefund', 'return (');
+    const service = source;
+    expect(service).toContain('normalizePurchaseRefundResponse(response.data as PurchaseRefundCallableResponse)');
+    expect(refundHandler).not.toContain('await loadLedger()');
+    expect(refundHandler).toContain('recorded against the purchase.');
   });
 
   it('initializes inventory stock timestamps for raw SQL inserts', () => {

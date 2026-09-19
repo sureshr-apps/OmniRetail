@@ -5,6 +5,7 @@ import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { formatProductCode } from '@/features/products/utils/formatProductCode';
 import { validatePurchaseReceiptLines } from '../utils/receiving';
+import { mapPurchaseRefund, normalizePurchaseRefundResponse, PurchaseRefundCallableResponse } from '../utils/refunds';
 
 export interface SupplierOption { id: string; name: string; taxId?: string; note?: string; contact?: string; }
 export interface OutletOption { id: string; name: string; isOrgWide?: boolean; }
@@ -40,19 +41,6 @@ function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
     status, receivingNotes: row.receivingNotes ?? undefined,
     batchNumber: row.batchNumber ?? undefined, mfgDate: row.mfgDate ?? undefined, expiryDate: row.expiryDate ?? undefined,
     paymentTerms: row.paymentTerms ?? undefined, createdBy: row.createdBy, creatorRole: '', createdAt: row.createdAt, updatedAt: row.updatedAt,
-  };
-}
-
-function mapPurchaseRefund(row: any): PurchaseRefund {
-  return {
-    id: String(row.id),
-    amount: Number(row.amount),
-    refundDate: String(row.refundDate),
-    refundMethod: String(row.refundMethod),
-    reference: row.reference == null ? undefined : String(row.reference),
-    notes: row.notes == null ? undefined : String(row.notes),
-    recordedBy: String(row.recordedBy),
-    createdAt: String(row.createdAt),
   };
 }
 
@@ -202,8 +190,7 @@ class ProductionPurchaseService implements IPurchaseService {
       notes: input.notes?.trim() || null,
       requestId: globalThis.crypto.randomUUID(),
     });
-    const data = response.data as { refund: unknown; summary: PurchaseRefundSummary };
-    return { refund: mapPurchaseRefund(data.refund), summary: data.summary };
+    return normalizePurchaseRefundResponse(response.data as PurchaseRefundCallableResponse);
   }
 }
 

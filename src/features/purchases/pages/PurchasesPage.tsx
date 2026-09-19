@@ -362,12 +362,11 @@ export function PurchasesPage() {
   const handleRecordRefund = useCallback(async (purchaseId: string, refund: RecordPurchaseRefundInput): Promise<{ refund: PurchaseRefund; summary: PurchaseRefundSummary }> => {
     try {
       const result = await purchaseService.recordRefund(purchaseId, refund);
-      await loadLedger();
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
         title: 'Supplier Refund Recorded',
-        description: `₹${refund.amount.toFixed(2)} has been recorded against the cancelled purchase.`,
+        description: `₹${refund.amount.toFixed(2)} has been recorded against the purchase.`,
       });
       return result;
     } catch (err) {
@@ -380,7 +379,7 @@ export function PurchasesPage() {
       });
       throw err;
     }
-  }, [loadLedger]);
+  }, []);
 
   return (
     <div className="flex flex-col w-full h-full min-h-0 overflow-y-auto pr-1 select-none">

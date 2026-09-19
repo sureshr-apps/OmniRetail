@@ -4,13 +4,13 @@ import { formatCurrency } from '../utils/calculations';
 
 interface ExpensesKpiCardsProps {
   kpis: ExpenseKPIs;
-  periodLabel?: string;
+  periodLabel: string;
   onFilterPending?: () => void;
 }
 
 export function ExpensesKpiCards({
   kpis,
-  periodLabel = 'Oct 2024',
+  periodLabel,
   onFilterPending,
 }: ExpensesKpiCardsProps) {
   return (

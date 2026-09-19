@@ -19,6 +19,9 @@ import { ExpensesPagination } from '../components/ExpensesPagination';
 import { ExpenseDetailDrawer } from '../components/ExpenseDetailDrawer';
 import { AddExpenseModal } from '../components/AddExpenseModal';
 import { VoidConfirmDialog } from '../components/VoidConfirmDialog';
+import { outletService } from '@/features/outlets/services/outletService';
+import { employeeService } from '@/features/employees/services/employeeService';
+import { useAuth } from '@/app/context/AuthContext';
 
 export function ExpensesPage() {
   // Filters & Query State
@@ -34,7 +37,11 @@ export function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [allExpensesForKpi, setAllExpensesForKpi] = useState<Expense[]>([]);
+  const [availableOutlets, setAvailableOutlets] = useState<Array<{ id: string; name: string }>>([]);
+  const [availableEmployees, setAvailableEmployees] = useState<Array<{ id: string; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const currentUserName = user?.displayName?.trim() || user?.username?.trim() || '';
 
   // Selected & Modal State
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -45,12 +52,8 @@ export function ExpensesPage() {
   const [isVoidDialogOpen, setIsVoidDialogOpen] = useState(false);
 
   // Workflow Banner State
-  const [showWorkflowBanner, setShowWorkflowBanner] = useState(true);
-  const [workflowBannerData, setWorkflowBannerData] = useState({
-    expenseNumber: 'EX-2024-090',
-    message: 'successfully submitted for Tier-2 Manager Review and Audit Clearance.',
-    dispatchCode: 'DISPATCHED #04',
-  });
+  const [showWorkflowBanner, setShowWorkflowBanner] = useState(false);
+  const [workflowBannerData, setWorkflowBannerData] = useState<{ expenseNumber: string; message: string; dispatchCode: string } | null>(null);
 
   // Fetch KPI data (all expenses or period-based)
   const loadKpiData = useCallback(async () => {
@@ -93,6 +96,17 @@ export function ExpensesPage() {
     loadExpenses();
   }, [loadExpenses]);
 
+  useEffect(() => {
+    let active = true;
+    void outletService.getAllActiveOutlets().then((outlets) => {
+      if (active) setAvailableOutlets(outlets.map((outlet) => ({ id: outlet.id, name: outlet.name })));
+    }).catch((error) => console.error('Failed to load expense outlets:', error));
+    void employeeService.getAllEmployees().then((employees) => {
+      if (active) setAvailableEmployees(employees.filter((employee) => employee.employmentStatus === 'Active').map((employee) => ({ id: employee.id, name: employee.displayName })));
+    }).catch((error) => console.error('Failed to load expense employees:', error));
+    return () => { active = false; };
+  }, []);
+
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
@@ -130,11 +144,9 @@ export function ExpensesPage() {
       setWorkflowBannerData({
         expenseNumber: created.expenseNumber,
         message: isDraft
-          ? 'saved as Draft. Accessible in Draft status filter.'
-          : created.approvalStatus === 'Approved'
-          ? 'automatically approved under auto-reimbursement threshold (₹50).'
-          : 'successfully submitted for Tier-2 Manager Review and Audit Clearance.',
-        dispatchCode: `DISPATCHED #${created.outletName.slice(-2)}`,
+          ? 'saved as Draft.'
+          : `recorded with status ${created.approvalStatus}.`,
+        dispatchCode: created.approvalStatus,
       });
       setShowWorkflowBanner(true);
       // Reload lists
@@ -189,7 +201,7 @@ export function ExpensesPage() {
   // Manager approval action
   const handleApproveExpense = async (expense: Expense) => {
     try {
-      const approved = await expenseService.approveExpense(expense.id, 'Sarah Jenkins (Store Mgr #04)');
+      const approved = await expenseService.approveExpense(expense.id);
       setSelectedExpense(approved);
       await loadExpenses();
       await loadKpiData();
@@ -200,12 +212,10 @@ export function ExpensesPage() {
 
   // Manager rejection action
   const handleRejectExpense = async (expense: Expense) => {
+    const reason = window.prompt('Enter a rejection reason for this expense:')?.trim();
+    if (!reason) return;
     try {
-      const rejected = await expenseService.rejectExpense(
-        expense.id,
-        'Voucher lacks valid tax registration number. Please re-submit.',
-        'Sarah Jenkins (Store Mgr #04)'
-      );
+      const rejected = await expenseService.rejectExpense(expense.id, reason);
       setSelectedExpense(rejected);
       await loadExpenses();
       await loadKpiData();
@@ -252,7 +262,7 @@ export function ExpensesPage() {
         <LedgerBreadcrumbRibbon />
 
         {/* 2. Success / Workflow Notification Banner */}
-        {showWorkflowBanner && (
+        {showWorkflowBanner && workflowBannerData && (
           <WorkflowBanner
             expenseNumber={workflowBannerData.expenseNumber}
             message={workflowBannerData.message}
@@ -261,8 +271,6 @@ export function ExpensesPage() {
               const target = expenses.find((e) => e.expenseNumber === workflowBannerData.expenseNumber);
               if (target) {
                 handleSelectExpense(target);
-              } else {
-                alert(`Routing reference for ${workflowBannerData.expenseNumber}: Dispatched to Store Mgr Tier-2 approval queue.`);
               }
             }}
             onDismiss={() => setShowWorkflowBanner(false)}
@@ -271,7 +279,7 @@ export function ExpensesPage() {
 
         {/* 3. Page Header */}
         <ExpensesHeader
-          totalRecordsCount={allExpensesForKpi.length || 48}
+          totalRecordsCount={allExpensesForKpi.length}
           onOpenAddExpense={() => {
             setExpenseToEdit(null);
             setIsAddModalOpen(true);
@@ -283,7 +291,7 @@ export function ExpensesPage() {
         {/* 4. KPI Metrics Cards */}
         <ExpensesKpiCards
           kpis={dynamicKpis}
-          periodLabel="Oct 2024"
+          periodLabel={new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(new Date())}
           onFilterPending={handleFilterPending}
         />
 
@@ -301,7 +309,8 @@ export function ExpensesPage() {
           onStatusChange={setStatus}
           onResetFilters={handleResetFilters}
           filteredCount={totalCount}
-          totalCount={allExpensesForKpi.length || 48}
+          totalCount={allExpensesForKpi.length}
+          outlets={availableOutlets}
         />
 
         {/* 6. High-density Expenses Data Table */}
@@ -346,6 +355,13 @@ export function ExpensesPage() {
         onSubmit={handleCreateExpense}
         expenseToEdit={expenseToEdit}
         onUpdate={handleUpdateExpense}
+        outlets={availableOutlets}
+        employees={availableEmployees.length > 0
+          ? (currentUserName && !availableEmployees.some((employee) => employee.name === currentUserName)
+            ? [{ id: 'current-user', name: currentUserName }, ...availableEmployees]
+            : availableEmployees)
+          : (currentUserName ? [{ id: 'current-user', name: currentUserName }] : [])}
+        currentUserName={currentUserName}
       />
 
       {/* 10. Void Confirmation Dialog */}

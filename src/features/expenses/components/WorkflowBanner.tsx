@@ -2,16 +2,16 @@ import React from 'react';
 
 interface WorkflowBannerProps {
   expenseNumber: string;
-  message?: string;
-  dispatchCode?: string;
+  message: string;
+  dispatchCode: string;
   onInspectRouting?: () => void;
   onDismiss: () => void;
 }
 
 export function WorkflowBanner({
   expenseNumber,
-  message = 'successfully submitted for Tier-2 Manager Review and Audit Clearance.',
-  dispatchCode = 'DISPATCHED #04',
+  message,
+  dispatchCode,
   onInspectRouting,
   onDismiss,
 }: WorkflowBannerProps) {

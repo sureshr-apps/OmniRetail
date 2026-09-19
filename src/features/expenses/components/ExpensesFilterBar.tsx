@@ -15,6 +15,7 @@ interface ExpensesFilterBarProps {
   onResetFilters: () => void;
   filteredCount: number;
   totalCount: number;
+  outlets: Array<{ id: string; name: string }>;
 }
 
 export function ExpensesFilterBar({
@@ -31,6 +32,7 @@ export function ExpensesFilterBar({
   onResetFilters,
   filteredCount,
   totalCount,
+  outlets,
 }: ExpensesFilterBarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -48,9 +50,13 @@ export function ExpensesFilterBar({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const now = new Date();
+  const currentMonth = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(now);
+  const previousMonth = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+  const formatDate = (date: Date) => new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
   const periodLabelMap: Record<ExpensePeriod, string> = {
-    'This Month': 'This Month (Oct 2024)',
-    'Last Month': 'Last Month (Sep 2024)',
+    'This Month': `This Month (${currentMonth})`,
+    'Last Month': `Last Month (${previousMonth})`,
     'Last 7 Days': 'Last 7 Days',
     'Month to Date': 'Month to Date',
     'Custom Range': 'Custom Range',
@@ -58,10 +64,10 @@ export function ExpensesFilterBar({
   };
 
   const periodConstraintMap: Record<ExpensePeriod, string> = {
-    'This Month': 'Period: Oct 1 - Oct 31, 2024',
-    'Last Month': 'Period: Sep 1 - Sep 30, 2024',
+    'This Month': `Period: ${formatDate(new Date(now.getFullYear(), now.getMonth(), 1))} - ${formatDate(new Date(now.getFullYear(), now.getMonth() + 1, 0))}`,
+    'Last Month': `Period: ${formatDate(new Date(now.getFullYear(), now.getMonth() - 1, 1))} - ${formatDate(new Date(now.getFullYear(), now.getMonth(), 0))}`,
     'Last 7 Days': 'Period: Past 7 Days',
-    'Month to Date': 'Period: Oct 1 - Present',
+    'Month to Date': `Period: ${formatDate(new Date(now.getFullYear(), now.getMonth(), 1))} - Present`,
     'Custom Range': 'Period: Custom Range',
     'All Time': 'Period: All Time',
   };
@@ -95,8 +101,8 @@ export function ExpensesFilterBar({
             onChange={(e) => onPeriodChange(e.target.value as ExpensePeriod)}
             className="w-full h-9 pl-8 pr-7 rounded-lg bg-surface-container-low/70 hover:bg-surface-container-low text-on-surface font-body-default text-body-default border border-outline-variant/30 outline-none appearance-none cursor-pointer truncate"
           >
-            <option value="This Month">This Month (Oct 2024)</option>
-            <option value="Last Month">Last Month (Sep 2024)</option>
+            <option value="This Month">{periodLabelMap['This Month']}</option>
+            <option value="Last Month">{periodLabelMap['Last Month']}</option>
             <option value="Last 7 Days">Last 7 Days</option>
             <option value="Month to Date">Month to Date</option>
             <option value="All Time">All Time</option>
@@ -117,10 +123,9 @@ export function ExpensesFilterBar({
             className="w-full h-9 px-space-sm pr-7 rounded-lg bg-surface-container-low/70 hover:bg-surface-container-low text-on-surface font-body-default text-body-default border border-outline-variant/30 outline-none appearance-none cursor-pointer truncate"
           >
             <option value="All Outlets">Outlet: All Outlets</option>
-            <option value="Downtown Flagship #04">Downtown Flagship #04</option>
-            <option value="Uptown Mall #12">Uptown Mall #12</option>
-            <option value="Westside Mall #02">Westside Mall #02</option>
-            <option value="Northside Mall #08">Northside Mall #08</option>
+            {outlets.map((outletOption) => (
+              <option key={outletOption.id} value={outletOption.name}>{outletOption.name}</option>
+            ))}
             <option value="Organization-wide">Organization-wide</option>
           </select>
           <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px] pointer-events-none">

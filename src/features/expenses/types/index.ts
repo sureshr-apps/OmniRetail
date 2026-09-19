@@ -15,14 +15,6 @@ export type ExpenseScope = 'Outlet' | 'Organization-wide';
 
 export type PaymentMethod = 'Cash' | 'Card' | 'Bank Transfer' | 'UPI / Digital' | 'Other';
 
-export interface ExpenseAttachment {
-  id: string;
-  name: string;
-  size: string;
-  type: string;
-  uploadDate: string;
-}
-
 export interface ExpenseAuditEntry {
   id: string;
   title: string;
@@ -35,30 +27,29 @@ export interface ExpenseAuditEntry {
 
 export interface Expense {
   id: string;
-  expenseNumber: string; // e.g. EX-2024-091
-  date: string; // formatted e.g. "Oct 24, 2024" or ISO "2024-10-24"
+  expenseNumber: string;
+  date: string;
   timestamp: number; // epoch ms for deterministic period filtering and sorting
   category: ExpenseCategory;
   description: string;
-  reference?: string; // e.g. "GRID-TEX-8820 · Due EOM" or "INV-EKP-9921"
-  vendorName?: string; // e.g. "EcoKraft Packaging Ltd."
+  reference?: string;
+  vendorName?: string;
   outletId?: string;
-  outletName: string; // e.g. "Downtown Flagship #04", "Westside Mall #02", "Organization-wide"
-  outletAddress?: string; // e.g. "410 Congress Ave"
+  outletName: string;
+  outletAddress?: string;
   scope: ExpenseScope;
   baseAmount: number;
   taxAmount: number;
   amount: number; // total = baseAmount + taxAmount
   paymentMethod: PaymentMethod;
-  paidByEmployee: string; // e.g. "Elena Rostova (EMP-103)"
+  paidByEmployee: string;
   settlementDate?: string;
   status: ExpenseStatus; // Active | Voided
   approvalStatus: ExpenseApprovalStatus; // Draft | Pending Approval | Approved | Rejected
-  submittedBy: string; // e.g. "Marcus Vance"
-  submittedByRole?: string; // e.g. "Asst. Mgr"
-  rejectionReason?: string; // e.g. "Missing vendor tax invoice"
+  submittedBy: string;
+  submittedByRole?: string;
+  rejectionReason?: string;
   notes?: string;
-  attachments?: ExpenseAttachment[];
   auditTrail: ExpenseAuditEntry[];
   createdAt: string;
   updatedAt: string;
@@ -115,7 +106,9 @@ export interface CreateExpenseInput {
   description: string;
   vendorName: string;
   reference?: string;
+  outletId?: string;
   outletName: string;
+  scope?: ExpenseScope;
   baseAmount: number;
   taxAmount: number;
   paymentMethod: PaymentMethod;
@@ -130,7 +123,9 @@ export interface UpdateExpenseInput {
   description?: string;
   vendorName?: string;
   reference?: string;
+  outletId?: string;
   outletName?: string;
+  scope?: ExpenseScope;
   baseAmount?: number;
   taxAmount?: number;
   paymentMethod?: PaymentMethod;

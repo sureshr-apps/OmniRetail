@@ -244,50 +244,6 @@ export function ExpenseDetailDrawer({
             </div>
           </div>
 
-          {/* Supporting Documents & Receipts */}
-          <div className="flex flex-col gap-space-xs">
-            <div className="flex items-center justify-between">
-              <span className="font-micro-label text-micro-label uppercase tracking-wider text-outline font-bold">
-                SUPPORTING INVOICES ({expense.attachments?.length || 1})
-              </span>
-              <span className="text-primary font-caption text-caption cursor-pointer hover:underline">
-                + Attach More
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low border border-outline-variant/30 hover:bg-surface-container-high transition-colors">
-              <div className="flex items-center gap-space-sm min-w-0">
-                <div className="w-9 h-9 rounded bg-error-container/40 text-error flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="font-body-medium text-body-medium text-on-surface truncate font-semibold">
-                    {expense.attachments?.[0]?.name || `Invoice_${expense.expenseNumber}.pdf`}
-                  </span>
-                  <span className="font-caption text-caption text-on-surface-variant">
-                    {expense.attachments?.[0]?.size || '1.2 MB'} · Certified Upload
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => alert(`Previewing invoice document for ${expense.expenseNumber}`)}
-                  className="px-2 py-1 rounded bg-surface-container-lowest hover:bg-surface-container text-primary font-caption text-caption font-semibold transition-colors border border-outline-variant/30 cursor-pointer"
-                >
-                  Preview
-                </button>
-                <button
-                  type="button"
-                  onClick={() => alert(`Downloading invoice receipt for ${expense.expenseNumber}`)}
-                  className="p-1 rounded text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
-                  title="Download"
-                >
-                  <span className="material-symbols-outlined text-[18px]">download</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
           {/* Audit Trail & Timeline */}
           <div className="flex flex-col gap-space-xs">
             <span className="font-micro-label text-micro-label uppercase tracking-wider text-outline font-bold">
@@ -339,7 +295,7 @@ export function ExpenseDetailDrawer({
                         Pending Store Manager Sign-Off
                       </span>
                       <span className="font-caption text-caption text-on-surface-variant">
-                        Assigned to Sarah Jenkins (Store Mgr #04)
+                        Awaiting an authorized approval decision.
                       </span>
                     </div>
                   )}

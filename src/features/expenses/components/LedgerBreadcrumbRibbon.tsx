@@ -8,22 +8,12 @@ export function LedgerBreadcrumbRibbon() {
         <span className="font-micro-label text-micro-label uppercase tracking-widest text-outline font-bold">
           FINANCIALS &amp; LEDGER
         </span>
-        <span className="text-outline-variant font-body-mono-num text-body-mono-num">/</span>
-        <span className="font-body-mono-num text-body-mono-num font-semibold text-primary">
-          EXP-DIR-24
-        </span>
-        <span className="ml-space-xs px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-micro-label text-micro-label uppercase font-bold">
-          AUDITED TIER-1
-        </span>
       </div>
 
       <div className="flex items-center gap-space-sm font-caption text-caption text-on-surface-variant">
         <span className="inline-flex items-center gap-1 font-micro-label text-micro-label px-2 py-0.5 rounded bg-secondary-container/60 text-on-secondary-container font-bold uppercase tracking-wider">
           <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
           LEDGER ACTIVE
-        </span>
-        <span className="hidden sm:inline-block text-outline font-body-mono-num text-body-mono-num">
-          TENANT: PUNARVA-FASHION-01
         </span>
       </div>
     </div>

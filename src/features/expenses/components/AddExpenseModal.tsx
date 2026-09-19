@@ -8,6 +8,16 @@ interface AddExpenseModalProps {
   onSubmit: (input: CreateExpenseInput, isDraft?: boolean) => void;
   expenseToEdit?: Expense | null;
   onUpdate?: (id: string, input: Partial<CreateExpenseInput>) => void;
+  outlets: Array<{ id: string; name: string }>;
+  employees: Array<{ id: string; name: string }>;
+  currentUserName: string;
+}
+
+function getLocalDateInputValue(): string {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${today.getFullYear()}-${month}-${day}`;
 }
 
 export function AddExpenseModal({
@@ -16,21 +26,23 @@ export function AddExpenseModal({
   onSubmit,
   expenseToEdit,
   onUpdate,
+  outlets,
+  employees,
+  currentUserName,
 }: AddExpenseModalProps) {
-  const [expenseNumber, setExpenseNumber] = useState('EX-2024-092');
-  const [expenseDate, setExpenseDate] = useState('2024-10-25');
-  const [category, setCategory] = useState<ExpenseCategory>('Store Supplies');
-  const [baseAmount, setBaseAmount] = useState<number | ''>(250.0);
-  const [taxAmount, setTaxAmount] = useState<number | ''>(22.5);
-  const [outletName, setOutletName] = useState('Downtown Flagship #04');
-  const [vendorName, setVendorName] = useState('Apex Packaging Co.');
-  const [reference, setReference] = useState('INV-APX-441');
-  const [description, setDescription] = useState('Thermal Paper Roll Refills for POS Terminals');
+  const [expenseNumber, setExpenseNumber] = useState('');
+  const [expenseDate, setExpenseDate] = useState(getLocalDateInputValue);
+  const [category, setCategory] = useState<ExpenseCategory | ''>('');
+  const [baseAmount, setBaseAmount] = useState<number | ''>('');
+  const [taxAmount, setTaxAmount] = useState<number | ''>('');
+  const [outletId, setOutletId] = useState('');
+  const [outletName, setOutletName] = useState('');
+  const [vendorName, setVendorName] = useState('');
+  const [reference, setReference] = useState('');
+  const [description, setDescription] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Card');
-  const [paidByEmployee, setPaidByEmployee] = useState('Elena Rostova (Sr. Cashier)');
-  const [paymentDate, setPaymentDate] = useState('2024-10-25');
+  const [paidByEmployee, setPaidByEmployee] = useState(currentUserName);
   const [notes, setNotes] = useState('');
-  const [attachedFileName, setAttachedFileName] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Initialize or reset form values
@@ -38,13 +50,12 @@ export function AddExpenseModal({
     if (expenseToEdit) {
       setExpenseNumber(expenseToEdit.expenseNumber);
       setExpenseDate(
-        expenseToEdit.date.includes('2024')
-          ? new Date(expenseToEdit.timestamp).toISOString().split('T')[0]
-          : '2024-10-25'
+        new Date(expenseToEdit.timestamp).toISOString().split('T')[0]
       );
       setCategory(expenseToEdit.category);
       setBaseAmount(expenseToEdit.baseAmount);
       setTaxAmount(expenseToEdit.taxAmount);
+      setOutletId(expenseToEdit.outletId || '');
       setOutletName(
         expenseToEdit.scope === 'Organization-wide'
           ? 'Organization-wide Allocation'
@@ -56,26 +67,24 @@ export function AddExpenseModal({
       setPaymentMethod(expenseToEdit.paymentMethod);
       setPaidByEmployee(expenseToEdit.paidByEmployee);
       setNotes(expenseToEdit.notes || '');
-      setAttachedFileName(expenseToEdit.attachments?.[0]?.name || null);
     } else {
       // Default new form
-      setExpenseNumber('EX-2024-092');
-      setExpenseDate('2024-10-25');
-      setCategory('Store Supplies');
-      setBaseAmount(250.0);
-      setTaxAmount(22.5);
-      setOutletName('Downtown Flagship #04');
-      setVendorName('Apex Packaging Co.');
-      setReference('INV-APX-441');
-      setDescription('Thermal Paper Roll Refills for POS Terminals');
+      setExpenseNumber('');
+      setExpenseDate(getLocalDateInputValue());
+      setCategory('');
+      setBaseAmount('');
+      setTaxAmount('');
+      setOutletId('');
+      setOutletName('');
+      setVendorName('');
+      setReference('');
+      setDescription('');
       setPaymentMethod('Card');
-      setPaidByEmployee('Elena Rostova (Sr. Cashier)');
-      setPaymentDate('2024-10-25');
+      setPaidByEmployee(currentUserName || employees[0]?.name || '');
       setNotes('');
-      setAttachedFileName(null);
     }
     setValidationError(null);
-  }, [expenseToEdit, isOpen]);
+  }, [currentUserName, employees, expenseToEdit, isOpen]);
 
   if (!isOpen) return null;
 
@@ -119,12 +128,14 @@ export function AddExpenseModal({
     if (expenseToEdit && onUpdate) {
       onUpdate(expenseToEdit.id, {
         date: expenseDate,
-        category,
+        category: category as ExpenseCategory,
         description,
         vendorName,
         reference,
+        outletId: outletName === 'Organization-wide Allocation' ? undefined : outletId || undefined,
         outletName:
           outletName === 'Organization-wide Allocation' ? 'Organization-wide' : outletName,
+        scope: outletName === 'Organization-wide Allocation' ? 'Organization-wide' : 'Outlet',
         baseAmount: currentBase,
         taxAmount: currentTax,
         paymentMethod,
@@ -136,11 +147,13 @@ export function AddExpenseModal({
       onSubmit(
         {
           date: expenseDate,
-          category,
+          category: category as ExpenseCategory,
           description,
           vendorName,
           reference,
-          outletName,
+          outletId: outletName === 'Organization-wide Allocation' ? undefined : outletId || undefined,
+          outletName: outletName === 'Organization-wide Allocation' ? 'Organization-wide' : outletName,
+          scope: outletName === 'Organization-wide Allocation' ? 'Organization-wide' : 'Outlet',
           baseAmount: currentBase,
           taxAmount: currentTax,
           paymentMethod,
@@ -209,7 +222,7 @@ export function AddExpenseModal({
                 1. EXPENSE ATTRIBUTES &amp; SUM
               </span>
               <span className="font-body-mono-num text-body-mono-num text-caption text-on-surface-variant">
-                AUTO-GEN #{expenseNumber}
+                {expenseNumber ? `EXPENSE #${expenseNumber}` : 'Generated on save'}
               </span>
             </div>
 
@@ -249,6 +262,7 @@ export function AddExpenseModal({
                   onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
                   className="w-full h-9 px-space-sm bg-surface-container-lowest text-on-surface rounded-lg border border-outline-variant/40 outline-none focus:ring-1 focus:ring-primary shadow-xs font-body-default text-body-default cursor-pointer"
                 >
+                  <option value="">Select a category</option>
                   <option value="Utilities">Utilities &amp; Power</option>
                   <option value="Store Supplies">Store Supplies</option>
                   <option value="Equipment Maintenance">Equipment Maintenance</option>
@@ -313,13 +327,17 @@ export function AddExpenseModal({
                 <select
                   required
                   value={outletName}
-                  onChange={(e) => setOutletName(e.target.value)}
+                  onChange={(e) => {
+                    const selectedName = e.target.value;
+                    setOutletName(selectedName);
+                    setOutletId(outlets.find((outlet) => outlet.name === selectedName)?.id ?? '');
+                  }}
                   className="w-full h-9 px-space-sm bg-surface-container-lowest text-on-surface rounded-lg border border-outline-variant/40 outline-none focus:ring-1 focus:ring-primary shadow-xs font-body-default text-body-default cursor-pointer"
                 >
-                  <option value="Downtown Flagship #04">Downtown Flagship #04</option>
-                  <option value="Uptown Mall #12">Uptown Mall #12</option>
-                  <option value="Westside Mall #02">Westside Mall #02</option>
-                  <option value="Northside Mall #08">Northside Mall #08</option>
+                  <option value="">Select an outlet</option>
+                  {outlets.map((outlet) => (
+                    <option key={outlet.id} value={outlet.name}>{outlet.name}</option>
+                  ))}
                   <option value="Organization-wide Allocation">Organization-wide Allocation</option>
                 </select>
               </div>
@@ -347,7 +365,7 @@ export function AddExpenseModal({
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. INV-2024-8849"
+                  placeholder="Optional reference"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
                   className="w-full h-9 px-space-sm bg-surface-container-lowest text-on-surface font-body-mono-num text-body-mono-num rounded-lg border border-outline-variant/40 outline-none focus:ring-1 focus:ring-primary shadow-xs"
@@ -415,60 +433,17 @@ export function AddExpenseModal({
                   Paid By (Employee) *
                 </label>
                 <select
+                  required
                   value={paidByEmployee}
                   onChange={(e) => setPaidByEmployee(e.target.value)}
                   className="w-full h-9 px-space-sm bg-surface-container-lowest text-on-surface rounded-lg border border-outline-variant/40 outline-none focus:ring-1 focus:ring-primary shadow-xs font-body-default text-body-default cursor-pointer"
                 >
-                  <option value="Sarah Jenkins (Store Mgr)">Sarah Jenkins (Store Mgr)</option>
-                  <option value="Elena Rostova (Sr. Cashier)">Elena Rostova (Sr. Cashier)</option>
-                  <option value="Marcus Vance (Asst. Mgr)">Marcus Vance (Asst. Mgr)</option>
-                  <option value="David Chen (Inventory Spec.)">David Chen (Inventory Spec.)</option>
-                  <option value="Amina Patel (Visual Merch)">Amina Patel (Visual Merch)</option>
+                  <option value="">Select an employee</option>
+                  {employees.map((employee) => (
+                    <option key={employee.id} value={employee.name}>{employee.name}</option>
+                  ))}
                 </select>
               </div>
-
-              <div>
-                <label className="block font-caption text-caption text-on-surface font-semibold mb-1">
-                  Payment Date
-                </label>
-                <input
-                  type="date"
-                  value={paymentDate}
-                  onChange={(e) => setPaymentDate(e.target.value)}
-                  className="w-full h-9 px-space-sm bg-surface-container-lowest text-on-surface rounded-lg border border-outline-variant/40 outline-none focus:ring-1 focus:ring-primary shadow-xs font-body-default text-body-default"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Supporting Documents Dropzone */}
-          <div className="flex flex-col gap-space-xs pt-space-xs border-t border-outline-variant/20">
-            <span className="font-micro-label text-micro-label uppercase tracking-wider text-primary font-bold">
-              3. ATTACH TAX INVOICE &amp; RECEIPTS
-            </span>
-            <div
-              onClick={() => {
-                const name = `Invoice_${expenseNumber}_voucher.pdf`;
-                setAttachedFileName(name);
-              }}
-              className="p-space-lg rounded-lg bg-surface-container-low/60 hover:bg-surface-container-low border-2 border-dashed border-outline-variant/40 flex flex-col items-center justify-center text-center cursor-pointer transition-colors group"
-            >
-              <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-105 transition-transform mb-space-xs">
-                <span className="material-symbols-outlined text-[20px]">upload_file</span>
-              </div>
-              <div className="font-body-medium text-body-medium text-on-surface font-semibold">
-                {attachedFileName ? (
-                  <span className="text-primary flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                    Attached: {attachedFileName}
-                  </span>
-                ) : (
-                  'Click to browse or drag & drop physical bill image'
-                )}
-              </div>
-              <span className="font-caption text-caption text-on-surface-variant mt-0.5">
-                Supports PDF, PNG, JPG scans up to 10MB each
-              </span>
             </div>
           </div>
         </form>

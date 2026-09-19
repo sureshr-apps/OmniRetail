@@ -24,6 +24,7 @@ describe('cash register business rules', () => {
 
   it('reconciles opening cash, cash sales, refunds, cash in, and cash out', () => {
     expect(calculateExpectedCash(1000, 500, 50, 200, 75)).toBe(1575);
+    expect(calculateExpectedCash(2000, 42, 0, 0, 0)).toBe(2042);
     expect(calculateMovementTotals([
       { movementType: 'OPENING', amount: 1000 },
       { movementType: 'SALE', amount: 500 },

@@ -14,6 +14,8 @@ import { SalesLedgerTable } from '../components/SalesLedgerTable';
 import { SalesPagination } from '../components/SalesPagination';
 import { TransactionDetailDrawer } from '../components/TransactionDetailDrawer';
 import { SalesToast } from '../components/SalesToast';
+import { cashRegisterService } from '@/features/cash/services/cashRegisterService';
+import { useTenantOutlet } from '@/app/context/TenantOutletContext';
 
 const DEFAULT_COLUMNS: ColumnVisibility = {
   transactionRec: true,
@@ -70,6 +72,9 @@ export function SalesPage() {
     kpis: DEFAULT_KPIS,
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [cashDrawerBalance, setCashDrawerBalance] = useState(0);
+  const tenantOutlet = useTenantOutlet();
+  const selectedOutletId = tenantOutlet?.selectedOutletId ?? null;
 
   // Selected Transaction for Slide-over Drawer
   const [selectedTx, setSelectedTx] = useState<SalesTransaction | null>(null);
@@ -148,6 +153,23 @@ export function SalesPage() {
     pageSize,
   ]);
 
+  useEffect(() => {
+    let isMounted = true;
+    if (!selectedOutletId) {
+      setCashDrawerBalance(0);
+      return () => { isMounted = false; };
+    }
+
+    cashRegisterService.getSnapshot(selectedOutletId).then((snapshot) => {
+      if (isMounted) setCashDrawerBalance(snapshot.summary.expectedCash);
+    }).catch((error: unknown) => {
+      console.error('Failed to load cash drawer balance:', error);
+      if (isMounted) setCashDrawerBalance(0);
+    });
+
+    return () => { isMounted = false; };
+  }, [selectedOutletId]);
+
   // Handle date preset change
   const handleDateRangeChange = (preset: DateRangePreset) => {
     setDateRange(preset);
@@ -179,7 +201,7 @@ export function SalesPage() {
         <SalesHeader />
 
         {/* 4 KPI Cards */}
-        <SalesKpiCards kpis={data.kpis} />
+        <SalesKpiCards kpis={{ ...data.kpis, cashDrawerBalance }} />
 
         {/* Filter Bar */}
         <SalesFilterBar

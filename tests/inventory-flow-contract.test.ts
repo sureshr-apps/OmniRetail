@@ -5,6 +5,7 @@ const inventoryPage = readFileSync(new URL('../src/features/inventory/pages/Inve
 const addInventoryModal = readFileSync(new URL('../src/features/inventory/components/AddInventoryModal.tsx', import.meta.url), 'utf8');
 const quickAddModal = readFileSync(new URL('../src/features/inventory/components/AddNewProductModal.tsx', import.meta.url), 'utf8');
 const inventoryService = readFileSync(new URL('../src/features/inventory/services/inventoryService.ts', import.meta.url), 'utf8');
+const inventoryTable = readFileSync(new URL('../src/features/inventory/components/InventoryTable.tsx', import.meta.url), 'utf8');
 const productBatch = readFileSync(new URL('../functions/src/productBatch.ts', import.meta.url), 'utf8');
 const outletContext = readFileSync(new URL('../src/app/context/TenantOutletContext.tsx', import.meta.url), 'utf8');
 const checkoutService = readFileSync(new URL('../src/features/billing/services/checkoutService.ts', import.meta.url), 'utf8');
@@ -51,5 +52,11 @@ describe('inventory receiving flow contract', () => {
     expect(checkoutService).toContain("Please select an outlet before completing the sale.");
     expect(checkoutService).not.toContain('assignedOutletIds');
     expect(checkoutService).not.toContain('activeOutlets.length === 1');
+  });
+
+  it('renders inventory item details without the retired item icon/image slot', () => {
+    expect(inventoryTable).not.toContain('<img');
+    expect(inventoryTable).not.toContain('imageUrl');
+    expect(inventoryService).not.toContain('imageUrl:');
   });
 });

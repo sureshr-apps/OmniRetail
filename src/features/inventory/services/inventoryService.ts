@@ -76,7 +76,7 @@ type TenantInventoryRow = Awaited<ReturnType<typeof listTenantInventory>>['data'
 function mapTenantInventory(row: TenantInventoryRow): InventoryItem {
   return {
     id: String(row._id), productId: row.product.id, sku: row.product.sku, barcode: row.product.barcode ?? '', name: row.product.name,
-    department: row.product.brand, category: row.product.category.value, imageUrl: '', locationId: row.outlet.id, locationName: row.outlet.name,
+    department: row.product.brand, category: row.product.category.value, locationId: row.outlet.id, locationName: row.outlet.name,
     supplierId: row.product.primarySupplier ?? '', supplierName: row.product.primarySupplier ?? row.product.brand, binRack: row.binRack ?? undefined,
     onHandQty: row.onHandQty, reorderLevel: row.reorderLevel, overstockThreshold: row.overstockThreshold, mrp: row.product.sellingPrice,
     cost: row.product.cost ?? 0, retailPrice: row.product.sellingPrice, incomingPurchaseOrder: row.incomingPurchaseOrder ?? undefined,

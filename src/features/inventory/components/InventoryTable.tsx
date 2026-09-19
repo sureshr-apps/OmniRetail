@@ -179,18 +179,7 @@ export function InventoryTable({
 
                   {/* Item Description & Dept */}
                   <td className="px-space-base py-2">
-                    <div className="flex items-center gap-space-sm">
-                      <img
-                        className="w-8 h-8 rounded object-cover bg-surface-container shrink-0"
-                        src={item.imageUrl}
-                        alt={item.imageAlt || item.name}
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          // Fallback icon box
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                      <div className="flex flex-col min-w-0">
+                    <div className="flex flex-col min-w-0">
                         <span className="font-body-medium text-body-medium text-on-surface font-semibold truncate">
                           {item.name}
                         </span>
@@ -222,7 +211,6 @@ export function InventoryTable({
                             </span>
                           )}
                         </div>
-                      </div>
                     </div>
                   </td>
 

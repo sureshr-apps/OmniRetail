@@ -54,8 +54,6 @@ export interface InventoryItem {
   name: string;
   department: string;
   category: string;
-  imageUrl: string;
-  imageAlt?: string;
   locationId: string;
   locationName: string;
   binRack?: string;

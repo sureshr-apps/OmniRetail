@@ -48,7 +48,7 @@ export function SaleReturnModal({ transaction, isSubmitting, error, onClose, onS
   }
 
   return (
-    <Modal isOpen={Boolean(transaction)} onClose={() => !isSubmitting && onClose()} title="Issue return" description={transaction ? `Select quantities to return from ${transaction.receiptNumber}. Refunds use the original tender method.` : undefined} maxWidth="xl">
+    <Modal isOpen={Boolean(transaction)} onClose={() => !isSubmitting && onClose()} title="Issue return" description={transaction ? `Select quantities to return from ${transaction.receiptNumber}. Refunds use the original tender method.` : undefined} maxWidth="3xl">
       {transaction && <form onSubmit={submit} className="space-y-5">
         {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</div>}
         <div className="overflow-x-auto rounded-md border border-border-subdued">

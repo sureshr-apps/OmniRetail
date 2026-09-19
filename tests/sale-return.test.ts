@@ -47,6 +47,7 @@ describe('sale return business rules', () => {
     expect(salesService).toContain("'returnTenantSaleRecord'");
     expect(salesPage).toContain('setReturningTx(tx)');
     expect(returnModal).toContain('returnableQuantity');
+    expect(returnModal).toContain('step="1"');
     expect(returnModal).toContain('Confirm return');
   });
 });

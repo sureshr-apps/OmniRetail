@@ -12,13 +12,13 @@ export function AddNewProductModal({ currentOutletId, onClose, onSave, currentOu
   const [sku, setSku] = useState('');
   const [barcode, setBarcode] = useState('');
   const [name, setName] = useState('');
-  const [department, setDepartment] = useState('Coffee');
-  const [category, setCategory] = useState('Whole Bean');
-  const [cost, setCost] = useState('12.00');
-  const [mrp, setMrp] = useState('24.00');
-  const [retailPrice, setRetailPrice] = useState('22.00');
-  const [onHandQty, setOnHandQty] = useState('25');
-  const [reorderLevel, setReorderLevel] = useState('10');
+  const [department, setDepartment] = useState('');
+  const [category, setCategory] = useState('');
+  const [cost, setCost] = useState('');
+  const [mrp, setMrp] = useState('');
+  const [retailPrice, setRetailPrice] = useState('');
+  const [onHandQty, setOnHandQty] = useState('');
+  const [reorderLevel, setReorderLevel] = useState('');
   const [batchNumber, setBatchNumber] = useState('');
   const [mfgDate, setMfgDate] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
@@ -35,11 +35,11 @@ export function AddNewProductModal({ currentOutletId, onClose, onSave, currentOu
       category,
       locationId: currentOutletId || undefined,
       locationName: currentOutletName || '',
-      cost: parseFloat(cost) || 10,
-      mrp: parseFloat(mrp) || 20,
-      retailPrice: parseFloat(retailPrice) || 18,
+      cost: parseFloat(cost) || 0,
+      mrp: parseFloat(mrp) || 0,
+      retailPrice: parseFloat(retailPrice) || 0,
       onHandQty: parseInt(onHandQty, 10) || 0,
-      reorderLevel: parseInt(reorderLevel, 10) || 5,
+      reorderLevel: parseInt(reorderLevel, 10) || 0,
       overstockThreshold: 100,
       lotNumber: batchNumber.trim() || undefined,
       mfgDate: mfgDate || undefined,
@@ -126,6 +126,7 @@ export function AddNewProductModal({ currentOutletId, onClose, onSave, currentOu
                   onChange={(e) => setDepartment(e.target.value)}
                   className="w-full h-8 px-2 rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-caption text-on-surface focus:outline-none focus:border-primary cursor-pointer"
                 >
+                  <option value="">Select department</option>
                   <option value="Coffee">Coffee</option>
                   <option value="Equipment">Equipment</option>
                   <option value="Packaging">Packaging</option>

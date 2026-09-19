@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { InventoryItem, AdjustMode, StockAdjustmentInput } from '../types';
+import { useAuth } from '@/app/context/AuthContext';
+import { useTenantOutlet } from '@/app/context/TenantOutletContext';
 
 interface StockAdjustModalProps {
   item: InventoryItem;
@@ -12,6 +14,10 @@ export function StockAdjustModal({
   onClose,
   onConfirm,
 }: StockAdjustModalProps) {
+  const { user } = useAuth();
+  const tenantOutlet = useTenantOutlet();
+  const activeOutletName = tenantOutlet?.selectedOutlet?.name ?? 'No outlet selected';
+  const activeUserName = user?.displayName?.trim() || user?.username?.trim() || 'Authenticated user';
   const [mode, setMode] = useState<AdjustMode>(
     item.onHandQty <= 0 ? 'increase' : 'decrease'
   );
@@ -19,10 +25,12 @@ export function StockAdjustModal({
   const [reasonCode, setReasonCode] = useState<string>(
     'Damaged Goods in Transit / Shelf Drop'
   );
-  const [storageLocation, setStorageLocation] = useState<string>(
-    item.binRack ? `${item.locationName} - ${item.binRack}` : 'Downtown Flagship - Shelf A2'
-  );
+  const [storageLocation, setStorageLocation] = useState<string>(activeOutletName);
   const [auditNote, setAuditNote] = useState<string>('');
+
+  useEffect(() => {
+    setStorageLocation(item.binRack ? `${activeOutletName} - ${item.binRack}` : activeOutletName);
+  }, [activeOutletName, item.binRack]);
 
   // Resulting stock calculation
   const currentBase = item.onHandQty;
@@ -49,7 +57,7 @@ export function StockAdjustModal({
       reasonCode,
       storageLocation,
       auditNote: auditNote.trim() || undefined,
-      operatorName: 'Sarah Jenkins',
+      operatorName: activeUserName,
     });
   };
 
@@ -246,21 +254,15 @@ export function StockAdjustModal({
             {/* Storage Location & Bin */}
             <div className="space-y-1">
               <label className="font-caption text-caption font-semibold text-on-surface block">
-                Storage Location &amp; Bin
+                Active Outlet &amp; Storage Location
               </label>
               <select
                 value={storageLocation}
                 onChange={(e) => setStorageLocation(e.target.value)}
                 className="w-full h-9 px-3 rounded-lg bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:border-primary focus:outline-none cursor-pointer"
               >
-                <option value="Downtown Flagship - Shelf A2">Downtown Flagship - Shelf A2</option>
-                <option value="Downtown Flagship - Shelf A3">Downtown Flagship - Shelf A3</option>
-                <option value="Downtown Flagship - Pantry Rack">Downtown Flagship - Pantry Rack</option>
-                <option value="Downtown Flagship - Bin B4">Downtown Flagship - Bin B4</option>
-                <option value="Central Warehouse - Bay 01">Central Warehouse - Bay 01</option>
-                <option value="Central Warehouse - Pallet 09">Central Warehouse - Pallet 09</option>
-                <option value="Store 01 - Showcase Shelf">Store 01 - Showcase Shelf</option>
-                <option value="Store 04 - Display Rack 2">Store 04 - Display Rack 2</option>
+                <option value={activeOutletName}>{activeOutletName}</option>
+                {item.binRack && <option value={`${activeOutletName} - ${item.binRack}`}>{activeOutletName} - {item.binRack}</option>}
               </select>
             </div>
 
@@ -283,7 +285,7 @@ export function StockAdjustModal({
           <div className="px-space-lg py-space-sm border-t border-outline-variant/20 bg-surface-container-low flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px]">verified_user</span>
-              <span className="font-micro-label text-micro-label">Logged under Sarah Jenkins</span>
+              <span className="font-micro-label text-micro-label">Logged under {activeUserName}</span>
             </div>
 
             <div className="flex items-center gap-2">

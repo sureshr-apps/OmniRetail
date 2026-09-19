@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 const inventoryPage = readFileSync(new URL('../src/features/inventory/pages/InventoryPage.tsx', import.meta.url), 'utf8');
 const addInventoryModal = readFileSync(new URL('../src/features/inventory/components/AddInventoryModal.tsx', import.meta.url), 'utf8');
 const quickAddModal = readFileSync(new URL('../src/features/inventory/components/AddNewProductModal.tsx', import.meta.url), 'utf8');
+const stockAdjustModal = readFileSync(new URL('../src/features/inventory/components/StockAdjustModal.tsx', import.meta.url), 'utf8');
 const inventoryService = readFileSync(new URL('../src/features/inventory/services/inventoryService.ts', import.meta.url), 'utf8');
 const inventoryTable = readFileSync(new URL('../src/features/inventory/components/InventoryTable.tsx', import.meta.url), 'utf8');
 const productBatch = readFileSync(new URL('../functions/src/productBatch.ts', import.meta.url), 'utf8');
@@ -58,5 +59,21 @@ describe('inventory receiving flow contract', () => {
     expect(inventoryTable).not.toContain('<img');
     expect(inventoryTable).not.toContain('imageUrl');
     expect(inventoryService).not.toContain('imageUrl:');
+  });
+
+  it('uses the active outlet and authenticated user in stock adjustments', () => {
+    expect(stockAdjustModal).toContain('useTenantOutlet');
+    expect(stockAdjustModal).toContain('useAuth');
+    expect(stockAdjustModal).toContain('activeOutletName');
+    expect(stockAdjustModal).toContain('activeUserName');
+    expect(stockAdjustModal).not.toContain('Sarah Jenkins');
+    expect(stockAdjustModal).not.toContain('Downtown Flagship - Shelf A2');
+  });
+
+  it('does not prefill quick-add product values with demo data', () => {
+    for (const demoDefault of ["useState('Coffee')", "useState('Whole Bean')", "useState('12.00')", "useState('24.00')", "useState('22.00')", "useState('25')", "useState('10')"]) {
+      expect(quickAddModal).not.toContain(demoDefault);
+    }
+    expect(quickAddModal).toContain('<option value="">Select department</option>');
   });
 });

@@ -5,7 +5,7 @@ const source = readFileSync(new URL('../src/features/suppliers/services/supplier
 
 describe('tenant supplier service adapter', () => {
   it('uses authenticated tenant-scoped supplier reads', () => {
-    expect(source).toContain('getCurrentUserAuthorization');
+    expect(source).toContain('getCachedCurrentUserAuthorization');
     expect(source).toContain('listTenantSuppliers');
     expect(source).toContain('No active organization membership.');
     expect(source).toContain('export const supplierService: ISupplierService = new ProductionSupplierService()');

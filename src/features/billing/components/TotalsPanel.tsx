@@ -8,7 +8,7 @@ interface TotalsPanelProps {
   onOpenDiscountModal: () => void;
 }
 
-export function TotalsPanel({
+export const TotalsPanel = React.memo(function TotalsPanel({
   totals,
   promoDiscount,
   onUpdatePromoDiscount,
@@ -113,4 +113,4 @@ export function TotalsPanel({
       </div>
     </div>
   );
-}
+});

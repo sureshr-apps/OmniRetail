@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   DateRangePreset,
   ColumnVisibility,
   SalesTransaction,
   SalesQueryResult,
-  SalesKpiSummary,
 } from '../types';
-import { salesService } from '../services/salesService';
+import { salesService, deriveSalesView } from '../services/salesService';
 import { SalesHeader } from '../components/SalesHeader';
 import { SalesKpiCards } from '../components/SalesKpiCards';
 import { SalesFilterBar } from '../components/SalesFilterBar';
@@ -31,21 +30,6 @@ const DEFAULT_COLUMNS: ColumnVisibility = {
   actions: true,
 };
 
-const DEFAULT_KPIS: SalesKpiSummary = {
-  filteredSalesTotal: 0,
-  recordedSalesCount: 0,
-  vsYesterdayPct: 0,
-  cashDrawerBalance: 0,
-  cashVolumePct: 0,
-  cardAndDigitalTender: 0,
-  cardCount: 0,
-  contactlessCount: 0,
-  cardVolumePct: 0,
-  totalReturnsAndVoids: 0,
-  refundEventsCount: 0,
-  returnRatePct: 0,
-};
-
 export function SalesPage() {
   // Filters State
   const [dateRange, setDateRange] = useState<DateRangePreset>('today');
@@ -65,14 +49,7 @@ export function SalesPage() {
   const [columns, setColumns] = useState<ColumnVisibility>(DEFAULT_COLUMNS);
 
   // Data State
-  const [data, setData] = useState<SalesQueryResult>({
-    transactions: [],
-    totalCount: 0,
-    page: 1,
-    pageSize: 25,
-    totalPages: 1,
-    kpis: DEFAULT_KPIS,
-  });
+  const [allSales, setAllSales] = useState<SalesTransaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [cashDrawerBalance, setCashDrawerBalance] = useState(0);
   const tenantOutlet = useTenantOutlet();
@@ -84,6 +61,19 @@ export function SalesPage() {
   const [returnError, setReturnError] = useState<string | null>(null);
   const [isReturning, setIsReturning] = useState(false);
   const [salesRefreshToken, setSalesRefreshToken] = useState(0);
+
+  const data = useMemo<SalesQueryResult>(() => deriveSalesView(allSales, {
+    dateRange,
+    customStartDate,
+    customEndDate,
+    channel,
+    paymentMethod,
+    status,
+    cashier,
+    searchQuery,
+    page,
+    pageSize,
+  }), [allSales, dateRange, customStartDate, customEndDate, channel, paymentMethod, status, cashier, searchQuery, page, pageSize]);
 
   // Toast State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -112,27 +102,16 @@ export function SalesPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showToast]);
 
-  // Fetch sales data when filters or pagination changes
+  // Load the collection once per session or after a return. Filtering,
+  // pagination, and KPI derivation remain local while the page is open.
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
 
-    salesService
-      .getSales({
-        dateRange,
-        customStartDate,
-        customEndDate,
-        channel,
-        paymentMethod,
-        status,
-        cashier,
-        searchQuery,
-        page,
-        pageSize,
-      })
+    salesService.getAllSales()
       .then((result) => {
         if (isMounted) {
-          setData(result);
+          setAllSales(result);
           setIsLoading(false);
         }
       })
@@ -146,19 +125,7 @@ export function SalesPage() {
     return () => {
       isMounted = false;
     };
-  }, [
-    dateRange,
-    customStartDate,
-    customEndDate,
-    channel,
-    paymentMethod,
-    status,
-    cashier,
-    searchQuery,
-    page,
-    pageSize,
-    salesRefreshToken,
-  ]);
+  }, [salesRefreshToken]);
 
   useEffect(() => {
     let isMounted = true;

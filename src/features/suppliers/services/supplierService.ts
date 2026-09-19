@@ -7,8 +7,9 @@ import {
   UpdateSupplierInput,
   SupplierPurchaseOrderSummary,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantSuppliers } from '@omniretail/sql-connect';
+import { listTenantSuppliers } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
 import { formatSupplierCode } from '../utils/formatSupplierCode';
@@ -123,7 +124,7 @@ export function deriveSupplierView(all: Supplier[], query: SupplierQuery = {}): 
 }
 
 class ProductionSupplierService implements ISupplierService {
-  private async organizationId(): Promise<string> { const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
+  private async organizationId(): Promise<string> { const auth = await getCachedCurrentUserAuthorization(); const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
 
   /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */
   async getAllSuppliers(): Promise<Supplier[]> {

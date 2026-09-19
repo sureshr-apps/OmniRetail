@@ -7,7 +7,7 @@ const pageSource = readFileSync(new URL('../src/features/sales/pages/SalesPage.t
 const filterSource = readFileSync(new URL('../src/features/sales/components/SalesFilterBar.tsx', import.meta.url), 'utf8');
 const headerSource = readFileSync(new URL('../src/features/sales/components/SalesHeader.tsx', import.meta.url), 'utf8');
 describe('tenant sales service adapter', () => {
-  it('uses authenticated tenant sales reads', () => { expect(source).toContain('getCurrentUserAuthorization'); expect(source).toContain('listTenantSales'); expect(source).toContain('No active organization membership.'); expect(source).toContain('new ProductionSalesService()'); });
+  it('uses cached authenticated tenant sales reads', () => { expect(source).toContain('getCachedCurrentUserAuthorization'); expect(source).toContain('listTenantSales'); expect(source).toContain('No active organization membership.'); expect(source).toContain('new ProductionSalesService()'); });
 
   it('uses the selected outlet register expected cash for the drawer KPI', () => {
     expect(source).toContain('cashDrawerBalance: 0');

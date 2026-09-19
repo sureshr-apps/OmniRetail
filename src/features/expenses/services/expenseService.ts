@@ -1,16 +1,17 @@
 import { Expense, ExpenseQuery, ExpenseQueryResult, CreateExpenseInput, UpdateExpenseInput } from '../types';
-import { getCurrentUserAuthorization, listTenantExpenses } from '@omniretail/sql-connect';
+import { listTenantExpenses } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
 
 export interface IExpenseService {
   getExpenses(query: ExpenseQuery): Promise<ExpenseQueryResult>;
   getExpense(id: string): Promise<Expense | null>;
   createExpense(input: CreateExpenseInput): Promise<Expense>;
-  updateExpense(id: string, input: UpdateExpenseInput): Promise<Expense>;
-  voidExpense(id: string, reason?: string): Promise<Expense>;
-  approveExpense(id: string): Promise<Expense>;
-  rejectExpense(id: string, reason: string): Promise<Expense>;
+  updateExpense(id: string, input: UpdateExpenseInput, currentExpense?: Expense): Promise<Expense>;
+  voidExpense(id: string, reason?: string, currentExpense?: Expense): Promise<Expense>;
+  approveExpense(id: string, currentExpense?: Expense): Promise<Expense>;
+  rejectExpense(id: string, reason: string, currentExpense?: Expense): Promise<Expense>;
   getAllExpenses(): Promise<Expense[]>;
 }
 
@@ -77,7 +78,7 @@ export function deriveExpenseView(all: Expense[], query: ExpenseQuery): ExpenseQ
 
 class ProductionExpenseService implements IExpenseService {
   private async organizationId(): Promise<string> {
-    const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const auth = await getCachedCurrentUserAuthorization();
     const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     return membership.organization.id;
@@ -94,37 +95,49 @@ class ProductionExpenseService implements IExpenseService {
   async getExpense(id: string): Promise<Expense | null> { return (await this.all()).find((expense) => expense.id === id || expense.expenseNumber === id) ?? null; }
 
   async createExpense(input: CreateExpenseInput): Promise<Expense> {
-    const authorization = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const authorization = await getCachedCurrentUserAuthorization();
     const membership = authorization.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     const organizationId = membership.organization.id;
     const submittedBy = resolveExpenseActor(authorization.data.appUsers[0]);
     const expenseNumber = `EX-${new Date().getFullYear()}-${globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 16).toUpperCase()}`;
-    await httpsCallable(getFirebaseClientServices().functions, 'createTenantExpenseRecord')({ organizationId, expenseNumber, ...input, expenseDate: input.date, outletId: input.outletId ?? null, scope: input.scope ?? 'Outlet', amount: input.baseAmount + input.taxAmount, submittedBy, requestId: globalThis.crypto.randomUUID() });
-    const created = (await this.all()).find((expense) => expense.expenseNumber === expenseNumber);
-    if (!created) throw new Error('Expense was created but could not be loaded.');
-    return created;
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantExpenseRecord')({ organizationId, expenseNumber, ...input, expenseDate: input.date, outletId: input.outletId ?? null, scope: input.scope ?? 'Outlet', amount: input.baseAmount + input.taxAmount, submittedBy, requestId: globalThis.crypto.randomUUID() });
+    const id = (response.data as { id?: string }).id;
+    if (!id) throw new Error('Expense was created but the server did not return its record.');
+    const now = new Date().toISOString();
+    return {
+      id, expenseNumber, date: input.date, timestamp: Date.parse(input.date), category: input.category,
+      description: input.description, vendorName: input.vendorName, reference: input.reference,
+      outletId: input.outletId, outletName: input.outletName, scope: input.scope ?? 'Outlet',
+      baseAmount: input.baseAmount, taxAmount: input.taxAmount, amount: input.baseAmount + input.taxAmount,
+      paymentMethod: input.paymentMethod, paidByEmployee: input.paidByEmployee, status: 'Active',
+      approvalStatus: 'Draft', submittedBy, notes: input.notes, auditTrail: [], createdAt: now, updatedAt: now,
+    };
   }
 
-  async updateExpense(id: string, input: UpdateExpenseInput): Promise<Expense> {
-    const current = await this.getExpense(id);
+  async updateExpense(id: string, input: UpdateExpenseInput, currentExpense?: Expense): Promise<Expense> {
+    const current = currentExpense ?? await this.getExpense(id);
     if (!current) throw new Error(`Expense with id ${id} not found`);
     const organizationId = await this.organizationId(); const baseAmount = input.baseAmount ?? current.baseAmount; const taxAmount = input.taxAmount ?? current.taxAmount;
     await httpsCallable(getFirebaseClientServices().functions, 'updateTenantExpenseRecord')({ organizationId, id: current.id, expenseDate: input.date ?? current.date, category: input.category ?? current.category, description: input.description ?? current.description, reference: input.reference ?? current.reference ?? null, vendorName: input.vendorName ?? current.vendorName ?? null, outletId: input.outletId ?? current.outletId ?? null, scope: input.scope ?? current.scope, baseAmount, taxAmount, amount: baseAmount + taxAmount, paymentMethod: input.paymentMethod ?? current.paymentMethod, paidByEmployee: input.paidByEmployee ?? current.paidByEmployee, notes: input.notes ?? current.notes ?? null, requestId: globalThis.crypto.randomUUID() });
-    const updated = await this.getExpense(current.id); if (!updated) throw new Error('Expense was updated but could not be loaded.'); return updated;
+    return { ...current, ...input, date: input.date ?? current.date, timestamp: Date.parse(input.date ?? current.date), outletName: input.outletName ?? current.outletName, scope: input.scope ?? current.scope, baseAmount, taxAmount, amount: baseAmount + taxAmount, updatedAt: new Date().toISOString() };
   }
 
-  async approveExpense(id: string): Promise<Expense> { return this.changeApproval(id, 'APPROVED'); }
-  async rejectExpense(id: string, reason: string): Promise<Expense> { return this.changeApproval(id, 'REJECTED', reason); }
-  private async changeApproval(id: string, approvalStatus: 'APPROVED' | 'REJECTED', reason?: string): Promise<Expense> {
+  async approveExpense(id: string, currentExpense?: Expense): Promise<Expense> { return this.changeApproval(id, 'APPROVED', undefined, currentExpense); }
+  async rejectExpense(id: string, reason: string, currentExpense?: Expense): Promise<Expense> { return this.changeApproval(id, 'REJECTED', reason, currentExpense); }
+  private async changeApproval(id: string, approvalStatus: 'APPROVED' | 'REJECTED', reason?: string, currentExpense?: Expense): Promise<Expense> {
+    const current = currentExpense ?? await this.getExpense(id);
+    if (!current) throw new Error(`Expense with id ${id} not found`);
     const organizationId = await this.organizationId();
     await httpsCallable(getFirebaseClientServices().functions, 'changeTenantExpenseApprovalStatus')({ organizationId, id, approvalStatus, reason: reason ?? null, requestId: globalThis.crypto.randomUUID() });
-    const updated = await this.getExpense(id); if (!updated) throw new Error('Expense approval was changed but could not be loaded.'); return updated;
+    return { ...current, approvalStatus: approvalStatus === 'APPROVED' ? 'Approved' : 'Rejected', notes: reason ?? current.notes, updatedAt: new Date().toISOString() };
   }
-  async voidExpense(id: string, reason = 'Voided by operator'): Promise<Expense> {
+  async voidExpense(id: string, reason = 'Voided by operator', currentExpense?: Expense): Promise<Expense> {
+    const current = currentExpense ?? await this.getExpense(id);
+    if (!current) throw new Error(`Expense with id ${id} not found`);
     const organizationId = await this.organizationId();
     await httpsCallable(getFirebaseClientServices().functions, 'voidTenantExpenseRecord')({ organizationId, id, reason, requestId: globalThis.crypto.randomUUID() });
-    const updated = await this.getExpense(id); if (!updated) throw new Error('Expense was voided but could not be loaded.'); return updated;
+    return { ...current, status: 'Voided', notes: reason, updatedAt: new Date().toISOString() };
   }
 }
 

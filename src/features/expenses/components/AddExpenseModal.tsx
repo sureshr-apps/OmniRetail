@@ -84,7 +84,13 @@ export function AddExpenseModal({
       setNotes('');
     }
     setValidationError(null);
-  }, [currentUserName, employees, expenseToEdit, isOpen]);
+  }, [expenseToEdit, isOpen]);
+
+  useEffect(() => {
+    if (isOpen && !expenseToEdit && !paidByEmployee) {
+      setPaidByEmployee(currentUserName || employees[0]?.name || '');
+    }
+  }, [currentUserName, employees, expenseToEdit, isOpen, paidByEmployee]);
 
   if (!isOpen) return null;
 

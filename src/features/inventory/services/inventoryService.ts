@@ -1,6 +1,7 @@
 import { AddInventoryInput, InventoryItem, InventoryMovementLog, InventoryMovementRecord, InventoryQuery, InventoryQueryResult, InventoryStatus, StockAdjustmentInput, InventoryLocation, SupplierSummary } from '../types';
-import { getCurrentUserAuthorization, listTenantInventory } from '@omniretail/sql-connect';
+import { listTenantInventory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
 import { outletService } from '@/features/outlets/services/outletService';
 import { formatOutletCode } from '@/features/outlets/utils/formatOutletCode';
@@ -83,9 +84,54 @@ function mapTenantInventory(row: TenantInventoryRow): InventoryItem {
   };
 }
 
+export function deriveInventoryView(
+  allItems: InventoryItem[],
+  query: InventoryQuery = {},
+  selectedSupplier?: SupplierSummary,
+): InventoryQueryResult {
+  let items = [...allItems];
+  const search = query.search?.trim().toLowerCase() ?? '';
+  if (search) items = items.filter((item) => `${item.sku} ${item.name} ${item.barcode} ${item.department} ${item.lotNumber ?? ''}`.toLowerCase().includes(search));
+  if (query.locationId && query.locationId !== 'all') items = items.filter((item) => item.locationId === query.locationId);
+  if (query.supplierId && query.supplierId !== 'all') {
+    const names = new Set([query.supplierId, selectedSupplier?.name, selectedSupplier?.code].filter(Boolean));
+    items = items.filter((item) => names.has(item.supplierId) || names.has(item.supplierName));
+  }
+  const countsSource = items;
+  if (query.statusTab && query.statusTab !== 'ALL') items = items.filter((item) => deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold) === query.statusTab);
+  items.sort((a, b) => query.sort === 'NAME_ASC' ? a.name.localeCompare(b.name) : query.sort === 'STOCK_DESC' ? b.onHandQty - a.onHandQty : a.onHandQty - b.onHandQty);
+  const counts = { all: countsSource.length, inStock: 0, lowStock: 0, outOfStock: 0, overstocked: 0 };
+  countsSource.forEach((item) => {
+    const status = deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold);
+    if (status === 'IN_STOCK') counts.inStock++;
+    else if (status === 'LOW_STOCK') counts.lowStock++;
+    else if (status === 'OUT_OF_STOCK') counts.outOfStock++;
+    else counts.overstocked++;
+  });
+  const page = Math.max(1, query.page ?? 1);
+  const pageSize = Math.max(1, query.pageSize ?? 25);
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const validPage = Math.min(page, totalPages);
+  return {
+    items: items.slice((validPage - 1) * pageSize, validPage * pageSize),
+    totalCount: items.length,
+    filteredCount: items.length,
+    page: validPage,
+    pageSize,
+    totalPages,
+    tabCounts: counts,
+    kpis: {
+      totalValuation: items.reduce((sum, item) => sum + item.onHandQty * item.cost, 0),
+      lowStockCount: counts.lowStock,
+      outOfStockCount: counts.outOfStock,
+      incomingPoCount: items.filter((item) => item.incomingPurchaseOrder).length,
+    },
+  };
+}
+
 class ProductionInventoryService {
   private async organizationId(): Promise<string> {
-    const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const result = await getCachedCurrentUserAuthorization();
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     return membership.organization.id;
@@ -97,17 +143,12 @@ class ProductionInventoryService {
     return result.data.inventoryStocks.map(mapTenantInventory);
   }
 
+  async getAllInventory(): Promise<InventoryItem[]> { return this.all(); }
+
   async getInventory(query: InventoryQuery = {}): Promise<InventoryQueryResult> {
-    let items = await this.all(query); const search = query.search?.trim().toLowerCase() ?? '';
-    if (search) items = items.filter((item) => `${item.sku} ${item.name} ${item.barcode} ${item.department} ${item.lotNumber ?? ''}`.toLowerCase().includes(search));
-    if (query.supplierId && query.supplierId !== 'all') { const supplier = await supplierService.getSupplierById(query.supplierId); const names = new Set([query.supplierId, supplier?.name, supplier ? formatSupplierCode(supplier.supplierCode) : undefined].filter(Boolean)); items = items.filter((item) => names.has(item.supplierId) || names.has(item.supplierName)); }
-    const countsSource = items;
-    if (query.statusTab && query.statusTab !== 'ALL') items = items.filter((item) => deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold) === query.statusTab);
-    items.sort((a, b) => query.sort === 'NAME_ASC' ? a.name.localeCompare(b.name) : query.sort === 'STOCK_DESC' ? b.onHandQty - a.onHandQty : a.onHandQty - b.onHandQty);
-    const counts = { all: countsSource.length, inStock: 0, lowStock: 0, outOfStock: 0, overstocked: 0 };
-    countsSource.forEach((item) => { const status = deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold); if (status === 'IN_STOCK') counts.inStock++; else if (status === 'LOW_STOCK') counts.lowStock++; else if (status === 'OUT_OF_STOCK') counts.outOfStock++; else counts.overstocked++; });
-    const page = Math.max(1, query.page ?? 1); const pageSize = Math.max(1, query.pageSize ?? 25); const totalPages = Math.max(1, Math.ceil(items.length / pageSize)); const validPage = Math.min(page, totalPages);
-    return { items: items.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: items.length, filteredCount: items.length, page: validPage, pageSize, totalPages, tabCounts: counts, kpis: { totalValuation: items.reduce((sum, item) => sum + item.onHandQty * item.cost, 0), lowStockCount: counts.lowStock, outOfStockCount: counts.outOfStock, incomingPoCount: items.filter((item) => item.incomingPurchaseOrder).length } };
+    const supplier = query.supplierId && query.supplierId !== 'all' ? await supplierService.getSupplierById(query.supplierId) : null;
+    const selectedSupplier = supplier ? { id: supplier.id, name: supplier.name, code: formatSupplierCode(supplier.supplierCode) } : undefined;
+    return deriveInventoryView(await this.all(), query, selectedSupplier);
   }
 
   async getInventoryItem(id: string): Promise<InventoryItem | null> { return (await this.all()).find((item) => item.id === id || item.sku === id) ?? null; }
@@ -124,23 +165,65 @@ class ProductionInventoryService {
     const organizationId = await this.organizationId(); const outletId = newItem.locationId; const outlet = outletId ? (await outletService.getAllActiveOutlets()).find((candidate) => candidate.id === outletId) : undefined;
     if (!outlet) throw new Error('Select an active outlet before creating inventory.'); const name = newItem.name?.trim(); const sku = newItem.sku?.trim(); if (!name || !sku) throw new Error('Product name and SKU are required.');
     const response = await httpsCallable(getFirebaseClientServices().functions, 'createTenantProductWithInventoryRecord')({ organizationId, outletId: outlet.id, name, brand: newItem.department?.trim() || 'General', categoryName: newItem.category?.trim() || 'General', type: 'STOCKABLE', sku, barcode: newItem.barcode?.trim() || null, sellingPrice: newItem.retailPrice ?? 0, mrp: newItem.mrp ?? newItem.retailPrice ?? 0, cost: newItem.cost ?? 0, reorderLevel: newItem.reorderLevel ?? 0, reorderQuantity: 0, onHandQty: newItem.onHandQty ?? 0, overstockThreshold: newItem.overstockThreshold ?? Math.max(100, (newItem.reorderLevel ?? 0) * 10), batchNumber: newItem.lotNumber?.trim() || null, mfgDate: newItem.mfgDate || null, expiryDate: newItem.expiryDate || null, requestId: globalThis.crypto.randomUUID() });
-    const created = response.data as { id?: string };
-    const inventory = (await this.all({ locationId: outlet.id })).find((item) => item.productId === created.id || item.sku.toLowerCase() === sku.toLowerCase()); if (!inventory) throw new Error('Inventory was created but could not be loaded.'); return inventory;
+    const created = response.data as {
+      id?: string;
+      name?: string;
+      brand?: string;
+      category?: { value?: string } | null;
+      sku?: string;
+      barcode?: string | null;
+      sellingPrice?: number;
+      mrp?: number | null;
+      cost?: number | null;
+      reorderLevel?: number | null;
+      primarySupplier?: string | null;
+      inventory?: { newQty?: number };
+    };
+    if (!created.id) throw new Error('Inventory was created but the server did not return its product.');
+    const reorderLevel = newItem.reorderLevel ?? created.reorderLevel ?? 0;
+    const overstockThreshold = newItem.overstockThreshold ?? Math.max(100, reorderLevel * 10);
+    return {
+      id: `inventory:${outlet.id}:${created.id}`,
+      productId: created.id,
+      sku: created.sku ?? sku,
+      barcode: created.barcode ?? newItem.barcode ?? '',
+      name: created.name ?? name,
+      department: created.brand ?? newItem.department ?? 'General',
+      category: created.category?.value ?? newItem.category ?? 'General',
+      locationId: outlet.id,
+      locationName: outlet.name,
+      supplierId: created.primarySupplier ?? '',
+      supplierName: created.primarySupplier ?? created.brand ?? 'General',
+      onHandQty: created.inventory?.newQty ?? newItem.onHandQty ?? 0,
+      reorderLevel,
+      overstockThreshold,
+      mrp: created.mrp ?? newItem.mrp ?? created.sellingPrice ?? newItem.retailPrice ?? 0,
+      cost: created.cost ?? newItem.cost ?? 0,
+      retailPrice: created.sellingPrice ?? newItem.retailPrice ?? 0,
+      lotNumber: newItem.lotNumber,
+      mfgDate: newItem.mfgDate,
+      expiryDate: newItem.expiryDate,
+    };
   }
 
-  async addInventoryUnits(input: AddInventoryInput): Promise<InventoryItem> {
+  async addInventoryUnits(input: AddInventoryInput, currentItem?: InventoryItem): Promise<InventoryItem> {
     const organizationId = await this.organizationId();
     if (!input.outletId) throw new Error('Please select an outlet before adding inventory.');
-    await httpsCallable(getFirebaseClientServices().functions, 'addTenantInventoryUnits')({ organizationId, outletId: input.outletId, productId: input.productId, quantity: input.quantity, batchNumber: input.batchNumber?.trim() || null, mfgDate: input.mfgDate || null, expiryDate: input.expiryDate || null, requestId: globalThis.crypto.randomUUID() });
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'addTenantInventoryUnits')({ organizationId, outletId: input.outletId, productId: input.productId, quantity: input.quantity, batchNumber: input.batchNumber?.trim() || null, mfgDate: input.mfgDate || null, expiryDate: input.expiryDate || null, requestId: globalThis.crypto.randomUUID() });
+    const result = response.data as { newQty?: number };
+    if (currentItem) return { ...currentItem, onHandQty: result.newQty ?? currentItem.onHandQty + input.quantity };
     const inventory = (await this.all({ locationId: input.outletId })).find((item) => item.productId === input.productId);
     if (!inventory) throw new Error('Inventory was added but could not be loaded.');
     return inventory;
   }
 
-  async adjustStock(input: StockAdjustmentInput): Promise<{ item: InventoryItem; previousQty: number; newQty: number }> {
-    const item = await this.getInventoryItem(input.itemId) ?? await this.getInventoryItem(input.sku); if (!item?.productId) throw new Error(`Item with SKU ${input.sku} not found`);
+  async adjustStock(input: StockAdjustmentInput, currentItem?: InventoryItem): Promise<{ item: InventoryItem; previousQty: number; newQty: number }> {
+    const item = currentItem ?? await this.getInventoryItem(input.itemId) ?? await this.getInventoryItem(input.sku); if (!item?.productId) throw new Error(`Item with SKU ${input.sku} not found`);
     const organizationId = await this.organizationId(); const previousQty = item.onHandQty; const newQty = input.mode === 'increase' ? previousQty + input.quantity : input.mode === 'decrease' ? Math.max(0, previousQty - input.quantity) : Math.max(0, input.quantity);
-    await httpsCallable(getFirebaseClientServices().functions, 'adjustTenantInventoryStock')({ organizationId, outletId: item.locationId, productId: item.productId, mode: input.mode.toUpperCase(), quantity: input.quantity, previousQty, newQty, reasonCode: input.reasonCode, auditNote: input.auditNote ?? null, requestId: globalThis.crypto.randomUUID() });
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'adjustTenantInventoryStock')({ organizationId, outletId: item.locationId, productId: item.productId, mode: input.mode.toUpperCase(), quantity: input.quantity, previousQty, newQty, reasonCode: input.reasonCode, auditNote: input.auditNote ?? null, requestId: globalThis.crypto.randomUUID() });
+    const result = response.data as { newQty?: number };
+    const persistedQty = result.newQty ?? newQty;
+    if (currentItem) return { item: { ...item, onHandQty: persistedQty }, previousQty, newQty: persistedQty };
     const updated = await this.getInventoryItem(input.itemId); if (!updated) throw new Error('Inventory was adjusted but could not be loaded.'); return { item: updated, previousQty, newQty };
   }
 }

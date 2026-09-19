@@ -5,7 +5,7 @@ const source = readFileSync(new URL('../src/features/customers/services/customer
 
 describe('tenant customer service adapter', () => {
   it('loads customer data through authenticated tenant authorization', () => {
-    expect(source).toContain('getCurrentUserAuthorization');
+    expect(source).toContain('getCachedCurrentUserAuthorization');
     expect(source).toContain('listTenantCustomers');
     expect(source).toContain('listTenantCustomerPurchaseHistory');
     expect(source).toContain('getRecentPurchases(customerId: string)');

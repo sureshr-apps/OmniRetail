@@ -30,7 +30,6 @@ export function ServicePersonMasterPage() {
   // Data: the full org-scoped set. Mutations upsert into this directly; the
   // visible page, filters, and aggregate counts are all derived from it below.
   const [allServicePersons, setAllServicePersons] = useState<ServicePerson[]>([]);
-  const [specializations, setSpecializations] = useState<string[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<{ id: string; name: string }[]>([]);
 
   // Loading & Error states
@@ -63,6 +62,10 @@ export function ServicePersonMasterPage() {
     () => allServicePersons.find((p) => p.id === selectedPersonId) ?? null,
     [allServicePersons, selectedPersonId],
   );
+  const specializations = useMemo(
+    () => Array.from(new Set(allServicePersons.map((person) => person.specialization).filter(Boolean))).sort(),
+    [allServicePersons],
+  );
 
   const deleteConfirmation = useDeleteConfirmation<ServicePerson>({
     deleteRecord: (person) => servicePersonService.deleteServicePerson(person.id),
@@ -72,16 +75,13 @@ export function ServicePersonMasterPage() {
     },
   });
 
-  // Load Outlets & Specializations metadata once on mount
+  // Load outlet metadata once on mount. Specializations are derived from the
+  // same service-person collection loaded below.
   useEffect(() => {
     async function loadMetadata() {
       try {
-        const [activeOutlets, specs] = await Promise.all([
-          outletService.getAllActiveOutlets(),
-          servicePersonService.getSpecializations(),
-        ]);
+        const activeOutlets = await outletService.getAllActiveOutlets();
         setAvailableOutlets(activeOutlets.map((o) => ({ id: o.id, name: o.name })));
-        setSpecializations(specs);
       } catch (err) {
         console.error('Error loading metadata in ServicePersonMasterPage:', err);
       }
@@ -95,7 +95,8 @@ export function ServicePersonMasterPage() {
     setIsLoading(true);
     setError(null);
     try {
-      setAllServicePersons(await servicePersonService.getAllServicePersons());
+      const loadedPersons = await servicePersonService.getAllServicePersons();
+      setAllServicePersons(loadedPersons);
     } catch (err) {
       console.error(err);
       setError('A network timeout occurred while communicating with the OmniRetail enterprise server cluster.');

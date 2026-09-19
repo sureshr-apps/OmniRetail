@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import {
   User,
   authService,
@@ -6,6 +6,7 @@ import {
   PasswordChange,
   ProfileUpdate,
 } from '@/features/auth/services/AuthService';
+import { invalidateAuthorizationCache } from '@/features/auth/services/authorizationCache';
 
 interface AuthContextType {
   user: User | null;
@@ -30,35 +31,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: LoginCredentials) => {
     const loggedInUser = await authService.login(credentials);
+    invalidateAuthorizationCache();
     setUser(loggedInUser);
     return loggedInUser;
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await authService.logout();
+    invalidateAuthorizationCache();
     setUser(null);
-  };
+  }, []);
 
-  const updateProfile = async (update: ProfileUpdate) => {
+  const updateProfile = useCallback(async (update: ProfileUpdate) => {
     const updatedUser = await authService.updateProfile(update);
+    invalidateAuthorizationCache();
     setUser(updatedUser);
-  };
+  }, []);
 
-  const changePassword = (change: PasswordChange) => authService.changePassword(change);
-  const hasCapability = (capability: string) => user?.capabilities.includes(capability) ?? false;
+  const changePassword = useCallback((change: PasswordChange) => authService.changePassword(change), []);
+  const hasCapability = useCallback((capability: string) => user?.capabilities.includes(capability) ?? false, [user]);
+  const contextValue = useMemo(() => ({
+    user,
+    isLoading,
+    login,
+    logout,
+    updateProfile,
+    changePassword,
+    hasCapability,
+  }), [changePassword, hasCapability, isLoading, login, logout, updateProfile, user]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isLoading,
-      login,
-      logout,
-      updateProfile,
-      changePassword,
-      hasCapability,
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

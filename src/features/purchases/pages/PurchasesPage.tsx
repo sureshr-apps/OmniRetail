@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Purchase,
   PurchaseQueryResult,
@@ -11,7 +11,7 @@ import {
   RecordPurchaseRefundInput,
 } from '../types';
 import { purchaseService } from '../services/purchaseService';
-import { SupplierOption, OutletOption } from '../services/purchaseService';
+import { SupplierOption, OutletOption, derivePurchaseView } from '../services/purchaseService';
 import { PurchasesHeader } from '../components/PurchasesHeader';
 import { PurchasesKpiCards } from '../components/PurchasesKpiCards';
 import { PurchasesFilterToolbar } from '../components/PurchasesFilterToolbar';
@@ -21,12 +21,13 @@ import { PurchaseDetailDrawer } from '../components/PurchaseDetailDrawer';
 import { CreatePurchaseModal } from '../components/CreatePurchaseModal';
 import { PurchaseToast, ToastMessage } from '../components/PurchaseToast';
 import { getCurrentMonthDateRange } from '../utils/dateRange';
+import { upsertById } from '@/shared/utils/listState';
 
 export function PurchasesPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Data & KPI state
-  const [data, setData] = useState<PurchaseQueryResult | null>(null);
+  const [allPurchases, setAllPurchases] = useState<Purchase[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
   const [outlets, setOutlets] = useState<OutletOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +51,17 @@ export function PurchasesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
+  const data = useMemo<PurchaseQueryResult>(() => derivePurchaseView(allPurchases, {
+    search: searchQuery,
+    customStartDate: dateRangeStart,
+    customEndDate: dateRangeEnd,
+    outlet: selectedOutlet,
+    supplier: selectedSupplier,
+    paymentStatus: selectedPaymentStatus,
+    page: currentPage,
+    pageSize,
+  }), [allPurchases, searchQuery, dateRangeStart, dateRangeEnd, selectedOutlet, selectedSupplier, selectedPaymentStatus, currentPage, pageSize]);
+
   // Load auxiliary lists (suppliers & outlets)
   useEffect(() => {
     async function loadAux() {
@@ -67,21 +79,12 @@ export function PurchasesPage() {
     loadAux();
   }, []);
 
-  // Load purchases ledger
+  // Load the purchase collection once; filters and pagination are derived
+  // locally while the page is open.
   const loadLedger = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await purchaseService.getPurchases({
-        search: searchQuery,
-        customStartDate: dateRangeStart,
-        customEndDate: dateRangeEnd,
-        outlet: selectedOutlet,
-        supplier: selectedSupplier,
-        paymentStatus: selectedPaymentStatus,
-        page: currentPage,
-        pageSize,
-      });
-      setData(result);
+      setAllPurchases(await purchaseService.getAllPurchases());
     } catch (err) {
       console.error('Failed to fetch purchases ledger:', err);
       setToast({
@@ -93,16 +96,7 @@ export function PurchasesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [
-    searchQuery,
-    dateRangeStart,
-    dateRangeEnd,
-    selectedOutlet,
-    selectedSupplier,
-    selectedPaymentStatus,
-    currentPage,
-    pageSize,
-  ]);
+  }, []);
 
   useEffect(() => {
     loadLedger();
@@ -245,8 +239,8 @@ export function PurchasesPage() {
   ) => {
     try {
       const created = await purchaseService.createPurchase(input);
+      setAllPurchases((current) => upsertById(current, created));
       setIsCreateModalOpen(false);
-      await loadLedger();
 
       setToast({
         id: `toast-${Date.now()}`,
@@ -272,11 +266,12 @@ export function PurchasesPage() {
   // Cancel Purchase handler
   const handleCancelPurchase = async (id: string) => {
     try {
-      const updated = await purchaseService.cancelPurchase(id);
+      const currentPurchase = viewingPurchase?.id === id ? viewingPurchase : allPurchases.find((purchase) => purchase.id === id);
+      const updated = await purchaseService.cancelPurchase(id, currentPurchase);
+      setAllPurchases((current) => upsertById(current, updated));
       if (viewingPurchase?.id === id) {
         setViewingPurchase(updated);
       }
-      await loadLedger();
       setToast({
         id: `toast-${Date.now()}`,
         type: 'info',
@@ -290,9 +285,10 @@ export function PurchasesPage() {
 
   const handleClosePartialPurchase = async (id: string) => {
     try {
-      const updated = await purchaseService.closePurchaseWithPartialReceipt(id);
+      const currentPurchase = viewingPurchase?.id === id ? viewingPurchase : allPurchases.find((purchase) => purchase.id === id);
+      const updated = await purchaseService.closePurchaseWithPartialReceipt(id, currentPurchase);
+      setAllPurchases((current) => upsertById(current, updated));
       setViewingPurchase(updated);
-      await loadLedger();
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -317,9 +313,10 @@ export function PurchasesPage() {
     receipts: PurchaseReceiptLine[]
   ) => {
     try {
-      const updated = await purchaseService.receiveItems(purchaseId, receipts);
+      const currentPurchase = viewingPurchase?.id === purchaseId ? viewingPurchase : allPurchases.find((purchase) => purchase.id === purchaseId);
+      const updated = await purchaseService.receiveItems(purchaseId, receipts, currentPurchase);
+      setAllPurchases((current) => upsertById(current, updated));
       setViewingPurchase(updated);
-      await loadLedger();
       const batchCount = receipts.reduce((count, receipt) => count + receipt.batches.filter((batch) => batch.quantity > 0).length, 0);
       setToast({
         id: `toast-${Date.now()}`,
@@ -334,9 +331,10 @@ export function PurchasesPage() {
 
   const handleRecordPayment = async (purchaseId: string, payment: RecordPurchasePaymentInput) => {
     try {
-      const updated = await purchaseService.recordPayment(purchaseId, payment);
+      const currentPurchase = viewingPurchase?.id === purchaseId ? viewingPurchase : allPurchases.find((purchase) => purchase.id === purchaseId);
+      const updated = await purchaseService.recordPayment(purchaseId, payment, currentPurchase);
+      setAllPurchases((current) => upsertById(current, updated));
       setViewingPurchase(updated);
-      await loadLedger();
       setToast({
         id: `toast-${Date.now()}`,
         type: 'success',
@@ -386,7 +384,7 @@ export function PurchasesPage() {
       <div className="py-space-base space-y-space-base pb-16">
         {/* 1. Page Header */}
         <PurchasesHeader
-          activeCount={data?.totalCount || 42}
+          activeCount={data?.totalCount ?? 0}
           onExport={handleExportCsv}
           onOpenCreateModal={() => setIsCreateModalOpen(true)}
         />

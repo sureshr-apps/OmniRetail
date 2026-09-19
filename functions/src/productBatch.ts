@@ -139,20 +139,7 @@ async function resolveSubcategory(client: import('pg').PoolClient, categoryId: s
   return result.rows[0];
 }
 
-async function loadCreatedProduct(client: import('pg').PoolClient, organizationId: string, id: string): Promise<CreatedProductRecord> {
-  const result = await client.query<Record<string, unknown>>(
-    `SELECT p.id, p.product_code, p.name, p.brand, p.type, p.sku, p.barcode, p.hsn_code, p.unit_of_measure,
-            p.selling_price, p.mrp, p.cost, p.min_selling_price, p.discount_allowed, p.tax_category, p.status,
-            p.reorder_level, p.reorder_quantity, p.primary_supplier, p.description,
-            c.id AS category_id, c.value AS category_value, s.id AS subcategory_id, s.value AS subcategory_value
-       FROM "product" p
-       JOIN "category" c ON c.id = p.category_id
-       LEFT JOIN "subcategory" s ON s.id = p.subcategory_id
-      WHERE p.id = $1 AND p.organization_id = $2`,
-    [id, organizationId],
-  );
-  if (!result.rowCount) throw new Error('product not found after creation');
-  const row = result.rows[0];
+function mapCreatedProduct(row: Record<string, unknown>): CreatedProductRecord {
   return {
     id: String(row.id),
     productCode: Number(row.product_code),
@@ -179,16 +166,45 @@ async function loadCreatedProduct(client: import('pg').PoolClient, organizationI
   };
 }
 
+async function loadCreatedProducts(client: import('pg').PoolClient, organizationId: string, ids: string[]): Promise<CreatedProductRecord[]> {
+  const result = await client.query<Record<string, unknown>>(
+    `SELECT p.id, p.product_code, p.name, p.brand, p.type, p.sku, p.barcode, p.hsn_code, p.unit_of_measure,
+            p.selling_price, p.mrp, p.cost, p.min_selling_price, p.discount_allowed, p.tax_category, p.status,
+            p.reorder_level, p.reorder_quantity, p.primary_supplier, p.description,
+            c.id AS category_id, c.value AS category_value, s.id AS subcategory_id, s.value AS subcategory_value
+       FROM "product" p
+       JOIN "category" c ON c.id = p.category_id
+       LEFT JOIN "subcategory" s ON s.id = p.subcategory_id
+      WHERE p.id = ANY($1::uuid[]) AND p.organization_id = $2`,
+    [ids, organizationId],
+  );
+  if (result.rowCount !== ids.length) throw new Error('product not found after creation');
+  const byId = new Map(result.rows.map((row) => [String(row.id), mapCreatedProduct(row)]));
+  return ids.map((id) => {
+    const product = byId.get(id);
+    if (!product) throw new Error('product not found after creation');
+    return product;
+  });
+}
+
 export async function persistProductBatchInTransaction(
   client: import('pg').PoolClient,
   organizationId: string,
   inputs: ProductBatchFields[],
 ): Promise<CreatedProductRecord[]> {
   validateBatch(inputs);
-  const created: CreatedProductRecord[] = [];
+  const categoryCache = new Map<string, { id: string; value: string }>();
+  const subcategoryCache = new Map<string, { id: string; value: string } | null>();
+  const createdIds: string[] = [];
   for (const input of inputs) {
-    const category = await resolveCategory(client, organizationId, input.categoryName);
-    const subcategory = await resolveSubcategory(client, category.id, input.subcategoryName ?? '');
+    const categoryKey = normalizeTaxonomyValue(input.categoryName);
+    const category = categoryCache.get(categoryKey) ?? await resolveCategory(client, organizationId, input.categoryName);
+    categoryCache.set(categoryKey, category);
+    const subcategoryKey = `${category.id}:${normalizeTaxonomyValue(input.subcategoryName ?? '')}`;
+    const subcategory = subcategoryCache.has(subcategoryKey)
+      ? subcategoryCache.get(subcategoryKey)!
+      : await resolveSubcategory(client, category.id, input.subcategoryName ?? '');
+    subcategoryCache.set(subcategoryKey, subcategory);
     const id = randomUUID();
     await client.query(
       `INSERT INTO "product" (
@@ -203,9 +219,9 @@ export async function persistProductBatchInTransaction(
         input.primarySupplier, input.description,
       ],
     );
-    created.push(await loadCreatedProduct(client, organizationId, id));
+    createdIds.push(id);
   }
-  return created;
+  return loadCreatedProducts(client, organizationId, createdIds);
 }
 
 export async function persistProductBatch(organizationId: string, inputs: ProductBatchFields[]): Promise<CreatedProductRecord[]> {

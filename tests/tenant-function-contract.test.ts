@@ -18,6 +18,7 @@ const cloudSqlRuntimePrivilegesSource = readFileSync(new URL('../scripts/grant-c
 const dataConnectConfigSource = readFileSync(new URL('../dataconnect/dataconnect.yaml', import.meta.url), 'utf8');
 const functionsPackageSource = readFileSync(new URL('../functions/package.json', import.meta.url), 'utf8');
 const productBatchSource = readFileSync(new URL('../functions/src/productBatch.ts', import.meta.url), 'utf8');
+const purchaseCreationSource = readFileSync(new URL('../functions/src/purchaseCreation.ts', import.meta.url), 'utf8');
 
 describe('tenant callable contract', () => {
   it('allows callable requests from deployed Firebase Hosting origins', () => {
@@ -432,7 +433,10 @@ describe('tenant callable contract', () => {
   it('exposes an organization-scoped purchase creation boundary', () => {
     expect(source).toContain('export const createTenantPurchaseRecord = onCall');
     expect(source).toContain("requireOrganizationCapability(actor, organizationId, 'purchases.read')");
-    expect(source).toContain('createTenantPurchase({ organizationId, purchaseNumber');
+    expect(source).toContain('createPurchaseInTransaction(client');
+    expect(purchaseCreationSource).toContain('INSERT INTO "purchase"');
+    expect(purchaseCreationSource).toContain('INSERT INTO "purchase_line"');
+    expect(purchaseCreationSource).toContain('supplier is not active in this organization');
   });
 
   it('exposes a tenant purchase status boundary', () => {
@@ -442,6 +446,8 @@ describe('tenant callable contract', () => {
 
   it('exposes a tenant purchase receiving boundary', () => {
     expect(source).toContain('export const receiveTenantPurchaseLineRecord = onCall');
+    expect(source).toContain('export const receiveTenantPurchaseRecord = onCall');
+    expect(source).toContain('receiveInventoryForPurchaseBatch(client');
     expect(source).toContain('receiveInventoryForPurchase(client');
     expect(source).toContain('batchNumber: typeof d.batchNumber');
   });

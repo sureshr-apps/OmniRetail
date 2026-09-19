@@ -14,6 +14,13 @@ export const SUPPORTED_CURRENCIES: CurrencyOption[] = [
   { code: 'INR', label: DEFAULT_CURRENCY, symbol: '₹' },
 ];
 
+const INR_FORMATTER = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 /**
  * Format an amount with its currency code/symbol.
  * e.g., formatCurrency(72000, 'INR (₹)') => '₹72,000'
@@ -24,12 +31,7 @@ export function formatCurrency(amount: number | null | undefined, _currency: str
   }
 
   try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
+    return INR_FORMATTER.format(amount);
   } catch {
     return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }

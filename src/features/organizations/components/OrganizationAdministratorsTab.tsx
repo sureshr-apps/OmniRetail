@@ -23,6 +23,7 @@ import { AddAdminModal } from './AddAdminModal';
 import { EditAdminModal } from './EditAdminModal';
 import { ChangeAdminStatusModal } from './ChangeAdminStatusModal';
 import { ResetAdminPasswordModal } from './ResetAdminPasswordModal';
+import { upsertById } from '@/shared/utils/listState';
 
 export interface OrganizationAdministratorsTabProps {
   organization: Organization;
@@ -84,24 +85,24 @@ export function OrganizationAdministratorsTab({
     );
   });
 
-  const handleAdminCreated = async (newAdmin: OrganizationAdministrator) => {
+  const handleAdminCreated = (newAdmin: OrganizationAdministrator) => {
     setFeedback({
       message: `Administrator "${newAdmin.name}" (@${newAdmin.username}) created successfully.`,
       type: 'success',
     });
-    await loadAdmins();
-    setAdmins((current) => current.some((admin) => admin.id === newAdmin.id)
-      ? current.map((admin) => admin.id === newAdmin.id ? newAdmin : admin)
-      : [...current, newAdmin]);
+    setAdmins((current) => {
+      const next = upsertById(current, newAdmin);
+      onAdminCountChange?.(next.length);
+      return next;
+    });
   };
 
-  const handleAdminUpdated = async (updatedAdmin: OrganizationAdministrator) => {
+  const handleAdminUpdated = (updatedAdmin: OrganizationAdministrator) => {
     setFeedback({
       message: `Administrator profile for "${updatedAdmin.name}" updated successfully.`,
       type: 'success',
     });
-    await loadAdmins();
-    setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
+    setAdmins((current) => upsertById(current, updatedAdmin));
   };
 
   const handleAdminStatusChanged = async (updatedAdmin: OrganizationAdministrator) => {
@@ -112,8 +113,7 @@ export function OrganizationAdministratorsTab({
       }.`,
       type: 'info',
     });
-    await loadAdmins();
-    setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
+    setAdmins((current) => upsertById(current, updatedAdmin));
   };
 
   return (

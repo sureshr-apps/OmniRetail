@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   InventoryItem,
   InventoryMovementLog,
@@ -14,6 +14,7 @@ import {
   inventoryService,
   getInventoryLocations,
   getInventorySuppliers,
+  deriveInventoryView,
   deriveStockStatus,
   calculateMarginPercent,
 } from '../services/inventoryService';
@@ -31,6 +32,7 @@ import { InventoryToast } from '../components/InventoryToast';
 import { productService } from '@/features/products/services/productService';
 import type { Product } from '@/features/products/types';
 import { useTenantOutlet } from '@/app/context/TenantOutletContext';
+import { upsertById } from '@/shared/utils/listState';
 
 export function InventoryPage() {
   // Query Filters State
@@ -47,7 +49,7 @@ export function InventoryPage() {
   const [pageSize, setPageSize] = useState(25);
 
   // Data State
-  const [data, setData] = useState<InventoryQueryResult | null>(null);
+  const [allInventory, setAllInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Selection State
@@ -71,6 +73,20 @@ export function InventoryPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const historyRequestRef = useRef(0);
 
+  const data = useMemo<InventoryQueryResult>(() => deriveInventoryView(
+    allInventory,
+    {
+      search: searchQuery,
+      statusTab: activeTab,
+      locationId: selectedLocation,
+      supplierId: selectedSupplier,
+      sort: selectedSort,
+      page,
+      pageSize,
+    },
+    suppliers.find((supplier) => supplier.id === selectedSupplier),
+  ), [allInventory, searchQuery, activeTab, selectedLocation, selectedSupplier, selectedSort, page, pageSize, suppliers]);
+
   const showToast = (title: string, message: string) => {
     setToast({ title, message });
   };
@@ -88,30 +104,13 @@ export function InventoryPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await inventoryService.getInventory({
-        search: searchQuery,
-        statusTab: activeTab,
-        locationId: selectedLocation,
-        supplierId: selectedSupplier,
-        sort: selectedSort,
-        page,
-        pageSize,
-      });
-      setData(result);
+      setAllInventory(await inventoryService.getAllInventory());
     } catch (err) {
       console.error('Failed to load inventory data', err);
     } finally {
       setIsLoading(false);
     }
-  }, [
-    searchQuery,
-    activeTab,
-    selectedLocation,
-    selectedSupplier,
-    selectedSort,
-    page,
-    pageSize,
-  ]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -195,7 +194,9 @@ export function InventoryPage() {
   // Adjust Stock Confirmation
   const handleConfirmAdjustment = async (input: StockAdjustmentInput) => {
     try {
-      const res = await inventoryService.adjustStock(input);
+      const currentItem = allInventory.find((item) => item.id === input.itemId || item.sku === input.sku);
+      const res = await inventoryService.adjustStock(input, currentItem);
+      setAllInventory((current) => upsertById(current, res.item));
       setAdjustingItem(null);
       const modeWord =
         input.mode === 'decrease'
@@ -207,8 +208,6 @@ export function InventoryPage() {
         'Adjustment Recorded',
         `${input.sku} ${modeWord} ${input.quantity} units. Stock is now ${res.newQty} units.`
       );
-      // Reload inventory & KPIs
-      await loadData();
     } catch (err: any) {
       showToast('Adjustment Failed', err?.message || 'Unable to update stock.');
     }
@@ -293,9 +292,9 @@ export function InventoryPage() {
         throw new Error('Please select an outlet before creating inventory.');
       }
       const created = await inventoryService.addProduct(productData);
+      setAllInventory((current) => upsertById(current, created));
       setIsAddProductOpen(false);
       showToast('Product Cataloged', `${created.sku} • ${created.name} added to inventory.`);
-      await loadData();
     } catch (err: any) {
       showToast('Creation Failed', err?.message || 'Could not add product.');
     }
@@ -306,14 +305,15 @@ export function InventoryPage() {
       if (!tenantOutlet?.selectedOutletId) {
         throw new Error('Please select an outlet before adding inventory.');
       }
-      await inventoryService.addInventoryUnits({ ...input, outletId: tenantOutlet.selectedOutletId });
+      const currentItem = allInventory.find((item) => item.productId === input.productId && item.locationId === tenantOutlet.selectedOutletId);
+      const updated = await inventoryService.addInventoryUnits({ ...input, outletId: tenantOutlet.selectedOutletId }, currentItem);
+      setAllInventory((current) => upsertById(current, updated));
       setIsAddInventoryOpen(false);
       const product = catalogProducts.find((candidate) => candidate.id === input.productId);
       showToast(
         'Inventory Added',
         `${input.quantity} units of ${product?.name ?? 'the product'} added to ${tenantOutlet.selectedOutlet?.name ?? 'the selected outlet'}.`
       );
-      await loadData();
     } catch (err: any) {
       showToast('Inventory Addition Failed', err?.message || 'Could not add inventory.');
     }

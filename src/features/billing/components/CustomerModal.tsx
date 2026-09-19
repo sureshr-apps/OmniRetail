@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Customer } from '../types';
 import { customerService } from '@/features/customers/services/customerService';
 
@@ -17,10 +17,15 @@ export function CustomerModal({
 }: CustomerModalProps) {
   const [search, setSearch] = useState('');
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const hasLoadedCustomers = useRef(false);
 
   useEffect(() => {
-    if (!isOpen) return;
-    customerService.getCustomers({ search: '', page: 1, pageSize: 1000 }).then(({ items }) => setCustomers(items.map((customer) => ({ id: customer.id, name: customer.name, tier: customer.type === 'Business' ? 'Business' : 'Standard', points: 0, memberDiscount: 0, phone: customer.phone })))).catch(() => setCustomers([]));
+    if (!isOpen || hasLoadedCustomers.current) return;
+    hasLoadedCustomers.current = true;
+    customerService.getCustomers({ search: '', page: 1, pageSize: 1000 }).then(({ items }) => setCustomers(items.map((customer) => ({ id: customer.id, name: customer.name, tier: customer.type === 'Business' ? 'Business' : 'Standard', points: 0, memberDiscount: 0, phone: customer.phone })))).catch(() => {
+      setCustomers([]);
+      hasLoadedCustomers.current = false;
+    });
   }, [isOpen]);
 
   if (!isOpen) return null;

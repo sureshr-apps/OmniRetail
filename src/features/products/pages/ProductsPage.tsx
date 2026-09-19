@@ -487,7 +487,7 @@ export function ProductsPage() {
       <div className="py-space-base space-y-space-base pb-16">
         {/* 1. Page Header */}
         <ProductsHeader
-          totalCount={data.totalCount || 10}
+          totalCount={data.totalCount ?? 0}
           onExportCsv={handleExportCsv}
           onOpenAddModal={() => setIsAddModalOpen(true)}
           onOpenTaxonomyModal={isOrganizationAdmin ? () => setIsTaxonomyModalOpen(true) : undefined}

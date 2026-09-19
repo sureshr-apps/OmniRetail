@@ -6,9 +6,10 @@ import {
   UpdateOutletInput,
   OutletStatus,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantOutlets } from '@omniretail/sql-connect';
+import { listTenantOutlets } from '@omniretail/sql-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { formatOutletCode } from '../utils/formatOutletCode';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
 
@@ -79,7 +80,7 @@ export function deriveOutletView(all: Outlet[], query: OutletQuery): OutletQuery
 
 class ProductionOutletService implements IOutletService {
   private async organizationId(): Promise<string> {
-    const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const result = await getCachedCurrentUserAuthorization();
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     return membership.organization.id;

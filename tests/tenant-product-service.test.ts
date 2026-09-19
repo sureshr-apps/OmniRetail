@@ -6,7 +6,7 @@ const source = readFileSync(new URL('../src/features/products/services/productSe
 
 describe('tenant product service adapter', () => {
   it('uses the authenticated tenant authorization and Data Connect product query', () => {
-    expect(source).toContain('getCurrentUserAuthorization');
+    expect(source).toContain('getCachedCurrentUserAuthorization');
     expect(source).toContain('listTenantProducts');
     expect(source).toContain("No active organization membership.");
     expect(source).toContain('export const productService: IProductService = new ProductionProductService()');

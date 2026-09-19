@@ -6,6 +6,7 @@ const source = readFileSync(new URL('../src/features/purchases/services/purchase
 const modal = readFileSync(new URL('../src/features/purchases/components/CreatePurchaseModal.tsx', import.meta.url), 'utf8');
 const detailDrawer = readFileSync(new URL('../src/features/purchases/components/PurchaseDetailDrawer.tsx', import.meta.url), 'utf8');
 const functions = readFileSync(new URL('../functions/src/index.ts', import.meta.url), 'utf8');
+const purchaseCreation = readFileSync(new URL('../functions/src/purchaseCreation.ts', import.meta.url), 'utf8');
 const inventoryBatches = readFileSync(new URL('../functions/src/inventoryBatches.ts', import.meta.url), 'utf8');
 const closure = readFileSync(new URL('../functions/src/purchaseClosure.ts', import.meta.url), 'utf8');
 const purchasesPage = readFileSync(new URL('../src/features/purchases/pages/PurchasesPage.tsx', import.meta.url), 'utf8');
@@ -22,7 +23,7 @@ describe('tenant purchase service adapter', () => {
   it('uses tenant reads and production lifecycle actions', () => {
     expect(source).toContain('listTenantPurchases');
     expect(source).toContain("'changeTenantPurchaseStatus'");
-    expect(source).toContain("'receiveTenantPurchaseLineRecord'");
+    expect(source).toContain("'receiveTenantPurchaseRecord'");
     expect(source).toContain('new ProductionPurchaseService()');
     expect(source).toContain("'recordTenantPurchasePayment'");
     expect(source).toContain('async recordPayment');
@@ -113,16 +114,19 @@ describe('tenant purchase service adapter', () => {
 
   it('persists draft and active purchase statuses and rejects empty purchases', () => {
     expect(functions).toContain("const status = d.status === 'DRAFT' || d.status === 'ACTIVE' ? d.status : ''");
-    expect(functions).toContain('status, createdBy');
+    expect(functions).toContain('createPurchaseInTransaction(client');
     expect(functions).toContain('lines.length === 0');
     expect(modal).toContain('Add at least one product line before saving the purchase.');
     expect(functions).toContain('const outstandingAmount = Math.max(0, Number((totalAmount - amountPaid).toFixed(2)))');
-    expect(functions).toContain('outstandingAmount, paymentStatus');
+    expect(functions).toContain('paymentStatus,');
+    expect(purchaseCreation).toContain('outstanding_amount');
   });
 
-  it('uses the trusted outlet lookup inside Cloud Functions instead of a user-authenticated outlet query', () => {
-    expect(functions).toContain('getTenantOutletTrusted({ organizationId, id: outletId })');
-    expect(functions).not.toContain('listTenantOutlets({ organizationId })');
+  it('validates the outlet inside the same SQL transaction as purchase creation', () => {
+    const purchaseCreation = readFileSync(new URL('../functions/src/purchaseCreation.ts', import.meta.url), 'utf8');
+    expect(purchaseCreation).toContain('SELECT id, status FROM "outlet"');
+    expect(purchaseCreation).toContain('outlet is not active in this organization');
+    expect(functions).not.toContain('getTenantOutletTrusted({ organizationId, id: outletId })');
   });
 
   it('lets the receipt boundary derive product and outlet from the persisted purchase line', () => {

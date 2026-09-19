@@ -5,7 +5,7 @@ const source = readFileSync(new URL('../src/features/inventory/services/inventor
 
 describe('tenant inventory service adapter', () => {
   it('uses tenant authorization and the outlet-scoped inventory query', () => {
-    expect(source).toContain('getCurrentUserAuthorization');
+    expect(source).toContain('getCachedCurrentUserAuthorization');
     expect(source).toContain('listTenantInventory');
     expect(source).toContain('getMovementHistory');
     expect(source).toContain("'listTenantInventoryMovementHistory'");

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CreateCustomerInput, CustomerType } from '../types';
 import { parseCustomerDate } from '../utils/date';
 
@@ -22,6 +22,7 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
   // Business & Tax
   const [taxId, setTaxId] = useState('');
   const [creditLimit, setCreditLimit] = useState<string>('5000');
+  const creditLimitTouched = useRef(false);
 
   const [notes, setNotes] = useState('');
   const [documentType, setDocumentType] = useState('');
@@ -32,6 +33,7 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
 
   useEffect(() => {
     if (isOpen) {
+      setType('Individual');
       setErrors({});
       setName('');
       setPhone('');
@@ -40,10 +42,17 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
       setGender('');
       setAddress('');
       setTaxId('');
-      setCreditLimit(type === 'Business' ? '10000' : '2500');
+      creditLimitTouched.current = false;
+      setCreditLimit('2500');
       setNotes('');
       setDocumentType('');
       setDocumentValue('');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && !creditLimitTouched.current) {
+      setCreditLimit(type === 'Business' ? '10000' : '2500');
     }
   }, [isOpen, type]);
 
@@ -295,7 +304,10 @@ export function AddCustomerModal({ isOpen, onClose, onSubmit }: AddCustomerModal
                   </label>
                   <input
                     value={creditLimit}
-                    onChange={(e) => setCreditLimit(e.target.value)}
+                    onChange={(e) => {
+                      creditLimitTouched.current = true;
+                      setCreditLimit(e.target.value);
+                    }}
                     className="w-full h-9 px-space-base rounded bg-surface-container-low border border-outline-variant/50 font-body-default text-body-default text-on-surface focus:outline-none focus:border-primary"
                     placeholder="5000.00"
                     type="number"

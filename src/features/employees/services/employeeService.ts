@@ -7,8 +7,9 @@ import {
   EmployeeStatus,
   LoginAccessStatus,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantEmployees } from '@omniretail/sql-connect';
+import { listTenantEmployees } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
 import { formatEmployeeCode } from '../utils/formatEmployeeCode';
@@ -82,7 +83,7 @@ export function deriveEmployeeView(all: Employee[], query: EmployeeQuery): Emplo
 }
 
 class ProductionEmployeeService implements IEmployeeService {
-  private async organizationId(): Promise<string> { const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect); const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
+  private async organizationId(): Promise<string> { const result = await getCachedCurrentUserAuthorization(); const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE'); if (!membership) throw new Error('No active organization membership.'); return membership.organization.id; }
   private map(row: TenantEmployeeRow | EmployeeMutationResponse): Employee { const names = row.fullName.trim().split(/\s+/); const memberships = row.user && ('employeeTrustedMemberships' in row.user ? row.user.employeeTrustedMemberships : row.user.employeeMemberships); const permissionProfile = memberships?.[0]?.role.code === 'organization.admin' ? 'Admin' : memberships?.[0]?.role.code === 'organization.employee' ? 'User' : undefined; return { id: row.id, employeeCode: row.employeeCode, firstName: names[0] ?? row.fullName, lastName: names.slice(1).join(' '), displayName: row.fullName, designation: row.designation, department: row.department ?? undefined, phone: row.phone, email: row.email ?? row.user?.email ?? '', outletAssignment: row.employeeOutlets_on_employee.map((item) => item.outlet.name), outletIds: row.employeeOutlets_on_employee.map((item) => item.outlet.id), assignmentScope: row.assignmentScope === 'ORGANIZATION' ? 'Entire Organization' : 'Specific Outlets', employmentStatus: row.employmentStatus === 'ACTIVE' ? 'Active' : 'Inactive', loginAccess: row.loginAccess === 'ENABLED' ? 'Enabled' : 'Disabled', username: row.user?.username, permissionProfile, gender: row.gender ?? undefined, dateOfBirth: row.dateOfBirth ?? undefined, dateOfJoining: row.dateOfJoining, address: row.address ?? undefined, notes: row.notes ?? undefined }; }
 
   /** Full org-scoped, unfiltered/unpaginated set — the authoritative array pages hold in state. */

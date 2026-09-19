@@ -1,11 +1,12 @@
-import { getCurrentUserAuthorization, listTenantOutlets } from '@omniretail/sql-connect';
+import { listTenantOutlets } from '@omniretail/sql-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { CartItem, Customer, OrderTotals, PaymentMethod } from '../types';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 
 export async function completeTenantCheckout(input: { orderNumber: string; items: CartItem[]; customer: Customer; totals: OrderTotals; paymentMethod: PaymentMethod; cashAmount?: number }): Promise<void> {
   const services = getFirebaseClientServices();
-  const authorization = await getCurrentUserAuthorization(services.dataConnect);
+  const authorization = await getCachedCurrentUserAuthorization();
   const membership = authorization.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
   if (!membership) throw new Error('No active organization membership.');
   const outlets = await listTenantOutlets(services.dataConnect, { organizationId: membership.organization.id });

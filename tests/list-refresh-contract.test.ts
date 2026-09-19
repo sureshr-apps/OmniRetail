@@ -24,24 +24,27 @@ describe('post-mutation list refresh contracts', () => {
   });
 
   it.each([
-    ['purchase create', 'purchases/pages/PurchasesPage.tsx', 'const handleCreatePurchase', 'const handleCancelPurchase', 'await loadLedger()'],
-    ['purchase cancel', 'purchases/pages/PurchasesPage.tsx', 'const handleCancelPurchase', 'const handleReceiveStock', 'await loadLedger()'],
-    ['purchase receipt', 'purchases/pages/PurchasesPage.tsx', 'const handleReceiveStock', 'return (', 'await loadLedger()'],
-    ['expense create', 'expenses/pages/ExpensesPage.tsx', 'const handleCreateExpense', 'const handleUpdateExpense', 'await loadExpenses()'],
-    ['expense update', 'expenses/pages/ExpensesPage.tsx', 'const handleUpdateExpense', 'const handleOpenEditExpense', 'await loadExpenses()'],
-    ['expense void', 'expenses/pages/ExpensesPage.tsx', 'const handleConfirmVoid', 'const handleApproveExpense', 'await loadExpenses()'],
-    ['expense approval', 'expenses/pages/ExpensesPage.tsx', 'const handleApproveExpense', 'const handleRejectExpense', 'await loadExpenses()'],
-    ['expense rejection', 'expenses/pages/ExpensesPage.tsx', 'const handleRejectExpense', 'const handleFilterPending', 'await loadExpenses()'],
-  ])('%s reconciles its visible list before completing', (_name, path, start, end, refresh) => {
-    expect(section(read(path), start, end)).toContain(refresh);
+    ['purchase create', 'purchases/pages/PurchasesPage.tsx', 'const handleCreatePurchase', 'const handleCancelPurchase'],
+    ['purchase cancel', 'purchases/pages/PurchasesPage.tsx', 'const handleCancelPurchase', 'const handleReceiveStock'],
+    ['purchase receipt', 'purchases/pages/PurchasesPage.tsx', 'const handleReceiveStock', 'return ('],
+    ['expense create', 'expenses/pages/ExpensesPage.tsx', 'const handleCreateExpense', 'const handleUpdateExpense'],
+    ['expense update', 'expenses/pages/ExpensesPage.tsx', 'const handleUpdateExpense', 'const handleOpenEditExpense'],
+    ['expense void', 'expenses/pages/ExpensesPage.tsx', 'const handleConfirmVoid', 'const handleApproveExpense'],
+    ['expense approval', 'expenses/pages/ExpensesPage.tsx', 'const handleApproveExpense', 'const handleRejectExpense'],
+    ['expense rejection', 'expenses/pages/ExpensesPage.tsx', 'const handleRejectExpense', 'const handleFilterPending'],
+  ])('%s reconciles its visible list locally before completing', (_name, path, start, end) => {
+    const handler = section(read(path), start, end);
+    expect(handler).toContain('upsertById(');
+    expect(handler).not.toMatch(/await load(Ledger|Expenses)\(/);
   });
 
   it.each([
     ['stock adjustment', 'const handleConfirmAdjustment', 'const handleAdjustSelected'],
     ['inventory product creation', 'const handleCreateProduct', 'return ('],
-  ])('%s waits for the inventory and KPI refresh', (_name, start, end) => {
+  ])('%s reconciles inventory locally', (_name, start, end) => {
     const handler = section(read('inventory/pages/InventoryPage.tsx'), start, end);
-    expect(handler).toContain('await loadData()');
+    expect(handler).toContain('upsertById(');
+    expect(handler).not.toContain('await loadData()');
   });
 
   it.each([
@@ -53,12 +56,11 @@ describe('post-mutation list refresh contracts', () => {
     expect(handler).toContain('await loadData()');
   });
 
-  it('reloads page one after organization creation instead of querying the previous page', () => {
+  it('adds a newly created organization to the held directory without refetching', () => {
     const source = read('organizations/pages/OrganizationsPage.tsx');
     const handler = section(source, 'const handleOrgCreated', 'const isFiltered');
-    expect(source).toContain('async (requestedPage = page)');
-    expect(source).toContain('page: requestedPage');
-    expect(handler).toContain('await fetchOrganizations(1)');
+    expect(handler).toContain('upsertById(current, newOrg)');
+    expect(handler).not.toContain('await fetchOrganizations');
   });
 
   it.each([

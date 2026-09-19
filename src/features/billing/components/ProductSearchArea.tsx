@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Product } from '../types';
 
 interface ProductSearchAreaProps {
@@ -26,10 +26,11 @@ export function ProductSearchArea({
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const visibleProducts = useMemo(() => filteredProducts.slice(0, 50), [filteredProducts]);
 
   useEffect(() => {
-    setHighlightedIndex(filteredProducts.length > 0 ? 0 : -1);
-  }, [filteredProducts, searchQuery]);
+    setHighlightedIndex(visibleProducts.length > 0 ? 0 : -1);
+  }, [visibleProducts, searchQuery]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -49,20 +50,20 @@ export function ProductSearchArea({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      if (!isDropdownOpen || filteredProducts.length === 0) return;
+      if (!isDropdownOpen || visibleProducts.length === 0) return;
       e.preventDefault();
       setHighlightedIndex((current) => {
         const start = current < 0 ? 0 : current;
         const offset = e.key === 'ArrowDown' ? 1 : -1;
-        return (start + offset + filteredProducts.length) % filteredProducts.length;
+        return (start + offset + visibleProducts.length) % visibleProducts.length;
       });
       return;
     }
 
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (filteredProducts.length > 0) {
-        const selectedProduct = filteredProducts[highlightedIndex] ?? filteredProducts[0];
+      if (visibleProducts.length > 0) {
+        const selectedProduct = visibleProducts[highlightedIndex] ?? visibleProducts[0];
         onAddProduct(selectedProduct);
         onSearchChange('');
         setIsDropdownOpen(false);
@@ -97,7 +98,7 @@ export function ProductSearchArea({
             id="barcodeInput"
             type="text"
             value={searchQuery}
-            aria-activedescendant={highlightedIndex >= 0 ? `product-search-result-${filteredProducts[highlightedIndex]?.id}` : undefined}
+            aria-activedescendant={highlightedIndex >= 0 ? `product-search-result-${visibleProducts[highlightedIndex]?.id}` : undefined}
             onChange={(e) => {
               onSearchChange(e.target.value);
               setIsDropdownOpen(true);
@@ -141,7 +142,7 @@ export function ProductSearchArea({
             className="absolute left-0 top-12 w-full max-w-2xl bg-surface-container-lowest rounded-md shadow-xl border border-outline-variant/40 py-1 z-50 max-h-72 overflow-y-auto"
           >
             <div className="px-3 py-1.5 text-micro-label uppercase tracking-wider text-on-surface-variant font-bold border-b border-outline-variant/20 flex justify-between">
-              <span>Matching Catalog Items ({filteredProducts.length})</span>
+              <span>Matching Catalog Items ({filteredProducts.length}{filteredProducts.length > visibleProducts.length ? ' · showing first 50' : ''})</span>
               <span>↑↓ Navigate · Enter or Click to Add</span>
             </div>
             {filteredProducts.length === 0 ? (
@@ -150,7 +151,7 @@ export function ProductSearchArea({
               </div>
             ) : (
               <div className="divide-y divide-outline-variant/15">
-                {filteredProducts.map((prod, idx) => (
+                {visibleProducts.map((prod, idx) => (
                   <button
                     key={prod.id}
                     id={`product-search-result-${prod.id}`}

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Expense,
-  ExpenseCategory,
   ExpensePeriod,
   CreateExpenseInput,
   ExpenseKPIs,
 } from '../types';
-import { expenseService } from '../services/expenseService';
+import { expenseService, deriveExpenseView } from '../services/expenseService';
 import { calculateExpenseKPIs, exportExpensesToCsv } from '../utils/calculations';
 
 import { LedgerBreadcrumbRibbon } from '../components/LedgerBreadcrumbRibbon';
@@ -22,6 +21,7 @@ import { VoidConfirmDialog } from '../components/VoidConfirmDialog';
 import { outletService } from '@/features/outlets/services/outletService';
 import { employeeService } from '@/features/employees/services/employeeService';
 import { useAuth } from '@/app/context/AuthContext';
+import { upsertById } from '@/shared/utils/listState';
 
 export function ExpensesPage() {
   // Filters & Query State
@@ -34,14 +34,28 @@ export function ExpensesPage() {
   const [pageSize, setPageSize] = useState(12);
 
   // Data State
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
   const [allExpensesForKpi, setAllExpensesForKpi] = useState<Expense[]>([]);
   const [availableOutlets, setAvailableOutlets] = useState<Array<{ id: string; name: string }>>([]);
   const [availableEmployees, setAvailableEmployees] = useState<Array<{ id: string; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const currentUserName = user?.displayName?.trim() || user?.username?.trim() || '';
+  const expenseEmployees = useMemo(() => {
+    if (availableEmployees.length === 0) return currentUserName ? [{ id: 'current-user', name: currentUserName }] : [];
+    if (currentUserName && !availableEmployees.some((employee) => employee.name === currentUserName)) {
+      return [{ id: 'current-user', name: currentUserName }, ...availableEmployees];
+    }
+    return availableEmployees;
+  }, [availableEmployees, currentUserName]);
+  const data = useMemo(() => deriveExpenseView(allExpensesForKpi, {
+    search: searchQuery,
+    period,
+    outlet,
+    category: category !== 'All' ? category : undefined,
+    status,
+    page: currentPage,
+    pageSize,
+  }), [allExpensesForKpi, searchQuery, period, outlet, category, status, currentPage, pageSize]);
 
   // Selected & Modal State
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -55,43 +69,21 @@ export function ExpensesPage() {
   const [showWorkflowBanner, setShowWorkflowBanner] = useState(false);
   const [workflowBannerData, setWorkflowBannerData] = useState<{ expenseNumber: string; message: string; dispatchCode: string } | null>(null);
 
-  // Fetch KPI data (all expenses or period-based)
-  const loadKpiData = useCallback(async () => {
+  // Load the collection once per session. Filtering, pagination, and KPIs are
+  // derived locally so typing in the search box does not refetch the ledger.
+  const loadExpenses = useCallback(async () => {
+    setIsLoading(true);
     try {
       const all = await expenseService.getAllExpenses();
       setAllExpensesForKpi(all);
     } catch (err) {
-      console.error('Failed to load KPI data:', err);
-    }
-  }, []);
-
-  // Fetch table expenses according to filters
-  const loadExpenses = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await expenseService.getExpenses({
-        search: searchQuery,
-        period,
-        outlet,
-        category: category !== 'All' ? (category as ExpenseCategory) : undefined,
-        status,
-        page: currentPage,
-        pageSize,
-      });
-      setExpenses(response.expenses);
-      setTotalCount(response.totalCount);
-    } catch (err) {
-      console.error('Failed to fetch expenses:', err);
+      console.error('Failed to load expenses:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, period, outlet, category, status, currentPage, pageSize]);
+  }, []);
 
   // Initial load
-  useEffect(() => {
-    loadKpiData();
-  }, [loadKpiData]);
-
   useEffect(() => {
     loadExpenses();
   }, [loadExpenses]);
@@ -140,6 +132,7 @@ export function ExpensesPage() {
   const handleCreateExpense = async (input: CreateExpenseInput, isDraft = false) => {
     try {
       const created = await expenseService.createExpense(input);
+      setAllExpensesForKpi((current) => upsertById(current, created));
       // Update banner notification
       setWorkflowBannerData({
         expenseNumber: created.expenseNumber,
@@ -149,9 +142,6 @@ export function ExpensesPage() {
         dispatchCode: created.approvalStatus,
       });
       setShowWorkflowBanner(true);
-      // Reload lists
-      await loadExpenses();
-      await loadKpiData();
     } catch (err) {
       console.error('Failed to create expense:', err);
     }
@@ -160,12 +150,11 @@ export function ExpensesPage() {
   // Handler for updating an existing expense
   const handleUpdateExpense = async (id: string, input: Partial<CreateExpenseInput>) => {
     try {
-      const updated = await expenseService.updateExpense(id, input);
+      const updated = await expenseService.updateExpense(id, input, selectedExpense?.id === id ? selectedExpense : undefined);
       if (selectedExpense && selectedExpense.id === id) {
         setSelectedExpense(updated);
       }
-      await loadExpenses();
-      await loadKpiData();
+      setAllExpensesForKpi((current) => upsertById(current, updated));
     } catch (err) {
       console.error('Failed to update expense:', err);
     }
@@ -187,12 +176,11 @@ export function ExpensesPage() {
   // Handler to confirm voiding
   const handleConfirmVoid = async (id: string, reason: string) => {
     try {
-      const voided = await expenseService.voidExpense(id, reason);
+      const voided = await expenseService.voidExpense(id, reason, selectedExpense?.id === id ? selectedExpense : undefined);
       if (selectedExpense && selectedExpense.id === id) {
         setSelectedExpense(voided);
       }
-      await loadExpenses();
-      await loadKpiData();
+      setAllExpensesForKpi((current) => upsertById(current, voided));
     } catch (err) {
       console.error('Failed to void expense:', err);
     }
@@ -201,10 +189,9 @@ export function ExpensesPage() {
   // Manager approval action
   const handleApproveExpense = async (expense: Expense) => {
     try {
-      const approved = await expenseService.approveExpense(expense.id);
+      const approved = await expenseService.approveExpense(expense.id, expense);
       setSelectedExpense(approved);
-      await loadExpenses();
-      await loadKpiData();
+      setAllExpensesForKpi((current) => upsertById(current, approved));
     } catch (err) {
       console.error('Failed to approve expense:', err);
     }
@@ -215,10 +202,9 @@ export function ExpensesPage() {
     const reason = window.prompt('Enter a rejection reason for this expense:')?.trim();
     if (!reason) return;
     try {
-      const rejected = await expenseService.rejectExpense(expense.id, reason);
+      const rejected = await expenseService.rejectExpense(expense.id, reason, expense);
       setSelectedExpense(rejected);
-      await loadExpenses();
-      await loadKpiData();
+      setAllExpensesForKpi((current) => upsertById(current, rejected));
     } catch (err) {
       console.error('Failed to reject expense:', err);
     }
@@ -242,17 +228,15 @@ export function ExpensesPage() {
   // Export CSV handler
   const handleExportCsv = () => {
     const filename = `expenses_ledger_${new Date().toISOString().split('T')[0]}.csv`;
-    exportExpensesToCsv(expenses, filename);
+    exportExpensesToCsv(data.items, filename);
   };
 
   // Export PDF handler
   const handleExportPdf = () => {
     alert(
-      `Generating pre-formatted Audit PDF for ${expenses.length} records. In production, this compiles a certified reconciliation balance sheet.`
+      `Generating pre-formatted Audit PDF for ${data.items.length} records. In production, this compiles a certified reconciliation balance sheet.`
     );
   };
-
-  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <div className="flex-1 min-w-0 bg-surface flex flex-col">
@@ -268,7 +252,7 @@ export function ExpensesPage() {
             message={workflowBannerData.message}
             dispatchCode={workflowBannerData.dispatchCode}
             onInspectRouting={() => {
-              const target = expenses.find((e) => e.expenseNumber === workflowBannerData.expenseNumber);
+              const target = allExpensesForKpi.find((e) => e.expenseNumber === workflowBannerData.expenseNumber);
               if (target) {
                 handleSelectExpense(target);
               }
@@ -308,24 +292,24 @@ export function ExpensesPage() {
           status={status}
           onStatusChange={setStatus}
           onResetFilters={handleResetFilters}
-          filteredCount={totalCount}
+          filteredCount={data.totalCount}
           totalCount={allExpensesForKpi.length}
           outlets={availableOutlets}
         />
 
         {/* 6. High-density Expenses Data Table */}
         <ExpensesTable
-          expenses={expenses}
+          expenses={data.expenses}
           onSelectExpense={handleSelectExpense}
           isLoading={isLoading}
         />
 
         {/* 7. Pagination Bar */}
         <ExpensesPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
+          currentPage={data.page}
+          totalPages={data.totalPages}
           pageSize={pageSize}
-          filteredCount={totalCount}
+          filteredCount={data.totalCount}
           onPageChange={setCurrentPage}
           onPageSizeChange={(newSize) => {
             setPageSize(newSize);
@@ -356,11 +340,7 @@ export function ExpensesPage() {
         expenseToEdit={expenseToEdit}
         onUpdate={handleUpdateExpense}
         outlets={availableOutlets}
-        employees={availableEmployees.length > 0
-          ? (currentUserName && !availableEmployees.some((employee) => employee.name === currentUserName)
-            ? [{ id: 'current-user', name: currentUserName }, ...availableEmployees]
-            : availableEmployees)
-          : (currentUserName ? [{ id: 'current-user', name: currentUserName }] : [])}
+        employees={expenseEmployees}
         currentUserName={currentUserName}
       />
 

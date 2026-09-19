@@ -73,7 +73,6 @@ import {
   deleteTenantSupplierTrusted,
   getTenantSupplierTrusted,
   getOrganizationAdministratorTrusted,
-  createTenantPurchase, createTenantPurchaseLine,
   changeTenantPurchaseStatus as changeTenantPurchaseStatusSql,
   createTenantSale,
   listTenantCustomers,
@@ -81,7 +80,7 @@ import {
   changeTenantSupplierStatus as changeTenantSupplierStatusSql,
 } from '@omniretail/sql-connect-admin';
 import { persistCheckout } from './checkout.js';
-import { addInventoryUnits, adjustInventoryWithBatches, createInventoryStockRecord, operationRequestId, persistSaleLineWithInventory, receiveInventoryForPurchase, reverseSaleInventory } from './inventoryBatches.js';
+import { addInventoryUnits, adjustInventoryWithBatches, createInventoryStockRecord, operationRequestId, persistSaleLineWithInventory, receiveInventoryForPurchase, receiveInventoryForPurchaseBatch, reverseSaleInventory } from './inventoryBatches.js';
 import { getCloudSqlPool } from './cloudSql.js';
 import { persistProductBatch, persistProductBatchInTransaction, validateProductFields, PRODUCT_BATCH_MAX_SIZE, type ProductBatchFields } from './productBatch.js';
 import {
@@ -102,6 +101,8 @@ import { cancelPurchaseWithAccounting, PurchaseCancellationError } from './purch
 import { listInventoryMovementHistory } from './inventoryMovements.js';
 import { closeCashRegister, getCashRegisterSnapshot, listCashRegisterSummaries, openCashRegister, recordCashMovement, CashRegisterError, type DenominationCount } from './cashRegister.js';
 import { returnSale, SaleReturnError } from './saleReturns.js';
+import { createPurchaseInTransaction } from './purchaseCreation.js';
+import { withSqlTransaction as withSqlTransactionOnPool } from './sqlTransaction.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -113,18 +114,7 @@ const rateLimiter = new LoginRateLimiter();
 
 async function withSqlTransaction<T>(operation: (client: PoolClient) => Promise<T>): Promise<T> {
   const { pool } = await getCloudSqlPool();
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    const result = await operation(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (error) {
-    await client.query('ROLLBACK').catch(() => undefined);
-    throw error;
-  } finally {
-    client.release();
-  }
+  return withSqlTransactionOnPool(pool, operation);
 }
 
 const callableOptions = {
@@ -559,7 +549,9 @@ export const deleteOrganization = onCall(callableOptions, async (request) => {
 export const listOrganizationsDirectory = onCall(callableOptions, async (request) => {
   try {
     const uid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(uid); requireCapability(caller, 'organizations.read');
-    const organizations = (await listOrganizationsTrusted()).data.organizations;
+    const requestedLimit = Number(request.data?.limit);
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.floor(requestedLimit), 1), 1000) : 1000;
+    const organizations = (await listOrganizationsTrusted()).data.organizations.slice(0, limit);
     const rows = organizations.map((o: any) => {
       const license = o.organizationLicense_on_organization;
       return {
@@ -1488,22 +1480,37 @@ export const createTenantPurchaseRecord = onCall(callableOptions, async (request
     const paymentStatus = derivePurchasePaymentStatus(totalAmount, amountPaid) as PurchasePaymentStatus;
     if (!organizationId || !purchaseNumber || !supplierId || !/^\d{4}-\d{2}-\d{2}$/.test(purchaseDate) || !createdBy || !status || !Number.isFinite(n('subtotal')) || !Number.isFinite(n('shippingFee')) || !Number.isFinite(n('handlingFee')) || !Number.isFinite(n('tax')) || !Number.isFinite(totalAmount) || totalAmount < 0 || !Number.isFinite(amountPaid) || amountPaid < 0 || !Number.isFinite(suppliedOutstandingAmount) || lines.length === 0 || !lines.every((line: any) => line && typeof line.productId === 'string' && Number.isFinite(Number(line.quantity)) && Number(line.quantity) > 0) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
     await requireOrganizationCapability(actor, organizationId, 'purchases.read');
-    if (outletId) {
-      const outlet = (await getTenantOutletTrusted({ organizationId, id: outletId })).data.outlets[0];
-      if (!outlet || outlet.status !== 'ACTIVE') throw new Error('outlet is not in this organization');
-    }
-    const createdPurchase = await createTenantPurchase({ organizationId, purchaseNumber, purchaseDate, supplierId, outletId: outletId || null, scope: typeof d.scope === 'string' ? d.scope : 'outlet', paymentTerms: typeof d.paymentTerms === 'string' ? d.paymentTerms : null, subtotal: n('subtotal'), shippingFee: n('shippingFee'), handlingFee: n('handlingFee'), tax: n('tax'), totalAmount, amountPaid, outstandingAmount, paymentStatus, receiptStatus: PurchaseReceiptStatus.PENDING, status, createdBy });
-    for (const line of lines as any[]) {
-      const quantity = Number(line.quantity);
-      const unitCost = Number(line.unitCost);
-      const discountPercent = Number(line.discountPercent ?? 0);
-      const taxRate = Number(line.taxRate ?? 0);
-      const taxAmount = Number(line.taxAmount ?? 0);
-      const lineTotal = Number(line.lineTotal ?? quantity * unitCost);
-      if (![unitCost, discountPercent, taxRate, taxAmount, lineTotal].every(Number.isFinite) || unitCost < 0 || lineTotal < 0) throw new Error('invalid line');
-      await createTenantPurchaseLine({ organizationId, purchaseId: createdPurchase.data.purchase_insert.id, productId: line.productId, quantityOrdered: quantity, unitCost, discountPercent, taxRate, taxAmount, lineTotal });
-    }
-    return { success: true, organizationId, purchaseNumber };
+    if (outletId && typeof d.scope === 'string' && d.scope === 'organization') throw new Error('organization purchases cannot specify an outlet');
+    const created = await withSqlTransaction((client) => createPurchaseInTransaction(client, {
+      organizationId,
+      purchaseNumber,
+      purchaseDate,
+      supplierId,
+      outletId: outletId || null,
+      scope: typeof d.scope === 'string' ? d.scope : 'outlet',
+      paymentTerms: typeof d.paymentTerms === 'string' ? d.paymentTerms : null,
+      subtotal: n('subtotal'),
+      shippingFee: n('shippingFee'),
+      handlingFee: n('handlingFee'),
+      tax: n('tax'),
+      totalAmount,
+      amountPaid,
+      outstandingAmount,
+      paymentStatus,
+      receiptStatus: PurchaseReceiptStatus.PENDING,
+      status,
+      createdBy,
+      lines: (lines as any[]).map((line) => ({
+        productId: line.productId,
+        quantity: Number(line.quantity),
+        unitCost: Number(line.unitCost),
+        discountPercent: Number(line.discountPercent ?? 0),
+        taxRate: Number(line.taxRate ?? 0),
+        taxAmount: Number(line.taxAmount ?? 0),
+        lineTotal: Number(line.lineTotal ?? Number(line.quantity) * Number(line.unitCost)),
+      })),
+    }));
+    return { success: true, organizationId, purchaseNumber, purchaseId: created.purchaseId, lineIds: created.lineIds };
   } catch (error) {
     logCallableFailure('createTenantPurchaseRecord', error);
     throw new HttpsError('permission-denied', 'Unable to create the purchase.');
@@ -1571,6 +1578,33 @@ export const receiveTenantPurchaseLineRecord = onCall(callableOptions, async (re
     const result = await withSqlTransaction((client) => receiveInventoryForPurchase(client, { organizationId, purchaseId, lineId, quantityReceived, batchNumber: typeof d.batchNumber === 'string' ? d.batchNumber.trim() || null : null, mfgDate: typeof d.mfgDate === 'string' ? d.mfgDate.trim() || null : null, expiryDate: typeof d.expiryDate === 'string' ? d.expiryDate.trim() || null : null, requestId, actorFirebaseUid: actor }));
     return { success: true, organizationId, purchaseId, lineId, batchNumber: result.batchNumber, newStockQty: result.newStockQty, receiptStatus: result.receiptStatus };
   } catch (error) { logCallableFailure('receiveTenantPurchaseLineRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to receive the purchase line.'); }
+});
+
+export const receiveTenantPurchaseRecord = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const rawReceipts = Array.isArray(d.receipts) ? d.receipts : [];
+    const receipts: Array<{ lineId: string; quantityReceived: number; batchNumber: string | null; mfgDate: string | null; expiryDate: string | null }> = rawReceipts.map((receipt: any) => ({
+      lineId: typeof receipt?.lineId === 'string' ? receipt.lineId : '',
+      quantityReceived: Number(receipt?.quantityReceived),
+      batchNumber: typeof receipt?.batchNumber === 'string' ? receipt.batchNumber.trim() || null : null,
+      mfgDate: typeof receipt?.mfgDate === 'string' ? receipt.mfgDate.trim() || null : null,
+      expiryDate: typeof receipt?.expiryDate === 'string' ? receipt.expiryDate.trim() || null : null,
+    }));
+    if (!organizationId || !purchaseId || !receipts.length || receipts.some((receipt) => !receipt.lineId || !Number.isFinite(receipt.quantityReceived) || receipt.quantityReceived <= 0) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+    const result = await withSqlTransaction((client) => receiveInventoryForPurchaseBatch(client, { organizationId, purchaseId, receipts, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, purchaseId, receiptStatus: result.receiptStatus, results: result.results };
+  } catch (error) {
+    logCallableFailure('receiveTenantPurchaseRecord', error);
+    throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to receive the purchase.');
+  }
 });
 
 export const recordTenantPurchasePayment = onCall(callableOptions, async (request) => {
@@ -1662,7 +1696,7 @@ export const recordTenantPurchaseRefund = onCall(callableOptions, async (request
 });
 
 export const createTenantExpenseRecord = onCall(callableOptions, async (request) => {
-  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'expenses.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const expenseNumber = typeof d.expenseNumber === 'string' ? d.expenseNumber.trim() : ''; const expenseDate = typeof d.expenseDate === 'string' ? d.expenseDate : ''; const category = typeof d.category === 'string' ? d.category.trim() : ''; const description = typeof d.description === 'string' ? d.description.trim() : ''; const paidByEmployee = typeof d.paidByEmployee === 'string' ? d.paidByEmployee.trim() : ''; const submittedBy = typeof d.submittedBy === 'string' ? d.submittedBy.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const baseAmount = Number(d.baseAmount); const taxAmount = Number(d.taxAmount); const amount = Number(d.amount); if (!organizationId || !expenseNumber || !/^\d{4}-\d{2}-\d{2}$/.test(expenseDate) || !category || !description || !paidByEmployee || !submittedBy || !Number.isFinite(baseAmount) || !Number.isFinite(taxAmount) || !Number.isFinite(amount) || amount < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'expenses.read'); await createTenantExpense({ organizationId, expenseNumber, expenseDate, category, description, reference: typeof d.reference === 'string' ? d.reference.trim() || null : null, vendorName: typeof d.vendorName === 'string' ? d.vendorName.trim() || null : null, outletId: typeof d.outletId === 'string' ? d.outletId : null, scope: typeof d.scope === 'string' ? d.scope : 'Outlet', baseAmount, taxAmount, amount, paymentMethod: typeof d.paymentMethod === 'string' ? d.paymentMethod : 'Other', paidByEmployee, submittedBy, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null }); return { success: true, organizationId, expenseNumber }; } catch (error) { logCallableFailure('createTenantExpenseRecord', error); throw new HttpsError('permission-denied', 'Unable to create the expense.'); }
+  try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'expenses.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const expenseNumber = typeof d.expenseNumber === 'string' ? d.expenseNumber.trim() : ''; const expenseDate = typeof d.expenseDate === 'string' ? d.expenseDate : ''; const category = typeof d.category === 'string' ? d.category.trim() : ''; const description = typeof d.description === 'string' ? d.description.trim() : ''; const paidByEmployee = typeof d.paidByEmployee === 'string' ? d.paidByEmployee.trim() : ''; const submittedBy = typeof d.submittedBy === 'string' ? d.submittedBy.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const baseAmount = Number(d.baseAmount); const taxAmount = Number(d.taxAmount); const amount = Number(d.amount); if (!organizationId || !expenseNumber || !/^\d{4}-\d{2}-\d{2}$/.test(expenseDate) || !category || !description || !paidByEmployee || !submittedBy || !Number.isFinite(baseAmount) || !Number.isFinite(taxAmount) || !Number.isFinite(amount) || amount < 0 || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'expenses.read'); const created = await createTenantExpense({ organizationId, expenseNumber, expenseDate, category, description, reference: typeof d.reference === 'string' ? d.reference.trim() || null : null, vendorName: typeof d.vendorName === 'string' ? d.vendorName.trim() || null : null, outletId: typeof d.outletId === 'string' ? d.outletId : null, scope: typeof d.scope === 'string' ? d.scope : 'Outlet', baseAmount, taxAmount, amount, paymentMethod: typeof d.paymentMethod === 'string' ? d.paymentMethod : 'Other', paidByEmployee, submittedBy, notes: typeof d.notes === 'string' ? d.notes.trim() || null : null }); return { success: true, organizationId, id: created.data.expense_insert.id, expenseNumber }; } catch (error) { logCallableFailure('createTenantExpenseRecord', error); throw new HttpsError('permission-denied', 'Unable to create the expense.'); }
 });
 
 export const updateTenantExpenseRecord = onCall(callableOptions, async (request) => {

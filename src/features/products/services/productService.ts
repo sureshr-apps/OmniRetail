@@ -9,8 +9,9 @@ import {
   ProductsKpiSummary,
   ProductCategoryOption,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantCategories, listTenantProducts, listTenantInventory } from '@omniretail/sql-connect';
+import { listTenantCategories, listTenantProducts, listTenantInventory } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity, MalformedCallableResponseError } from '@/shared/utils/callableResponse';
 import { formatProductCode } from '../utils/formatProductCode';
@@ -152,7 +153,7 @@ export function deriveProductView(all: Product[], query: ProductQuery = {}): Pro
 
 class ProductionProductService implements IProductService {
   private async organizationId(): Promise<string> {
-    const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const result = await getCachedCurrentUserAuthorization();
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     return membership.organization.id;

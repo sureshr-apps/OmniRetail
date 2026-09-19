@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -21,13 +21,13 @@ import {
   Organization,
   OrganizationStatus,
   LicenseStatus,
-  OrganizationQuery,
 } from '../types';
-import { organizationService } from '../services/OrganizationService';
+import { organizationService, deriveOrganizationView } from '../services/OrganizationService';
 import {
   getLicenseStatusLabel,
   getLicenseStatusBadgeVariant,
 } from '@/features/licenses/utils/licenseStatus';
+import { upsertById } from '@/shared/utils/listState';
 
 const PAGE_SIZE = 8;
 
@@ -42,15 +42,24 @@ export function OrganizationsPage() {
   const [page, setPage] = useState(1);
 
   // Data state
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  const [allOrganizations, setAllOrganizations] = useState<Organization[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Add Organization Modal & Feedback State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [successBanner, setSuccessBanner] = useState<{ name: string; id: string } | null>(null);
+
+  const organizationView = useMemo(() => deriveOrganizationView(allOrganizations, {
+    search: debouncedSearch,
+    organizationStatus: orgStatus,
+    licenseStatus,
+    page,
+    pageSize: PAGE_SIZE,
+  }), [allOrganizations, debouncedSearch, orgStatus, licenseStatus, page]);
+  const organizations = organizationView.items;
+  const totalItems = organizationView.total;
+  const totalPages = organizationView.totalPages;
 
   // Debounce search input
   useEffect(() => {
@@ -61,28 +70,19 @@ export function OrganizationsPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Fetch organizations through service
-  const fetchOrganizations = useCallback(async (requestedPage = page) => {
+  // Load the directory once; search, filters, and pagination are derived
+  // locally while the page is open.
+  const fetchOrganizations = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const query: OrganizationQuery = {
-        search: debouncedSearch,
-        organizationStatus: orgStatus,
-        licenseStatus: licenseStatus,
-        page: requestedPage,
-        pageSize: PAGE_SIZE,
-      };
-      const result = await organizationService.getOrganizations(query);
-      setOrganizations(result.items);
-      setTotalItems(result.total);
-      setTotalPages(result.totalPages);
+      setAllOrganizations(await organizationService.getAllOrganizations());
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred while loading organizations.');
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, orgStatus, licenseStatus, page]);
+  }, []);
 
   useEffect(() => {
     fetchOrganizations();
@@ -107,10 +107,10 @@ export function OrganizationsPage() {
     setPage(1);
   };
 
-  const handleOrgCreated = async (newOrg: Organization) => {
+  const handleOrgCreated = (newOrg: Organization) => {
     setSuccessBanner({ name: newOrg.name, id: newOrg.id });
+    setAllOrganizations((current) => upsertById(current, newOrg));
     setPage(1);
-    await fetchOrganizations(1);
   };
 
   const isFiltered = debouncedSearch !== '' || orgStatus !== 'all' || licenseStatus !== 'all';

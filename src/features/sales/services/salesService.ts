@@ -1,7 +1,8 @@
 import { SalesTransaction, SalesFilterQuery, SalesQueryResult, SaleReturnLineInput, SaleReturnResult } from '../types';
-import { getCurrentUserAuthorization, listTenantSales } from '@omniretail/sql-connect';
+import { listTenantSales } from '@omniretail/sql-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 
 export interface ISalesService {
   getSales(query: SalesFilterQuery): Promise<SalesQueryResult>;
@@ -58,9 +59,50 @@ export function matchesSalesFilter(transaction: SalesTransaction, query: SalesFi
   return (!search || searchable.includes(search)) && inSalesDateRange(transaction.timestamp, query) && channelMatches && paymentMatches && statusMatches && cashierMatches && (query.minAmount === undefined || transaction.totalNet >= query.minAmount) && (query.maxAmount === undefined || transaction.totalNet <= query.maxAmount);
 }
 
+export function deriveSalesView(all: SalesTransaction[], query: SalesFilterQuery): SalesQueryResult {
+  const filtered = all.filter((transaction) => matchesSalesFilter(transaction, query));
+  const page = Math.max(1, query.page);
+  const pageSize = Math.max(1, query.pageSize);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const validPage = Math.min(page, totalPages);
+  const cash = filtered.filter((t) => t.tender.type === 'cash');
+  const cardDigital = filtered.filter((t) => ['visa', 'mastercard', 'apple_pay', 'none'].includes(t.tender.type));
+  const returns = filtered.filter((t) => ['PARTIAL_REFUND', 'REFUNDED', 'VOIDED'].includes(t.status));
+  const yesterday = all.filter((t) => {
+    const d = new Date(t.timestamp);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() - 1;
+  }).reduce((sum, t) => sum + t.totalNet, 0);
+  const today = all.filter((t) => new Date(t.timestamp).toDateString() === new Date().toDateString()).reduce((sum, t) => sum + t.totalNet, 0);
+  const kpiTotal = filtered.reduce((sum, t) => sum + t.totalNet, 0);
+  const cashTotal = cash.reduce((sum, t) => sum + t.totalNet, 0);
+  const cardTotal = cardDigital.reduce((sum, t) => sum + t.totalNet, 0);
+  return {
+    transactions: filtered.slice((validPage - 1) * pageSize, validPage * pageSize),
+    totalCount: filtered.length,
+    page: validPage,
+    pageSize,
+    totalPages,
+    kpis: {
+      filteredSalesTotal: kpiTotal,
+      recordedSalesCount: filtered.length,
+      vsYesterdayPct: yesterday ? Math.round(((today - yesterday) / yesterday) * 1000) / 10 : 0,
+      cashDrawerBalance: 0,
+      cashVolumePct: kpiTotal ? Math.round((cashTotal / kpiTotal) * 1000) / 10 : 0,
+      cardAndDigitalTender: cardTotal,
+      cardCount: cardDigital.length,
+      contactlessCount: filtered.filter((t) => t.tender.type === 'apple_pay').length,
+      cardVolumePct: kpiTotal ? Math.round((cardTotal / kpiTotal) * 1000) / 10 : 0,
+      totalReturnsAndVoids: returns.reduce((sum, t) => sum + t.totalNet, 0),
+      refundEventsCount: returns.length,
+      returnRatePct: filtered.length ? Math.round((returns.length / filtered.length) * 1000) / 10 : 0,
+    },
+  };
+}
+
 class ProductionSalesService implements ISalesService {
   private async organizationId(): Promise<string> {
-    const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const auth = await getCachedCurrentUserAuthorization();
     const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     return membership.organization.id;
@@ -71,15 +113,10 @@ class ProductionSalesService implements ISalesService {
     return result.data.sales.map(mapTenantSale);
   }
 
+  async getAllSales(): Promise<SalesTransaction[]> { return this.all(); }
+
   async getSales(query: SalesFilterQuery): Promise<SalesQueryResult> {
-    const all = await this.all();
-    const filtered = all.filter((transaction) => matchesSalesFilter(transaction, query));
-    const page = Math.max(1, query.page); const pageSize = Math.max(1, query.pageSize); const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize)); const validPage = Math.min(page, totalPages);
-    const cash = filtered.filter((t) => t.tender.type === 'cash'); const cardDigital = filtered.filter((t) => ['visa', 'mastercard', 'apple_pay', 'none'].includes(t.tender.type)); const returns = filtered.filter((t) => ['PARTIAL_REFUND', 'REFUNDED', 'VOIDED'].includes(t.status));
-    const yesterday = all.filter((t) => { const d = new Date(t.timestamp); const now = new Date(); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate() - 1; }).reduce((sum, t) => sum + t.totalNet, 0);
-    const today = all.filter((t) => new Date(t.timestamp).toDateString() === new Date().toDateString()).reduce((sum, t) => sum + t.totalNet, 0);
-    const kpiTotal = filtered.reduce((sum, t) => sum + t.totalNet, 0); const cashTotal = cash.reduce((sum, t) => sum + t.totalNet, 0); const cardTotal = cardDigital.reduce((sum, t) => sum + t.totalNet, 0);
-    return { transactions: filtered.slice((validPage - 1) * pageSize, validPage * pageSize), totalCount: filtered.length, page: validPage, pageSize, totalPages, kpis: { filteredSalesTotal: kpiTotal, recordedSalesCount: filtered.length, vsYesterdayPct: yesterday ? Math.round(((today - yesterday) / yesterday) * 1000) / 10 : 0, cashDrawerBalance: 0, cashVolumePct: kpiTotal ? Math.round((cashTotal / kpiTotal) * 1000) / 10 : 0, cardAndDigitalTender: cardTotal, cardCount: cardDigital.length, contactlessCount: filtered.filter((t) => t.tender.type === 'apple_pay').length, cardVolumePct: kpiTotal ? Math.round((cardTotal / kpiTotal) * 1000) / 10 : 0, totalReturnsAndVoids: returns.reduce((sum, t) => sum + t.totalNet, 0), refundEventsCount: returns.length, returnRatePct: filtered.length ? Math.round((returns.length / filtered.length) * 1000) / 10 : 0 } };
+    return deriveSalesView(await this.all(), query);
   }
 
   async getSale(id: string): Promise<SalesTransaction | null> { return (await this.all()).find((transaction) => transaction.id === id || transaction.receiptNumber === id) ?? null; }

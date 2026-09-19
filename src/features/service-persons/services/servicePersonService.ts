@@ -6,9 +6,10 @@ import {
   CreateServicePersonInput,
   UpdateServicePersonInput,
 } from '../types';
-import { getCurrentUserAuthorization, listTenantServicePersons } from '@omniretail/sql-connect';
+import { listTenantServicePersons } from '@omniretail/sql-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
+import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
 import { formatServicePersonCode } from '../utils/formatServicePersonCode';
 
@@ -96,7 +97,7 @@ export function deriveServicePersonView(all: ServicePerson[], query: ServicePers
 
 class ProductionServicePersonService implements IServicePersonService {
   private async organizationId(): Promise<string> {
-    const result = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const result = await getCachedCurrentUserAuthorization();
     const membership = result.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
     return membership.organization.id;

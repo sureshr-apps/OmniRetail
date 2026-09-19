@@ -61,15 +61,15 @@ export function OrganizationDetailsPage() {
 
     setIsLoading(true);
     setError(null);
+    setOrganization(null);
+    setAdminCount(0);
     try {
-      const org = await organizationService.getOrganization(organizationId);
+      const [org, admins] = await Promise.all([
+        organizationService.getOrganization(organizationId),
+        organizationAdminService.getAdministrators(organizationId),
+      ]);
       setOrganization(org);
-
-      // Also get initial admin count
-      if (org) {
-        const admins = await organizationAdminService.getAdministrators(org.id);
-        setAdminCount(admins.length);
-      }
+      setAdminCount(org ? admins.length : 0);
     } catch (err: any) {
       setError(err.message || 'Failed to load organization record.');
     } finally {
@@ -80,6 +80,13 @@ export function OrganizationDetailsPage() {
   useEffect(() => {
     loadOrganization();
   }, [loadOrganization]);
+
+  useEffect(() => {
+    setFeedback(null);
+    setHasCopiedId(false);
+    setIsEditModalOpen(false);
+    setStatusTarget(null);
+  }, [organizationId]);
 
   const handleCopyOrgId = () => {
     if (organization?.id) {

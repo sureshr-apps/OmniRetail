@@ -407,6 +407,40 @@ export async function receiveInventoryForPurchase(client: PoolClient, input: { o
   return { newReceivedQty, newStockQty, batchNumber, batchId: batch.id, receiptStatus };
 }
 
+export interface PurchaseReceiptBatchInput {
+  lineId: string;
+  quantityReceived: number;
+  batchNumber?: string | null;
+  mfgDate?: string | null;
+  expiryDate?: string | null;
+}
+
+/** Receives every submitted batch on the caller's one SQL transaction. */
+export async function receiveInventoryForPurchaseBatch(
+  client: PoolClient,
+  input: { organizationId: string; purchaseId: string; receipts: PurchaseReceiptBatchInput[]; requestId: string; actorFirebaseUid: string },
+): Promise<{ results: Array<{ lineId: string; newStockQty: number; batchNumber: string }>; receiptStatus: 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED' }> {
+  if (!input.receipts.length) throw new InventoryStockError('INVALID_BATCH', 'At least one receipt batch is required.');
+  const results: Array<{ lineId: string; newStockQty: number; batchNumber: string }> = [];
+  let receiptStatus: 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED' = 'PENDING';
+  for (const [index, receipt] of input.receipts.entries()) {
+    const result = await receiveInventoryForPurchase(client, {
+      organizationId: input.organizationId,
+      purchaseId: input.purchaseId,
+      lineId: receipt.lineId,
+      quantityReceived: receipt.quantityReceived,
+      batchNumber: receipt.batchNumber,
+      mfgDate: receipt.mfgDate,
+      expiryDate: receipt.expiryDate,
+      requestId: operationRequestId(input.requestId, `RECEIPT-${index + 1}`),
+      actorFirebaseUid: input.actorFirebaseUid,
+    });
+    results.push({ lineId: receipt.lineId, newStockQty: result.newStockQty, batchNumber: result.batchNumber });
+    receiptStatus = result.receiptStatus;
+  }
+  return { results, receiptStatus };
+}
+
 export async function reverseSaleInventory(client: PoolClient, input: { organizationId: string; saleId: string; reason: string; requestId: string; actorFirebaseUid: string }): Promise<{ restoredQty: number }> {
   const saleResult = await client.query('SELECT id, outlet_id, status FROM "sale" WHERE id = $1 AND organization_id = $2 FOR UPDATE', [input.saleId, input.organizationId]);
   if (!saleResult.rowCount) throw new InventoryStockError('INVALID_BATCH', 'Sale is not in this organization.');

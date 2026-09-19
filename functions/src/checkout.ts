@@ -69,16 +69,28 @@ export async function persistCheckout(input: CheckoutInput): Promise<{ saleId: s
       if (!customer.rowCount) throw new Error('Customer is not in this organization.');
     }
     const saleId = randomUUID();
+    const productIds = [...new Set(input.lines.flatMap((line) => line.productId ? [line.productId] : []))];
+    const productsById = new Map<string, { id: string; type: string; status: string }>();
+    if (productIds.length) {
+      const products = await client.query<{ id: string; type: string; status: string }>(
+        'SELECT id, type, status FROM "product" WHERE id = ANY($1::uuid[]) AND organization_id = $2 FOR SHARE',
+        [productIds, input.organizationId],
+      );
+      products.rows.forEach((product) => productsById.set(String(product.id), product));
+      if (productsById.size !== productIds.length || productIds.some((id) => productsById.get(id)?.status !== 'ACTIVE')) {
+        throw new Error('Product is not active in this organization.');
+      }
+    }
     const saleInsert = buildSaleInsertQuery(input, saleId);
     await client.query(saleInsert.text, saleInsert.values);
     for (const [lineIndex, line] of input.lines.entries()) {
       let productId: string | null = line.productId;
       if (productId) {
-        const product = await client.query('SELECT id, type, status FROM "product" WHERE id = $1 AND organization_id = $2 FOR SHARE', [productId, input.organizationId]);
-        if (!product.rowCount || product.rows[0].status !== 'ACTIVE') throw new Error('Product is not active in this organization.');
+        const product = productsById.get(productId);
+        if (!product) throw new Error('Product is not active in this organization.');
         const saleLineId = randomUUID();
         await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, refunded_qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, 0, $6, $7)', [saleLineId, saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
-        if (isStockTrackedProduct(product.rows[0].type)) {
+        if (isStockTrackedProduct(product.type)) {
           await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId, quantity: line.quantity, saleId, saleLineId, receiptNumber: input.receiptNumber, requestId: operationRequestId(input.requestId ?? randomUUID(), `LINE-${lineIndex + 1}`), actorFirebaseUid: input.actorFirebaseUid ?? input.staffName, itemName: line.itemName });
         }
         continue;

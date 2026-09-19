@@ -74,7 +74,7 @@ function EditableCell({
   );
 }
 
-export function OrderItemsTable({
+export const OrderItemsTable = React.memo(function OrderItemsTable({
   items,
   selectedItemId,
   onSelectItem,
@@ -245,4 +245,4 @@ export function OrderItemsTable({
       )}
     </div>
   );
-}
+});

@@ -79,7 +79,8 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/enum ProductStatus[\s\S]*ACTIVE[\s\S]*INACTIVE/);
     expect(schema).toMatch(/type Category @table[\s\S]*organization: Organization![\s\S]*value: String!/);
     expect(schema).toMatch(/type Subcategory @table[\s\S]*category: Category![\s\S]*value: String!/);
-    expect(schema).toContain('type Product @table @unique(fields: ["organization", "sku"]) @unique(fields: ["organization", "barcode"])');
+    expect(schema).toContain('type Product @table @index(name: "product_organization_name_id_idx"');
+    expect(schema).toContain('@unique(fields: ["organization", "sku"]) @unique(fields: ["organization", "barcode"])');
     expect(schema).toMatch(/type Product @table[\s\S]*organization: Organization![\s\S]*sku: String!/);
     expect(schema).toMatch(/type Product @table[\s\S]*category: Category![\s\S]*subcategory: Subcategory/);
     expect(schema).toMatch(/type InventoryStock @table\(key: \["organization", "outlet", "product"\]\)/);
@@ -209,12 +210,12 @@ describe('tenant Data Connect foundation schema', () => {
   });
 
   it('defines an organization-scoped expense ledger', () => {
-    expect(schema).toMatch(/type Expense @table @unique\(fields: \["organization", "expenseNumber"\]\)/);
+    expect(schema).toMatch(/type Expense @table @index\(name: "expense_organization_date_id_idx"[\s\S]*?\) @unique\(fields: \["organization", "expenseNumber"\]\)/);
     expect(schema).toContain('enum ExpenseApprovalStatus');
   });
 
   it('defines tenant sales transactions and line items', () => {
-    expect(schema).toMatch(/type Sale @table @unique\(fields: \["organization", "receiptNumber"\]\)/);
+    expect(schema).toMatch(/type Sale @table @index\(name: "sale_organization_timestamp_id_idx"[\s\S]*?\) @unique\(fields: \["organization", "receiptNumber"\]\)/);
     expect(schema).toMatch(/type SaleLine @table[\s\S]*sale: Sale![\s\S]*product: Product/);
     expect(schema).toContain('itemName: String');
   });

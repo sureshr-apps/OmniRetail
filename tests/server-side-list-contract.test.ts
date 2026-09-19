@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 
 const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');
+const schema = readFileSync(new URL('../dataconnect/schema/schema.gql', import.meta.url), 'utf8');
 const workflow = readFileSync(new URL('../.github/workflows/firebase-deploy.yml', import.meta.url), 'utf8');
 const indexes = readFileSync(new URL('../scripts/add-operational-list-indexes.mjs', import.meta.url), 'utf8');
 const pages = {
@@ -40,6 +41,12 @@ describe('server-side list query contract', () => {
 
   it('deploys idempotent indexes with Data Connect changes', () => {
     expect(indexes).toContain('CREATE INDEX IF NOT EXISTS');
+    expect(schema).toContain('@index(name: "organization_created_at_id_idx"');
+    expect(schema).toContain('@index(name: "sale_organization_timestamp_id_idx"');
+    expect(schema).toContain('@index(name: "purchase_organization_date_id_idx"');
+    expect(schema).toContain('@index(name: "expense_organization_date_id_idx"');
+    expect(schema).toContain('@index(name: "inventory_stock_organization_outlet_updated_at_idx"');
+    expect(schema).toContain('@index(name: "product_organization_name_id_idx"');
     for (const indexName of ['organization_created_at_id_idx', 'sale_organization_timestamp_id_idx', 'purchase_organization_date_id_idx', 'expense_organization_date_id_idx', 'inventory_stock_organization_outlet_updated_at_idx', 'product_organization_name_id_idx']) {
       expect(indexes).toContain(indexName);
     }

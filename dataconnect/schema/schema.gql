@@ -218,7 +218,7 @@ type Subcategory @table @unique(fields: ["category", "value"]) {
   value: String!
 }
 
-type Product @table @unique(fields: ["organization", "sku"]) @unique(fields: ["organization", "barcode"]) {
+type Product @table @index(name: "product_organization_name_id_idx", fields: ["organizationId", "name", "id"], order: [ASC, ASC, ASC]) @unique(fields: ["organization", "sku"]) @unique(fields: ["organization", "barcode"]) {
   organization: Organization!
   productCode: Int! @col(dataType: "serial") @unique
   name: String!
@@ -243,7 +243,7 @@ type Product @table @unique(fields: ["organization", "sku"]) @unique(fields: ["o
   description: String
 }
 
-type InventoryStock @table(key: ["organization", "outlet", "product"]) {
+type InventoryStock @table(key: ["organization", "outlet", "product"]) @index(name: "inventory_stock_organization_outlet_updated_at_idx", fields: ["organizationId", "outletId", "updatedAt"], order: [ASC, ASC, DESC]) {
   organization: Organization!
   outlet: Outlet!
   product: Product!
@@ -317,7 +317,7 @@ type Supplier @table {
   notes: String
 }
 
-type Purchase @table @unique(fields: ["organization", "purchaseNumber"]) {
+type Purchase @table @index(name: "purchase_organization_date_id_idx", fields: ["organizationId", "purchaseDate", "id"], order: [ASC, DESC, DESC]) @unique(fields: ["organization", "purchaseNumber"]) {
   organization: Organization!
   purchaseNumber: String!
   purchaseOrderNumber: String
@@ -387,7 +387,7 @@ type PurchaseLine @table {
   lineTotal: Float! @col(dataType: "numeric(19,2)")
 }
 
-type Expense @table @unique(fields: ["organization", "expenseNumber"]) {
+type Expense @table @index(name: "expense_organization_date_id_idx", fields: ["organizationId", "expenseDate", "id"], order: [ASC, DESC, DESC]) @unique(fields: ["organization", "expenseNumber"]) {
   organization: Organization!
   expenseNumber: String!
   expenseDate: Date!
@@ -411,7 +411,7 @@ type Expense @table @unique(fields: ["organization", "expenseNumber"]) {
   updatedAt: Timestamp! @default(expr: "request.time")
 }
 
-type Sale @table @unique(fields: ["organization", "receiptNumber"]) {
+type Sale @table @index(name: "sale_organization_timestamp_id_idx", fields: ["organizationId", "saleTimestamp", "id"], order: [ASC, DESC, DESC]) @unique(fields: ["organization", "receiptNumber"]) {
   organization: Organization!
   outlet: Outlet!
   receiptNumber: String!
@@ -543,7 +543,7 @@ type UserRole @table(key: ["user", "role"]) {
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
-type Organization @table {
+type Organization @table @index(name: "organization_created_at_id_idx", fields: ["createdAt", "id"], order: [DESC, ASC]) {
   organizationCode: String! @unique
   businessName: String!
   legalEntityName: String

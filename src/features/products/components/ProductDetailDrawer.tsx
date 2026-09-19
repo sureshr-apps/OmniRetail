@@ -45,9 +45,6 @@ export function ProductDetailDrawer({
                   {formatProductCode(product.productCode)}
                 </span>
               </div>
-              <span className="font-caption text-caption text-on-surface-variant">
-                Downtown Flagship · Multi-Store Ledger
-              </span>
             </div>
           </div>
 

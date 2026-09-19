@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 const tableSource = readFileSync(new URL('../src/features/products/components/ProductsTable.tsx', import.meta.url), 'utf8');
 const addSource = readFileSync(new URL('../src/features/products/components/AddProductModal.tsx', import.meta.url), 'utf8');
 const editSource = readFileSync(new URL('../src/features/products/components/EditProductModal.tsx', import.meta.url), 'utf8');
+const detailSource = readFileSync(new URL('../src/features/products/components/ProductDetailDrawer.tsx', import.meta.url), 'utf8');
 const taxonomySource = readFileSync(new URL('../src/features/products/components/ManageProductTaxonomyModal.tsx', import.meta.url), 'utf8');
 
 describe('product UI contract', () => {
@@ -12,6 +13,11 @@ describe('product UI contract', () => {
     for (const removedAction of ['onEditProduct', 'onToggleStatus', 'more_vert', 'View Multi-Store Stock Status']) {
       expect(tableSource).not.toContain(removedAction);
     }
+  });
+
+  it('does not imply that catalogue products belong to a specific outlet', () => {
+    expect(detailSource).not.toContain('Downtown Flagship');
+    expect(detailSource).not.toContain('Multi-Store Ledger');
   });
 
   it('does not prefill HSN and supports multi-dimensional variant creation in the add form', () => {

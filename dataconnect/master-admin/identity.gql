@@ -584,7 +584,7 @@ query ListTenantSales($organizationId: UUID!) @auth(level: USER) {
   organizationMemberships(where: { organization: { id: { eq: $organizationId } }, user: { firebaseUid: { eq_expr: "auth.uid" } }, status: { eq: ACTIVE } }, limit: 1) @check(expr: "this.size() > 0 && (this[0].role.code == 'organization.admin' || this[0].role.rolePermissions_on_role.exists(rp, rp.permission.code == 'sales.read'))", message: "Sales access is not available.") { role { code rolePermissions_on_role { permission { code } } } }
   sales(where: { organization: { id: { eq: $organizationId } } }, orderBy: [{ saleTimestamp: DESC }, { id: DESC }], limit: 1000) {
     id organization { id } outlet { id outletCode name } receiptNumber saleTimestamp customer { id customerCode name phone email } customerName staffName channel terminalId tenderType tax discount subtotal totalNet status createdAt
-    saleLines_on_sale { id itemName product { id productCode name sku } quantity unitPrice subtotal }
+    saleLines_on_sale { id itemName product { id productCode name sku } quantity refundedQty unitPrice subtotal }
   }
 }
 
@@ -595,7 +595,7 @@ mutation CreateTenantSale($organizationId: UUID!, $outletId: UUID!, $receiptNumb
 
 mutation AddTenantSaleLine($organizationId: UUID!, $saleId: UUID!, $outletId: UUID!, $productId: UUID!, $quantity: Float!, $newStockQty: Float!, $unitPrice: Float!, $subtotal: Float!) @auth(level: NO_ACCESS) @transaction {
   query @redact { sales(where: { id: { eq: $saleId }, organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Sale is not in this organization or outlet.") { id } products(where: { id: { eq: $productId }, organization: { id: { eq: $organizationId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Product is not in this organization.") { id } inventoryStocks(where: { organization: { id: { eq: $organizationId } }, outlet: { id: { eq: $outletId } }, product: { id: { eq: $productId } } }, limit: 1) @check(expr: "this.size() > 0", message: "Inventory item is not available.") { onHandQty } }
-  saleLine_insert(data: { sale: { id: $saleId } product: { id: $productId } quantity: $quantity unitPrice: $unitPrice subtotal: $subtotal })
+  saleLine_insert(data: { sale: { id: $saleId } product: { id: $productId } quantity: $quantity refundedQty: 0 unitPrice: $unitPrice subtotal: $subtotal })
   inventoryStock_update(key: { organizationId: $organizationId outletId: $outletId productId: $productId }, data: { onHandQty: $newStockQty updatedAt_expr: "request.time" })
 }
 

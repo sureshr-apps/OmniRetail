@@ -7,6 +7,8 @@ export interface SalesItem {
   name: string;
   sku: string;
   quantity: number;
+  returnedQuantity?: number;
+  returnableQuantity?: number;
   unitPrice: number;
   subtotal: number;
 }
@@ -105,6 +107,21 @@ export interface SalesQueryResult {
   pageSize: number;
   totalPages: number;
   kpis: SalesKpiSummary;
+}
+
+export interface SaleReturnLineInput {
+  saleLineId: string;
+  quantity: number;
+}
+
+export interface SaleReturnResult {
+  returnId: string;
+  saleId: string;
+  status: 'PARTIAL_REFUND' | 'REFUNDED';
+  refundAmount: number;
+  cashRefundAmount: number;
+  restoredQty: number;
+  idempotent: boolean;
 }
 
 export interface ColumnVisibility {

@@ -314,13 +314,58 @@ export async function consumeInventoryForSale(client: PoolClient, input: { organ
   return allocations;
 }
 
+export async function restoreSaleLineInventory(client: PoolClient, input: { organizationId: string; outletId: string; saleLineId: string; quantity: number; requestId: string; actorFirebaseUid: string; reason: string }): Promise<{ restoredQty: number }> {
+  if (!Number.isFinite(input.quantity) || input.quantity <= 0) throw new InventoryStockError('INVALID_BATCH', 'Return quantity must be greater than zero.');
+  const lineResult = await client.query(
+    'SELECT sl.product_id, p.type, COALESCE(p.reorder_level, 0) AS reorder_level FROM "sale_line" sl LEFT JOIN "product" p ON p.id = sl.product_id WHERE sl.id = $1 FOR SHARE',
+    [input.saleLineId],
+  );
+  if (!lineResult.rowCount) throw new InventoryStockError('INVALID_BATCH', 'Sale line was not found.');
+  const line = lineResult.rows[0];
+  if (!line.product_id || !isStockTrackedProduct(line.type)) return { restoredQty: 0 };
+
+  const allocations = await client.query(
+    'SELECT id, inventory_batch_id, quantity, refunded_qty FROM "sale_line_batch_allocation" WHERE sale_line_id = $1 ORDER BY id FOR UPDATE',
+    [input.saleLineId],
+  );
+  let remaining = input.quantity;
+  let restoredQty = 0;
+  let movementIndex = 0;
+  for (const allocation of allocations.rows) {
+    if (remaining <= EPSILON) break;
+    const available = Math.max(0, Number(allocation.quantity) - Number(allocation.refunded_qty ?? 0));
+    const quantity = Math.min(available, remaining);
+    if (quantity <= EPSILON) continue;
+    const stock = await loadOrCreateInventoryStock(client, input.organizationId, input.outletId, line.product_id, Number(line.reorder_level) || 0);
+    const newQty = stock.onHandQty + quantity;
+    await client.query('UPDATE "inventory_batch" SET on_hand_qty = on_hand_qty + $2 WHERE id = $1', [allocation.inventory_batch_id, quantity]);
+    await client.query('UPDATE "inventory_stock" SET on_hand_qty = $4, updated_at = NOW() WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3', [input.organizationId, input.outletId, line.product_id, newQty]);
+    await client.query('UPDATE "sale_line_batch_allocation" SET refunded_qty = refunded_qty + $2 WHERE id = $1', [allocation.id, quantity]);
+    await insertMovement(client, { organizationId: input.organizationId, outletId: input.outletId, productId: line.product_id, batchId: allocation.inventory_batch_id, mode: 'INCREASE', quantity, previousQty: stock.onHandQty, newQty, reasonCode: 'SALE_RETURN', auditNote: `${input.saleLineId}: ${input.reason}`, actorFirebaseUid: input.actorFirebaseUid, requestId: operationRequestId(input.requestId, `RETURN-${movementIndex + 1}`) });
+    remaining -= quantity;
+    restoredQty += quantity;
+    movementIndex += 1;
+  }
+
+  if (remaining > EPSILON) {
+    const stock = await loadOrCreateInventoryStock(client, input.organizationId, input.outletId, line.product_id, Number(line.reorder_level) || 0);
+    const batch = await loadOrCreateBatch(client, { organizationId: input.organizationId, outletId: input.outletId, productId: line.product_id, batchNumber: 'UNTRACKED', mfgDate: null, expiryDate: null });
+    const newQty = stock.onHandQty + remaining;
+    await client.query('UPDATE "inventory_batch" SET on_hand_qty = on_hand_qty + $2 WHERE id = $1', [batch.id, remaining]);
+    await client.query('UPDATE "inventory_stock" SET on_hand_qty = $4, updated_at = NOW() WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3', [input.organizationId, input.outletId, line.product_id, newQty]);
+    await insertMovement(client, { organizationId: input.organizationId, outletId: input.outletId, productId: line.product_id, batchId: batch.id, mode: 'INCREASE', quantity: remaining, previousQty: stock.onHandQty, newQty, reasonCode: 'SALE_RETURN_LEGACY', auditNote: `${input.saleLineId}: ${input.reason}`, actorFirebaseUid: input.actorFirebaseUid, requestId: operationRequestId(input.requestId, `RETURN-${movementIndex + 1}`) });
+    restoredQty += remaining;
+  }
+  return { restoredQty };
+}
+
 export async function persistSaleLineWithInventory(client: PoolClient, input: { organizationId: string; saleId: string; outletId: string; productId: string; itemName: string; quantity: number; unitPrice: number; subtotal: number; requestId: string; actorFirebaseUid: string }): Promise<{ saleLineId: string; allocations: BatchAllocation[] }> {
   const saleResult = await client.query('SELECT receipt_number, status FROM "sale" WHERE id = $1 AND organization_id = $2 AND outlet_id = $3 FOR SHARE', [input.saleId, input.organizationId, input.outletId]);
   if (!saleResult.rowCount) throw new InventoryStockError('INVALID_BATCH', 'Sale is not in this organization or outlet.');
   if (saleResult.rows[0].status === 'VOIDED') throw new InventoryStockError('INVALID_BATCH', 'Cannot add a line to a voided sale.');
   const product = await loadProduct(client, input.organizationId, input.productId);
   const saleLineId = randomUUID();
-  await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, $6, $7)', [saleLineId, input.saleId, input.productId, input.itemName, input.quantity, input.unitPrice, input.subtotal]);
+  await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, refunded_qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, 0, $6, $7)', [saleLineId, input.saleId, input.productId, input.itemName, input.quantity, input.unitPrice, input.subtotal]);
   const allocations = isStockTrackedProduct(product.type)
     ? await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, quantity: input.quantity, saleId: input.saleId, saleLineId, receiptNumber: saleResult.rows[0].receipt_number, requestId: input.requestId, actorFirebaseUid: input.actorFirebaseUid, itemName: input.itemName })
     : [];
@@ -382,13 +427,14 @@ export async function reverseSaleInventory(client: PoolClient, input: { organiza
   }
   // Restore any stock-tracked legacy lines that do not have allocation rows.
   // This also handles a sale containing a mix of migrated and newly allocated lines.
-  const legacyLines = await client.query('SELECT sl.product_id, sl.quantity, p.type FROM "sale_line" sl JOIN "product" p ON p.id = sl.product_id WHERE sl.sale_id = $1 AND sl.product_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM "sale_line_batch_allocation" a WHERE a.sale_line_id = sl.id)', [input.saleId]);
+  const legacyLines = await client.query('SELECT sl.product_id, sl.quantity, sl.refunded_qty, p.type FROM "sale_line" sl JOIN "product" p ON p.id = sl.product_id WHERE sl.sale_id = $1 AND sl.product_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM "sale_line_batch_allocation" a WHERE a.sale_line_id = sl.id)', [input.saleId]);
   if (legacyLines.rowCount) {
     for (const [index, line] of legacyLines.rows.entries()) {
       if (!isStockTrackedProduct(line.type)) continue;
       const stock = await loadOrCreateInventoryStock(client, input.organizationId, outletId, line.product_id, 0);
       const batch = await loadOrCreateBatch(client, { organizationId: input.organizationId, outletId, productId: line.product_id, batchNumber: 'UNTRACKED', mfgDate: null, expiryDate: null });
-      const quantity = Number(line.quantity);
+      const quantity = Math.max(0, Number(line.quantity) - Number(line.refunded_qty ?? 0));
+      if (quantity <= EPSILON) continue;
       await client.query('UPDATE "inventory_batch" SET on_hand_qty = on_hand_qty + $2 WHERE id = $1', [batch.id, quantity]);
       const newQty = stock.onHandQty + quantity;
       await client.query('UPDATE "inventory_stock" SET on_hand_qty = $4, updated_at = NOW() WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3', [input.organizationId, outletId, line.product_id, newQty]);

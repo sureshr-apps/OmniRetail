@@ -30,6 +30,7 @@ export function TransactionDetailDrawer({
   const { customer, items, tender, staff } = transaction;
   const isRefunded = transaction.status === 'REFUNDED';
   const isVoided = transaction.status === 'VOIDED';
+  const hasReturnableItems = !isVoided && items.some((item) => (item.returnableQuantity ?? item.quantity) > 0);
 
   const formatCurrency = (val: number) => {
     const formatted = formatInrCurrency(Math.abs(val));
@@ -202,6 +203,7 @@ export function TransactionDetailDrawer({
                       <span>
                         Qty: {item.quantity} @ ₹{item.unitPrice.toFixed(2)}
                       </span>
+                      {(item.returnedQuantity ?? 0) > 0 && <span className="text-error">Returned: {item.returnedQuantity}</span>}
                     </div>
                   </div>
                   <span className="font-body-mono-num font-bold text-body-default text-on-surface">
@@ -330,10 +332,11 @@ export function TransactionDetailDrawer({
           <button
             type="button"
             onClick={() => onIssueReturn(transaction)}
-            className="flex-1 h-10 rounded bg-error-container hover:bg-red-200 text-on-error-container font-body-medium text-body-medium font-bold flex items-center justify-center gap-space-xs transition-colors shadow-xs cursor-pointer"
+            disabled={!hasReturnableItems}
+            className="flex-1 h-10 rounded bg-error-container hover:bg-red-200 text-on-error-container font-body-medium text-body-medium font-bold flex items-center justify-center gap-space-xs transition-colors shadow-xs cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[18px]">assignment_return</span>
-            <span>Issue Return</span>
+            <span>{isRefunded ? 'Fully Returned' : 'Issue Return'}</span>
           </button>
         </div>
       </div>

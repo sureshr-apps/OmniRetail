@@ -14,8 +14,10 @@ import { SalesLedgerTable } from '../components/SalesLedgerTable';
 import { SalesPagination } from '../components/SalesPagination';
 import { TransactionDetailDrawer } from '../components/TransactionDetailDrawer';
 import { SalesToast } from '../components/SalesToast';
+import { SaleReturnModal } from '../components/SaleReturnModal';
 import { cashRegisterService } from '@/features/cash/services/cashRegisterService';
 import { useTenantOutlet } from '@/app/context/TenantOutletContext';
+import { formatCurrency } from '@/shared/utils/currency';
 
 const DEFAULT_COLUMNS: ColumnVisibility = {
   transactionRec: true,
@@ -78,6 +80,10 @@ export function SalesPage() {
 
   // Selected Transaction for Slide-over Drawer
   const [selectedTx, setSelectedTx] = useState<SalesTransaction | null>(null);
+  const [returningTx, setReturningTx] = useState<SalesTransaction | null>(null);
+  const [returnError, setReturnError] = useState<string | null>(null);
+  const [isReturning, setIsReturning] = useState(false);
+  const [salesRefreshToken, setSalesRefreshToken] = useState(0);
 
   // Toast State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -151,6 +157,7 @@ export function SalesPage() {
     searchQuery,
     page,
     pageSize,
+    salesRefreshToken,
   ]);
 
   useEffect(() => {
@@ -193,6 +200,22 @@ export function SalesPage() {
       [colKey]: !prev[colKey],
     }));
   };
+
+  async function submitReturn(lines: { saleLineId: string; quantity: number }[], reason: string) {
+    if (!returningTx) return;
+    setIsReturning(true);
+    setReturnError(null);
+    try {
+      const result = await salesService.issueReturn({ saleId: returningTx.id, lines, reason });
+      setReturningTx(null);
+      setSalesRefreshToken((current) => current + 1);
+      showToast(`${formatCurrency(result.refundAmount)} return recorded${result.cashRefundAmount > 0 ? ` · ${formatCurrency(result.cashRefundAmount)} removed from cash drawer` : ''}`);
+    } catch (error) {
+      setReturnError(error instanceof Error ? error.message : 'Unable to issue the return.');
+    } finally {
+      setIsReturning(false);
+    }
+  }
 
   return (
     <div className="flex flex-col w-full h-full min-h-0 overflow-y-auto pr-1">
@@ -272,14 +295,16 @@ export function SalesPage() {
             setSelectedTx(null);
           }}
           onIssueReturn={(tx) => {
-            showToast(`Refund wizard initialized for #${tx.id}`);
             setSelectedTx(null);
+            setReturnError(null);
+            setReturningTx(tx);
           }}
         />
       )}
 
       {/* Toast Notification */}
       <SalesToast message={toastMessage} onClose={() => setToastMessage(null)} />
+      <SaleReturnModal transaction={returningTx} isSubmitting={isReturning} error={returnError} onClose={() => { setReturningTx(null); setReturnError(null); }} onSubmit={submitReturn} />
     </div>
   );
 }

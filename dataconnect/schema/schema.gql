@@ -435,8 +435,29 @@ type SaleLine @table {
   product: Product
   itemName: String
   quantity: Float!
+  refundedQty: Float! @default(value: 0)
   unitPrice: Float! @col(dataType: "numeric(19,2)")
   subtotal: Float! @col(dataType: "numeric(19,2)")
+}
+
+type SaleReturn @table @unique(fields: ["organization", "requestId"]) {
+  organization: Organization!
+  sale: Sale!
+  outlet: Outlet!
+  requestId: String!
+  reason: String!
+  refundAmount: Float! @col(dataType: "numeric(19,2)")
+  cashRefundAmount: Float! @col(dataType: "numeric(19,2)")
+  refundMethod: String!
+  createdBy: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type SaleReturnLine @table @unique(fields: ["saleReturn", "saleLine"]) {
+  saleReturn: SaleReturn!
+  saleLine: SaleLine!
+  quantity: Float!
+  amount: Float! @col(dataType: "numeric(19,2)")
 }
 
 type CashRegisterSession @table @unique(fields: ["organization", "outlet", "businessDate"]) {

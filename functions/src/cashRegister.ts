@@ -416,3 +416,21 @@ export async function recordSaleCashMovement(
     [randomUUID(), input.organizationId, input.outletId, session.id, amount, input.saleId, `Cash sale ${input.receiptNumber}`, input.actorFirebaseUid, `${input.requestId}-CASH`],
   );
 }
+
+export async function recordSaleCashRefundMovement(
+  client: PoolClient,
+  input: { organizationId: string; outletId: string; cashAmount: number; saleId: string; receiptNumber: string; actorFirebaseUid: string; requestId: string; reason: string },
+): Promise<void> {
+  const amount = assertNonNegativeAmount(input.cashAmount, 'Cash refund amount is invalid.');
+  if (amount <= EPSILON) return;
+  const businessDate = todayInIndia();
+  const session = await loadSession(client, input.organizationId, input.outletId, businessDate, true);
+  if (!session || session.status !== 'OPEN') throw new CashRegisterError('REGISTER_NOT_OPEN', 'Open the register before issuing a cash refund.');
+  await client.query(
+    `INSERT INTO "cash_register_movement"
+      (id, organization_id, outlet_id, session_id, movement_type, amount,
+       source_type, source_id, reason, actor_firebase_uid, request_id, created_at)
+     VALUES ($1, $2, $3, $4, 'REFUND', $5, 'SALE_RETURN', $6, $7, $8, $9, NOW())`,
+    [randomUUID(), input.organizationId, input.outletId, session.id, amount, input.saleId, `Cash refund ${input.receiptNumber}: ${input.reason.trim()}`, input.actorFirebaseUid, `${input.requestId}-CASH-REFUND`],
+  );
+}

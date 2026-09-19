@@ -1,21 +1,27 @@
-import { SalesTransaction, SalesFilterQuery, SalesQueryResult } from '../types';
+import { SalesTransaction, SalesFilterQuery, SalesQueryResult, SaleReturnLineInput, SaleReturnResult } from '../types';
 import { getCurrentUserAuthorization, listTenantSales } from '@omniretail/sql-connect';
+import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 
 export interface ISalesService {
   getSales(query: SalesFilterQuery): Promise<SalesQueryResult>;
   getSale(id: string): Promise<SalesTransaction | null>;
+  issueReturn(input: { saleId: string; lines: SaleReturnLineInput[]; reason: string }): Promise<SaleReturnResult>;
 }
 
 type TenantSaleRow = Awaited<ReturnType<typeof listTenantSales>>['data']['sales'][number];
 
 function mapTenantSale(row: TenantSaleRow): SalesTransaction {
+  const items = row.saleLines_on_sale.map((line) => {
+    const returnedQuantity = Number((line as typeof line & { refundedQty?: number | null }).refundedQty ?? 0);
+    return { id: line.id, name: line.product?.name ?? line.itemName ?? 'Custom Item', sku: line.product?.sku ?? '', quantity: line.quantity, returnedQuantity, returnableQuantity: Math.max(0, line.quantity - returnedQuantity), unitPrice: line.unitPrice, subtotal: line.subtotal };
+  });
   return {
     id: row.id, receiptNumber: row.receiptNumber, source: 'Data Connect', timestamp: row.saleTimestamp,
     displayDate: new Date(row.saleTimestamp).toLocaleDateString(), displayTime: new Date(row.saleTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     customer: { id: row.customer?.id, name: row.customerName, phone: row.customer?.phone ?? undefined, email: row.customer?.email ?? undefined, isWalkIn: !row.customer },
     staff: { id: '', name: row.staffName }, channel: row.channel ?? '', terminalId: row.terminalId, terminalName: row.terminalId,
-    items: row.saleLines_on_sale.map((line) => ({ id: line.id, name: line.product?.name ?? line.itemName ?? 'Custom Item', sku: line.product?.sku ?? '', quantity: line.quantity, unitPrice: line.unitPrice, subtotal: line.subtotal })),
+    items,
     itemsSummary: row.saleLines_on_sale.map((line) => line.product?.name ?? line.itemName ?? 'Custom Item').join(', '),
     skuSummary: row.saleLines_on_sale.map((line) => line.product?.sku ?? '').filter(Boolean).join(', '),
     tender: { type: row.tenderType.toLowerCase() as SalesTransaction['tender']['type'], label: row.tenderType },
@@ -53,11 +59,15 @@ export function matchesSalesFilter(transaction: SalesTransaction, query: SalesFi
 }
 
 class ProductionSalesService implements ISalesService {
-  private async all(): Promise<SalesTransaction[]> {
+  private async organizationId(): Promise<string> {
     const auth = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
     const membership = auth.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
     if (!membership) throw new Error('No active organization membership.');
-    const result = await listTenantSales(getFirebaseClientServices().dataConnect, { organizationId: membership.organization.id });
+    return membership.organization.id;
+  }
+
+  private async all(): Promise<SalesTransaction[]> {
+    const result = await listTenantSales(getFirebaseClientServices().dataConnect, { organizationId: await this.organizationId() });
     return result.data.sales.map(mapTenantSale);
   }
 
@@ -73,6 +83,11 @@ class ProductionSalesService implements ISalesService {
   }
 
   async getSale(id: string): Promise<SalesTransaction | null> { return (await this.all()).find((transaction) => transaction.id === id || transaction.receiptNumber === id) ?? null; }
+
+  async issueReturn(input: { saleId: string; lines: SaleReturnLineInput[]; reason: string }): Promise<SaleReturnResult> {
+    const response = await httpsCallable<Record<string, unknown>, SaleReturnResult & { success: boolean }>(getFirebaseClientServices().functions, 'returnTenantSaleRecord')({ organizationId: await this.organizationId(), ...input, requestId: globalThis.crypto.randomUUID() });
+    return response.data;
+  }
 }
 
 export const salesService = new ProductionSalesService();

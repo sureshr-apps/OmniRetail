@@ -77,13 +77,13 @@ export async function persistCheckout(input: CheckoutInput): Promise<{ saleId: s
         const product = await client.query('SELECT id, type, status FROM "product" WHERE id = $1 AND organization_id = $2 FOR SHARE', [productId, input.organizationId]);
         if (!product.rowCount || product.rows[0].status !== 'ACTIVE') throw new Error('Product is not active in this organization.');
         const saleLineId = randomUUID();
-        await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, $6, $7)', [saleLineId, saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
+        await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, refunded_qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, 0, $6, $7)', [saleLineId, saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
         if (isStockTrackedProduct(product.rows[0].type)) {
           await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId, quantity: line.quantity, saleId, saleLineId, receiptNumber: input.receiptNumber, requestId: operationRequestId(input.requestId ?? randomUUID(), `LINE-${lineIndex + 1}`), actorFirebaseUid: input.actorFirebaseUid ?? input.staffName, itemName: line.itemName });
         }
         continue;
       }
-      await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, $6, $7)', [randomUUID(), saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
+      await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, refunded_qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, 0, $6, $7)', [randomUUID(), saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
     }
     await recordSaleCashMovement(client, {
       organizationId: input.organizationId,

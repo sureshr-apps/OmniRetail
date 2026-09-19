@@ -101,6 +101,7 @@ import { closePurchaseWithPartialReceipt } from './purchaseClosure.js';
 import { cancelPurchaseWithAccounting, PurchaseCancellationError } from './purchaseCancellation.js';
 import { listInventoryMovementHistory } from './inventoryMovements.js';
 import { closeCashRegister, getCashRegisterSnapshot, listCashRegisterSummaries, openCashRegister, recordCashMovement, CashRegisterError, type DenominationCount } from './cashRegister.js';
+import { returnSale, SaleReturnError } from './saleReturns.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -1866,6 +1867,33 @@ export const voidTenantSaleRecord = onCall(callableOptions, async (request) => {
   try {
     const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const saleId = typeof d.saleId === 'string' ? d.saleId : ''; const reason = typeof d.reason === 'string' ? d.reason.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !saleId || !reason || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'sales.read'); const result = await withSqlTransaction((client) => reverseSaleInventory(client, { organizationId, saleId, reason, requestId, actorFirebaseUid: actor })); return { success: true, organizationId, saleId, restoredQty: result.restoredQty };
   } catch (error) { logCallableFailure('voidTenantSaleRecord', error); throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to void the sale.'); }
+});
+
+export const returnTenantSaleRecord = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'sales.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const saleId = typeof d.saleId === 'string' ? d.saleId : '';
+    const reason = typeof d.reason === 'string' ? d.reason.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const lines = Array.isArray(d.lines)
+      ? d.lines.map((line: any) => ({ saleLineId: typeof line?.saleLineId === 'string' ? line.saleLineId : '', quantity: Number(line?.quantity) }))
+      : [];
+    if (!organizationId || !saleId || !reason || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'sales.read');
+    const result = await withSqlTransaction((client) => returnSale(client, { organizationId, saleId, lines, reason, requestId, actorFirebaseUid: actor }));
+    return { success: true, organizationId, ...result };
+  } catch (error) {
+    logCallableFailure('returnTenantSaleRecord', error);
+    if (error instanceof SaleReturnError) {
+      if (error.code === 'SALE_NOT_FOUND') throw new HttpsError('not-found', error.message);
+      throw new HttpsError('failed-precondition', error.message);
+    }
+    throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to issue the sale return.');
+  }
 });
 
 async function authorizeTarget(request: any, capability: string) {

@@ -33,11 +33,11 @@ export function EmployeeModal({
   // Form State
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState('Female');
+  const [gender, setGender] = useState('Male');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [dateOfJoining, setDateOfJoining] = useState('');
   const [phone, setPhone] = useState('');
-  const [designation, setDesignation] = useState('Sales Associate');
+  const [designation, setDesignation] = useState('');
   const [department, setDepartment] = useState('Retail Operations & Sales');
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
@@ -70,11 +70,11 @@ export function EmployeeModal({
     if (employeeToEdit) {
       setFirstName(employeeToEdit.firstName || '');
       setLastName(employeeToEdit.lastName || '');
-      setGender(employeeToEdit.gender || 'Prefer not to say');
+      setGender(employeeToEdit.gender || '');
       setDateOfBirth(formatEmployeeDateForDisplay(employeeToEdit.dateOfBirth));
       setDateOfJoining(formatEmployeeDateForDisplay(employeeToEdit.dateOfJoining));
       setPhone(employeeToEdit.phone || '');
-      setDesignation(employeeToEdit.designation || 'Sales Associate');
+      setDesignation(employeeToEdit.designation || '');
       setDepartment(employeeToEdit.department || 'Retail Operations & Sales');
       setAddress(employeeToEdit.address || '');
       setNotes(employeeToEdit.notes || '');
@@ -88,12 +88,12 @@ export function EmployeeModal({
       // Default new employee
       setFirstName('');
       setLastName('');
-      setGender('Female');
+      setGender('Male');
       setDateOfBirth('');
       const today = new Date().toISOString().split('T')[0];
       setDateOfJoining(formatEmployeeDateForDisplay(today));
       setPhone('');
-      setDesignation('Sales Associate');
+      setDesignation('');
       setDepartment('Retail Operations & Sales');
       setAddress('');
       setNotes('');

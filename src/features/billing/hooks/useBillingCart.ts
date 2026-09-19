@@ -11,7 +11,7 @@ export function useBillingCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer>({ id: '', name: 'Walk-in Customer', tier: 'Standard', points: 0, memberDiscount: 0 });
-  const [promoDiscount, setPromoDiscount] = useState<number>(5.00);
+  const [promoDiscount, setPromoDiscount] = useState<number>(0);
   const [selectedPaymentMode, setSelectedPaymentMode] = useState<PaymentMethod>('card');
   const [heldOrders, setHeldOrders] = useState<HeldOrder[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');

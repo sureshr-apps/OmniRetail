@@ -1,11 +1,11 @@
 import React from 'react';
 import { Customer } from '../types';
+import { useAuth } from '@/app/context/AuthContext';
+import { useTenantOutlet } from '@/app/context/TenantOutletContext';
 
 interface OrderHeaderProps {
   orderNumber: string;
   registerId?: string;
-  cashierName?: string;
-  terminalContext?: string;
   customer: Customer;
   onChangeCustomer: () => void;
   onPrintDraft: () => void;
@@ -15,13 +15,16 @@ interface OrderHeaderProps {
 export function OrderHeader({
   orderNumber,
   registerId = 'REG-01',
-  cashierName = 'Sarah J.',
-  terminalContext = 'Downtown Terminal',
   customer,
   onChangeCustomer,
   onPrintDraft,
   onClearOrder,
 }: OrderHeaderProps) {
+  const { user } = useAuth();
+  const outletSelection = useTenantOutlet();
+  const activeUserName = user?.displayName?.trim() || user?.username?.trim() || 'Authenticated user';
+  const activeOutletName = outletSelection?.selectedOutlet?.name ?? 'No outlet selected';
+
   return (
     <div className="bg-surface-container-lowest rounded shadow-sm border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between p-space-base gap-space-sm shrink-0">
       {/* Left: Order & Terminal identification */}
@@ -38,7 +41,7 @@ export function OrderHeader({
               {registerId}
             </span>
             <span className="font-caption text-caption text-on-surface-variant font-mono ml-1">
-              {cashierName} · {terminalContext}
+              {activeUserName} · {activeOutletName}
             </span>
           </div>
         </div>

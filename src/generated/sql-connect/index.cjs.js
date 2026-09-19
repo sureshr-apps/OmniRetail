@@ -449,6 +449,21 @@ exports.listOrganizations = function listOrganizations(dcOrOptions, options) {
 }
 ;
 
+const listOrganizationsPageRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListOrganizationsPage', inputVars);
+}
+listOrganizationsPageRef.operationName = 'ListOrganizationsPage';
+exports.listOrganizationsPageRef = listOrganizationsPageRef;
+
+exports.listOrganizationsPage = function listOrganizationsPage(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listOrganizationsPageRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
 const getOrganizationRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -1059,6 +1074,66 @@ exports.listTenantSales = function listTenantSales(dcOrVars, varsOrOptions, opti
   
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantSalesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listTenantSalesPageRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantSalesPage', inputVars);
+}
+listTenantSalesPageRef.operationName = 'ListTenantSalesPage';
+exports.listTenantSalesPageRef = listTenantSalesPageRef;
+
+exports.listTenantSalesPage = function listTenantSalesPage(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantSalesPageRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listTenantPurchasesPageRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantPurchasesPage', inputVars);
+}
+listTenantPurchasesPageRef.operationName = 'ListTenantPurchasesPage';
+exports.listTenantPurchasesPageRef = listTenantPurchasesPageRef;
+
+exports.listTenantPurchasesPage = function listTenantPurchasesPage(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantPurchasesPageRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listTenantExpensesPageRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantExpensesPage', inputVars);
+}
+listTenantExpensesPageRef.operationName = 'ListTenantExpensesPage';
+exports.listTenantExpensesPageRef = listTenantExpensesPageRef;
+
+exports.listTenantExpensesPage = function listTenantExpensesPage(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantExpensesPageRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
+}
+;
+
+const listTenantInventoryPageRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListTenantInventoryPage', inputVars);
+}
+listTenantInventoryPageRef.operationName = 'ListTenantInventoryPage';
+exports.listTenantInventoryPageRef = listTenantInventoryPageRef;
+
+exports.listTenantInventoryPage = function listTenantInventoryPage(dcOrVars, varsOrOptions, options) {
+  
+  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
+  return executeQuery(listTenantInventoryPageRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
 ;
 

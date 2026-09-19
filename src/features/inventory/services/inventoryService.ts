@@ -1,5 +1,5 @@
 import { AddInventoryInput, InventoryItem, InventoryMovementLog, InventoryMovementRecord, InventoryQuery, InventoryQueryResult, InventoryStatus, StockAdjustmentInput, InventoryLocation, SupplierSummary } from '../types';
-import { listTenantInventory } from '@omniretail/sql-connect';
+import { listTenantInventory, listTenantInventoryPage } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
@@ -73,8 +73,9 @@ export function mapInventoryMovement(record: InventoryMovementRecord): Inventory
 }
 
 type TenantInventoryRow = Awaited<ReturnType<typeof listTenantInventory>>['data']['inventoryStocks'][number];
+type TenantInventoryPageRow = Awaited<ReturnType<typeof listTenantInventoryPage>>['data']['inventoryPage'][number];
 
-function mapTenantInventory(row: TenantInventoryRow): InventoryItem {
+function mapTenantInventory(row: TenantInventoryRow | TenantInventoryPageRow): InventoryItem {
   return {
     id: String(row._id), productId: row.product.id, sku: row.product.sku, barcode: row.product.barcode ?? '', name: row.product.name,
     department: row.product.brand, category: row.product.category.value, locationId: row.outlet.id, locationName: row.outlet.name,
@@ -146,9 +147,39 @@ class ProductionInventoryService {
   async getAllInventory(): Promise<InventoryItem[]> { return this.all(); }
 
   async getInventory(query: InventoryQuery = {}): Promise<InventoryQueryResult> {
-    const supplier = query.supplierId && query.supplierId !== 'all' ? await supplierService.getSupplierById(query.supplierId) : null;
-    const selectedSupplier = supplier ? { id: supplier.id, name: supplier.name, code: formatSupplierCode(supplier.supplierCode) } : undefined;
-    return deriveInventoryView(await this.all(), query, selectedSupplier);
+    const organizationId = await this.organizationId();
+    const page = Math.max(1, query.page ?? 1);
+    const pageSize = Math.max(1, query.pageSize ?? 25);
+    const result = await listTenantInventoryPage(getFirebaseClientServices().dataConnect, {
+      organizationId,
+      outletId: query.locationId && query.locationId !== 'all' ? query.locationId : null,
+      supplierId: query.supplierId && query.supplierId !== 'all' ? query.supplierId : null,
+      searchPattern: query.search?.trim() ? `%${query.search.trim().replaceAll('%', '\\%').replaceAll('_', '\\_')}%` : '%',
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+    });
+    let items = result.data.inventoryPage.map(mapTenantInventory);
+    if (query.statusTab && query.statusTab !== 'ALL') items = items.filter((item) => deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold) === query.statusTab);
+    items = [...items].sort((a, b) => query.sort === 'NAME_ASC' ? a.name.localeCompare(b.name) : query.sort === 'STOCK_DESC' ? b.onHandQty - a.onHandQty : a.onHandQty - b.onHandQty);
+    const totalCount = result.data.inventoryCount[0]?._count ?? 0;
+    const counts = { all: totalCount, inStock: 0, lowStock: 0, outOfStock: 0, overstocked: 0 };
+    items.forEach((item) => {
+      const status = deriveStockStatus(item.onHandQty, item.reorderLevel, item.overstockThreshold);
+      if (status === 'IN_STOCK') counts.inStock++;
+      else if (status === 'LOW_STOCK') counts.lowStock++;
+      else if (status === 'OUT_OF_STOCK') counts.outOfStock++;
+      else counts.overstocked++;
+    });
+    return {
+      items,
+      totalCount,
+      filteredCount: totalCount,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      tabCounts: counts,
+      kpis: { totalValuation: items.reduce((sum, item) => sum + item.onHandQty * item.cost, 0), lowStockCount: counts.lowStock, outOfStockCount: counts.outOfStock, incomingPoCount: items.filter((item) => item.incomingPurchaseOrder).length },
+    };
   }
 
   async getInventoryItem(id: string): Promise<InventoryItem | null> { return (await this.all()).find((item) => item.id === id || item.sku === id) ?? null; }

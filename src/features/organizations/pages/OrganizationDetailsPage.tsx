@@ -22,7 +22,7 @@ import { httpsCallable } from 'firebase/functions';
 import { Button } from '@/shared/components/Button';
 import { Badge } from '@/shared/components/Badge';
 import { EmptyState } from '@/shared/components/EmptyState';
-import { Organization } from '../types';
+import { Organization, OrganizationAdministrator } from '../types';
 import { organizationService } from '../services/OrganizationService';
 import { organizationAdminService } from '../services/OrganizationAdminService';
 import { OrganizationOverviewTab } from '../components/OrganizationOverviewTab';
@@ -44,7 +44,7 @@ export function OrganizationDetailsPage() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [adminCount, setAdminCount] = useState<number>(0);
+  const [admins, setAdmins] = useState<OrganizationAdministrator[]>([]);
   const [hasCopiedId, setHasCopiedId] = useState(false);
 
   // Modal States
@@ -62,14 +62,14 @@ export function OrganizationDetailsPage() {
     setIsLoading(true);
     setError(null);
     setOrganization(null);
-    setAdminCount(0);
+    setAdmins([]);
     try {
-      const [org, admins] = await Promise.all([
+      const [org, adminList] = await Promise.all([
         organizationService.getOrganization(organizationId),
         organizationAdminService.getAdministrators(organizationId),
       ]);
       setOrganization(org);
-      setAdminCount(org ? admins.length : 0);
+      setAdmins(org ? adminList : []);
     } catch (err: any) {
       setError(err.message || 'Failed to load organization record.');
     } finally {
@@ -392,7 +392,7 @@ export function OrganizationDetailsPage() {
                   : 'bg-surface-subdued text-text-muted'
               }`}
             >
-              {adminCount}
+              {admins.length}
             </span>
           </button>
 
@@ -421,13 +421,14 @@ export function OrganizationDetailsPage() {
       {/* Tab Panels */}
       <div>
         {activeTab === 'overview' && (
-          <OrganizationOverviewTab organization={organization} adminCount={adminCount} />
+          <OrganizationOverviewTab organization={organization} adminCount={admins.length} />
         )}
 
         {activeTab === 'administrators' && (
           <OrganizationAdministratorsTab
             organization={organization}
-            onAdminCountChange={(cnt) => setAdminCount(cnt)}
+            admins={admins}
+            onAdminsChange={setAdmins}
           />
         )}
 

@@ -30,6 +30,7 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*GetLicensePlanTrusted*](#getlicenseplantrusted)
   - [*GetLicensePlanReferencesTrusted*](#getlicenseplanreferencestrusted)
   - [*ListOrganizations*](#listorganizations)
+  - [*ListOrganizationsPage*](#listorganizationspage)
   - [*GetOrganization*](#getorganization)
   - [*GetOrganizationTrusted*](#getorganizationtrusted)
   - [*ListOrganizationAdministrators*](#listorganizationadministrators)
@@ -55,6 +56,10 @@ You can also follow the instructions from the [Data Connect documentation](https
   - [*ListTenantPurchases*](#listtenantpurchases)
   - [*ListTenantExpenses*](#listtenantexpenses)
   - [*ListTenantSales*](#listtenantsales)
+  - [*ListTenantSalesPage*](#listtenantsalespage)
+  - [*ListTenantPurchasesPage*](#listtenantpurchasespage)
+  - [*ListTenantExpensesPage*](#listtenantexpensespage)
+  - [*ListTenantInventoryPage*](#listtenantinventorypage)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantSupplierTrusted*](#gettenantsuppliertrusted)
   - [*GetTenantCustomerTrusted*](#gettenantcustomertrusted)
@@ -1410,6 +1415,134 @@ export default function ListOrganizationsComponent() {
   // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
   if (query.isSuccess) {
     console.log(query.data.organizations);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListOrganizationsPage
+You can execute the `ListOrganizationsPage` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListOrganizationsPage(dc: DataConnect, vars: ListOrganizationsPageVariables, options?: useDataConnectQueryOptions<ListOrganizationsPageData>): UseDataConnectQueryResult<ListOrganizationsPageData, ListOrganizationsPageVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListOrganizationsPage(vars: ListOrganizationsPageVariables, options?: useDataConnectQueryOptions<ListOrganizationsPageData>): UseDataConnectQueryResult<ListOrganizationsPageData, ListOrganizationsPageVariables>;
+```
+
+### Variables
+The `ListOrganizationsPage` Query requires an argument of type `ListOrganizationsPageVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListOrganizationsPageVariables {
+  searchPattern: string;
+  organizationStatus?: OrganizationStatus | null;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that calling the `ListOrganizationsPage` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListOrganizationsPage` Query is of type `ListOrganizationsPageData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListOrganizationsPageData {
+  organizationsPage: ({
+    id: UUIDString;
+    organizationCode: string;
+    businessName: string;
+    legalEntityName?: string | null;
+    taxId?: string | null;
+    primaryContactName: string;
+    email: string;
+    phone: string;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    timezone: string;
+    currency: string;
+    status: OrganizationStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    organizationLicense_on_organization?: {
+      id: UUIDString;
+      startDate: DateString;
+      expiryDate: DateString;
+      negotiatedPrice: number;
+      currency: string;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      plan: {
+        id: UUIDString;
+        planCode: string;
+        name: string;
+        level: number;
+        maxStores: number;
+        maxUsers: number;
+        status: LicensePlanStatus;
+      } & LicensePlan_Key;
+    } & OrganizationLicense_Key;
+  } & Organization_Key)[];
+  organizationsCount: ({
+    _count: number;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListOrganizationsPage`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListOrganizationsPageVariables } from '@omniretail/sql-connect';
+import { useListOrganizationsPage } from '@omniretail/sql-connect/react'
+
+export default function ListOrganizationsPageComponent() {
+  // The `useListOrganizationsPage` Query hook requires an argument of type `ListOrganizationsPageVariables`:
+  const listOrganizationsPageVars: ListOrganizationsPageVariables = {
+    searchPattern: ..., 
+    organizationStatus: ..., // optional
+    offset: ..., 
+    limit: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListOrganizationsPage(listOrganizationsPageVars);
+  // Variables can be defined inline as well.
+  const query = useListOrganizationsPage({ searchPattern: ..., organizationStatus: ..., offset: ..., limit: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListOrganizationsPage(dataConnect, listOrganizationsPageVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListOrganizationsPage(listOrganizationsPageVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListOrganizationsPage(dataConnect, listOrganizationsPageVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationsPage);
+    console.log(query.data.organizationsCount);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }
@@ -4174,6 +4307,634 @@ export default function ListTenantSalesComponent() {
   if (query.isSuccess) {
     console.log(query.data.organizationMemberships);
     console.log(query.data.sales);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantSalesPage
+You can execute the `ListTenantSalesPage` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantSalesPage(dc: DataConnect, vars: ListTenantSalesPageVariables, options?: useDataConnectQueryOptions<ListTenantSalesPageData>): UseDataConnectQueryResult<ListTenantSalesPageData, ListTenantSalesPageVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantSalesPage(vars: ListTenantSalesPageVariables, options?: useDataConnectQueryOptions<ListTenantSalesPageData>): UseDataConnectQueryResult<ListTenantSalesPageData, ListTenantSalesPageVariables>;
+```
+
+### Variables
+The `ListTenantSalesPage` Query requires an argument of type `ListTenantSalesPageVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantSalesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startTimestamp: TimestampString;
+  endTimestamp: TimestampString;
+  channelPattern: string;
+  cashierPattern: string;
+  tenderTypes: SaleTenderType[];
+  statuses: SaleStatus[];
+  minAmount: number;
+  maxAmount: number;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that calling the `ListTenantSalesPage` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantSalesPage` Query is of type `ListTenantSalesPageData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantSalesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  salesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    customer?: {
+      id: UUIDString;
+      customerCode: number;
+      name: string;
+      phone: string;
+      email?: string | null;
+    } & Customer_Key;
+    customerName: string;
+    staffName: string;
+    channel: string;
+    terminalId: string;
+    tenderType: SaleTenderType;
+    tax: number;
+    discount: number;
+    subtotal: number;
+    totalNet: number;
+    status: SaleStatus;
+    createdAt: TimestampString;
+    saleLines_on_sale: ({
+      id: UUIDString;
+      itemName?: string | null;
+      product?: {
+        id: UUIDString;
+        productCode: number;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantity: number;
+      refundedQty: number;
+      unitPrice: number;
+      subtotal: number;
+    } & SaleLine_Key)[];
+  } & Sale_Key)[];
+  salesCount: ({
+    _count: number;
+    totalNet_sum?: number | null;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantSalesPage`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantSalesPageVariables } from '@omniretail/sql-connect';
+import { useListTenantSalesPage } from '@omniretail/sql-connect/react'
+
+export default function ListTenantSalesPageComponent() {
+  // The `useListTenantSalesPage` Query hook requires an argument of type `ListTenantSalesPageVariables`:
+  const listTenantSalesPageVars: ListTenantSalesPageVariables = {
+    organizationId: ..., 
+    searchPattern: ..., 
+    startTimestamp: ..., 
+    endTimestamp: ..., 
+    channelPattern: ..., 
+    cashierPattern: ..., 
+    tenderTypes: ..., 
+    statuses: ..., 
+    minAmount: ..., 
+    maxAmount: ..., 
+    offset: ..., 
+    limit: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantSalesPage(listTenantSalesPageVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantSalesPage({ organizationId: ..., searchPattern: ..., startTimestamp: ..., endTimestamp: ..., channelPattern: ..., cashierPattern: ..., tenderTypes: ..., statuses: ..., minAmount: ..., maxAmount: ..., offset: ..., limit: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantSalesPage(dataConnect, listTenantSalesPageVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantSalesPage(listTenantSalesPageVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantSalesPage(dataConnect, listTenantSalesPageVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.salesPage);
+    console.log(query.data.salesCount);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantPurchasesPage
+You can execute the `ListTenantPurchasesPage` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantPurchasesPage(dc: DataConnect, vars: ListTenantPurchasesPageVariables, options?: useDataConnectQueryOptions<ListTenantPurchasesPageData>): UseDataConnectQueryResult<ListTenantPurchasesPageData, ListTenantPurchasesPageVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantPurchasesPage(vars: ListTenantPurchasesPageVariables, options?: useDataConnectQueryOptions<ListTenantPurchasesPageData>): UseDataConnectQueryResult<ListTenantPurchasesPageData, ListTenantPurchasesPageVariables>;
+```
+
+### Variables
+The `ListTenantPurchasesPage` Query requires an argument of type `ListTenantPurchasesPageVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantPurchasesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startDate: DateString;
+  endDate: DateString;
+  outletPattern: string;
+  supplierPattern: string;
+  paymentStatus?: PurchasePaymentStatus | null;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that calling the `ListTenantPurchasesPage` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantPurchasesPage` Query is of type `ListTenantPurchasesPageData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantPurchasesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  purchasesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    purchaseNumber: string;
+    purchaseOrderNumber?: string | null;
+    invoiceNumber?: string | null;
+    purchaseDate: DateString;
+    supplier: {
+      id: UUIDString;
+      supplierCode: number;
+      name: string;
+      taxId?: string | null;
+    } & Supplier_Key;
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    paymentTerms?: string | null;
+    subtotal: number;
+    shippingFee: number;
+    handlingFee: number;
+    tax: number;
+    totalAmount: number;
+    amountPaid: number;
+    outstandingAmount: number;
+    paymentStatus: PurchasePaymentStatus;
+    receiptStatus: PurchaseReceiptStatus;
+    status: PurchaseStatus;
+    receivingNotes?: string | null;
+    batchNumber?: string | null;
+    mfgDate?: DateString | null;
+    expiryDate?: DateString | null;
+    createdBy: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    purchaseLines_on_purchase: ({
+      id: UUIDString;
+      product: {
+        id: UUIDString;
+        productCode: number;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantityOrdered: number;
+      quantityReceived: number;
+      unitCost: number;
+      discountPercent: number;
+      taxRate: number;
+      taxAmount: number;
+      lineTotal: number;
+    } & PurchaseLine_Key)[];
+    pagePaymentHistory: ({
+      id: UUIDString;
+      amount: number;
+      paymentDate: DateString;
+      paymentMethod: string;
+      reference?: string | null;
+      notes?: string | null;
+      recordedBy: string;
+      createdAt: TimestampString;
+    } & PurchasePayment_Key)[];
+  } & Purchase_Key)[];
+  purchasesCount: ({
+    _count: number;
+    totalAmount_sum?: number | null;
+    amountPaid_sum?: number | null;
+    outstandingAmount_sum?: number | null;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantPurchasesPage`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantPurchasesPageVariables } from '@omniretail/sql-connect';
+import { useListTenantPurchasesPage } from '@omniretail/sql-connect/react'
+
+export default function ListTenantPurchasesPageComponent() {
+  // The `useListTenantPurchasesPage` Query hook requires an argument of type `ListTenantPurchasesPageVariables`:
+  const listTenantPurchasesPageVars: ListTenantPurchasesPageVariables = {
+    organizationId: ..., 
+    searchPattern: ..., 
+    startDate: ..., 
+    endDate: ..., 
+    outletPattern: ..., 
+    supplierPattern: ..., 
+    paymentStatus: ..., // optional
+    offset: ..., 
+    limit: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantPurchasesPage(listTenantPurchasesPageVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantPurchasesPage({ organizationId: ..., searchPattern: ..., startDate: ..., endDate: ..., outletPattern: ..., supplierPattern: ..., paymentStatus: ..., offset: ..., limit: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantPurchasesPage(dataConnect, listTenantPurchasesPageVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantPurchasesPage(listTenantPurchasesPageVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantPurchasesPage(dataConnect, listTenantPurchasesPageVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.purchasesPage);
+    console.log(query.data.purchasesCount);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantExpensesPage
+You can execute the `ListTenantExpensesPage` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantExpensesPage(dc: DataConnect, vars: ListTenantExpensesPageVariables, options?: useDataConnectQueryOptions<ListTenantExpensesPageData>): UseDataConnectQueryResult<ListTenantExpensesPageData, ListTenantExpensesPageVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantExpensesPage(vars: ListTenantExpensesPageVariables, options?: useDataConnectQueryOptions<ListTenantExpensesPageData>): UseDataConnectQueryResult<ListTenantExpensesPageData, ListTenantExpensesPageVariables>;
+```
+
+### Variables
+The `ListTenantExpensesPage` Query requires an argument of type `ListTenantExpensesPageVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantExpensesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startDate: DateString;
+  endDate: DateString;
+  outletPattern: string;
+  categoryPattern: string;
+  status?: ExpenseStatus | null;
+  approvalStatus?: ExpenseApprovalStatus | null;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that calling the `ListTenantExpensesPage` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantExpensesPage` Query is of type `ListTenantExpensesPageData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantExpensesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  expensesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    expenseNumber: string;
+    expenseDate: DateString;
+    category: string;
+    description: string;
+    reference?: string | null;
+    vendorName?: string | null;
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    baseAmount: number;
+    taxAmount: number;
+    amount: number;
+    paymentMethod: string;
+    paidByEmployee: string;
+    settlementDate?: DateString | null;
+    status: ExpenseStatus;
+    approvalStatus: ExpenseApprovalStatus;
+    submittedBy: string;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Expense_Key)[];
+  expensesCount: ({
+    _count: number;
+    amount_sum?: number | null;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantExpensesPage`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantExpensesPageVariables } from '@omniretail/sql-connect';
+import { useListTenantExpensesPage } from '@omniretail/sql-connect/react'
+
+export default function ListTenantExpensesPageComponent() {
+  // The `useListTenantExpensesPage` Query hook requires an argument of type `ListTenantExpensesPageVariables`:
+  const listTenantExpensesPageVars: ListTenantExpensesPageVariables = {
+    organizationId: ..., 
+    searchPattern: ..., 
+    startDate: ..., 
+    endDate: ..., 
+    outletPattern: ..., 
+    categoryPattern: ..., 
+    status: ..., // optional
+    approvalStatus: ..., // optional
+    offset: ..., 
+    limit: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantExpensesPage(listTenantExpensesPageVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantExpensesPage({ organizationId: ..., searchPattern: ..., startDate: ..., endDate: ..., outletPattern: ..., categoryPattern: ..., status: ..., approvalStatus: ..., offset: ..., limit: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantExpensesPage(dataConnect, listTenantExpensesPageVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantExpensesPage(listTenantExpensesPageVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantExpensesPage(dataConnect, listTenantExpensesPageVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.expensesPage);
+    console.log(query.data.expensesCount);
+  }
+  return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
+}
+```
+
+## ListTenantInventoryPage
+You can execute the `ListTenantInventoryPage` Query using the following Query hook function, which is defined in [sql-connect/react/index.d.ts](./index.d.ts):
+
+```javascript
+useListTenantInventoryPage(dc: DataConnect, vars: ListTenantInventoryPageVariables, options?: useDataConnectQueryOptions<ListTenantInventoryPageData>): UseDataConnectQueryResult<ListTenantInventoryPageData, ListTenantInventoryPageVariables>;
+```
+You can also pass in a `DataConnect` instance to the Query hook function.
+```javascript
+useListTenantInventoryPage(vars: ListTenantInventoryPageVariables, options?: useDataConnectQueryOptions<ListTenantInventoryPageData>): UseDataConnectQueryResult<ListTenantInventoryPageData, ListTenantInventoryPageVariables>;
+```
+
+### Variables
+The `ListTenantInventoryPage` Query requires an argument of type `ListTenantInventoryPageVariables`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+
+```javascript
+export interface ListTenantInventoryPageVariables {
+  organizationId: UUIDString;
+  outletId?: UUIDString | null;
+  supplierId?: string | null;
+  searchPattern: string;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that calling the `ListTenantInventoryPage` Query hook function returns a `UseQueryResult` object. This object holds the state of your Query, including whether the Query is loading, has completed, or has succeeded/failed, and any data returned by the Query, among other things.
+
+To check the status of a Query, use the `UseQueryResult.status` field. You can also check for pending / success / error status using the `UseQueryResult.isPending`, `UseQueryResult.isSuccess`, and `UseQueryResult.isError` fields.
+
+To access the data returned by a Query, use the `UseQueryResult.data` field. The data for the `ListTenantInventoryPage` Query is of type `ListTenantInventoryPageData`, which is defined in [sql-connect/index.d.ts](../index.d.ts). It has the following fields:
+```javascript
+export interface ListTenantInventoryPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  inventoryPage: ({
+    _id: {
+    };
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    product: {
+      id: UUIDString;
+      productCode: number;
+      name: string;
+      sku: string;
+      barcode?: string | null;
+      category: {
+        value: string;
+      };
+      brand: string;
+      primarySupplier?: string | null;
+      sellingPrice: number;
+      cost?: number | null;
+    } & Product_Key;
+    binRack?: string | null;
+    onHandQty: number;
+    reorderLevel: number;
+    overstockThreshold: number;
+    incomingPurchaseOrder?: string | null;
+    updatedAt: TimestampString;
+  })[];
+  inventoryCount: ({
+    _count: number;
+  })[];
+}
+```
+
+To learn more about the `UseQueryResult` object, see the [TanStack React Query documentation](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+### Using `ListTenantInventoryPage`'s Query hook function
+
+```javascript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, ListTenantInventoryPageVariables } from '@omniretail/sql-connect';
+import { useListTenantInventoryPage } from '@omniretail/sql-connect/react'
+
+export default function ListTenantInventoryPageComponent() {
+  // The `useListTenantInventoryPage` Query hook requires an argument of type `ListTenantInventoryPageVariables`:
+  const listTenantInventoryPageVars: ListTenantInventoryPageVariables = {
+    organizationId: ..., 
+    outletId: ..., // optional
+    supplierId: ..., // optional
+    searchPattern: ..., 
+    offset: ..., 
+    limit: ..., 
+  };
+
+  // You don't have to do anything to "execute" the Query.
+  // Call the Query hook function to get a `UseQueryResult` object which holds the state of your Query.
+  const query = useListTenantInventoryPage(listTenantInventoryPageVars);
+  // Variables can be defined inline as well.
+  const query = useListTenantInventoryPage({ organizationId: ..., outletId: ..., supplierId: ..., searchPattern: ..., offset: ..., limit: ..., });
+
+  // You can also pass in a `DataConnect` instance to the Query hook function.
+  const dataConnect = getDataConnect(connectorConfig);
+  const query = useListTenantInventoryPage(dataConnect, listTenantInventoryPageVars);
+
+  // You can also pass in a `useDataConnectQueryOptions` object to the Query hook function.
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantInventoryPage(listTenantInventoryPageVars, options);
+
+  // You can also pass both a `DataConnect` instance and a `useDataConnectQueryOptions` object.
+  const dataConnect = getDataConnect(connectorConfig);
+  const options = { staleTime: 5 * 1000 };
+  const query = useListTenantInventoryPage(dataConnect, listTenantInventoryPageVars, options);
+
+  // Then, you can render your component dynamically based on the status of the Query.
+  if (query.isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (query.isError) {
+    return <div>Error: {query.error.message}</div>;
+  }
+
+  // If the Query is successful, you can access the data returned using the `UseQueryResult.data` field.
+  if (query.isSuccess) {
+    console.log(query.data.organizationMemberships);
+    console.log(query.data.inventoryPage);
+    console.log(query.data.inventoryCount);
   }
   return <div>Query execution {query.isSuccess ? 'successful' : 'failed'}!</div>;
 }

@@ -551,7 +551,8 @@ export const listOrganizationsDirectory = onCall(callableOptions, async (request
     const uid = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(uid); requireCapability(caller, 'organizations.read');
     const requestedLimit = Number(request.data?.limit);
     const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.floor(requestedLimit), 1), 1000) : 1000;
-    const organizations = (await listOrganizationsTrusted()).data.organizations.slice(0, limit);
+    const allOrganizations = (await listOrganizationsTrusted()).data.organizations;
+    const organizations = allOrganizations.slice(0, limit);
     const rows = organizations.map((o: any) => {
       const license = o.organizationLicense_on_organization;
       return {
@@ -571,7 +572,7 @@ export const listOrganizationsDirectory = onCall(callableOptions, async (request
         licenseStatus: deriveLicenseStatus(license?.startDate, license?.expiryDate),
       };
     });
-    return { organizations: rows };
+    return { organizations: rows, totalCount: allOrganizations.length };
   } catch { throw new HttpsError('permission-denied', 'Unable to load organizations.'); }
 });
 

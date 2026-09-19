@@ -49,7 +49,7 @@ jobs:
           fi
           if echo "$CHANGED" | grep -Eq '^\.github/workflows/firebase-deploy\.yml$'; then
             TARGETS="hosting,functions,dataconnect"
-          elif echo "$CHANGED" | grep -Eq '^scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes|migrate-inventory-batches)\.mjs$'; then
+          elif echo "$CHANGED" | grep -Eq '^scripts/(cloud-sql-migration-helpers|drop-app-user-legacy-columns|drop-tenant-legacy-columns|drop-lifecycle-idempotency|drop-service-person-skills|drop-customer-address-columns|migrate-product-taxonomy|drop-product-taxonomy-helper-indexes|migrate-inventory-batches|add-operational-list-indexes)\.mjs$'; then
             TARGETS="${TARGETS:+$TARGETS,}dataconnect"
           fi
           if echo "$CHANGED" | grep -Eq '^scripts/grant-cloud-sql-runtime-privileges\.mjs$'; then
@@ -155,6 +155,10 @@ jobs:
       - name: Backfill legacy inventory into batches
         if: contains(steps.changes.outputs.targets, 'dataconnect')
         run: node scripts/migrate-inventory-batches.mjs
+
+      - name: Ensure operational list indexes
+        if: contains(steps.changes.outputs.targets, 'dataconnect')
+        run: node scripts/add-operational-list-indexes.mjs
 
       - name: Deploy Data Connect schema and connectors
         if: contains(steps.changes.outputs.targets, 'dataconnect')

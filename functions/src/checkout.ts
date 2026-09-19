@@ -91,7 +91,7 @@ export async function persistCheckout(input: CheckoutInput): Promise<{ saleId: s
         const saleLineId = randomUUID();
         await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, refunded_qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, 0, $6, $7)', [saleLineId, saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
         if (isStockTrackedProduct(product.type)) {
-          await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId, quantity: line.quantity, saleId, saleLineId, receiptNumber: input.receiptNumber, requestId: operationRequestId(input.requestId ?? randomUUID(), `LINE-${lineIndex + 1}`), actorFirebaseUid: input.actorFirebaseUid ?? input.staffName, itemName: line.itemName });
+          await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId, productType: product.type, quantity: line.quantity, saleId, saleLineId, receiptNumber: input.receiptNumber, requestId: operationRequestId(input.requestId ?? randomUUID(), `LINE-${lineIndex + 1}`), actorFirebaseUid: input.actorFirebaseUid ?? input.staffName, itemName: line.itemName });
         }
         continue;
       }

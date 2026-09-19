@@ -1,6 +1,6 @@
 import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine, RecordPurchasePaymentInput, PurchaseRefund, PurchaseRefundSummary, RecordPurchaseRefundInput } from '../types';
 import { calculateOutstandingAmount, calculatePurchaseTotals, derivePurchasePaymentStatus } from '../utils/calculations';
-import { listTenantPurchases, listTenantOutlets, listTenantSuppliers } from '@omniretail/sql-connect';
+import { listTenantPurchases, listTenantPurchasesPage, listTenantOutlets, listTenantSuppliers, PurchasePaymentStatus } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { formatProductCode } from '@/features/products/utils/formatProductCode';
@@ -36,6 +36,7 @@ export interface IPurchaseService {
 }
 
 type TenantPurchaseRow = Awaited<ReturnType<typeof listTenantPurchases>>['data']['purchases'][number];
+type TenantPurchasePageRow = Awaited<ReturnType<typeof listTenantPurchasesPage>>['data']['purchasesPage'][number];
 
 interface PartialPurchaseCallableResponse {
   subtotal: number;
@@ -64,7 +65,7 @@ interface PurchasePaymentCallableResponse {
   };
 }
 
-function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
+function mapTenantPurchase(row: TenantPurchaseRow | TenantPurchasePageRow): Purchase {
   const status = row.status.toLowerCase() as Purchase['status'];
   return {
     id: row.id, purchaseNumber: row.purchaseNumber, purchaseOrderNumber: row.purchaseOrderNumber ?? undefined,
@@ -75,7 +76,7 @@ function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
     totalUnits: row.purchaseLines_on_purchase.reduce((sum, line) => sum + line.quantityOrdered, 0), subtotal: row.subtotal,
     shippingFee: row.shippingFee, handlingFee: row.handlingFee, tax: row.tax, totalAmount: row.totalAmount, amountPaid: row.amountPaid,
     outstandingAmount: status === 'cancelled' ? 0 : calculateOutstandingAmount(row.totalAmount, row.amountPaid), paymentStatus: derivePurchasePaymentStatus(row.totalAmount, row.amountPaid), receiptStatus: row.receiptStatus,
-    payments: row.paymentHistory?.map((payment) => ({ id: payment.id, amount: payment.amount, paymentDate: payment.paymentDate, paymentMethod: payment.paymentMethod, reference: payment.reference ?? undefined, notes: payment.notes ?? undefined, recordedBy: payment.recordedBy, createdAt: payment.createdAt })) ?? [],
+    payments: ('paymentHistory' in row ? row.paymentHistory : row.pagePaymentHistory)?.map((payment) => ({ id: payment.id, amount: payment.amount, paymentDate: payment.paymentDate, paymentMethod: payment.paymentMethod, reference: payment.reference ?? undefined, notes: payment.notes ?? undefined, recordedBy: payment.recordedBy, createdAt: payment.createdAt })) ?? [],
     status, receivingNotes: row.receivingNotes ?? undefined,
     batchNumber: row.batchNumber ?? undefined, mfgDate: row.mfgDate ?? undefined, expiryDate: row.expiryDate ?? undefined,
     paymentTerms: row.paymentTerms ?? undefined, createdBy: row.createdBy, creatorRole: '', createdAt: row.createdAt, updatedAt: row.updatedAt,
@@ -120,6 +121,19 @@ export function derivePurchaseView(all: Purchase[], query: PurchaseQuery = { pag
   };
 }
 
+function purchaseDateRange(query: PurchaseQuery): { start: string; end: string } {
+  const start = query.customStartDate || '1970-01-01';
+  const endDate = new Date(`${query.customEndDate || '9999-12-31'}T00:00:00`);
+  endDate.setDate(endDate.getDate() + 1);
+  const end = [endDate.getFullYear(), String(endDate.getMonth() + 1).padStart(2, '0'), String(endDate.getDate()).padStart(2, '0')].join('-');
+  return { start, end };
+}
+
+function purchaseLike(value: string | undefined): string {
+  const normalized = value?.trim();
+  return normalized ? `%${normalized.replaceAll('%', '\\%').replaceAll('_', '\\_')}%` : '%';
+}
+
 class ProductionPurchaseService implements IPurchaseService {
   private async organizationId(): Promise<string> {
     const auth = await getCachedCurrentUserAuthorization();
@@ -137,7 +151,42 @@ class ProductionPurchaseService implements IPurchaseService {
   async getAllPurchases(): Promise<Purchase[]> { return this.all(); }
 
   async getPurchases(query: PurchaseQuery = { page: 1, pageSize: 10 }): Promise<PurchaseQueryResult> {
-    return derivePurchaseView(await this.all(), query);
+    const organizationId = await this.organizationId();
+    const page = Math.max(1, query.page ?? 1);
+    const pageSize = Math.max(1, query.pageSize ?? 10);
+    const range = purchaseDateRange(query);
+    const result = await listTenantPurchasesPage(getFirebaseClientServices().dataConnect, {
+      organizationId,
+      searchPattern: purchaseLike(query.search),
+      startDate: range.start,
+      endDate: range.end,
+      outletPattern: purchaseLike(query.outlet && query.outlet !== 'All Outlets' ? query.outlet : undefined),
+      supplierPattern: purchaseLike(query.supplier && query.supplier !== 'All Suppliers' ? query.supplier : undefined),
+      paymentStatus: query.paymentStatus && query.paymentStatus !== 'ALL' ? query.paymentStatus as PurchasePaymentStatus : null,
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+    });
+    const items = result.data.purchasesPage.map(mapTenantPurchase);
+    const aggregate = result.data.purchasesCount[0];
+    const totalCount = aggregate?._count ?? 0;
+    return {
+      items,
+      totalCount,
+      filteredCount: totalCount,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      kpis: {
+        totalPurchasesAmount: aggregate?.totalAmount_sum ?? 0,
+        totalPurchasesGrowthText: '',
+        pendingReceiptsCount: items.filter((p) => p.receiptStatus !== 'RECEIVED').length,
+        urgentStockoutRiskCount: items.filter((p) => p.receiptStatus !== 'RECEIVED' && p.outstandingAmount > 0).length,
+        outstandingBalanceAmount: aggregate?.outstandingAmount_sum ?? 0,
+        outstandingBalanceDueText: '',
+        purchasesThisMonthAmount: aggregate?.totalAmount_sum ?? 0,
+        transactionsRecordedCount: totalCount,
+      },
+    };
   }
 
   async getPurchase(id: string): Promise<Purchase | null> { return (await this.all()).find((purchase) => purchase.id === id || purchase.purchaseNumber === id) ?? null; }

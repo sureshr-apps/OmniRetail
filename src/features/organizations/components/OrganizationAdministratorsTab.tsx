@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   Users,
   Plus,
@@ -6,7 +6,6 @@ import {
   KeyRound,
   Edit2,
   CheckCircle2,
-  AlertCircle,
   UserX,
   UserCheck,
   RotateCcw,
@@ -18,7 +17,6 @@ import { Input } from '@/shared/components/Input';
 import { Badge } from '@/shared/components/Badge';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { OrganizationAdministrator, Organization } from '../types';
-import { organizationAdminService } from '../services/OrganizationAdminService';
 import { AddAdminModal } from './AddAdminModal';
 import { EditAdminModal } from './EditAdminModal';
 import { ChangeAdminStatusModal } from './ChangeAdminStatusModal';
@@ -27,16 +25,15 @@ import { upsertById } from '@/shared/utils/listState';
 
 export interface OrganizationAdministratorsTabProps {
   organization: Organization;
-  onAdminCountChange?: (count: number) => void;
+  admins: OrganizationAdministrator[];
+  onAdminsChange: (admins: OrganizationAdministrator[]) => void;
 }
 
 export function OrganizationAdministratorsTab({
   organization,
-  onAdminCountChange,
+  admins,
+  onAdminsChange,
 }: OrganizationAdministratorsTabProps) {
-  const [admins, setAdmins] = useState<OrganizationAdministrator[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
   // Notification Banner
@@ -52,26 +49,6 @@ export function OrganizationAdministratorsTab({
     targetStatus: 'active' | 'inactive';
   } | null>(null);
   const [resetTargetAdmin, setResetTargetAdmin] = useState<OrganizationAdministrator | null>(null);
-
-  const loadAdmins = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await organizationAdminService.getAdministrators(organization.id);
-      setAdmins(data);
-      if (onAdminCountChange) {
-        onAdminCountChange(data.length);
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load organization administrators.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [organization.id, onAdminCountChange]);
-
-  useEffect(() => {
-    loadAdmins();
-  }, [loadAdmins]);
 
   // Filtered administrators
   const filteredAdmins = admins.filter((a) => {
@@ -90,11 +67,7 @@ export function OrganizationAdministratorsTab({
       message: `Administrator "${newAdmin.name}" (@${newAdmin.username}) created successfully.`,
       type: 'success',
     });
-    setAdmins((current) => {
-      const next = upsertById(current, newAdmin);
-      onAdminCountChange?.(next.length);
-      return next;
-    });
+    onAdminsChange(upsertById(admins, newAdmin));
   };
 
   const handleAdminUpdated = (updatedAdmin: OrganizationAdministrator) => {
@@ -102,18 +75,17 @@ export function OrganizationAdministratorsTab({
       message: `Administrator profile for "${updatedAdmin.name}" updated successfully.`,
       type: 'success',
     });
-    setAdmins((current) => upsertById(current, updatedAdmin));
+    onAdminsChange(upsertById(admins, updatedAdmin));
   };
 
-  const handleAdminStatusChanged = async (updatedAdmin: OrganizationAdministrator) => {
-    setAdmins((current) => current.map((admin) => admin.id === updatedAdmin.id ? updatedAdmin : admin));
+  const handleAdminStatusChanged = (updatedAdmin: OrganizationAdministrator) => {
+    onAdminsChange(upsertById(admins, updatedAdmin));
     setFeedback({
       message: `Administrator "${updatedAdmin.name}" has been ${
         updatedAdmin.status === 'active' ? 'activated' : 'deactivated'
       }.`,
       type: 'info',
     });
-    setAdmins((current) => upsertById(current, updatedAdmin));
   };
 
   return (
@@ -176,45 +148,8 @@ export function OrganizationAdministratorsTab({
 
       {/* Main Table / Container */}
       <div className="bg-surface-elevated rounded-lg border border-border-subdued shadow-xs overflow-hidden">
-        {/* Error State */}
-        {error && (
-          <div className="p-8 text-center flex flex-col items-center justify-center">
-            <AlertCircle className="w-8 h-8 text-critical mb-2" />
-            <h4 className="text-sm font-semibold text-text-primary">Failed to load administrators</h4>
-            <p className="text-xs text-text-secondary max-w-sm mt-1 mb-3">{error}</p>
-            <Button variant="secondary" size="sm" onClick={loadAdmins} className="text-xs">
-              Retry Query
-            </Button>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {isLoading && !error && (
-          <div className="divide-y divide-border-subdued">
-            <div className="bg-surface-subdued px-4 py-2.5 flex items-center justify-between border-b border-border-subdued">
-              <span className="text-[10px] uppercase font-bold text-text-muted tracking-wider">
-                Loading scoped administrators...
-              </span>
-              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="px-4 py-3.5 flex items-center justify-between animate-pulse">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-200" />
-                  <div className="space-y-1.5">
-                    <div className="h-3.5 bg-slate-200 rounded w-32" />
-                    <div className="h-2.5 bg-slate-100 rounded w-20" />
-                  </div>
-                </div>
-                <div className="h-4 bg-slate-100 rounded w-36 hidden sm:block" />
-                <div className="h-4 bg-slate-200 rounded w-16" />
-              </div>
-            ))}
-          </div>
-        )}
-
         {/* Data Table */}
-        {!isLoading && !error && filteredAdmins.length > 0 && (
+        {filteredAdmins.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -357,7 +292,7 @@ export function OrganizationAdministratorsTab({
         )}
 
         {/* Empty State */}
-        {!isLoading && !error && filteredAdmins.length === 0 && (
+        {filteredAdmins.length === 0 && (
           <div className="p-8">
             {search.trim() ? (
               <EmptyState

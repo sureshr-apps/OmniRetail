@@ -292,9 +292,9 @@ export async function createInventoryStockRecord(client: PoolClient, input: Inve
   return { newQty: input.quantity, batchNumber, batchId: batch.id };
 }
 
-export async function consumeInventoryForSale(client: PoolClient, input: { organizationId: string; outletId: string; productId: string; quantity: number; saleId: string; saleLineId: string; receiptNumber: string; requestId: string; actorFirebaseUid: string; itemName: string }): Promise<BatchAllocation[]> {
+export async function consumeInventoryForSale(client: PoolClient, input: { organizationId: string; outletId: string; productId: string; productType: string; quantity: number; saleId: string; saleLineId: string; receiptNumber: string; requestId: string; actorFirebaseUid: string; itemName: string }): Promise<BatchAllocation[]> {
   if (!Number.isFinite(input.quantity) || input.quantity <= 0) throw new InventoryStockError('INVALID_BATCH', 'Sale quantity must be greater than zero.');
-  const product = await loadProduct(client, input.organizationId, input.productId);
+  if (!isStockTrackedProduct(input.productType)) throw new InventoryStockError('PRODUCT_NOT_STOCK_TRACKED', 'Service products cannot be added to inventory.');
   const stockResult = await client.query('SELECT on_hand_qty FROM "inventory_stock" WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3 FOR UPDATE', [input.organizationId, input.outletId, input.productId]);
   if (!stockResult.rowCount) throw new InventoryStockError('INSUFFICIENT_STOCK', `No inventory record exists for ${input.itemName}.`);
   const aggregateQty = Number(stockResult.rows[0].on_hand_qty);
@@ -307,7 +307,7 @@ export async function consumeInventoryForSale(client: PoolClient, input: { organ
     await client.query('UPDATE "inventory_batch" SET on_hand_qty = on_hand_qty - $2 WHERE id = $1 AND on_hand_qty >= $2', [allocation.batchId, allocation.quantity]);
     await client.query('INSERT INTO "sale_line_batch_allocation" (sale_line_id, inventory_batch_id, quantity, refunded_qty) VALUES ($1, $2, $3, 0)', [input.saleLineId, allocation.batchId, allocation.quantity]);
     const movementNewQty = movementPreviousQty - allocation.quantity;
-    await insertMovement(client, { organizationId: input.organizationId, outletId: input.outletId, productId: product.id, batchId: allocation.batchId, mode: 'DECREASE', quantity: allocation.quantity, previousQty: movementPreviousQty, newQty: movementNewQty, reasonCode: 'SALE', auditNote: `${input.receiptNumber} / ${input.saleId}`, actorFirebaseUid: input.actorFirebaseUid, requestId: operationRequestId(input.requestId, `SALE-${index + 1}`) });
+    await insertMovement(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, batchId: allocation.batchId, mode: 'DECREASE', quantity: allocation.quantity, previousQty: movementPreviousQty, newQty: movementNewQty, reasonCode: 'SALE', auditNote: `${input.receiptNumber} / ${input.saleId}`, actorFirebaseUid: input.actorFirebaseUid, requestId: operationRequestId(input.requestId, `SALE-${index + 1}`) });
     movementPreviousQty = movementNewQty;
   }
   await client.query('UPDATE "inventory_stock" SET on_hand_qty = $4, updated_at = NOW() WHERE organization_id = $1 AND outlet_id = $2 AND product_id = $3', [input.organizationId, input.outletId, input.productId, newQty]);
@@ -367,7 +367,7 @@ export async function persistSaleLineWithInventory(client: PoolClient, input: { 
   const saleLineId = randomUUID();
   await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, refunded_qty, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, 0, $6, $7)', [saleLineId, input.saleId, input.productId, input.itemName, input.quantity, input.unitPrice, input.subtotal]);
   const allocations = isStockTrackedProduct(product.type)
-    ? await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, quantity: input.quantity, saleId: input.saleId, saleLineId, receiptNumber: saleResult.rows[0].receipt_number, requestId: input.requestId, actorFirebaseUid: input.actorFirebaseUid, itemName: input.itemName })
+    ? await consumeInventoryForSale(client, { organizationId: input.organizationId, outletId: input.outletId, productId: input.productId, productType: product.type, quantity: input.quantity, saleId: input.saleId, saleLineId, receiptNumber: saleResult.rows[0].receipt_number, requestId: input.requestId, actorFirebaseUid: input.actorFirebaseUid, itemName: input.itemName })
     : [];
   return { saleLineId, allocations };
 }

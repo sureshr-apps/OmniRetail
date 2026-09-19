@@ -1,5 +1,5 @@
 import { Expense, ExpenseQuery, ExpenseQueryResult, CreateExpenseInput, UpdateExpenseInput } from '../types';
-import { listTenantExpenses } from '@omniretail/sql-connect';
+import { listTenantExpenses, listTenantExpensesPage, ExpenseApprovalStatus, ExpenseStatus } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
 import { httpsCallable } from 'firebase/functions';
@@ -16,6 +16,7 @@ export interface IExpenseService {
 }
 
 type TenantExpenseRow = Awaited<ReturnType<typeof listTenantExpenses>>['data']['expenses'][number];
+type TenantExpensePageRow = Awaited<ReturnType<typeof listTenantExpensesPage>>['data']['expensesPage'][number];
 
 interface ExpenseActor { displayName?: string | null; username?: string | null; }
 
@@ -26,7 +27,7 @@ export function resolveExpenseActor(user: ExpenseActor | undefined): string {
   return displayName || username!;
 }
 
-function mapTenantExpense(row: TenantExpenseRow): Expense {
+function mapTenantExpense(row: TenantExpenseRow | TenantExpensePageRow): Expense {
   return {
     id: row.id, expenseNumber: row.expenseNumber, date: row.expenseDate, timestamp: Date.parse(row.expenseDate),
     category: row.category as Expense['category'], description: row.description, reference: row.reference ?? undefined,
@@ -37,6 +38,25 @@ function mapTenantExpense(row: TenantExpenseRow): Expense {
     approvalStatus: row.approvalStatus.replace('_', ' ') as Expense['approvalStatus'], submittedBy: row.submittedBy,
     notes: row.notes ?? undefined, auditTrail: [], createdAt: row.createdAt, updatedAt: row.updatedAt,
   };
+}
+
+function expenseDateRange(query: ExpenseQuery): { start: string; end: string } {
+  const now = new Date();
+  const format = (date: Date) => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+  if (!query.period || query.period === 'All Time') return { start: '1970-01-01', end: '9999-12-31' };
+  if (query.period === 'Custom Range') {
+    const end = query.customEndDate ? new Date(`${query.customEndDate}T00:00:00`) : new Date('9999-12-31T00:00:00');
+    end.setDate(end.getDate() + 1);
+    return { start: query.customStartDate || '1970-01-01', end: format(end) };
+  }
+  if (query.period === 'Last Month') return { start: format(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end: format(new Date(now.getFullYear(), now.getMonth(), 1)) };
+  const start = query.period === 'Last 7 Days' ? new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7) : new Date(now.getFullYear(), now.getMonth(), 1);
+  return { start: format(start), end: format(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)) };
+}
+
+function expenseLike(value: string | undefined): string {
+  const normalized = value?.trim();
+  return normalized ? `%${normalized.replaceAll('%', '\\%').replaceAll('_', '\\_')}%` : '%';
 }
 
 export function expenseDateBounds(period: ExpenseQuery['period'], customStartDate?: string, customEndDate?: string, now = new Date()): { start: number; end: number } | null {
@@ -91,7 +111,31 @@ class ProductionExpenseService implements IExpenseService {
   }
 
   async getAllExpenses(): Promise<Expense[]> { return this.all(); }
-  async getExpenses(query: ExpenseQuery): Promise<ExpenseQueryResult> { return deriveExpenseView(await this.all(), query); }
+  async getExpenses(query: ExpenseQuery): Promise<ExpenseQueryResult> {
+    const organizationId = await this.organizationId();
+    const page = Math.max(1, query.page);
+    const pageSize = Math.max(1, query.pageSize);
+    const range = expenseDateRange(query);
+    const targetOutlet = query.outlet?.replace(/^Outlet: /i, '');
+    const targetCategory = query.category?.replace(/^Category: /i, '');
+    const targetStatus = query.status === 'Voided' ? ExpenseStatus.VOIDED : query.status === 'Active (Exclude Voids)' ? ExpenseStatus.ACTIVE : null;
+    const targetApproval = query.status && !['All', 'Active (Exclude Voids)', 'Voided'].includes(query.status) ? query.status.replaceAll(' ', '_').toUpperCase() as ExpenseApprovalStatus : null;
+    const result = await listTenantExpensesPage(getFirebaseClientServices().dataConnect, {
+      organizationId,
+      searchPattern: expenseLike(query.search),
+      startDate: range.start,
+      endDate: range.end,
+      outletPattern: expenseLike(targetOutlet && targetOutlet !== 'All Outlets' ? targetOutlet : undefined),
+      categoryPattern: expenseLike(targetCategory && targetCategory !== 'All' ? targetCategory : undefined),
+      status: targetStatus,
+      approvalStatus: targetApproval,
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+    });
+    const expenses = result.data.expensesPage.map(mapTenantExpense);
+    const totalCount = result.data.expensesCount[0]?._count ?? 0;
+    return { expenses, totalCount, filteredCount: totalCount, page, pageSize, totalPages: Math.max(1, Math.ceil(totalCount / pageSize)) };
+  }
   async getExpense(id: string): Promise<Expense | null> { return (await this.all()).find((expense) => expense.id === id || expense.expenseNumber === id) ?? null; }
 
   async createExpense(input: CreateExpenseInput): Promise<Expense> {

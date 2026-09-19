@@ -1,14 +1,26 @@
-import { changeOrganizationStatus, createOrganization, getOrganization, listOrganizations, updateOrganization } from '@omniretail/sql-connect';
+import { changeOrganizationStatus, createOrganization, getOrganization, listOrganizationsPage, updateOrganization, OrganizationStatus as SqlOrganizationStatus } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { DEFAULT_CURRENCY } from '@/shared/utils/currency';
 import { Organization, CreateOrganizationInput, UpdateOrganizationInput, OrganizationStatus, OrganizationQuery, PaginatedResult } from '../types';
+import { calculateLicenseStatus } from '@/features/licenses/utils/licenseStatus';
 
-export interface IOrganizationService { getAllOrganizations(): Promise<Organization[]>; getOrganizations(query: OrganizationQuery): Promise<PaginatedResult<Organization>>; getOrganization(id: string): Promise<Organization | null>; createOrganization(input: CreateOrganizationInput): Promise<Organization>; updateOrganization(id: string, input: UpdateOrganizationInput): Promise<Organization>; changeOrganizationStatus(id: string, status: OrganizationStatus): Promise<Organization>; }
+export interface IOrganizationService { getAllOrganizations(): Promise<Organization[]>; getOrganizations(query: OrganizationQuery): Promise<PaginatedResult<Organization>>; getOrganization(id: string): Promise<Organization | null>; createOrganization(input: CreateOrganizationInput): Promise<Organization>; updateOrganization(id: string, input: UpdateOrganizationInput): Promise<Organization>; changeOrganizationStatus(id: string, status: OrganizationStatus): Promise<Organization>; wasDirectoryTruncated(): boolean; getDirectoryTotalCount(): number; }
+export const ORGANIZATION_DIRECTORY_FETCH_LIMIT = 1000;
 type Row = { id:string; organizationCode:string; businessName:string; legalEntityName?:string|null; taxId?:string|null; primaryContactName:string; email:string; phone:string; address?:string|null; city?:string|null; state?:string|null; postalCode?:string|null; timezone:string; currency:string; status:string; createdAt:string; updatedAt:string };
 const uuid = () => globalThis.crypto.randomUUID();
 const code = () => `ORG-${uuid().replaceAll('-', '').slice(0, 16).toUpperCase()}`;
 function map(row: Row): Organization { return { id: row.id, organizationCode: row.organizationCode, name: row.businessName, legalEntityName: row.legalEntityName ?? '', taxId: row.taxId ?? '', primaryAdmin: row.primaryContactName ? { name: row.primaryContactName, email: row.email, phone: row.phone } : undefined, licensePlan: 'Unassigned', licenseStatus: 'not_assigned', licenseExpiryDate: '—', status: row.status.toLowerCase() as OrganizationStatus, createdDate: row.createdAt.slice(0,10), contactInfo: { primaryContactName: row.primaryContactName, email: row.email, phone: row.phone, address: row.address ?? undefined, city: row.city ?? undefined, state: row.state ?? undefined, pincode: row.postalCode ?? undefined }, timezone: row.timezone, currency: DEFAULT_CURRENCY, allowedStores: undefined, activeStores: undefined, posRegisters: undefined }; }
+function mapPageRow(row: Row & { organizationLicense_on_organization?: { expiryDate?: string | null; startDate?: string | null; plan?: { name?: string | null } | null } | null }): Organization {
+  const organization = map(row);
+  const license = row.organizationLicense_on_organization;
+  return {
+    ...organization,
+    licensePlan: license?.plan?.name ?? 'Unassigned',
+    licenseExpiryDate: license?.expiryDate ?? '—',
+    licenseStatus: calculateLicenseStatus(license ? { startDate: license.startDate ?? '', expiryDate: license.expiryDate ?? '' } : null),
+  };
+}
 function safe(error: unknown, fallback: string): Error { const m = error instanceof Error ? error.message : ''; if (/unique|duplicate|already exists/i.test(m)) return new Error('An organization with these details already exists.'); if (/permission|unauthenticated|forbidden/i.test(m)) return new Error('You do not have permission to manage organizations.'); if (/not found/i.test(m)) return new Error('Organization not found.'); return new Error(fallback); }
 function validate(input: CreateOrganizationInput|UpdateOrganizationInput) { if (!input.name?.trim()) throw new Error('Business name is required.'); if (!input.primaryContactName?.trim()) throw new Error('Primary contact name is required.'); if (!input.email?.trim()) throw new Error('Email is required.'); if (!input.phone?.trim()) throw new Error('Phone is required.'); if (!/^\+[1-9]\d{7,14}$/.test(input.phone.trim())) throw new Error('Enter a valid international phone number.'); }
 export function deriveOrganizationView(all: Organization[], q: OrganizationQuery): PaginatedResult<Organization> {
@@ -23,9 +35,25 @@ export function deriveOrganizationView(all: Organization[], q: OrganizationQuery
   return { items: items.slice((page - 1) * pageSize, page * pageSize), total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
 }
 class SqlOrganizationService implements IOrganizationService {
-  private async rows() { try { const result = await httpsCallable(getFirebaseClientServices().functions, 'listOrganizationsDirectory')({ limit: 1000 }); const rows = (result.data as any).organizations as any[]; return rows.map((r) => ({ ...map(r as Row), licensePlan: r.planName ?? 'Unassigned', licenseExpiryDate: r.licenseExpiryDate ?? '—', licenseStatus: r.licenseStatus ?? 'not_assigned' })); } catch (e) { throw safe(e, 'Unable to load organizations.'); } }
+  private directoryFetchedCount = 0;
+  private directoryTotalCount = 0;
+  private async rows() { try { const result = await httpsCallable(getFirebaseClientServices().functions, 'listOrganizationsDirectory')({ limit: ORGANIZATION_DIRECTORY_FETCH_LIMIT }); const rows = (result.data as any).organizations as any[]; this.directoryFetchedCount = rows.length; this.directoryTotalCount = Number((result.data as any)?.totalCount ?? rows.length); return rows.map((r) => ({ ...map(r as Row), licensePlan: r.planName ?? 'Unassigned', licenseExpiryDate: r.licenseExpiryDate ?? '—', licenseStatus: r.licenseStatus ?? 'not_assigned' })); } catch (e) { throw safe(e, 'Unable to load organizations.'); } }
+  wasDirectoryTruncated(): boolean { return this.directoryTotalCount > this.directoryFetchedCount; }
+  getDirectoryTotalCount(): number { return this.directoryTotalCount; }
   async getAllOrganizations(): Promise<Organization[]> { return this.rows(); }
-  async getOrganizations(q: OrganizationQuery): Promise<PaginatedResult<Organization>> { return deriveOrganizationView(await this.rows(), q); }
+  async getOrganizations(q: OrganizationQuery): Promise<PaginatedResult<Organization>> {
+    const page = Math.max(1, q.page);
+    const pageSize = Math.max(1, q.pageSize);
+    const result = await listOrganizationsPage(getFirebaseClientServices().dataConnect, {
+      searchPattern: `%${(q.search ?? '').trim().replaceAll('%', '\\%').replaceAll('_', '\\_')}%`,
+      organizationStatus: q.organizationStatus && q.organizationStatus !== 'all' ? q.organizationStatus.toUpperCase() as SqlOrganizationStatus : null,
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+    });
+    const items = result.data.organizationsPage.map((row) => mapPageRow(row as unknown as Row & { organizationLicense_on_organization?: { expiryDate?: string | null; startDate?: string | null; plan?: { name?: string | null } | null } | null }));
+    const total = result.data.organizationsCount[0]?._count ?? 0;
+    return { items, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
+  }
   async getOrganization(id:string){ try { const r=await getOrganization(getFirebaseClientServices().dataConnect,{id}); return r.data.organization?map(r.data.organization as Row):null; } catch(e){ throw safe(e,'Unable to load organization.'); } }
   async createOrganization(i:CreateOrganizationInput){ validate(i); try { const id = uuid(); await createOrganization(getFirebaseClientServices().dataConnect,{id,organizationCode:code(),businessName:i.name.trim(),legalEntityName:i.legalEntityName?.trim()||null,taxId:i.taxId?.trim()||null,primaryContactName:i.primaryContactName.trim(),email:i.email.trim().toLowerCase(),phone:i.phone.trim(),address:i.address?.trim()||null,city:i.city?.trim()||null,state:i.state?.trim()||null,postalCode:i.postalCode?.trim()||null,timezone:i.timezone||'Asia/Kolkata (IST)',currency:DEFAULT_CURRENCY}); const created = await this.getOrganization(id); if (!created) throw new Error('not found'); return created; } catch(e){ throw safe(e,'Unable to create organization.'); } }
   async updateOrganization(id:string,i:UpdateOrganizationInput){ validate(i); try { await updateOrganization(getFirebaseClientServices().dataConnect,{id,businessName:i.name.trim(),legalEntityName:i.legalEntityName?.trim()||null,taxId:i.taxId?.trim()||null,primaryContactName:i.primaryContactName.trim(),email:i.email.trim().toLowerCase(),phone:i.phone.trim(),address:i.address?.trim()||null,city:i.city?.trim()||null,state:i.state?.trim()||null,postalCode:i.postalCode?.trim()||null,timezone:i.timezone||'Asia/Kolkata (IST)',currency:DEFAULT_CURRENCY}); const r=await this.getOrganization(id); if(!r)throw new Error('not found'); return { ...r, name: i.name.trim(), contactInfo: { ...r.contactInfo, primaryContactName: i.primaryContactName.trim(), email: i.email.trim().toLowerCase(), phone: i.phone.trim(), address: i.address?.trim() || undefined, city: i.city?.trim() || undefined, state: i.state?.trim() || undefined, pincode: i.postalCode?.trim() || undefined }, primaryAdmin: { name: i.primaryContactName.trim(), email: i.email.trim().toLowerCase(), phone: i.phone.trim() } }; } catch(e){ throw safe(e,'Unable to update organization.'); } }

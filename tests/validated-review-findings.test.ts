@@ -30,14 +30,15 @@ describe('validated review findings', () => {
     expect(source).toContain('authService.subscribe');
   });
 
-  it('loads Service Person and Expenses collections once and derives local views', () => {
+  it('loads Service Person once and uses the server-side Expenses page query', () => {
     const servicePersonPage = file('src/features/service-persons/pages/ServicePersonMasterPage.tsx');
     const expensePage = file('src/features/expenses/pages/ExpensesPage.tsx');
     expect(servicePersonPage.match(/servicePersonService\.getAllServicePersons\(\)/g)).toHaveLength(1);
     expect(servicePersonPage).not.toContain('getSpecializations');
     expect(servicePersonPage).toContain('const specializations = useMemo');
-    expect(expensePage.match(/expenseService\.getAllExpenses\(\)/g)).toHaveLength(1);
-    expect(expensePage).toContain('deriveExpenseView');
+    expect(expensePage).toContain('expenseService.getExpenses');
+    expect(expensePage).not.toContain('expenseService.getAllExpenses()');
+    expect(expensePage).not.toContain('deriveExpenseView');
   });
 
   it('keeps the organization detail transient state tied to the route organization', () => {

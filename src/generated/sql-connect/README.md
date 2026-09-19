@@ -23,6 +23,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*GetLicensePlanTrusted*](#getlicenseplantrusted)
   - [*GetLicensePlanReferencesTrusted*](#getlicenseplanreferencestrusted)
   - [*ListOrganizations*](#listorganizations)
+  - [*ListOrganizationsPage*](#listorganizationspage)
   - [*GetOrganization*](#getorganization)
   - [*GetOrganizationTrusted*](#getorganizationtrusted)
   - [*ListOrganizationAdministrators*](#listorganizationadministrators)
@@ -48,6 +49,10 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListTenantPurchases*](#listtenantpurchases)
   - [*ListTenantExpenses*](#listtenantexpenses)
   - [*ListTenantSales*](#listtenantsales)
+  - [*ListTenantSalesPage*](#listtenantsalespage)
+  - [*ListTenantPurchasesPage*](#listtenantpurchasespage)
+  - [*ListTenantExpensesPage*](#listtenantexpensespage)
+  - [*ListTenantInventoryPage*](#listtenantinventorypage)
   - [*GetTenantInventoryStockTrusted*](#gettenantinventorystocktrusted)
   - [*GetTenantSupplierTrusted*](#gettenantsuppliertrusted)
   - [*GetTenantCustomerTrusted*](#gettenantcustomertrusted)
@@ -1689,6 +1694,167 @@ console.log(data.organizations);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.organizations);
+});
+```
+
+## ListOrganizationsPage
+You can execute the `ListOrganizationsPage` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listOrganizationsPage(vars: ListOrganizationsPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsPageData, ListOrganizationsPageVariables>;
+
+interface ListOrganizationsPageRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListOrganizationsPageVariables): QueryRef<ListOrganizationsPageData, ListOrganizationsPageVariables>;
+}
+export const listOrganizationsPageRef: ListOrganizationsPageRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listOrganizationsPage(dc: DataConnect, vars: ListOrganizationsPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListOrganizationsPageData, ListOrganizationsPageVariables>;
+
+interface ListOrganizationsPageRef {
+  ...
+  (dc: DataConnect, vars: ListOrganizationsPageVariables): QueryRef<ListOrganizationsPageData, ListOrganizationsPageVariables>;
+}
+export const listOrganizationsPageRef: ListOrganizationsPageRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listOrganizationsPageRef:
+```typescript
+const name = listOrganizationsPageRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListOrganizationsPage` query requires an argument of type `ListOrganizationsPageVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListOrganizationsPageVariables {
+  searchPattern: string;
+  organizationStatus?: OrganizationStatus | null;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that executing the `ListOrganizationsPage` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListOrganizationsPageData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListOrganizationsPageData {
+  organizationsPage: ({
+    id: UUIDString;
+    organizationCode: string;
+    businessName: string;
+    legalEntityName?: string | null;
+    taxId?: string | null;
+    primaryContactName: string;
+    email: string;
+    phone: string;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    timezone: string;
+    currency: string;
+    status: OrganizationStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    organizationLicense_on_organization?: {
+      id: UUIDString;
+      startDate: DateString;
+      expiryDate: DateString;
+      negotiatedPrice: number;
+      currency: string;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      plan: {
+        id: UUIDString;
+        planCode: string;
+        name: string;
+        level: number;
+        maxStores: number;
+        maxUsers: number;
+        status: LicensePlanStatus;
+      } & LicensePlan_Key;
+    } & OrganizationLicense_Key;
+  } & Organization_Key)[];
+  organizationsCount: ({
+    _count: number;
+  })[];
+}
+```
+### Using `ListOrganizationsPage`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listOrganizationsPage, ListOrganizationsPageVariables } from '@omniretail/sql-connect';
+
+// The `ListOrganizationsPage` query requires an argument of type `ListOrganizationsPageVariables`:
+const listOrganizationsPageVars: ListOrganizationsPageVariables = {
+  searchPattern: ..., 
+  organizationStatus: ..., // optional
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listOrganizationsPage()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listOrganizationsPage(listOrganizationsPageVars);
+// Variables can be defined inline as well.
+const { data } = await listOrganizationsPage({ searchPattern: ..., organizationStatus: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listOrganizationsPage(dataConnect, listOrganizationsPageVars);
+
+console.log(data.organizationsPage);
+console.log(data.organizationsCount);
+
+// Or, you can use the `Promise` API.
+listOrganizationsPage(listOrganizationsPageVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationsPage);
+  console.log(data.organizationsCount);
+});
+```
+
+### Using `ListOrganizationsPage`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listOrganizationsPageRef, ListOrganizationsPageVariables } from '@omniretail/sql-connect';
+
+// The `ListOrganizationsPage` query requires an argument of type `ListOrganizationsPageVariables`:
+const listOrganizationsPageVars: ListOrganizationsPageVariables = {
+  searchPattern: ..., 
+  organizationStatus: ..., // optional
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listOrganizationsPageRef()` function to get a reference to the query.
+const ref = listOrganizationsPageRef(listOrganizationsPageVars);
+// Variables can be defined inline as well.
+const ref = listOrganizationsPageRef({ searchPattern: ..., organizationStatus: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listOrganizationsPageRef(dataConnect, listOrganizationsPageVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationsPage);
+console.log(data.organizationsCount);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationsPage);
+  console.log(data.organizationsCount);
 });
 ```
 
@@ -5164,6 +5330,799 @@ executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.organizationMemberships);
   console.log(data.sales);
+});
+```
+
+## ListTenantSalesPage
+You can execute the `ListTenantSalesPage` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantSalesPage(vars: ListTenantSalesPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantSalesPageData, ListTenantSalesPageVariables>;
+
+interface ListTenantSalesPageRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantSalesPageVariables): QueryRef<ListTenantSalesPageData, ListTenantSalesPageVariables>;
+}
+export const listTenantSalesPageRef: ListTenantSalesPageRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantSalesPage(dc: DataConnect, vars: ListTenantSalesPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantSalesPageData, ListTenantSalesPageVariables>;
+
+interface ListTenantSalesPageRef {
+  ...
+  (dc: DataConnect, vars: ListTenantSalesPageVariables): QueryRef<ListTenantSalesPageData, ListTenantSalesPageVariables>;
+}
+export const listTenantSalesPageRef: ListTenantSalesPageRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantSalesPageRef:
+```typescript
+const name = listTenantSalesPageRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantSalesPage` query requires an argument of type `ListTenantSalesPageVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantSalesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startTimestamp: TimestampString;
+  endTimestamp: TimestampString;
+  channelPattern: string;
+  cashierPattern: string;
+  tenderTypes: SaleTenderType[];
+  statuses: SaleStatus[];
+  minAmount: number;
+  maxAmount: number;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that executing the `ListTenantSalesPage` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantSalesPageData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantSalesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  salesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    customer?: {
+      id: UUIDString;
+      customerCode: number;
+      name: string;
+      phone: string;
+      email?: string | null;
+    } & Customer_Key;
+    customerName: string;
+    staffName: string;
+    channel: string;
+    terminalId: string;
+    tenderType: SaleTenderType;
+    tax: number;
+    discount: number;
+    subtotal: number;
+    totalNet: number;
+    status: SaleStatus;
+    createdAt: TimestampString;
+    saleLines_on_sale: ({
+      id: UUIDString;
+      itemName?: string | null;
+      product?: {
+        id: UUIDString;
+        productCode: number;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantity: number;
+      refundedQty: number;
+      unitPrice: number;
+      subtotal: number;
+    } & SaleLine_Key)[];
+  } & Sale_Key)[];
+  salesCount: ({
+    _count: number;
+    totalNet_sum?: number | null;
+  })[];
+}
+```
+### Using `ListTenantSalesPage`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantSalesPage, ListTenantSalesPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantSalesPage` query requires an argument of type `ListTenantSalesPageVariables`:
+const listTenantSalesPageVars: ListTenantSalesPageVariables = {
+  organizationId: ..., 
+  searchPattern: ..., 
+  startTimestamp: ..., 
+  endTimestamp: ..., 
+  channelPattern: ..., 
+  cashierPattern: ..., 
+  tenderTypes: ..., 
+  statuses: ..., 
+  minAmount: ..., 
+  maxAmount: ..., 
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantSalesPage()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantSalesPage(listTenantSalesPageVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantSalesPage({ organizationId: ..., searchPattern: ..., startTimestamp: ..., endTimestamp: ..., channelPattern: ..., cashierPattern: ..., tenderTypes: ..., statuses: ..., minAmount: ..., maxAmount: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantSalesPage(dataConnect, listTenantSalesPageVars);
+
+console.log(data.organizationMemberships);
+console.log(data.salesPage);
+console.log(data.salesCount);
+
+// Or, you can use the `Promise` API.
+listTenantSalesPage(listTenantSalesPageVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.salesPage);
+  console.log(data.salesCount);
+});
+```
+
+### Using `ListTenantSalesPage`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantSalesPageRef, ListTenantSalesPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantSalesPage` query requires an argument of type `ListTenantSalesPageVariables`:
+const listTenantSalesPageVars: ListTenantSalesPageVariables = {
+  organizationId: ..., 
+  searchPattern: ..., 
+  startTimestamp: ..., 
+  endTimestamp: ..., 
+  channelPattern: ..., 
+  cashierPattern: ..., 
+  tenderTypes: ..., 
+  statuses: ..., 
+  minAmount: ..., 
+  maxAmount: ..., 
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantSalesPageRef()` function to get a reference to the query.
+const ref = listTenantSalesPageRef(listTenantSalesPageVars);
+// Variables can be defined inline as well.
+const ref = listTenantSalesPageRef({ organizationId: ..., searchPattern: ..., startTimestamp: ..., endTimestamp: ..., channelPattern: ..., cashierPattern: ..., tenderTypes: ..., statuses: ..., minAmount: ..., maxAmount: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantSalesPageRef(dataConnect, listTenantSalesPageVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationMemberships);
+console.log(data.salesPage);
+console.log(data.salesCount);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.salesPage);
+  console.log(data.salesCount);
+});
+```
+
+## ListTenantPurchasesPage
+You can execute the `ListTenantPurchasesPage` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantPurchasesPage(vars: ListTenantPurchasesPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantPurchasesPageData, ListTenantPurchasesPageVariables>;
+
+interface ListTenantPurchasesPageRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantPurchasesPageVariables): QueryRef<ListTenantPurchasesPageData, ListTenantPurchasesPageVariables>;
+}
+export const listTenantPurchasesPageRef: ListTenantPurchasesPageRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantPurchasesPage(dc: DataConnect, vars: ListTenantPurchasesPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantPurchasesPageData, ListTenantPurchasesPageVariables>;
+
+interface ListTenantPurchasesPageRef {
+  ...
+  (dc: DataConnect, vars: ListTenantPurchasesPageVariables): QueryRef<ListTenantPurchasesPageData, ListTenantPurchasesPageVariables>;
+}
+export const listTenantPurchasesPageRef: ListTenantPurchasesPageRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantPurchasesPageRef:
+```typescript
+const name = listTenantPurchasesPageRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantPurchasesPage` query requires an argument of type `ListTenantPurchasesPageVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantPurchasesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startDate: DateString;
+  endDate: DateString;
+  outletPattern: string;
+  supplierPattern: string;
+  paymentStatus?: PurchasePaymentStatus | null;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that executing the `ListTenantPurchasesPage` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantPurchasesPageData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantPurchasesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  purchasesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    purchaseNumber: string;
+    purchaseOrderNumber?: string | null;
+    invoiceNumber?: string | null;
+    purchaseDate: DateString;
+    supplier: {
+      id: UUIDString;
+      supplierCode: number;
+      name: string;
+      taxId?: string | null;
+    } & Supplier_Key;
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    paymentTerms?: string | null;
+    subtotal: number;
+    shippingFee: number;
+    handlingFee: number;
+    tax: number;
+    totalAmount: number;
+    amountPaid: number;
+    outstandingAmount: number;
+    paymentStatus: PurchasePaymentStatus;
+    receiptStatus: PurchaseReceiptStatus;
+    status: PurchaseStatus;
+    receivingNotes?: string | null;
+    batchNumber?: string | null;
+    mfgDate?: DateString | null;
+    expiryDate?: DateString | null;
+    createdBy: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    purchaseLines_on_purchase: ({
+      id: UUIDString;
+      product: {
+        id: UUIDString;
+        productCode: number;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantityOrdered: number;
+      quantityReceived: number;
+      unitCost: number;
+      discountPercent: number;
+      taxRate: number;
+      taxAmount: number;
+      lineTotal: number;
+    } & PurchaseLine_Key)[];
+    pagePaymentHistory: ({
+      id: UUIDString;
+      amount: number;
+      paymentDate: DateString;
+      paymentMethod: string;
+      reference?: string | null;
+      notes?: string | null;
+      recordedBy: string;
+      createdAt: TimestampString;
+    } & PurchasePayment_Key)[];
+  } & Purchase_Key)[];
+  purchasesCount: ({
+    _count: number;
+    totalAmount_sum?: number | null;
+    amountPaid_sum?: number | null;
+    outstandingAmount_sum?: number | null;
+  })[];
+}
+```
+### Using `ListTenantPurchasesPage`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantPurchasesPage, ListTenantPurchasesPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantPurchasesPage` query requires an argument of type `ListTenantPurchasesPageVariables`:
+const listTenantPurchasesPageVars: ListTenantPurchasesPageVariables = {
+  organizationId: ..., 
+  searchPattern: ..., 
+  startDate: ..., 
+  endDate: ..., 
+  outletPattern: ..., 
+  supplierPattern: ..., 
+  paymentStatus: ..., // optional
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantPurchasesPage()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantPurchasesPage(listTenantPurchasesPageVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantPurchasesPage({ organizationId: ..., searchPattern: ..., startDate: ..., endDate: ..., outletPattern: ..., supplierPattern: ..., paymentStatus: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantPurchasesPage(dataConnect, listTenantPurchasesPageVars);
+
+console.log(data.organizationMemberships);
+console.log(data.purchasesPage);
+console.log(data.purchasesCount);
+
+// Or, you can use the `Promise` API.
+listTenantPurchasesPage(listTenantPurchasesPageVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.purchasesPage);
+  console.log(data.purchasesCount);
+});
+```
+
+### Using `ListTenantPurchasesPage`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantPurchasesPageRef, ListTenantPurchasesPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantPurchasesPage` query requires an argument of type `ListTenantPurchasesPageVariables`:
+const listTenantPurchasesPageVars: ListTenantPurchasesPageVariables = {
+  organizationId: ..., 
+  searchPattern: ..., 
+  startDate: ..., 
+  endDate: ..., 
+  outletPattern: ..., 
+  supplierPattern: ..., 
+  paymentStatus: ..., // optional
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantPurchasesPageRef()` function to get a reference to the query.
+const ref = listTenantPurchasesPageRef(listTenantPurchasesPageVars);
+// Variables can be defined inline as well.
+const ref = listTenantPurchasesPageRef({ organizationId: ..., searchPattern: ..., startDate: ..., endDate: ..., outletPattern: ..., supplierPattern: ..., paymentStatus: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantPurchasesPageRef(dataConnect, listTenantPurchasesPageVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationMemberships);
+console.log(data.purchasesPage);
+console.log(data.purchasesCount);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.purchasesPage);
+  console.log(data.purchasesCount);
+});
+```
+
+## ListTenantExpensesPage
+You can execute the `ListTenantExpensesPage` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantExpensesPage(vars: ListTenantExpensesPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantExpensesPageData, ListTenantExpensesPageVariables>;
+
+interface ListTenantExpensesPageRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantExpensesPageVariables): QueryRef<ListTenantExpensesPageData, ListTenantExpensesPageVariables>;
+}
+export const listTenantExpensesPageRef: ListTenantExpensesPageRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantExpensesPage(dc: DataConnect, vars: ListTenantExpensesPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantExpensesPageData, ListTenantExpensesPageVariables>;
+
+interface ListTenantExpensesPageRef {
+  ...
+  (dc: DataConnect, vars: ListTenantExpensesPageVariables): QueryRef<ListTenantExpensesPageData, ListTenantExpensesPageVariables>;
+}
+export const listTenantExpensesPageRef: ListTenantExpensesPageRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantExpensesPageRef:
+```typescript
+const name = listTenantExpensesPageRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantExpensesPage` query requires an argument of type `ListTenantExpensesPageVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantExpensesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startDate: DateString;
+  endDate: DateString;
+  outletPattern: string;
+  categoryPattern: string;
+  status?: ExpenseStatus | null;
+  approvalStatus?: ExpenseApprovalStatus | null;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that executing the `ListTenantExpensesPage` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantExpensesPageData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantExpensesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  expensesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    expenseNumber: string;
+    expenseDate: DateString;
+    category: string;
+    description: string;
+    reference?: string | null;
+    vendorName?: string | null;
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    baseAmount: number;
+    taxAmount: number;
+    amount: number;
+    paymentMethod: string;
+    paidByEmployee: string;
+    settlementDate?: DateString | null;
+    status: ExpenseStatus;
+    approvalStatus: ExpenseApprovalStatus;
+    submittedBy: string;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Expense_Key)[];
+  expensesCount: ({
+    _count: number;
+    amount_sum?: number | null;
+  })[];
+}
+```
+### Using `ListTenantExpensesPage`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantExpensesPage, ListTenantExpensesPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantExpensesPage` query requires an argument of type `ListTenantExpensesPageVariables`:
+const listTenantExpensesPageVars: ListTenantExpensesPageVariables = {
+  organizationId: ..., 
+  searchPattern: ..., 
+  startDate: ..., 
+  endDate: ..., 
+  outletPattern: ..., 
+  categoryPattern: ..., 
+  status: ..., // optional
+  approvalStatus: ..., // optional
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantExpensesPage()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantExpensesPage(listTenantExpensesPageVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantExpensesPage({ organizationId: ..., searchPattern: ..., startDate: ..., endDate: ..., outletPattern: ..., categoryPattern: ..., status: ..., approvalStatus: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantExpensesPage(dataConnect, listTenantExpensesPageVars);
+
+console.log(data.organizationMemberships);
+console.log(data.expensesPage);
+console.log(data.expensesCount);
+
+// Or, you can use the `Promise` API.
+listTenantExpensesPage(listTenantExpensesPageVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.expensesPage);
+  console.log(data.expensesCount);
+});
+```
+
+### Using `ListTenantExpensesPage`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantExpensesPageRef, ListTenantExpensesPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantExpensesPage` query requires an argument of type `ListTenantExpensesPageVariables`:
+const listTenantExpensesPageVars: ListTenantExpensesPageVariables = {
+  organizationId: ..., 
+  searchPattern: ..., 
+  startDate: ..., 
+  endDate: ..., 
+  outletPattern: ..., 
+  categoryPattern: ..., 
+  status: ..., // optional
+  approvalStatus: ..., // optional
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantExpensesPageRef()` function to get a reference to the query.
+const ref = listTenantExpensesPageRef(listTenantExpensesPageVars);
+// Variables can be defined inline as well.
+const ref = listTenantExpensesPageRef({ organizationId: ..., searchPattern: ..., startDate: ..., endDate: ..., outletPattern: ..., categoryPattern: ..., status: ..., approvalStatus: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantExpensesPageRef(dataConnect, listTenantExpensesPageVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationMemberships);
+console.log(data.expensesPage);
+console.log(data.expensesCount);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.expensesPage);
+  console.log(data.expensesCount);
+});
+```
+
+## ListTenantInventoryPage
+You can execute the `ListTenantInventoryPage` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [sql-connect/index.d.ts](./index.d.ts):
+```typescript
+listTenantInventoryPage(vars: ListTenantInventoryPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantInventoryPageData, ListTenantInventoryPageVariables>;
+
+interface ListTenantInventoryPageRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListTenantInventoryPageVariables): QueryRef<ListTenantInventoryPageData, ListTenantInventoryPageVariables>;
+}
+export const listTenantInventoryPageRef: ListTenantInventoryPageRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listTenantInventoryPage(dc: DataConnect, vars: ListTenantInventoryPageVariables, options?: ExecuteQueryOptions): QueryPromise<ListTenantInventoryPageData, ListTenantInventoryPageVariables>;
+
+interface ListTenantInventoryPageRef {
+  ...
+  (dc: DataConnect, vars: ListTenantInventoryPageVariables): QueryRef<ListTenantInventoryPageData, ListTenantInventoryPageVariables>;
+}
+export const listTenantInventoryPageRef: ListTenantInventoryPageRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listTenantInventoryPageRef:
+```typescript
+const name = listTenantInventoryPageRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListTenantInventoryPage` query requires an argument of type `ListTenantInventoryPageVariables`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListTenantInventoryPageVariables {
+  organizationId: UUIDString;
+  outletId?: UUIDString | null;
+  supplierId?: string | null;
+  searchPattern: string;
+  offset: number;
+  limit: number;
+}
+```
+### Return Type
+Recall that executing the `ListTenantInventoryPage` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListTenantInventoryPageData`, which is defined in [sql-connect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListTenantInventoryPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  inventoryPage: ({
+    _id: {
+    };
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    product: {
+      id: UUIDString;
+      productCode: number;
+      name: string;
+      sku: string;
+      barcode?: string | null;
+      category: {
+        value: string;
+      };
+      brand: string;
+      primarySupplier?: string | null;
+      sellingPrice: number;
+      cost?: number | null;
+    } & Product_Key;
+    binRack?: string | null;
+    onHandQty: number;
+    reorderLevel: number;
+    overstockThreshold: number;
+    incomingPurchaseOrder?: string | null;
+    updatedAt: TimestampString;
+  })[];
+  inventoryCount: ({
+    _count: number;
+  })[];
+}
+```
+### Using `ListTenantInventoryPage`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listTenantInventoryPage, ListTenantInventoryPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantInventoryPage` query requires an argument of type `ListTenantInventoryPageVariables`:
+const listTenantInventoryPageVars: ListTenantInventoryPageVariables = {
+  organizationId: ..., 
+  outletId: ..., // optional
+  supplierId: ..., // optional
+  searchPattern: ..., 
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantInventoryPage()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listTenantInventoryPage(listTenantInventoryPageVars);
+// Variables can be defined inline as well.
+const { data } = await listTenantInventoryPage({ organizationId: ..., outletId: ..., supplierId: ..., searchPattern: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listTenantInventoryPage(dataConnect, listTenantInventoryPageVars);
+
+console.log(data.organizationMemberships);
+console.log(data.inventoryPage);
+console.log(data.inventoryCount);
+
+// Or, you can use the `Promise` API.
+listTenantInventoryPage(listTenantInventoryPageVars).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.inventoryPage);
+  console.log(data.inventoryCount);
+});
+```
+
+### Using `ListTenantInventoryPage`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listTenantInventoryPageRef, ListTenantInventoryPageVariables } from '@omniretail/sql-connect';
+
+// The `ListTenantInventoryPage` query requires an argument of type `ListTenantInventoryPageVariables`:
+const listTenantInventoryPageVars: ListTenantInventoryPageVariables = {
+  organizationId: ..., 
+  outletId: ..., // optional
+  supplierId: ..., // optional
+  searchPattern: ..., 
+  offset: ..., 
+  limit: ..., 
+};
+
+// Call the `listTenantInventoryPageRef()` function to get a reference to the query.
+const ref = listTenantInventoryPageRef(listTenantInventoryPageVars);
+// Variables can be defined inline as well.
+const ref = listTenantInventoryPageRef({ organizationId: ..., outletId: ..., supplierId: ..., searchPattern: ..., offset: ..., limit: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listTenantInventoryPageRef(dataConnect, listTenantInventoryPageVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.organizationMemberships);
+console.log(data.inventoryPage);
+console.log(data.inventoryCount);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.organizationMemberships);
+  console.log(data.inventoryPage);
+  console.log(data.inventoryCount);
 });
 ```
 

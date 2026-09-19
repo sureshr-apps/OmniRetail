@@ -224,6 +224,8 @@ export function BillingPage() {
 
   const selectedItemObj = cartItems.find(i => i.id === selectedItemId) || null;
 
+  const handleOpenDiscountModal = useCallback(() => setIsDiscountModalOpen(true), []);
+
   return (
     <div className="flex flex-col h-full min-h-0 w-full relative pt-space-base pb-space-base gap-space-base">
       {/* Toast Notification for Drawer/Actions */}
@@ -285,7 +287,7 @@ export function BillingPage() {
             totals={totals}
             promoDiscount={promoDiscount}
             onUpdatePromoDiscount={setPromoDiscount}
-            onOpenDiscountModal={() => setIsDiscountModalOpen(true)}
+            onOpenDiscountModal={handleOpenDiscountModal}
           />
 
           {/* Right Column: Payment Mode Selector (F5-F8), Cancel Order, Save Order */}

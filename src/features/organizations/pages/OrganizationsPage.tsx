@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -22,11 +22,12 @@ import {
   OrganizationStatus,
   LicenseStatus,
 } from '../types';
-import { organizationService, deriveOrganizationView } from '../services/OrganizationService';
+import { organizationService } from '../services/OrganizationService';
 import {
   getLicenseStatusLabel,
   getLicenseStatusBadgeVariant,
 } from '@/features/licenses/utils/licenseStatus';
+import { PaginatedResult } from '../types';
 import { upsertById } from '@/shared/utils/listState';
 
 const PAGE_SIZE = 8;
@@ -42,7 +43,7 @@ export function OrganizationsPage() {
   const [page, setPage] = useState(1);
 
   // Data state
-  const [allOrganizations, setAllOrganizations] = useState<Organization[]>([]);
+  const [organizationView, setOrganizationView] = useState<PaginatedResult<Organization>>({ items: [], total: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 1 });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,13 +51,6 @@ export function OrganizationsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [successBanner, setSuccessBanner] = useState<{ name: string; id: string } | null>(null);
 
-  const organizationView = useMemo(() => deriveOrganizationView(allOrganizations, {
-    search: debouncedSearch,
-    organizationStatus: orgStatus,
-    licenseStatus,
-    page,
-    pageSize: PAGE_SIZE,
-  }), [allOrganizations, debouncedSearch, orgStatus, licenseStatus, page]);
   const organizations = organizationView.items;
   const totalItems = organizationView.total;
   const totalPages = organizationView.totalPages;
@@ -70,22 +64,26 @@ export function OrganizationsPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Load the directory once; search, filters, and pagination are derived
-  // locally while the page is open.
   const fetchOrganizations = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      setAllOrganizations(await organizationService.getAllOrganizations());
+      setOrganizationView(await organizationService.getOrganizations({
+        search: debouncedSearch,
+        organizationStatus: orgStatus,
+        licenseStatus,
+        page,
+        pageSize: PAGE_SIZE,
+      }));
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred while loading organizations.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [debouncedSearch, orgStatus, licenseStatus, page]);
 
   useEffect(() => {
-    fetchOrganizations();
+    void fetchOrganizations();
   }, [fetchOrganizations]);
 
   // Handler for status filter changes
@@ -108,8 +106,16 @@ export function OrganizationsPage() {
   };
 
   const handleOrgCreated = (newOrg: Organization) => {
+    setOrganizationView((currentView) => {
+      const current = currentView.items;
+      const items = upsertById(current, newOrg);
+      return {
+        ...currentView,
+        items,
+        total: items.length > current.length ? currentView.total + 1 : currentView.total,
+      };
+    });
     setSuccessBanner({ name: newOrg.name, id: newOrg.id });
-    setAllOrganizations((current) => upsertById(current, newOrg));
     setPage(1);
   };
 

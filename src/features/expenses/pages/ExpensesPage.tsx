@@ -5,7 +5,7 @@ import {
   CreateExpenseInput,
   ExpenseKPIs,
 } from '../types';
-import { expenseService, deriveExpenseView } from '../services/expenseService';
+import { expenseService } from '../services/expenseService';
 import { calculateExpenseKPIs, exportExpensesToCsv } from '../utils/calculations';
 
 import { LedgerBreadcrumbRibbon } from '../components/LedgerBreadcrumbRibbon';
@@ -35,6 +35,7 @@ export function ExpensesPage() {
 
   // Data State
   const [allExpensesForKpi, setAllExpensesForKpi] = useState<Expense[]>([]);
+  const [data, setData] = useState<{ expenses: Expense[]; totalCount: number; filteredCount: number; page: number; pageSize: number; totalPages: number }>({ expenses: [], totalCount: 0, filteredCount: 0, page: 1, pageSize: 12, totalPages: 1 });
   const [availableOutlets, setAvailableOutlets] = useState<Array<{ id: string; name: string }>>([]);
   const [availableEmployees, setAvailableEmployees] = useState<Array<{ id: string; name: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,16 +48,6 @@ export function ExpensesPage() {
     }
     return availableEmployees;
   }, [availableEmployees, currentUserName]);
-  const data = useMemo(() => deriveExpenseView(allExpensesForKpi, {
-    search: searchQuery,
-    period,
-    outlet,
-    category: category !== 'All' ? category : undefined,
-    status,
-    page: currentPage,
-    pageSize,
-  }), [allExpensesForKpi, searchQuery, period, outlet, category, status, currentPage, pageSize]);
-
   // Selected & Modal State
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
@@ -69,19 +60,18 @@ export function ExpensesPage() {
   const [showWorkflowBanner, setShowWorkflowBanner] = useState(false);
   const [workflowBannerData, setWorkflowBannerData] = useState<{ expenseNumber: string; message: string; dispatchCode: string } | null>(null);
 
-  // Load the collection once per session. Filtering, pagination, and KPIs are
-  // derived locally so typing in the search box does not refetch the ledger.
   const loadExpenses = useCallback(async () => {
     setIsLoading(true);
     try {
-      const all = await expenseService.getAllExpenses();
-      setAllExpensesForKpi(all);
+      const result = await expenseService.getExpenses({ search: searchQuery, period, outlet, category: category !== 'All' ? category : undefined, status, page: currentPage, pageSize });
+      setData(result);
+      setAllExpensesForKpi(result.expenses);
     } catch (err) {
       console.error('Failed to load expenses:', err);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [searchQuery, period, outlet, category, status, currentPage, pageSize]);
 
   // Initial load
   useEffect(() => {
@@ -133,6 +123,7 @@ export function ExpensesPage() {
     try {
       const created = await expenseService.createExpense(input);
       setAllExpensesForKpi((current) => upsertById(current, created));
+      setData((current) => ({ ...current, expenses: upsertById(current.expenses, created) }));
       // Update banner notification
       setWorkflowBannerData({
         expenseNumber: created.expenseNumber,
@@ -155,6 +146,7 @@ export function ExpensesPage() {
         setSelectedExpense(updated);
       }
       setAllExpensesForKpi((current) => upsertById(current, updated));
+      setData((current) => ({ ...current, expenses: upsertById(current.expenses, updated) }));
     } catch (err) {
       console.error('Failed to update expense:', err);
     }
@@ -181,6 +173,7 @@ export function ExpensesPage() {
         setSelectedExpense(voided);
       }
       setAllExpensesForKpi((current) => upsertById(current, voided));
+      setData((current) => ({ ...current, expenses: upsertById(current.expenses, voided) }));
     } catch (err) {
       console.error('Failed to void expense:', err);
     }
@@ -192,6 +185,7 @@ export function ExpensesPage() {
       const approved = await expenseService.approveExpense(expense.id, expense);
       setSelectedExpense(approved);
       setAllExpensesForKpi((current) => upsertById(current, approved));
+      setData((current) => ({ ...current, expenses: upsertById(current.expenses, approved) }));
     } catch (err) {
       console.error('Failed to approve expense:', err);
     }
@@ -205,6 +199,7 @@ export function ExpensesPage() {
       const rejected = await expenseService.rejectExpense(expense.id, reason, expense);
       setSelectedExpense(rejected);
       setAllExpensesForKpi((current) => upsertById(current, rejected));
+      setData((current) => ({ ...current, expenses: upsertById(current.expenses, rejected) }));
     } catch (err) {
       console.error('Failed to reject expense:', err);
     }
@@ -228,13 +223,13 @@ export function ExpensesPage() {
   // Export CSV handler
   const handleExportCsv = () => {
     const filename = `expenses_ledger_${new Date().toISOString().split('T')[0]}.csv`;
-    exportExpensesToCsv(data.items, filename);
+    exportExpensesToCsv(data.expenses, filename);
   };
 
   // Export PDF handler
   const handleExportPdf = () => {
     alert(
-      `Generating pre-formatted Audit PDF for ${data.items.length} records. In production, this compiles a certified reconciliation balance sheet.`
+      `Generating pre-formatted Audit PDF for ${data.expenses.length} records. In production, this compiles a certified reconciliation balance sheet.`
     );
   };
 
@@ -263,7 +258,7 @@ export function ExpensesPage() {
 
         {/* 3. Page Header */}
         <ExpensesHeader
-          totalRecordsCount={allExpensesForKpi.length}
+          totalRecordsCount={data.totalCount}
           onOpenAddExpense={() => {
             setExpenseToEdit(null);
             setIsAddModalOpen(true);
@@ -293,7 +288,7 @@ export function ExpensesPage() {
           onStatusChange={setStatus}
           onResetFilters={handleResetFilters}
           filteredCount={data.totalCount}
-          totalCount={allExpensesForKpi.length}
+          totalCount={data.totalCount}
           outlets={availableOutlets}
         />
 

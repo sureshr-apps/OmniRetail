@@ -1,5 +1,5 @@
 import { SalesTransaction, SalesFilterQuery, SalesQueryResult, SaleReturnLineInput, SaleReturnResult } from '../types';
-import { listTenantSales } from '@omniretail/sql-connect';
+import { listTenantSales, listTenantSalesPage, SaleStatus, SaleTenderType } from '@omniretail/sql-connect';
 import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { getCachedCurrentUserAuthorization } from '@/features/auth/services/authorizationCache';
@@ -11,8 +11,9 @@ export interface ISalesService {
 }
 
 type TenantSaleRow = Awaited<ReturnType<typeof listTenantSales>>['data']['sales'][number];
+type TenantSalePageRow = Awaited<ReturnType<typeof listTenantSalesPage>>['data']['salesPage'][number];
 
-function mapTenantSale(row: TenantSaleRow): SalesTransaction {
+function mapTenantSale(row: TenantSaleRow | TenantSalePageRow): SalesTransaction {
   const items = row.saleLines_on_sale.map((line) => {
     const returnedQuantity = Number((line as typeof line & { refundedQty?: number | null }).refundedQty ?? 0);
     return { id: line.id, name: line.product?.name ?? line.itemName ?? 'Custom Item', sku: line.product?.sku ?? '', quantity: line.quantity, returnedQuantity, returnableQuantity: Math.max(0, line.quantity - returnedQuantity), unitPrice: line.unitPrice, subtotal: line.subtotal };
@@ -28,6 +29,61 @@ function mapTenantSale(row: TenantSaleRow): SalesTransaction {
     tender: { type: row.tenderType.toLowerCase() as SalesTransaction['tender']['type'], label: row.tenderType },
     tax: row.tax, taxLabel: '', discount: row.discount, discountLabel: '', subtotal: row.subtotal, totalNet: row.totalNet, status: row.status, shiftNote: undefined,
   };
+}
+
+function salesWindow(query: SalesFilterQuery): { start: string; end: string } {
+  const now = new Date();
+  let start: Date;
+  let end: Date;
+  if (query.dateRange === 'custom') {
+    start = query.customStartDate ? new Date(`${query.customStartDate}T00:00:00`) : new Date(0);
+    end = query.customEndDate ? new Date(`${query.customEndDate}T00:00:00`) : new Date('9999-12-31T23:59:59.999Z');
+    if (query.customEndDate) end.setDate(end.getDate() + 1);
+  } else if (query.dateRange === 'today') {
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); end = new Date(start); end.setDate(end.getDate() + 1);
+  } else if (query.dateRange === 'yesterday') {
+    end = new Date(now.getFullYear(), now.getMonth(), now.getDate()); start = new Date(end); start.setDate(start.getDate() - 1);
+  } else if (query.dateRange === 'last7days') {
+    end = now; start = new Date(now.getTime() - 7 * 86400000);
+  } else {
+    start = new Date(now.getFullYear(), now.getMonth(), 1); end = now;
+  }
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+function like(value: string | undefined, fallback = '%'): string {
+  const normalized = value?.trim();
+  return normalized ? `%${normalized.replaceAll('%', '\\%').replaceAll('_', '\\_')}%` : fallback;
+}
+
+function serverChannelPattern(channel: string): string {
+  const value = channel.trim().toLowerCase();
+  if (!value || value.startsWith('all ')) return '%';
+  if (value.includes('register 01')) return '%pos-01%';
+  if (value.includes('register 02')) return '%pos-02%';
+  if (value.includes('online store')) return '%online%';
+  if (value.includes('direct dispatch')) return '%dispatch%';
+  return like(value);
+}
+
+function serverTenderTypes(paymentMethod: string): SaleTenderType[] {
+  const value = paymentMethod.trim().toLowerCase();
+  if (!value || value.startsWith('all ')) return Object.values(SaleTenderType);
+  if (value.includes('visa')) return [SaleTenderType.VISA, SaleTenderType.MASTERCARD];
+  if (value.includes('cash')) return [SaleTenderType.CASH];
+  if (value.includes('split')) return [SaleTenderType.SPLIT];
+  if (value.includes('gift')) return [SaleTenderType.NONE, SaleTenderType.APPLE_PAY];
+  return [value.toUpperCase() as SaleTenderType];
+}
+
+function serverStatuses(status: string): SaleStatus[] {
+  const value = status.trim().toLowerCase();
+  if (!value || value.startsWith('all ')) return Object.values(SaleStatus);
+  if (value === 'completed') return [SaleStatus.COMPLETED];
+  if (value.includes('partially')) return [SaleStatus.PARTIAL_REFUND];
+  if (value.includes('refunded')) return [SaleStatus.REFUNDED];
+  if (value.includes('voided')) return [SaleStatus.VOIDED];
+  return Object.values(SaleStatus);
 }
 
 function inSalesDateRange(timestamp: string, query: SalesFilterQuery): boolean {
@@ -116,7 +172,48 @@ class ProductionSalesService implements ISalesService {
   async getAllSales(): Promise<SalesTransaction[]> { return this.all(); }
 
   async getSales(query: SalesFilterQuery): Promise<SalesQueryResult> {
-    return deriveSalesView(await this.all(), query);
+    const organizationId = await this.organizationId();
+    const window = salesWindow(query);
+    const result = await listTenantSalesPage(getFirebaseClientServices().dataConnect, {
+      organizationId,
+      searchPattern: like(query.searchQuery),
+      startTimestamp: window.start,
+      endTimestamp: window.end,
+      channelPattern: serverChannelPattern(query.channel),
+      cashierPattern: like(query.cashier?.replace(/\s*\([^)]*\)\s*$/, '')),
+      tenderTypes: serverTenderTypes(query.paymentMethod),
+      statuses: serverStatuses(query.status),
+      minAmount: query.minAmount ?? -Number.MAX_SAFE_INTEGER,
+      maxAmount: query.maxAmount ?? Number.MAX_SAFE_INTEGER,
+      offset: (Math.max(1, query.page) - 1) * Math.max(1, query.pageSize),
+      limit: Math.max(1, query.pageSize),
+    });
+    const transactions = result.data.salesPage.map(mapTenantSale);
+    const aggregate = result.data.salesCount[0];
+    const totalCount = aggregate?._count ?? 0;
+    const pageSize = Math.max(1, query.pageSize);
+    const page = Math.max(1, query.page);
+    return {
+      transactions,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      kpis: {
+        filteredSalesTotal: aggregate?.totalNet_sum ?? 0,
+        recordedSalesCount: totalCount,
+        vsYesterdayPct: 0,
+        cashDrawerBalance: 0,
+        cashVolumePct: 0,
+        cardAndDigitalTender: 0,
+        cardCount: 0,
+        contactlessCount: 0,
+        cardVolumePct: 0,
+        totalReturnsAndVoids: 0,
+        refundEventsCount: 0,
+        returnRatePct: 0,
+      },
+    };
   }
 
   async getSale(id: string): Promise<SalesTransaction | null> { return (await this.all()).find((transaction) => transaction.id === id || transaction.receiptNumber === id) ?? null; }

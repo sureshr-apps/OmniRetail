@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Purchase,
   PurchaseQueryResult,
@@ -11,7 +11,7 @@ import {
   RecordPurchaseRefundInput,
 } from '../types';
 import { purchaseService } from '../services/purchaseService';
-import { SupplierOption, OutletOption, derivePurchaseView } from '../services/purchaseService';
+import { SupplierOption, OutletOption } from '../services/purchaseService';
 import { PurchasesHeader } from '../components/PurchasesHeader';
 import { PurchasesKpiCards } from '../components/PurchasesKpiCards';
 import { PurchasesFilterToolbar } from '../components/PurchasesFilterToolbar';
@@ -27,7 +27,7 @@ export function PurchasesPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Data & KPI state
-  const [allPurchases, setAllPurchases] = useState<Purchase[]>([]);
+  const [data, setData] = useState<PurchaseQueryResult>({ items: [], totalCount: 0, filteredCount: 0, page: 1, pageSize: 10, totalPages: 1, kpis: { totalPurchasesAmount: 0, totalPurchasesGrowthText: '', pendingReceiptsCount: 0, urgentStockoutRiskCount: 0, outstandingBalanceAmount: 0, outstandingBalanceDueText: '', purchasesThisMonthAmount: 0, transactionsRecordedCount: 0 } });
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
   const [outlets, setOutlets] = useState<OutletOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,17 +51,6 @@ export function PurchasesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
-  const data = useMemo<PurchaseQueryResult>(() => derivePurchaseView(allPurchases, {
-    search: searchQuery,
-    customStartDate: dateRangeStart,
-    customEndDate: dateRangeEnd,
-    outlet: selectedOutlet,
-    supplier: selectedSupplier,
-    paymentStatus: selectedPaymentStatus,
-    page: currentPage,
-    pageSize,
-  }), [allPurchases, searchQuery, dateRangeStart, dateRangeEnd, selectedOutlet, selectedSupplier, selectedPaymentStatus, currentPage, pageSize]);
-
   // Load auxiliary lists (suppliers & outlets)
   useEffect(() => {
     async function loadAux() {
@@ -79,12 +68,10 @@ export function PurchasesPage() {
     loadAux();
   }, []);
 
-  // Load the purchase collection once; filters and pagination are derived
-  // locally while the page is open.
   const loadLedger = useCallback(async () => {
     setIsLoading(true);
     try {
-      setAllPurchases(await purchaseService.getAllPurchases());
+      setData(await purchaseService.getPurchases({ search: searchQuery, customStartDate: dateRangeStart, customEndDate: dateRangeEnd, outlet: selectedOutlet, supplier: selectedSupplier, paymentStatus: selectedPaymentStatus, page: currentPage, pageSize }));
     } catch (err) {
       console.error('Failed to fetch purchases ledger:', err);
       setToast({
@@ -96,7 +83,7 @@ export function PurchasesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [searchQuery, dateRangeStart, dateRangeEnd, selectedOutlet, selectedSupplier, selectedPaymentStatus, currentPage, pageSize]);
 
   useEffect(() => {
     loadLedger();
@@ -239,7 +226,7 @@ export function PurchasesPage() {
   ) => {
     try {
       const created = await purchaseService.createPurchase(input);
-      setAllPurchases((current) => upsertById(current, created));
+      setData((current) => ({ ...current, items: upsertById(current.items, created) }));
       setIsCreateModalOpen(false);
 
       setToast({
@@ -266,9 +253,9 @@ export function PurchasesPage() {
   // Cancel Purchase handler
   const handleCancelPurchase = async (id: string) => {
     try {
-      const currentPurchase = viewingPurchase?.id === id ? viewingPurchase : allPurchases.find((purchase) => purchase.id === id);
+      const currentPurchase = viewingPurchase?.id === id ? viewingPurchase : data.items.find((purchase) => purchase.id === id);
       const updated = await purchaseService.cancelPurchase(id, currentPurchase);
-      setAllPurchases((current) => upsertById(current, updated));
+      setData((current) => ({ ...current, items: upsertById(current.items, updated) }));
       if (viewingPurchase?.id === id) {
         setViewingPurchase(updated);
       }
@@ -285,9 +272,9 @@ export function PurchasesPage() {
 
   const handleClosePartialPurchase = async (id: string) => {
     try {
-      const currentPurchase = viewingPurchase?.id === id ? viewingPurchase : allPurchases.find((purchase) => purchase.id === id);
+      const currentPurchase = viewingPurchase?.id === id ? viewingPurchase : data.items.find((purchase) => purchase.id === id);
       const updated = await purchaseService.closePurchaseWithPartialReceipt(id, currentPurchase);
-      setAllPurchases((current) => upsertById(current, updated));
+      setData((current) => ({ ...current, items: upsertById(current.items, updated) }));
       setViewingPurchase(updated);
       setToast({
         id: `toast-${Date.now()}`,
@@ -313,9 +300,9 @@ export function PurchasesPage() {
     receipts: PurchaseReceiptLine[]
   ) => {
     try {
-      const currentPurchase = viewingPurchase?.id === purchaseId ? viewingPurchase : allPurchases.find((purchase) => purchase.id === purchaseId);
+      const currentPurchase = viewingPurchase?.id === purchaseId ? viewingPurchase : data.items.find((purchase) => purchase.id === purchaseId);
       const updated = await purchaseService.receiveItems(purchaseId, receipts, currentPurchase);
-      setAllPurchases((current) => upsertById(current, updated));
+      setData((current) => ({ ...current, items: upsertById(current.items, updated) }));
       setViewingPurchase(updated);
       const batchCount = receipts.reduce((count, receipt) => count + receipt.batches.filter((batch) => batch.quantity > 0).length, 0);
       setToast({
@@ -331,9 +318,9 @@ export function PurchasesPage() {
 
   const handleRecordPayment = async (purchaseId: string, payment: RecordPurchasePaymentInput) => {
     try {
-      const currentPurchase = viewingPurchase?.id === purchaseId ? viewingPurchase : allPurchases.find((purchase) => purchase.id === purchaseId);
+      const currentPurchase = viewingPurchase?.id === purchaseId ? viewingPurchase : data.items.find((purchase) => purchase.id === purchaseId);
       const updated = await purchaseService.recordPayment(purchaseId, payment, currentPurchase);
-      setAllPurchases((current) => upsertById(current, updated));
+      setData((current) => ({ ...current, items: upsertById(current.items, updated) }));
       setViewingPurchase(updated);
       setToast({
         id: `toast-${Date.now()}`,

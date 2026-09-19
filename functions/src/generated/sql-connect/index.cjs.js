@@ -290,6 +290,13 @@ function listOrganizations(dcOrOptions, options) {
 }
 exports.listOrganizations = listOrganizations;
 
+function listOrganizationsPage(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListOrganizationsPage', inputVars, inputOpts);
+}
+exports.listOrganizationsPage = listOrganizationsPage;
+
 function getOrganization(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
   dcInstance.useGen(true);
@@ -583,6 +590,34 @@ function listTenantSales(dcOrVarsOrOptions, varsOrOptions, options) {
   return dcInstance.executeQuery('ListTenantSales', inputVars, inputOpts);
 }
 exports.listTenantSales = listTenantSales;
+
+function listTenantSalesPage(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantSalesPage', inputVars, inputOpts);
+}
+exports.listTenantSalesPage = listTenantSalesPage;
+
+function listTenantPurchasesPage(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantPurchasesPage', inputVars, inputOpts);
+}
+exports.listTenantPurchasesPage = listTenantPurchasesPage;
+
+function listTenantExpensesPage(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantExpensesPage', inputVars, inputOpts);
+}
+exports.listTenantExpensesPage = listTenantExpensesPage;
+
+function listTenantInventoryPage(dcOrVarsOrOptions, varsOrOptions, options) {
+  const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);
+  dcInstance.useGen(true);
+  return dcInstance.executeQuery('ListTenantInventoryPage', inputVars, inputOpts);
+}
+exports.listTenantInventoryPage = listTenantInventoryPage;
 
 function createTenantSale(dcOrVarsOrOptions, varsOrOptions, options) {
   const { dc: dcInstance, vars: inputVars, options: inputOpts} = validateAdminArgs(connectorConfig, dcOrVarsOrOptions, varsOrOptions, options, true, true);

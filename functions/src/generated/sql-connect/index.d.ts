@@ -1624,6 +1624,56 @@ export interface ListOrganizationsData {
   } & Organization_Key)[];
 }
 
+export interface ListOrganizationsPageData {
+  organizationsPage: ({
+    id: UUIDString;
+    organizationCode: string;
+    businessName: string;
+    legalEntityName?: string | null;
+    taxId?: string | null;
+    primaryContactName: string;
+    email: string;
+    phone: string;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    timezone: string;
+    currency: string;
+    status: OrganizationStatus;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    organizationLicense_on_organization?: {
+      id: UUIDString;
+      startDate: DateString;
+      expiryDate: DateString;
+      negotiatedPrice: number;
+      currency: string;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+      plan: {
+        id: UUIDString;
+        planCode: string;
+        name: string;
+        level: number;
+        maxStores: number;
+        maxUsers: number;
+        status: LicensePlanStatus;
+      } & LicensePlan_Key;
+    } & OrganizationLicense_Key;
+  } & Organization_Key)[];
+  organizationsCount: ({
+    _count: number;
+  })[];
+}
+
+export interface ListOrganizationsPageVariables {
+  searchPattern: string;
+  organizationStatus?: OrganizationStatus | null;
+  offset: number;
+  limit: number;
+}
+
 export interface ListOrganizationsTrustedData {
   organizations: ({
     id: UUIDString;
@@ -1875,6 +1925,66 @@ export interface ListTenantExpensesData {
   } & Expense_Key)[];
 }
 
+export interface ListTenantExpensesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  expensesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    expenseNumber: string;
+    expenseDate: DateString;
+    category: string;
+    description: string;
+    reference?: string | null;
+    vendorName?: string | null;
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    baseAmount: number;
+    taxAmount: number;
+    amount: number;
+    paymentMethod: string;
+    paidByEmployee: string;
+    settlementDate?: DateString | null;
+    status: ExpenseStatus;
+    approvalStatus: ExpenseApprovalStatus;
+    submittedBy: string;
+    notes?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+  } & Expense_Key)[];
+  expensesCount: ({
+    _count: number;
+    amount_sum?: number | null;
+  })[];
+}
+
+export interface ListTenantExpensesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startDate: DateString;
+  endDate: DateString;
+  outletPattern: string;
+  categoryPattern: string;
+  status?: ExpenseStatus | null;
+  approvalStatus?: ExpenseApprovalStatus | null;
+  offset: number;
+  limit: number;
+}
+
 export interface ListTenantExpensesVariables {
   organizationId: UUIDString;
 }
@@ -1922,6 +2032,63 @@ export interface ListTenantInventoryData {
     incomingPurchaseOrder?: string | null;
     updatedAt: TimestampString;
   })[];
+}
+
+export interface ListTenantInventoryPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  inventoryPage: ({
+    _id: {
+    };
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    product: {
+      id: UUIDString;
+      productCode: number;
+      name: string;
+      sku: string;
+      barcode?: string | null;
+      category: {
+        value: string;
+      };
+      brand: string;
+      primarySupplier?: string | null;
+      sellingPrice: number;
+      cost?: number | null;
+    } & Product_Key;
+    binRack?: string | null;
+    onHandQty: number;
+    reorderLevel: number;
+    overstockThreshold: number;
+    incomingPurchaseOrder?: string | null;
+    updatedAt: TimestampString;
+  })[];
+  inventoryCount: ({
+    _count: number;
+  })[];
+}
+
+export interface ListTenantInventoryPageVariables {
+  organizationId: UUIDString;
+  outletId?: UUIDString | null;
+  supplierId?: string | null;
+  searchPattern: string;
+  offset: number;
+  limit: number;
 }
 
 export interface ListTenantInventoryVariables {
@@ -2091,6 +2258,103 @@ export interface ListTenantPurchasesData {
   } & Purchase_Key)[];
 }
 
+export interface ListTenantPurchasesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  purchasesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    purchaseNumber: string;
+    purchaseOrderNumber?: string | null;
+    invoiceNumber?: string | null;
+    purchaseDate: DateString;
+    supplier: {
+      id: UUIDString;
+      supplierCode: number;
+      name: string;
+      taxId?: string | null;
+    } & Supplier_Key;
+    outlet?: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    scope: string;
+    paymentTerms?: string | null;
+    subtotal: number;
+    shippingFee: number;
+    handlingFee: number;
+    tax: number;
+    totalAmount: number;
+    amountPaid: number;
+    outstandingAmount: number;
+    paymentStatus: PurchasePaymentStatus;
+    receiptStatus: PurchaseReceiptStatus;
+    status: PurchaseStatus;
+    receivingNotes?: string | null;
+    batchNumber?: string | null;
+    mfgDate?: DateString | null;
+    expiryDate?: DateString | null;
+    createdBy: string;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    purchaseLines_on_purchase: ({
+      id: UUIDString;
+      product: {
+        id: UUIDString;
+        productCode: number;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantityOrdered: number;
+      quantityReceived: number;
+      unitCost: number;
+      discountPercent: number;
+      taxRate: number;
+      taxAmount: number;
+      lineTotal: number;
+    } & PurchaseLine_Key)[];
+    pagePaymentHistory: ({
+      id: UUIDString;
+      amount: number;
+      paymentDate: DateString;
+      paymentMethod: string;
+      reference?: string | null;
+      notes?: string | null;
+      recordedBy: string;
+      createdAt: TimestampString;
+    } & PurchasePayment_Key)[];
+  } & Purchase_Key)[];
+  purchasesCount: ({
+    _count: number;
+    totalAmount_sum?: number | null;
+    amountPaid_sum?: number | null;
+    outstandingAmount_sum?: number | null;
+  })[];
+}
+
+export interface ListTenantPurchasesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startDate: DateString;
+  endDate: DateString;
+  outletPattern: string;
+  supplierPattern: string;
+  paymentStatus?: PurchasePaymentStatus | null;
+  offset: number;
+  limit: number;
+}
+
 export interface ListTenantPurchasesVariables {
   organizationId: UUIDString;
 }
@@ -2151,6 +2415,83 @@ export interface ListTenantSalesData {
       subtotal: number;
     } & SaleLine_Key)[];
   } & Sale_Key)[];
+}
+
+export interface ListTenantSalesPageData {
+  organizationMemberships: ({
+    role: {
+      code: string;
+      rolePermissions_on_role: ({
+        permission: {
+          code: string;
+        };
+      })[];
+    };
+  })[];
+  salesPage: ({
+    id: UUIDString;
+    organization: {
+      id: UUIDString;
+    } & Organization_Key;
+    outlet: {
+      id: UUIDString;
+      outletCode: number;
+      name: string;
+    } & Outlet_Key;
+    receiptNumber: string;
+    saleTimestamp: TimestampString;
+    customer?: {
+      id: UUIDString;
+      customerCode: number;
+      name: string;
+      phone: string;
+      email?: string | null;
+    } & Customer_Key;
+    customerName: string;
+    staffName: string;
+    channel: string;
+    terminalId: string;
+    tenderType: SaleTenderType;
+    tax: number;
+    discount: number;
+    subtotal: number;
+    totalNet: number;
+    status: SaleStatus;
+    createdAt: TimestampString;
+    saleLines_on_sale: ({
+      id: UUIDString;
+      itemName?: string | null;
+      product?: {
+        id: UUIDString;
+        productCode: number;
+        name: string;
+        sku: string;
+      } & Product_Key;
+      quantity: number;
+      refundedQty: number;
+      unitPrice: number;
+      subtotal: number;
+    } & SaleLine_Key)[];
+  } & Sale_Key)[];
+  salesCount: ({
+    _count: number;
+    totalNet_sum?: number | null;
+  })[];
+}
+
+export interface ListTenantSalesPageVariables {
+  organizationId: UUIDString;
+  searchPattern: string;
+  startTimestamp: TimestampString;
+  endTimestamp: TimestampString;
+  channelPattern: string;
+  cashierPattern: string;
+  tenderTypes: SaleTenderType[];
+  statuses: SaleStatus[];
+  minAmount: number;
+  maxAmount: number;
+  offset: number;
+  limit: number;
 }
 
 export interface ListTenantSalesVariables {
@@ -2915,6 +3256,11 @@ export function listOrganizations(dc: DataConnect, options?: OperationOptions): 
 /** Generated Node Admin SDK operation action function for the 'ListOrganizations' Query. Allow users to pass in custom DataConnect instances. */
 export function listOrganizations(options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsData>>;
 
+/** Generated Node Admin SDK operation action function for the 'ListOrganizationsPage' Query. Allow users to execute without passing in DataConnect. */
+export function listOrganizationsPage(dc: DataConnect, vars: ListOrganizationsPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsPageData>>;
+/** Generated Node Admin SDK operation action function for the 'ListOrganizationsPage' Query. Allow users to pass in custom DataConnect instances. */
+export function listOrganizationsPage(vars: ListOrganizationsPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListOrganizationsPageData>>;
+
 /** Generated Node Admin SDK operation action function for the 'GetOrganization' Query. Allow users to execute without passing in DataConnect. */
 export function getOrganization(dc: DataConnect, vars: GetOrganizationVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<GetOrganizationData>>;
 /** Generated Node Admin SDK operation action function for the 'GetOrganization' Query. Allow users to pass in custom DataConnect instances. */
@@ -3124,6 +3470,26 @@ export function voidTenantExpense(vars: VoidTenantExpenseVariables, options?: Op
 export function listTenantSales(dc: DataConnect, vars: ListTenantSalesVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantSalesData>>;
 /** Generated Node Admin SDK operation action function for the 'ListTenantSales' Query. Allow users to pass in custom DataConnect instances. */
 export function listTenantSales(vars: ListTenantSalesVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantSalesData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListTenantSalesPage' Query. Allow users to execute without passing in DataConnect. */
+export function listTenantSalesPage(dc: DataConnect, vars: ListTenantSalesPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantSalesPageData>>;
+/** Generated Node Admin SDK operation action function for the 'ListTenantSalesPage' Query. Allow users to pass in custom DataConnect instances. */
+export function listTenantSalesPage(vars: ListTenantSalesPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantSalesPageData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListTenantPurchasesPage' Query. Allow users to execute without passing in DataConnect. */
+export function listTenantPurchasesPage(dc: DataConnect, vars: ListTenantPurchasesPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantPurchasesPageData>>;
+/** Generated Node Admin SDK operation action function for the 'ListTenantPurchasesPage' Query. Allow users to pass in custom DataConnect instances. */
+export function listTenantPurchasesPage(vars: ListTenantPurchasesPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantPurchasesPageData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListTenantExpensesPage' Query. Allow users to execute without passing in DataConnect. */
+export function listTenantExpensesPage(dc: DataConnect, vars: ListTenantExpensesPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantExpensesPageData>>;
+/** Generated Node Admin SDK operation action function for the 'ListTenantExpensesPage' Query. Allow users to pass in custom DataConnect instances. */
+export function listTenantExpensesPage(vars: ListTenantExpensesPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantExpensesPageData>>;
+
+/** Generated Node Admin SDK operation action function for the 'ListTenantInventoryPage' Query. Allow users to execute without passing in DataConnect. */
+export function listTenantInventoryPage(dc: DataConnect, vars: ListTenantInventoryPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantInventoryPageData>>;
+/** Generated Node Admin SDK operation action function for the 'ListTenantInventoryPage' Query. Allow users to pass in custom DataConnect instances. */
+export function listTenantInventoryPage(vars: ListTenantInventoryPageVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<ListTenantInventoryPageData>>;
 
 /** Generated Node Admin SDK operation action function for the 'CreateTenantSale' Mutation. Allow users to execute without passing in DataConnect. */
 export function createTenantSale(dc: DataConnect, vars: CreateTenantSaleVariables, options?: OperationOptions): Promise<ExecuteOperationResponse<CreateTenantSaleData>>;

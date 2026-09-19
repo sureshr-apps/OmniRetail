@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DateRangePreset,
   ColumnVisibility,
   SalesTransaction,
   SalesQueryResult,
 } from '../types';
-import { salesService, deriveSalesView } from '../services/salesService';
+import { salesService } from '../services/salesService';
 import { SalesHeader } from '../components/SalesHeader';
 import { SalesKpiCards } from '../components/SalesKpiCards';
 import { SalesFilterBar } from '../components/SalesFilterBar';
@@ -49,7 +49,7 @@ export function SalesPage() {
   const [columns, setColumns] = useState<ColumnVisibility>(DEFAULT_COLUMNS);
 
   // Data State
-  const [allSales, setAllSales] = useState<SalesTransaction[]>([]);
+  const [data, setData] = useState<SalesQueryResult>({ transactions: [], totalCount: 0, page: 1, pageSize: 25, totalPages: 1, kpis: { filteredSalesTotal: 0, recordedSalesCount: 0, vsYesterdayPct: 0, cashDrawerBalance: 0, cashVolumePct: 0, cardAndDigitalTender: 0, cardCount: 0, contactlessCount: 0, cardVolumePct: 0, totalReturnsAndVoids: 0, refundEventsCount: 0, returnRatePct: 0 } });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [cashDrawerBalance, setCashDrawerBalance] = useState(0);
   const tenantOutlet = useTenantOutlet();
@@ -61,19 +61,6 @@ export function SalesPage() {
   const [returnError, setReturnError] = useState<string | null>(null);
   const [isReturning, setIsReturning] = useState(false);
   const [salesRefreshToken, setSalesRefreshToken] = useState(0);
-
-  const data = useMemo<SalesQueryResult>(() => deriveSalesView(allSales, {
-    dateRange,
-    customStartDate,
-    customEndDate,
-    channel,
-    paymentMethod,
-    status,
-    cashier,
-    searchQuery,
-    page,
-    pageSize,
-  }), [allSales, dateRange, customStartDate, customEndDate, channel, paymentMethod, status, cashier, searchQuery, page, pageSize]);
 
   // Toast State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -102,30 +89,18 @@ export function SalesPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showToast]);
 
-  // Load the collection once per session or after a return. Filtering,
-  // pagination, and KPI derivation remain local while the page is open.
-  useEffect(() => {
-    let isMounted = true;
+  const loadSales = useCallback(async () => {
     setIsLoading(true);
+    try {
+      setData(await salesService.getSales({ dateRange, customStartDate, customEndDate, channel, paymentMethod, status, cashier, searchQuery, page, pageSize }));
+    } catch (err) {
+      console.error('Failed to load sales data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dateRange, customStartDate, customEndDate, channel, paymentMethod, status, cashier, searchQuery, page, pageSize]);
 
-    salesService.getAllSales()
-      .then((result) => {
-        if (isMounted) {
-          setAllSales(result);
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to load sales data:', err);
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [salesRefreshToken]);
+  useEffect(() => { void loadSales(); }, [loadSales, salesRefreshToken]);
 
   useEffect(() => {
     let isMounted = true;

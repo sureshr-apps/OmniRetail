@@ -20,6 +20,13 @@ export function calculateOutstandingAmount(totalAmount: number, amountPaid: numb
   return Math.max(0, Number((total - paid).toFixed(2)));
 }
 
+export function derivePurchasePaymentStatus(totalAmount: number, amountPaid: number): PaymentStatus {
+  const total = Number(totalAmount) || 0;
+  const paid = Number(amountPaid) || 0;
+  if (total <= 0 || paid <= 0) return 'UNPAID';
+  return paid >= total ? 'PAID' : 'PARTIALLY_PAID';
+}
+
 export function calculatePurchaseTotals(
   items: Array<{
     quantity: number;
@@ -57,12 +64,7 @@ export function calculatePurchaseTotals(
   const grandTotal = Number((subtotal + totalTax + shippingFee + handlingFee).toFixed(2));
   const outstandingAmount = calculateOutstandingAmount(grandTotal, amountPaid);
 
-  let derivedPaymentStatus: PaymentStatus = 'UNPAID';
-  if (amountPaid >= grandTotal && grandTotal > 0) {
-    derivedPaymentStatus = 'PAID';
-  } else if (amountPaid > 0) {
-    derivedPaymentStatus = 'PARTIALLY_PAID';
-  }
+  const derivedPaymentStatus = derivePurchasePaymentStatus(grandTotal, amountPaid);
 
   return {
     totalUnits,

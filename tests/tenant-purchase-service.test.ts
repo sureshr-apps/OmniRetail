@@ -27,8 +27,10 @@ describe('tenant purchase service adapter', () => {
     expect(detailDrawer).toContain('Close with Partial Receipt');
   });
 
-  it('sends the selected purchase status and payment status to the callable', () => {
-    expect(source).toContain('paymentStatus: input.paymentOption');
+  it('derives payment status from the actual amount paid and total', () => {
+    expect(source).toContain('paymentStatus: totals.derivedPaymentStatus');
+    expect(functions).toContain('derivePurchasePaymentStatus(totalAmount, amountPaid)');
+    expect(calculatePurchaseTotals([{ quantity: 2, unitCost: 100, discountPercent: 0, taxRate: 15 }], 0, 0, 500).derivedPaymentStatus).toBe('PAID');
     expect(source).toContain('status: input.status.toUpperCase()');
     expect(source).toContain('input.outletId ? candidate.id === input.outletId');
     expect(source).toContain('input.handlingFee, input.initialPaymentRecorded');

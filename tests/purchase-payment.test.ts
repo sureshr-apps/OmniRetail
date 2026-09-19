@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { calculatePaymentSettlement } from '../functions/src/purchasePayments';
+import { calculatePaymentSettlement, derivePurchasePaymentStatus as deriveServerPurchasePaymentStatus } from '../functions/src/purchasePayments';
+import { derivePurchasePaymentStatus as deriveClientPurchasePaymentStatus } from '@/features/purchases/utils/calculations';
+
+describe('purchase payment status derivation', () => {
+  it('marks an overpaid purchase as paid instead of partially paid', () => {
+    expect(deriveServerPurchasePaymentStatus(330, 1500)).toBe('PAID');
+    expect(deriveClientPurchasePaymentStatus(330, 1500)).toBe('PAID');
+  });
+
+  it('distinguishes unpaid and partially paid purchases', () => {
+    expect(deriveServerPurchasePaymentStatus(330, 0)).toBe('UNPAID');
+    expect(deriveServerPurchasePaymentStatus(330, 100)).toBe('PARTIALLY_PAID');
+    expect(deriveClientPurchasePaymentStatus(330, 0)).toBe('UNPAID');
+    expect(deriveClientPurchasePaymentStatus(330, 100)).toBe('PARTIALLY_PAID');
+  });
+});
 
 describe('purchase payment settlement', () => {
   it('settles a remaining balance and marks the purchase paid', () => {

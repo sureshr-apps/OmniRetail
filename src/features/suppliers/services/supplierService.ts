@@ -12,6 +12,7 @@ import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { httpsCallable } from 'firebase/functions';
 import { assertCallableEntity } from '@/shared/utils/callableResponse';
 import { formatSupplierCode } from '../utils/formatSupplierCode';
+import { derivePurchasePaymentStatus } from '@/features/purchases/utils/calculations';
 
 export interface ISupplierService {
   getAllSuppliers(): Promise<Supplier[]>;
@@ -74,7 +75,7 @@ function mapTenantSupplier(row: TenantSupplierRow | SupplierMutationResponse): S
       outletName: purchase.outlet?.name ?? 'Organization-wide',
       totalAmount: purchase.totalAmount,
       outstandingAmount: purchase.outstandingAmount,
-      paymentStatus: purchase.paymentStatus,
+      paymentStatus: derivePurchasePaymentStatus(purchase.totalAmount, Math.max(0, purchase.totalAmount - purchase.outstandingAmount)),
       receiptStatus: purchase.receiptStatus,
     })),
   };

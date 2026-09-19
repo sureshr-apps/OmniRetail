@@ -6,6 +6,15 @@ const EPSILON = 0.000001;
 
 export type PurchasePaymentStatus = 'PAID' | 'PARTIALLY_PAID';
 
+export type TenantPurchasePaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'UNPAID';
+
+export function derivePurchasePaymentStatus(totalAmount: number, amountPaid: number): TenantPurchasePaymentStatus {
+  if (!Number.isFinite(totalAmount) || !Number.isFinite(amountPaid) || totalAmount <= 0 || amountPaid <= 0) {
+    return 'UNPAID';
+  }
+  return amountPaid >= totalAmount ? 'PAID' : 'PARTIALLY_PAID';
+}
+
 export interface PurchasePaymentInput {
   organizationId: string;
   purchaseId: string;

@@ -48,6 +48,7 @@ describe('sale return business rules', () => {
     expect(salesPage).toContain('setReturningTx(tx)');
     expect(returnModal).toContain('returnableQuantity');
     expect(returnModal).toContain('step="1"');
+    expect(returnModal).toContain('readOnly');
     expect(returnModal).toContain('Confirm return');
   });
 });

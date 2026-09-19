@@ -61,7 +61,7 @@ export function SaleReturnModal({ transaction, isSubmitting, error, onClose, onS
                 <td className="px-4 py-3"><div className="font-semibold text-text-primary">{item.name}</div><div className="text-xs text-text-secondary">{item.sku || 'Custom item'}</div></td>
                 <td className="px-4 py-3 text-text-secondary">{item.quantity}</td>
                 <td className="px-4 py-3 text-text-secondary">{item.returnedQuantity ?? 0}</td>
-                <td className="px-4 py-3"><input aria-label={`Return quantity for ${item.name}`} type="number" min="0" max={returnableQuantity} step="1" value={quantities[item.id] ?? '0'} onChange={(event) => setQuantities((current) => ({ ...current, [item.id]: event.target.value }))} disabled={returnableQuantity <= 0 || isSubmitting} className="h-9 w-28 rounded-md border border-border-subdued px-2 text-sm text-text-primary disabled:bg-surface-subdued" /><div className="mt-1 text-xs text-text-muted">{returnableQuantity} available</div></td>
+                <td className="px-4 py-3"><input aria-label={`Return quantity for ${item.name}`} type="number" min="0" max={returnableQuantity} step="1" readOnly value={quantities[item.id] ?? '0'} onChange={(event) => setQuantities((current) => ({ ...current, [item.id]: event.target.value }))} disabled={returnableQuantity <= 0 || isSubmitting} className="h-9 w-28 rounded-md border border-border-subdued px-2 text-sm text-text-primary disabled:bg-surface-subdued" /><div className="mt-1 text-xs text-text-muted">{returnableQuantity} available</div></td>
                 <td className="px-4 py-3 text-right font-semibold text-text-primary">{formatCurrency(Math.max(0, quantity) * item.unitPrice)}</td>
               </tr>;
             })}</tbody>

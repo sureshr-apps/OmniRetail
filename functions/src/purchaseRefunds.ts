@@ -34,13 +34,19 @@ export interface PurchaseRefundSummary {
 }
 
 export class PurchaseRefundError extends Error {
-  readonly code: 'INVALID_REFUND' | 'PURCHASE_NOT_FOUND' | 'PURCHASE_NOT_CANCELLED' | 'NO_REFUND_DUE' | 'OVER_REFUND';
+  readonly code: 'INVALID_REFUND' | 'PURCHASE_NOT_FOUND' | 'NO_REFUND_DUE' | 'OVER_REFUND';
 
   constructor(code: PurchaseRefundError['code'], message: string) {
     super(message);
     this.name = 'PurchaseRefundError';
     this.code = code;
   }
+}
+
+export function isPurchaseClosedForRefund(status: string, receiptStatus: string): boolean {
+  const normalizedStatus = status.toUpperCase();
+  const normalizedReceiptStatus = receiptStatus.toUpperCase();
+  return normalizedStatus === 'CANCELLED' || normalizedStatus === 'CLOSED' || normalizedReceiptStatus === 'RECEIVED';
 }
 
 function roundCurrency(value: number): number {
@@ -53,13 +59,25 @@ function isValidDateOnly(value: string): boolean {
   return date.toISOString().slice(0, 10) === value;
 }
 
-export function calculatePurchaseRefundSummary(amountPaid: number, totalRefunded: number): PurchaseRefundSummary {
+export function calculatePurchaseRefundSummary(
+  amountPaid: number,
+  totalRefunded: number,
+  totalAmount = 0,
+  status = 'CANCELLED',
+  receiptStatus = 'RECEIVED',
+): PurchaseRefundSummary {
   const paid = Math.max(0, roundCurrency(Number.isFinite(amountPaid) ? amountPaid : 0));
   const refunded = Math.max(0, roundCurrency(Number.isFinite(totalRefunded) ? totalRefunded : 0));
+  const total = Math.max(0, roundCurrency(Number.isFinite(totalAmount) ? totalAmount : 0));
+  const refundableBase = !isPurchaseClosedForRefund(status, receiptStatus)
+    ? 0
+    : status.toUpperCase() === 'CANCELLED'
+      ? paid
+      : Math.max(0, roundCurrency(paid - total));
   return {
     amountPaid: paid,
     totalRefunded: refunded,
-    refundDue: Math.max(0, roundCurrency(paid - refunded)),
+    refundDue: Math.max(0, roundCurrency(refundableBase - refunded)),
   };
 }
 
@@ -67,12 +85,14 @@ interface PurchaseRefundContext {
   purchaseId: string;
   supplierId: string;
   status: string;
+  receiptStatus: string;
   amountPaid: number;
+  totalAmount: number;
 }
 
 async function loadPurchaseRefundContext(client: PoolClient, organizationId: string, purchaseId: string): Promise<PurchaseRefundContext> {
   const result = await client.query(
-    'SELECT id, supplier_id, status, amount_paid FROM "purchase" WHERE id = $1 AND organization_id = $2 FOR UPDATE',
+    'SELECT id, supplier_id, status, receipt_status, amount_paid, total_amount FROM "purchase" WHERE id = $1 AND organization_id = $2 FOR UPDATE',
     [purchaseId, organizationId],
   );
   if (!result.rowCount) throw new PurchaseRefundError('PURCHASE_NOT_FOUND', 'Purchase was not found in this organization.');
@@ -81,7 +101,9 @@ async function loadPurchaseRefundContext(client: PoolClient, organizationId: str
     purchaseId: String(row.id),
     supplierId: String(row.supplier_id),
     status: String(row.status).toUpperCase(),
+    receiptStatus: String(row.receipt_status).toUpperCase(),
     amountPaid: Number(row.amount_paid),
+    totalAmount: Number(row.total_amount),
   };
 }
 
@@ -122,7 +144,7 @@ export async function listPurchaseRefunds(
   const refunds = result.rows.map((row) => mapRefundRow(row));
   return {
     refunds,
-    summary: calculatePurchaseRefundSummary(context.amountPaid, refunds.reduce((sum, refund) => sum + refund.amount, 0)),
+    summary: calculatePurchaseRefundSummary(context.amountPaid, refunds.reduce((sum, refund) => sum + refund.amount, 0), context.totalAmount, context.status, context.receiptStatus),
   };
 }
 
@@ -135,10 +157,6 @@ export async function recordPurchaseRefund(
   }
 
   const context = await loadPurchaseRefundContext(client, input.organizationId, input.purchaseId);
-  if (context.status !== 'CANCELLED') {
-    throw new PurchaseRefundError('PURCHASE_NOT_CANCELLED', 'Refunds can only be recorded for cancelled purchases.');
-  }
-
   const existingResult = await client.query(
     `SELECT id, purchase_id, amount, refund_date::text, refund_method, reference, notes,
             recorded_by, created_at::text
@@ -153,10 +171,10 @@ export async function recordPurchaseRefund(
     }
     const refund = mapRefundRow(existingResult.rows[0]);
     const totalRefunded = await loadRefundTotal(client, input.organizationId, input.purchaseId);
-    return { refund, summary: calculatePurchaseRefundSummary(context.amountPaid, totalRefunded) };
+    return { refund, summary: calculatePurchaseRefundSummary(context.amountPaid, totalRefunded, context.totalAmount, context.status, context.receiptStatus) };
   }
 
-  const before = calculatePurchaseRefundSummary(context.amountPaid, await loadRefundTotal(client, input.organizationId, input.purchaseId));
+  const before = calculatePurchaseRefundSummary(context.amountPaid, await loadRefundTotal(client, input.organizationId, input.purchaseId), context.totalAmount, context.status, context.receiptStatus);
   if (before.refundDue <= EPSILON) {
     throw new PurchaseRefundError('NO_REFUND_DUE', 'There is no supplier refund due for this purchase.');
   }
@@ -190,9 +208,9 @@ export async function recordPurchaseRefund(
     }
     const refund = mapRefundRow(retryResult.rows[0]);
     const totalRefunded = await loadRefundTotal(client, input.organizationId, input.purchaseId);
-    return { refund, summary: calculatePurchaseRefundSummary(context.amountPaid, totalRefunded) };
+    return { refund, summary: calculatePurchaseRefundSummary(context.amountPaid, totalRefunded, context.totalAmount, context.status, context.receiptStatus) };
   }
   const refund = mapRefundRow(result.rows[0]);
   const totalRefunded = await loadRefundTotal(client, input.organizationId, input.purchaseId);
-  return { refund, summary: calculatePurchaseRefundSummary(context.amountPaid, totalRefunded) };
+  return { refund, summary: calculatePurchaseRefundSummary(context.amountPaid, totalRefunded, context.totalAmount, context.status, context.receiptStatus) };
 }

@@ -159,6 +159,9 @@ describe('tenant purchase service adapter', () => {
     expect(detailDrawer).toContain('Record Supplier Refund / Credit');
     expect(detailDrawer).toContain('Refund History');
     expect(detailDrawer).toContain('Supplier Credit');
+    expect(detailDrawer).toContain('purchase.amountPaid > purchase.totalAmount');
+    expect(detailDrawer).toContain("purchase.receiptStatus === 'RECEIVED'");
+    expect(source).not.toContain('Refunds can only be recorded for cancelled purchases.');
   });
 
   it('initializes inventory stock timestamps for raw SQL inserts', () => {

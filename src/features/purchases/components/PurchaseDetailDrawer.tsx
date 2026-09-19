@@ -86,7 +86,12 @@ export function PurchaseDetailDrawer({
     setRefundNotes('');
     setIsRefundSaving(false);
 
-    if (!purchase || purchase.status !== 'cancelled' || purchase.amountPaid <= 0) {
+    const refundEligible = Boolean(purchase && (purchase.status === 'cancelled' || purchase.status === 'closed' || purchase.receiptStatus === 'RECEIVED'));
+    const refundableBase = purchase?.status === 'cancelled'
+      ? purchase.amountPaid
+      : Math.max(0, (purchase?.amountPaid ?? 0) - (purchase?.totalAmount ?? 0));
+    const canLoadRefunds = Boolean(refundEligible && purchase && purchase.amountPaid > 0 && (purchase.status === 'cancelled' || purchase.amountPaid > purchase.totalAmount));
+    if (!canLoadRefunds) {
       setRefundSummary({ amountPaid: purchase?.amountPaid ?? 0, totalRefunded: 0, refundDue: 0 });
       setRefundAmount('');
       return () => { active = false; };
@@ -103,15 +108,15 @@ export function PurchaseDetailDrawer({
       .catch((error) => {
         if (!active) return;
         setRefundLoadError(error instanceof Error ? error.message : 'Unable to load supplier refund history.');
-        setRefundSummary({ amountPaid: purchase.amountPaid, totalRefunded: 0, refundDue: purchase.amountPaid });
-        setRefundAmount(purchase.amountPaid > 0 ? purchase.amountPaid.toFixed(2) : '');
+        setRefundSummary({ amountPaid: purchase.amountPaid, totalRefunded: 0, refundDue: refundableBase });
+        setRefundAmount(refundableBase > 0 ? refundableBase.toFixed(2) : '');
       })
       .finally(() => {
         if (active) setIsRefundLoading(false);
       });
 
     return () => { active = false; };
-  }, [onLoadRefunds, purchase?.id, purchase?.amountPaid, purchase?.status]);
+  }, [onLoadRefunds, purchase?.id, purchase?.amountPaid, purchase?.status, purchase?.totalAmount]);
 
   if (!purchase) return null;
 
@@ -121,6 +126,9 @@ export function PurchaseDetailDrawer({
   const isCancelled = purchase.status === 'cancelled';
   const isClosed = purchase.status === 'closed';
   const isFullyReceived = totalPending === 0;
+  const canShowRefund = (isCancelled || isClosed || purchase.receiptStatus === 'RECEIVED')
+    && purchase.amountPaid > 0
+    && (isCancelled || purchase.amountPaid > purchase.totalAmount);
   const balanceDue = isCancelled ? 0 : calculateOutstandingAmount(purchase.totalAmount, purchase.amountPaid);
 
   const pendingItems = purchase.items.filter((item) => item.quantityOrdered - item.quantityReceived > 0);
@@ -647,7 +655,7 @@ export function PurchaseDetailDrawer({
                 </div>
               )}
 
-              {isCancelled && purchase.amountPaid > 0 && (
+              {canShowRefund && (
                 <>
                   <div className="mt-3 p-3.5 rounded border border-amber-300 bg-amber-50/70 flex justify-end">
                     <div className="w-64 space-y-1.5 text-xs">

@@ -178,7 +178,11 @@ class ProductionPurchaseService implements IPurchaseService {
       summary: data.summary ?? {
         amountPaid: purchase.amountPaid,
         totalRefunded: 0,
-        refundDue: purchase.status === 'cancelled' ? purchase.amountPaid : 0,
+        refundDue: purchase.status === 'cancelled'
+          ? purchase.amountPaid
+          : purchase.status === 'closed' || purchase.receiptStatus === 'RECEIVED'
+            ? Math.max(0, purchase.amountPaid - purchase.totalAmount)
+            : 0,
       },
     };
   }
@@ -186,7 +190,6 @@ class ProductionPurchaseService implements IPurchaseService {
   async recordRefund(purchaseId: string, input: RecordPurchaseRefundInput): Promise<{ refund: PurchaseRefund; summary: PurchaseRefundSummary }> {
     const purchase = await this.getPurchase(purchaseId);
     if (!purchase) throw new Error('Purchase not found.');
-    if (purchase.status !== 'cancelled') throw new Error('Refunds can only be recorded for cancelled purchases.');
     if (!Number.isFinite(input.amount) || input.amount <= 0) throw new Error('Refund amount must be greater than zero.');
     const organizationId = await this.organizationId();
     const response = await httpsCallable(getFirebaseClientServices().functions, 'recordTenantPurchaseRefund')({

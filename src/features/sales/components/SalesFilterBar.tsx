@@ -66,7 +66,7 @@ export function SalesFilterBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const todayStr = 'Oct 28';
+  const todayStr = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
   return (
     <div className="bg-surface-container-lowest rounded p-space-base shadow-sm space-y-space-base">

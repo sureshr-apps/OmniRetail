@@ -7,7 +7,7 @@ export function SalesHeader() {
         <div className="flex items-center gap-space-xs">
           <span className="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
           <span className="font-micro-label text-micro-label uppercase tracking-widest text-primary font-bold">
-            POS Terminal · Flagship Store #04
+            POS Terminal
           </span>
         </div>
         <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">

@@ -1,4 +1,4 @@
-import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine, RecordPurchasePaymentInput } from '../types';
+import { Purchase, PurchaseQuery, PurchaseQueryResult, CreatePurchaseInput, PurchaseReceiptLine, RecordPurchasePaymentInput, PurchaseRefund, PurchaseRefundSummary, RecordPurchaseRefundInput } from '../types';
 import { calculateOutstandingAmount, calculatePurchaseTotals } from '../utils/calculations';
 import { getCurrentUserAuthorization, listTenantPurchases, listTenantOutlets, listTenantSuppliers } from '@omniretail/sql-connect';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
@@ -17,6 +17,8 @@ export interface IPurchaseService {
   closePurchaseWithPartialReceipt(id: string): Promise<Purchase>;
   receiveItems(purchaseId: string, receipts: PurchaseReceiptLine[]): Promise<Purchase>;
   recordPayment(purchaseId: string, input: RecordPurchasePaymentInput): Promise<Purchase>;
+  getPurchaseRefunds(purchaseId: string): Promise<{ refunds: PurchaseRefund[]; summary: PurchaseRefundSummary }>;
+  recordRefund(purchaseId: string, input: RecordPurchaseRefundInput): Promise<{ refund: PurchaseRefund; summary: PurchaseRefundSummary }>;
   getSuppliers(): Promise<SupplierOption[]>;
   getOutlets(): Promise<OutletOption[]>;
 }
@@ -38,6 +40,19 @@ function mapTenantPurchase(row: TenantPurchaseRow): Purchase {
     status, receivingNotes: row.receivingNotes ?? undefined,
     batchNumber: row.batchNumber ?? undefined, mfgDate: row.mfgDate ?? undefined, expiryDate: row.expiryDate ?? undefined,
     paymentTerms: row.paymentTerms ?? undefined, createdBy: row.createdBy, creatorRole: '', createdAt: row.createdAt, updatedAt: row.updatedAt,
+  };
+}
+
+function mapPurchaseRefund(row: any): PurchaseRefund {
+  return {
+    id: String(row.id),
+    amount: Number(row.amount),
+    refundDate: String(row.refundDate),
+    refundMethod: String(row.refundMethod),
+    reference: row.reference == null ? undefined : String(row.reference),
+    notes: row.notes == null ? undefined : String(row.notes),
+    recordedBy: String(row.recordedBy),
+    createdAt: String(row.createdAt),
   };
 }
 
@@ -147,6 +162,45 @@ class ProductionPurchaseService implements IPurchaseService {
     const updated = await this.getPurchase(purchaseId);
     if (!updated) throw new Error('Payment was recorded but purchase could not be loaded.');
     return updated;
+  }
+
+  async getPurchaseRefunds(purchaseId: string): Promise<{ refunds: PurchaseRefund[]; summary: PurchaseRefundSummary }> {
+    const purchase = await this.getPurchase(purchaseId);
+    if (!purchase) throw new Error('Purchase not found.');
+    const organizationId = await this.organizationId();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'listTenantPurchaseRefunds')({
+      organizationId,
+      purchaseId: purchase.id,
+    });
+    const data = response.data as { refunds?: unknown[]; summary?: PurchaseRefundSummary };
+    return {
+      refunds: (data.refunds ?? []).map(mapPurchaseRefund),
+      summary: data.summary ?? {
+        amountPaid: purchase.amountPaid,
+        totalRefunded: 0,
+        refundDue: purchase.status === 'cancelled' ? purchase.amountPaid : 0,
+      },
+    };
+  }
+
+  async recordRefund(purchaseId: string, input: RecordPurchaseRefundInput): Promise<{ refund: PurchaseRefund; summary: PurchaseRefundSummary }> {
+    const purchase = await this.getPurchase(purchaseId);
+    if (!purchase) throw new Error('Purchase not found.');
+    if (purchase.status !== 'cancelled') throw new Error('Refunds can only be recorded for cancelled purchases.');
+    if (!Number.isFinite(input.amount) || input.amount <= 0) throw new Error('Refund amount must be greater than zero.');
+    const organizationId = await this.organizationId();
+    const response = await httpsCallable(getFirebaseClientServices().functions, 'recordTenantPurchaseRefund')({
+      organizationId,
+      purchaseId: purchase.id,
+      amount: input.amount,
+      refundDate: input.refundDate,
+      refundMethod: input.refundMethod,
+      reference: input.reference?.trim() || null,
+      notes: input.notes?.trim() || null,
+      requestId: globalThis.crypto.randomUUID(),
+    });
+    const data = response.data as { refund: unknown; summary: PurchaseRefundSummary };
+    return { refund: mapPurchaseRefund(data.refund), summary: data.summary };
   }
 }
 

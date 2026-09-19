@@ -16,6 +16,8 @@ describe('tenant purchase service adapter', () => {
     expect(source).toContain('new ProductionPurchaseService()');
     expect(source).toContain("'recordTenantPurchasePayment'");
     expect(source).toContain('async recordPayment');
+    expect(source).toContain("'listTenantPurchaseRefunds'");
+    expect(source).toContain("'recordTenantPurchaseRefund'");
     expect(source).toContain("'closeTenantPurchaseWithPartialReceipt'");
     expect(source).toContain('closePurchaseWithPartialReceipt');
     expect(source).toContain("outstandingAmount: status === 'cancelled' ? 0");
@@ -145,6 +147,16 @@ describe('tenant purchase service adapter', () => {
     expect(source).toContain('paymentHistory');
     expect(detailDrawer).toContain('Payment History');
     expect(detailDrawer).toContain('Payment date must use DD/MM/YYYY format.');
+  });
+
+  it('supports partial and multiple supplier refunds for cancelled purchases', () => {
+    expect(functions).toContain('export const listTenantPurchaseRefunds');
+    expect(functions).toContain('export const recordTenantPurchaseRefund');
+    expect(functions).toContain('recordPurchaseRefund(client');
+    expect(detailDrawer).toContain('Supplier Refund Due:');
+    expect(detailDrawer).toContain('Record Supplier Refund / Credit');
+    expect(detailDrawer).toContain('Refund History');
+    expect(detailDrawer).toContain('Supplier Credit');
   });
 
   it('initializes inventory stock timestamps for raw SQL inserts', () => {

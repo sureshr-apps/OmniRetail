@@ -96,6 +96,7 @@ import { LoginRateLimiter } from './auth/rateLimit.js';
 import { orchestrateProvision } from './auth/provisioning.js';
 import { deriveLicenseStatus } from './licenses/licenseStatus.js';
 import { recordPurchasePayment } from './purchasePayments.js';
+import { listPurchaseRefunds, PurchaseRefundError, recordPurchaseRefund } from './purchaseRefunds.js';
 import { closePurchaseWithPartialReceipt } from './purchaseClosure.js';
 import { cancelPurchaseWithAccounting, PurchaseCancellationError } from './purchaseCancellation.js';
 import { listInventoryMovementHistory } from './inventoryMovements.js';
@@ -1557,6 +1558,62 @@ export const recordTenantPurchasePayment = onCall(callableOptions, async (reques
   } catch (error) {
     logCallableFailure('recordTenantPurchasePayment', error);
     throw new HttpsError('failed-precondition', error instanceof Error ? error.message : 'Unable to record the purchase payment.');
+  }
+});
+
+export const listTenantPurchaseRefunds = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : '';
+    if (!organizationId || !purchaseId) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+    const result = await withSqlTransaction((client) => listPurchaseRefunds(client, { organizationId, purchaseId }));
+    return { success: true, organizationId, purchaseId, ...result };
+  } catch (error) {
+    logCallableFailure('listTenantPurchaseRefunds', error);
+    const message = error instanceof PurchaseRefundError || error instanceof Error
+      ? error.message
+      : 'Unable to load purchase refunds.';
+    throw new HttpsError('failed-precondition', message);
+  }
+});
+
+export const recordTenantPurchaseRefund = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'purchases.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const purchaseId = typeof d.purchaseId === 'string' ? d.purchaseId : '';
+    const amount = Number(d.amount);
+    const refundDate = typeof d.refundDate === 'string' ? d.refundDate : '';
+    const refundMethod = typeof d.refundMethod === 'string' ? d.refundMethod.trim() : '';
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !purchaseId || !Number.isFinite(amount) || amount <= 0 || !refundDate || !refundMethod || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'purchases.read');
+    const result = await withSqlTransaction((client) => recordPurchaseRefund(client, {
+      organizationId,
+      purchaseId,
+      amount,
+      refundDate,
+      refundMethod,
+      reference: typeof d.reference === 'string' ? d.reference.trim() || null : null,
+      notes: typeof d.notes === 'string' ? d.notes.trim() || null : null,
+      recordedBy: actor,
+      requestId,
+    }));
+    return { success: true, organizationId, purchaseId, ...result.summary, refund: result.refund };
+  } catch (error) {
+    logCallableFailure('recordTenantPurchaseRefund', error);
+    const message = error instanceof PurchaseRefundError || error instanceof Error
+      ? error.message
+      : 'Unable to record the supplier refund.';
+    throw new HttpsError('failed-precondition', message);
   }
 });
 

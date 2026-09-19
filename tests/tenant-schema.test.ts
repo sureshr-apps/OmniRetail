@@ -193,6 +193,13 @@ describe('tenant Data Connect foundation schema', () => {
     expect(connector).toContain('paymentDate paymentMethod reference notes recordedBy createdAt');
   });
 
+  it('defines a separate supplier refund ledger without rewriting the original payment', () => {
+    expect(schema).toMatch(/type PurchaseRefund @table[\s\S]*organization: Organization![\s\S]*purchase: Purchase![\s\S]*supplier: Supplier![\s\S]*amount: Float![\s\S]*refundDate: Date![\s\S]*refundMethod: String![\s\S]*requestId: String! @unique/);
+    expect(schema).toContain('reference: String');
+    expect(schema).toContain('notes: String');
+    expect(schema).toContain('recordedBy: String!');
+  });
+
   it('defines an organization-scoped expense ledger', () => {
     expect(schema).toMatch(/type Expense @table @unique\(fields: \["organization", "expenseNumber"\]\)/);
     expect(schema).toContain('enum ExpenseApprovalStatus');

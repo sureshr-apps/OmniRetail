@@ -339,6 +339,20 @@ type PurchasePayment @table {
   createdAt: Timestamp! @default(expr: "request.time")
 }
 
+type PurchaseRefund @table {
+  organization: Organization!
+  purchase: Purchase!
+  supplier: Supplier!
+  amount: Float! @col(dataType: "numeric(19,2)")
+  refundDate: Date!
+  refundMethod: String!
+  reference: String
+  notes: String
+  recordedBy: String!
+  requestId: String! @unique
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
 type PurchaseLine @table {
   purchase: Purchase!
   product: Product!

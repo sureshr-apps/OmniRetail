@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Purchase, PurchasePaymentMethod, PurchaseReceiptBatch, PurchaseReceiptLine, RecordPurchasePaymentInput } from '../types';
+import { Purchase, PurchasePaymentMethod, PurchaseReceiptBatch, PurchaseReceiptLine, PurchaseRefund, PurchaseRefundMethod, PurchaseRefundSummary, RecordPurchasePaymentInput, RecordPurchaseRefundInput } from '../types';
 import { calculateOutstandingAmount, formatCurrency } from '../utils/calculations';
 import { validatePurchaseReceiptLines } from '../utils/receiving';
 import { formatPurchaseDateForDisplay, getTodayPurchaseDate, parsePurchaseDate } from '../utils/date';
@@ -17,6 +17,8 @@ interface PurchaseDetailDrawerProps {
   onClosePartialPurchase: (id: string) => Promise<void>;
   onReceiveStock: (purchaseId: string, receipts: PurchaseReceiptLine[]) => void;
   onRecordPayment: (purchaseId: string, payment: RecordPurchasePaymentInput) => Promise<void>;
+  onLoadRefunds: (purchaseId: string) => Promise<{ refunds: PurchaseRefund[]; summary: PurchaseRefundSummary }>;
+  onRecordRefund: (purchaseId: string, refund: RecordPurchaseRefundInput) => Promise<{ refund: PurchaseRefund; summary: PurchaseRefundSummary }>;
 }
 
 export function PurchaseDetailDrawer({
@@ -26,6 +28,8 @@ export function PurchaseDetailDrawer({
   onClosePartialPurchase,
   onReceiveStock,
   onRecordPayment,
+  onLoadRefunds,
+  onRecordRefund,
 }: PurchaseDetailDrawerProps) {
   const [receiptBatches, setReceiptBatches] = useState<Record<string, ReceiptBatchRow[]>>({});
   const [receiveError, setReceiveError] = useState<string | null>(null);
@@ -37,6 +41,18 @@ export function PurchaseDetailDrawer({
   const [paymentNotes, setPaymentNotes] = useState('');
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isPaymentSaving, setIsPaymentSaving] = useState(false);
+  const [refunds, setRefunds] = useState<PurchaseRefund[]>([]);
+  const [refundSummary, setRefundSummary] = useState<PurchaseRefundSummary>({ amountPaid: 0, totalRefunded: 0, refundDue: 0 });
+  const [isRefundLoading, setIsRefundLoading] = useState(false);
+  const [refundLoadError, setRefundLoadError] = useState<string | null>(null);
+  const [isRefundFormOpen, setIsRefundFormOpen] = useState(false);
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundDate, setRefundDate] = useState('');
+  const [refundMethod, setRefundMethod] = useState<PurchaseRefundMethod>('UPI');
+  const [refundReference, setRefundReference] = useState('');
+  const [refundNotes, setRefundNotes] = useState('');
+  const [refundError, setRefundError] = useState<string | null>(null);
+  const [isRefundSaving, setIsRefundSaving] = useState(false);
   const receiptProgressKey = purchase?.items.map((item) => `${item.id}:${item.quantityReceived}`).join('|') ?? '';
 
   useEffect(() => {
@@ -57,6 +73,45 @@ export function PurchaseDetailDrawer({
     setPaymentError(null);
     setIsPaymentSaving(false);
   }, [purchase?.id, purchase?.amountPaid, purchase?.status, purchase?.totalAmount]);
+
+  useEffect(() => {
+    let active = true;
+    setRefunds([]);
+    setRefundLoadError(null);
+    setIsRefundFormOpen(false);
+    setRefundError(null);
+    setRefundDate(formatPurchaseDateForDisplay(getTodayPurchaseDate()));
+    setRefundMethod('UPI');
+    setRefundReference('');
+    setRefundNotes('');
+    setIsRefundSaving(false);
+
+    if (!purchase || purchase.status !== 'cancelled' || purchase.amountPaid <= 0) {
+      setRefundSummary({ amountPaid: purchase?.amountPaid ?? 0, totalRefunded: 0, refundDue: 0 });
+      setRefundAmount('');
+      return () => { active = false; };
+    }
+
+    setIsRefundLoading(true);
+    onLoadRefunds(purchase.id)
+      .then((result) => {
+        if (!active) return;
+        setRefunds(result.refunds);
+        setRefundSummary(result.summary);
+        setRefundAmount(result.summary.refundDue > 0 ? result.summary.refundDue.toFixed(2) : '');
+      })
+      .catch((error) => {
+        if (!active) return;
+        setRefundLoadError(error instanceof Error ? error.message : 'Unable to load supplier refund history.');
+        setRefundSummary({ amountPaid: purchase.amountPaid, totalRefunded: 0, refundDue: purchase.amountPaid });
+        setRefundAmount(purchase.amountPaid > 0 ? purchase.amountPaid.toFixed(2) : '');
+      })
+      .finally(() => {
+        if (active) setIsRefundLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [onLoadRefunds, purchase?.id, purchase?.amountPaid, purchase?.status]);
 
   if (!purchase) return null;
 
@@ -105,6 +160,49 @@ export function PurchaseDetailDrawer({
       setPaymentError(error instanceof Error ? error.message : 'Unable to record the payment.');
     } finally {
       setIsPaymentSaving(false);
+    }
+  };
+
+  const handleRecordRefund = async () => {
+    const amount = Number(refundAmount);
+    const parsedRefundDate = parsePurchaseDate(refundDate);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setRefundError('Enter a refund amount greater than zero.');
+      return;
+    }
+    if (amount > refundSummary.refundDue + 0.000001) {
+      setRefundError(`Refund cannot exceed the remaining refund due of ${formatCurrency(refundSummary.refundDue)}.`);
+      return;
+    }
+    if (!parsedRefundDate) {
+      setRefundError('Refund date must use DD/MM/YYYY format.');
+      return;
+    }
+    if (!refundMethod) {
+      setRefundError('Select a refund method.');
+      return;
+    }
+
+    setRefundError(null);
+    setIsRefundSaving(true);
+    try {
+      const result = await onRecordRefund(purchase.id, {
+        amount,
+        refundDate: parsedRefundDate,
+        refundMethod,
+        reference: refundReference.trim() || undefined,
+        notes: refundNotes.trim() || undefined,
+      });
+      setRefunds((current) => [result.refund, ...current.filter((refund) => refund.id !== result.refund.id)]);
+      setRefundSummary(result.summary);
+      setRefundAmount(result.summary.refundDue > 0 ? result.summary.refundDue.toFixed(2) : '');
+      setIsRefundFormOpen(false);
+      setRefundReference('');
+      setRefundNotes('');
+    } catch (error) {
+      setRefundError(error instanceof Error ? error.message : 'Unable to record the supplier refund.');
+    } finally {
+      setIsRefundSaving(false);
     }
   };
 
@@ -547,6 +645,159 @@ export function PurchaseDetailDrawer({
                     ))}
                   </div>
                 </div>
+              )}
+
+              {isCancelled && purchase.amountPaid > 0 && (
+                <>
+                  <div className="mt-3 p-3.5 rounded border border-amber-300 bg-amber-50/70 flex justify-end">
+                    <div className="w-64 space-y-1.5 text-xs">
+                      <div className="flex justify-between text-amber-900 font-semibold">
+                        <span>Supplier Refund Due:</span>
+                        <span className="font-body-mono-num">{formatCurrency(refundSummary.refundDue)}</span>
+                      </div>
+                      {refundSummary.totalRefunded > 0 && (
+                        <div className="flex justify-between text-emerald-800">
+                          <span>Refunded / Credited:</span>
+                          <span className="font-body-mono-num">{formatCurrency(refundSummary.totalRefunded)}</span>
+                        </div>
+                      )}
+                      {refundSummary.refundDue > 0.000001 && (
+                        <button
+                          type="button"
+                          onClick={() => setIsRefundFormOpen((open) => !open)}
+                          disabled={isRefundLoading}
+                          className="w-full mt-2 px-3 py-2 rounded bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 disabled:opacity-60 cursor-pointer"
+                        >
+                          {isRefundFormOpen ? 'Close Refund Form' : 'Record Supplier Refund / Credit'}
+                        </button>
+                      )}
+                      {isRefundLoading && <div className="text-[11px] text-amber-800">Loading refund history…</div>}
+                      {refundLoadError && <div className="text-[11px] text-error" role="alert">{refundLoadError}</div>}
+                    </div>
+                  </div>
+
+                  {isRefundFormOpen && refundSummary.refundDue > 0.000001 && (
+                    <div className="mt-3 p-4 rounded border border-amber-300 bg-amber-50/50 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface">Record Supplier Refund or Credit</h4>
+                          <p className="text-[11px] text-on-surface-variant mt-1">
+                            Remaining refund due: <strong>{formatCurrency(refundSummary.refundDue)}</strong>
+                          </p>
+                        </div>
+                        <span className="material-symbols-outlined text-amber-700">currency_exchange</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">Amount</label>
+                          <input
+                            type="number"
+                            min="0.01"
+                            max={refundSummary.refundDue}
+                            step="0.01"
+                            value={refundAmount}
+                            onChange={(event) => setRefundAmount(event.target.value)}
+                            className="w-full text-xs font-body-mono-num py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">Refund Date</label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={10}
+                            value={refundDate}
+                            onChange={(event) => setRefundDate(event.target.value)}
+                            placeholder="DD/MM/YYYY"
+                            className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">Refund Method</label>
+                          <select
+                            value={refundMethod}
+                            onChange={(event) => setRefundMethod(event.target.value as PurchaseRefundMethod)}
+                            className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                          >
+                            {(['Cash', 'UPI', 'Bank Transfer', 'Card', 'Cheque', 'Supplier Credit', 'Other'] as PurchaseRefundMethod[]).map((method) => (
+                              <option key={method} value={method}>{method}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">Reference (Optional)</label>
+                          <input
+                            type="text"
+                            value={refundReference}
+                            onChange={(event) => setRefundReference(event.target.value)}
+                            placeholder="UTR, credit note, etc."
+                            className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-micro-label uppercase font-bold text-on-surface-variant mb-1">Notes (Optional)</label>
+                        <textarea
+                          value={refundNotes}
+                          onChange={(event) => setRefundNotes(event.target.value)}
+                          rows={2}
+                          placeholder="Add a note about this refund or supplier credit"
+                          className="w-full text-xs py-2 px-2.5 rounded bg-surface-container-lowest border border-outline-variant/60 focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                        />
+                      </div>
+
+                      {refundError && (
+                        <div className="rounded border border-error/30 bg-error-container/20 px-3 py-2 text-xs font-medium text-error" role="alert">
+                          {refundError}
+                        </div>
+                      )}
+
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsRefundFormOpen(false)}
+                          className="px-3 py-1.5 rounded border border-outline-variant text-xs font-medium hover:bg-surface-container cursor-pointer"
+                          disabled={isRefundSaving}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleRecordRefund}
+                          disabled={isRefundSaving}
+                          className="px-3.5 py-1.5 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold cursor-pointer disabled:opacity-60"
+                        >
+                          {isRefundSaving ? 'Saving…' : 'Save Refund'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {refunds.length > 0 && (
+                    <div className="mt-3 rounded border border-outline-variant/30 overflow-hidden">
+                      <div className="px-3 py-2 bg-surface-container-low/50 border-b border-outline-variant/30">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Refund History</h4>
+                      </div>
+                      <div className="divide-y divide-outline-variant/20">
+                        {refunds.map((refund) => (
+                          <div key={refund.id} className="px-3 py-2.5 flex items-start justify-between gap-3 text-xs">
+                            <div>
+                              <div className="font-semibold text-on-surface">{refund.refundMethod}</div>
+                              <div className="text-[11px] text-on-surface-variant">
+                                {formatPurchaseDateForDisplay(refund.refundDate)} · Recorded by {refund.recordedBy}
+                              </div>
+                              {refund.reference && <div className="text-[11px] text-on-surface-variant">Ref: {refund.reference}</div>}
+                              {refund.notes && <div className="text-[11px] text-on-surface-variant">{refund.notes}</div>}
+                            </div>
+                            <span className="font-body-mono-num font-bold text-amber-700 whitespace-nowrap">{formatCurrency(refund.amount)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

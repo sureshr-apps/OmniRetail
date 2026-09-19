@@ -3,6 +3,7 @@ export type PaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'UNPAID';
 export type ReceiptStatus = 'PENDING' | 'PARTIALLY_RECEIVED' | 'RECEIVED';
 export type PurchaseScope = 'outlet' | 'organization';
 export type PurchasePaymentMethod = 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Cheque' | 'Other';
+export type PurchaseRefundMethod = 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Cheque' | 'Supplier Credit' | 'Other';
 
 export interface PurchaseItem {
   id: string;
@@ -49,6 +50,31 @@ export interface RecordPurchasePaymentInput {
   paymentMethod: PurchasePaymentMethod;
   reference?: string;
   notes?: string;
+}
+
+export interface PurchaseRefund {
+  id: string;
+  amount: number;
+  refundDate: string;
+  refundMethod: string;
+  reference?: string;
+  notes?: string;
+  recordedBy: string;
+  createdAt: string;
+}
+
+export interface RecordPurchaseRefundInput {
+  amount: number;
+  refundDate: string;
+  refundMethod: PurchaseRefundMethod;
+  reference?: string;
+  notes?: string;
+}
+
+export interface PurchaseRefundSummary {
+  amountPaid: number;
+  totalRefunded: number;
+  refundDue: number;
 }
 
 export interface Purchase {

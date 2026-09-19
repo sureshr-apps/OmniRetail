@@ -351,9 +351,9 @@ export function BillingPage() {
         totals={totals}
         customer={selectedCustomer}
         orderNumber={orderNumber}
-        onCompleteSale={async () => {
+        onCompleteSale={async ({ cashAmount }) => {
           try {
-            await completeTenantCheckout({ orderNumber, items: cartItems, customer: selectedCustomer, totals, paymentMethod: paymentModalState.method });
+            await completeTenantCheckout({ orderNumber, items: cartItems, customer: selectedCustomer, totals, paymentMethod: paymentModalState.method, cashAmount });
             startNewOrder();
           } catch (error: unknown) {
             showDrawerAlert(error instanceof Error ? error.message : 'Unable to complete the sale.');

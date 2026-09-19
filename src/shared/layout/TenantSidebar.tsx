@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, Boxes, BriefcaseBusiness, CircleDollarSign, ClipboardList, Contact, FileText, Package, ShoppingCart, Store, Truck, Users } from 'lucide-react';
+import { BarChart3, Boxes, BriefcaseBusiness, CircleDollarSign, ClipboardList, Contact, FileText, Package, ShoppingCart, Store, Truck, Users, WalletCards } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 import { useAuth } from '@/app/context/AuthContext';
 import { getTenantNavigation } from '@/app/navigation/tenantNavigation';
@@ -8,6 +8,7 @@ import { getTenantNavigation } from '@/app/navigation/tenantNavigation';
 const ICONS: Record<string, React.ElementType> = {
   '/billing': CircleDollarSign, '/sales': BarChart3, '/inventory': Boxes, '/products': Package,
   '/purchases': ShoppingCart, '/suppliers': Truck, '/customers': Users, '/expenses': FileText,
+  '/cash-management': WalletCards,
   '/outlets': Store, '/employees': Contact, '/service-persons': BriefcaseBusiness,
 };
 

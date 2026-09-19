@@ -205,6 +205,21 @@ export interface BootstrapMasterAdminVariables {
   roleId: UUIDString;
 }
 
+export interface CashRegisterCount_Key {
+  id: UUIDString;
+  __typename?: 'CashRegisterCount_Key';
+}
+
+export interface CashRegisterMovement_Key {
+  id: UUIDString;
+  __typename?: 'CashRegisterMovement_Key';
+}
+
+export interface CashRegisterSession_Key {
+  id: UUIDString;
+  __typename?: 'CashRegisterSession_Key';
+}
+
 export interface Category_Key {
   id: UUIDString;
   __typename?: 'Category_Key';
@@ -2362,6 +2377,11 @@ export interface PurchaseLine_Key {
 export interface PurchasePayment_Key {
   id: UUIDString;
   __typename?: 'PurchasePayment_Key';
+}
+
+export interface PurchaseRefund_Key {
+  id: UUIDString;
+  __typename?: 'PurchaseRefund_Key';
 }
 
 export interface Purchase_Key {

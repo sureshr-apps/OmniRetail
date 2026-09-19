@@ -41,5 +41,6 @@ mutation BootstrapPlatformRbac @auth(level: NO_ACCESS) @transaction {
   outletsRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000033", code: "outlets.read", name: "Manage outlets" })
   employeesRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000034", code: "employees.read", name: "Manage employees" })
   servicePersonsRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000035", code: "service_persons.read", name: "Manage service persons" })
+  cashRead: permission_upsert(data: { id: "10000000-0000-4000-8000-000000000036", code: "cash.read", name: "Manage cash registers" })
 
 }

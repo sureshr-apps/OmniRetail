@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { getCloudSqlPool } from './cloudSql.js';
 import { consumeInventoryForSale, isStockTrackedProduct, operationRequestId } from './inventoryBatches.js';
+import { recordSaleCashMovement } from './cashRegister.js';
 
 export { isStockTrackedProduct } from './inventoryBatches.js';
 
@@ -22,6 +23,7 @@ export interface CheckoutInput {
   channel: string;
   terminalId: string;
   tenderType: string;
+  cashAmount?: number;
   tax: number;
   discount: number;
   subtotal: number;
@@ -47,7 +49,9 @@ export function validateCheckoutInput(input: CheckoutInput): void {
     if (!line.itemName || !Number.isFinite(line.quantity) || line.quantity <= 0 || !Number.isFinite(line.unitPrice) || line.unitPrice < 0 || !Number.isFinite(line.subtotal) || line.subtotal < 0) throw new Error('invalid line');
     if (Math.abs(line.subtotal - line.quantity * line.unitPrice) > 0.01) throw new Error('line total does not match quantity and unit price');
   }
-  for (const value of [input.tax, input.discount, input.subtotal, input.totalNet]) if (!Number.isFinite(value) || value < 0) throw new Error('invalid totals');
+  const cashAmount = input.cashAmount ?? (input.tenderType === 'CASH' ? input.totalNet : input.tenderType === 'SPLIT' ? input.totalNet / 2 : 0);
+  for (const value of [input.tax, input.discount, input.subtotal, input.totalNet, cashAmount]) if (!Number.isFinite(value) || value < 0) throw new Error('invalid totals');
+  if (cashAmount > input.totalNet + 0.01) throw new Error('cash amount cannot exceed the sale total');
   const lineSubtotal = input.lines.reduce((sum, line) => sum + line.subtotal, 0);
   if (Math.abs(input.subtotal - lineSubtotal) > 0.01 || Math.abs(input.totalNet - (input.subtotal - input.discount + input.tax)) > 0.01) throw new Error('checkout totals do not reconcile');
 }
@@ -81,6 +85,15 @@ export async function persistCheckout(input: CheckoutInput): Promise<{ saleId: s
       }
       await client.query('INSERT INTO "sale_line" (id, sale_id, product_id, item_name, quantity, unit_price, subtotal) VALUES ($1, $2, $3, $4, $5, $6, $7)', [randomUUID(), saleId, productId, line.itemName, line.quantity, line.unitPrice, line.subtotal]);
     }
+    await recordSaleCashMovement(client, {
+      organizationId: input.organizationId,
+      outletId: input.outletId,
+      cashAmount: input.cashAmount ?? (input.tenderType === 'CASH' ? input.totalNet : input.tenderType === 'SPLIT' ? input.totalNet / 2 : 0),
+      saleId,
+      receiptNumber: input.receiptNumber,
+      actorFirebaseUid: input.actorFirebaseUid ?? input.staffName,
+      requestId: input.requestId ?? randomUUID(),
+    });
     await client.query('COMMIT');
     return { saleId };
   } catch (error) {

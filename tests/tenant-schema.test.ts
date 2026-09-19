@@ -95,6 +95,14 @@ describe('tenant Data Connect foundation schema', () => {
     expect(schema).toMatch(/type InventoryStock @table\(key: \["organization", "outlet", "product"\]\)/);
   });
 
+  it('defines one outlet-scoped register session per IST business date with cash audit tables', () => {
+    expect(schema).toMatch(/enum CashRegisterSessionStatus[\s\S]*OPEN[\s\S]*CLOSED[\s\S]*AUTO_CLOSED/);
+    expect(schema).toMatch(/enum CashRegisterMovementType[\s\S]*OPENING[\s\S]*SALE[\s\S]*REFUND[\s\S]*CASH_IN[\s\S]*CASH_OUT/);
+    expect(schema).toMatch(/type CashRegisterSession @table @unique\(fields: \["organization", "outlet", "businessDate"\]\)[\s\S]*openingAmount: Float!/);
+    expect(schema).toMatch(/type CashRegisterMovement @table @unique\(fields: \["organization", "requestId"\]\)[\s\S]*session: CashRegisterSession![\s\S]*amount: Float![\s\S]*actorFirebaseUid: String![\s\S]*requestId: String!/);
+    expect(schema).toMatch(/type CashRegisterCount @table @unique\(fields: \["session", "countType", "denomination"\]\)[\s\S]*quantity: Int![\s\S]*amount: Float!/);
+  });
+
   it('removes the retired supplier part-code field from Product storage and connectors', () => {
     const product = schema.match(/type Product @table[^\{]*\{[\s\S]*?\n\}/)?.[0] ?? '';
     const connector = readFileSync(new URL('../dataconnect/master-admin/identity.gql', import.meta.url), 'utf8');

@@ -1134,3 +1134,23 @@ Do not rewrite working code during this initial inspection.
 Return a concise **Current State / Gaps / Recommended Next Steps** assessment.
 
 Then wait for the next task.
+
+## 43. Cash Management implementation
+
+Cash Management is now part of the organization tenant application. It is a
+top-level operational module available to organization administrators and
+employees who have the `cash.read` capability. Each outlet has one shared
+`REG-01` register session per IST business date. Opening and closing capture
+denomination counts; cash sales, refunds, cash-in, and cash-out are stored as
+register movements. The backend automatically closes stale open sessions at
+the next business date with zero variance and carries the previous closing
+balance into the next opening. Checkout requires an open register and records
+the cash portion of a sale in the same Cloud SQL transaction as the sale and
+inventory consumption.
+
+The schema entities are `CashRegisterSession`, `CashRegisterMovement`, and
+`CashRegisterCount`. The callable boundaries are implemented in
+`functions/src/cashRegister.ts` and exposed from `functions/src/index.ts`.
+Frontend access is through `/cash-management`; Billing remains responsible
+for tender entry while Cash Management owns denomination counts and manual
+cash reconciliation.

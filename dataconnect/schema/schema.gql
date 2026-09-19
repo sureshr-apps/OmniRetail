@@ -114,6 +114,25 @@ enum SaleTenderType {
   NONE
 }
 
+enum CashRegisterSessionStatus {
+  OPEN
+  CLOSED
+  AUTO_CLOSED
+}
+
+enum CashRegisterMovementType {
+  OPENING
+  SALE
+  REFUND
+  CASH_IN
+  CASH_OUT
+}
+
+enum CashRegisterCountType {
+  OPENING
+  CLOSING
+}
+
 enum LicensePlanStatus {
   ACTIVE
   INACTIVE
@@ -418,6 +437,48 @@ type SaleLine @table {
   quantity: Float!
   unitPrice: Float! @col(dataType: "numeric(19,2)")
   subtotal: Float! @col(dataType: "numeric(19,2)")
+}
+
+type CashRegisterSession @table @unique(fields: ["organization", "outlet", "businessDate"]) {
+  organization: Organization!
+  outlet: Outlet!
+  registerCode: String!
+  businessDate: Date!
+  status: CashRegisterSessionStatus!
+  openingAmount: Float! @col(dataType: "numeric(19,2)")
+  closingExpected: Float @col(dataType: "numeric(19,2)")
+  closingActual: Float @col(dataType: "numeric(19,2)")
+  variance: Float @col(dataType: "numeric(19,2)")
+  openedBy: String!
+  openedAt: Timestamp!
+  closedBy: String
+  closedAt: Timestamp
+  openingNote: String
+  closingNote: String
+}
+
+type CashRegisterMovement @table @unique(fields: ["organization", "requestId"]) {
+  organization: Organization!
+  outlet: Outlet!
+  session: CashRegisterSession!
+  movementType: CashRegisterMovementType!
+  amount: Float! @col(dataType: "numeric(19,2)")
+  sourceType: String
+  sourceId: String
+  reason: String
+  note: String
+  actorFirebaseUid: String!
+  requestId: String!
+  createdAt: Timestamp! @default(expr: "request.time")
+}
+
+type CashRegisterCount @table @unique(fields: ["session", "countType", "denomination"]) {
+  session: CashRegisterSession!
+  countType: CashRegisterCountType!
+  denomination: Float! @col(dataType: "numeric(19,2)")
+  quantity: Int!
+  amount: Float! @col(dataType: "numeric(19,2)")
+  createdAt: Timestamp! @default(expr: "request.time")
 }
 
 type PurchaseLineBatchAllocation @table @unique(fields: ["purchaseLine", "inventoryBatch"]) {

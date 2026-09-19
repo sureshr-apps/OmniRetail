@@ -9,6 +9,7 @@ export const TENANT_OPERATIONAL_CAPABILITIES = [
   'suppliers.read',
   'customers.read',
   'expenses.read',
+  'cash.read',
 ] as const;
 
 export const TENANT_ADMIN_CAPABILITIES = [

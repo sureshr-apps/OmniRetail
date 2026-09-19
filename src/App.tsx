@@ -25,6 +25,7 @@ const PurchasesPage = lazyWithChunkRecovery(() => import('@/features/purchases/p
 const SuppliersPage = lazyWithChunkRecovery(() => import('@/features/suppliers/pages/SuppliersPage').then(({ SuppliersPage }) => ({ default: SuppliersPage })));
 const CustomersPage = lazyWithChunkRecovery(() => import('@/features/customers/pages/CustomersPage').then(({ CustomersPage }) => ({ default: CustomersPage })));
 const ExpensesPage = lazyWithChunkRecovery(() => import('@/features/expenses/pages/ExpensesPage').then(({ ExpensesPage }) => ({ default: ExpensesPage })));
+const CashManagementPage = lazyWithChunkRecovery(() => import('@/features/cash/pages/CashManagementPage').then(({ CashManagementPage }) => ({ default: CashManagementPage })));
 const OutletMasterPage = lazyWithChunkRecovery(() => import('@/features/outlets/pages/OutletMasterPage').then(({ OutletMasterPage }) => ({ default: OutletMasterPage })));
 const EmployeeMasterPage = lazyWithChunkRecovery(() => import('@/features/employees/pages/EmployeeMasterPage').then(({ EmployeeMasterPage }) => ({ default: EmployeeMasterPage })));
 const ServicePersonMasterPage = lazyWithChunkRecovery(() => import('@/features/service-persons/pages/ServicePersonMasterPage').then(({ ServicePersonMasterPage }) => ({ default: ServicePersonMasterPage })));
@@ -87,6 +88,7 @@ export default function App() {
               <Route element={<TenantAccessRoute capability="suppliers.read" />}><Route path="/suppliers" element={<SuppliersPage />} /></Route>
               <Route element={<TenantAccessRoute capability="customers.read" />}><Route path="/customers" element={<CustomersPage />} /></Route>
               <Route element={<TenantAccessRoute capability="expenses.read" />}><Route path="/expenses" element={<ExpensesPage />} /></Route>
+              <Route element={<TenantAccessRoute capability="cash.read" />}><Route path="/cash-management" element={<CashManagementPage />} /></Route>
               <Route path="/reports" element={<TenantPlaceholderPage />} />
               <Route element={<TenantAccessRoute capability="outlets.read" administrationOnly />}><Route path="/outlets" element={<OutletMasterPage />} /></Route>
               <Route element={<TenantAccessRoute capability="employees.read" administrationOnly />}><Route path="/employees" element={<EmployeeMasterPage />} /></Route>

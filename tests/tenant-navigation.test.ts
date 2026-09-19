@@ -9,9 +9,10 @@ const user = (roleCode: string, capabilities: string[] = []) => ({
 describe('tenant navigation', () => {
   it('shows all tenant modules to organization admins except deferred Settings and Reports', () => {
     const labels = getTenantNavigation(user('organization.admin')).map((item) => item.label);
-    expect(labels).toHaveLength(11);
+    expect(labels).toHaveLength(12);
     expect(labels).toContain('Billing / POS');
     expect(labels).toContain('Employee Master');
+    expect(labels).toContain('Cash Management');
     expect(labels).not.toContain('Settings');
     expect(labels).not.toContain('Reports');
   });
@@ -19,5 +20,10 @@ describe('tenant navigation', () => {
   it('shows employees only enabled operational modules', () => {
     const labels = getTenantNavigation(user('employee', ['billing.read', 'inventory.read'])).map((item) => item.label);
     expect(labels).toEqual(['Billing / POS', 'Inventory']);
+  });
+
+  it('shows Cash Management only to employees who have cash.read', () => {
+    expect(getTenantNavigation(user('employee', ['cash.read'])).map((item) => item.label)).toEqual(['Cash Management']);
+    expect(getTenantNavigation(user('employee')).map((item) => item.label)).toEqual([]);
   });
 });

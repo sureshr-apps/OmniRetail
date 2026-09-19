@@ -8,7 +8,7 @@ const administratorSeed = readFileSync(new URL('../dataconnect/seed_organization
 
 describe('tenant RBAC seed', () => {
   it('defines the operational capability catalogue', () => {
-    for (const code of ['billing.read', 'sales.read', 'inventory.read', 'products.read', 'purchases.read', 'suppliers.read', 'customers.read', 'expenses.read']) {
+    for (const code of ['billing.read', 'sales.read', 'inventory.read', 'products.read', 'purchases.read', 'suppliers.read', 'customers.read', 'expenses.read', 'cash.read']) {
       expect(seed).toContain(`code: "${code}"`);
     }
   });
@@ -24,6 +24,7 @@ describe('tenant RBAC seed', () => {
     expect(seed).toContain('code: "organization.employee"');
     expect(rolePermissionSeed).toContain('rpEmployeeBillingRead');
     expect(rolePermissionSeed).toContain('rpEmployeeExpensesRead');
+    expect(rolePermissionSeed).toContain('rpEmployeeCashRead');
   });
 
   it('seeds organization administrators with the organization-admin role', () => {

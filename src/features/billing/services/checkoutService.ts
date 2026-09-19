@@ -3,7 +3,7 @@ import { httpsCallable } from 'firebase/functions';
 import { getFirebaseClientServices } from '@/infrastructure/firebase/client';
 import { CartItem, Customer, OrderTotals, PaymentMethod } from '../types';
 
-export async function completeTenantCheckout(input: { orderNumber: string; items: CartItem[]; customer: Customer; totals: OrderTotals; paymentMethod: PaymentMethod }): Promise<void> {
+export async function completeTenantCheckout(input: { orderNumber: string; items: CartItem[]; customer: Customer; totals: OrderTotals; paymentMethod: PaymentMethod; cashAmount?: number }): Promise<void> {
   const services = getFirebaseClientServices();
   const authorization = await getCurrentUserAuthorization(services.dataConnect);
   const membership = authorization.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
@@ -17,5 +17,5 @@ export async function completeTenantCheckout(input: { orderNumber: string; items
   const receiptNumber = input.orderNumber.replace(/^#/, '');
   const staffName = authorization.data.appUsers[0]?.displayName || authorization.data.appUsers[0]?.username || 'Current cashier';
   const terminalId = typeof window !== 'undefined' ? window.sessionStorage.getItem('omniretail.activeTerminalId')?.trim() || 'POS-01' : 'POS-01';
-  await httpsCallable(services.functions, 'completeTenantCheckout')({ organizationId: membership.organization.id, outletId: outlet.id, customerId: input.customer.id || null, receiptNumber, customerName: input.customer.name, staffName, channel: 'POS', terminalId, tenderType: input.paymentMethod === 'cash' || input.paymentMethod === 'fast_cash' ? 'CASH' : input.paymentMethod === 'card' ? 'VISA' : input.paymentMethod === 'digital' ? 'NONE' : 'SPLIT', tax: input.totals.tax, discount: input.totals.memberDiscount, subtotal: input.totals.subtotal, totalNet: input.totals.totalPayable, lines: input.items.map((item) => ({ productId: item.isCustom ? null : item.product.id, itemName: item.product.name, quantity: item.quantity, unitPrice: item.effectiveRate, subtotal: item.quantity * item.effectiveRate })), requestId: globalThis.crypto.randomUUID() });
+  await httpsCallable(services.functions, 'completeTenantCheckout')({ organizationId: membership.organization.id, outletId: outlet.id, customerId: input.customer.id || null, receiptNumber, customerName: input.customer.name, staffName, channel: 'POS', terminalId, tenderType: input.paymentMethod === 'cash' || input.paymentMethod === 'fast_cash' ? 'CASH' : input.paymentMethod === 'card' ? 'VISA' : input.paymentMethod === 'digital' ? 'NONE' : 'SPLIT', cashAmount: input.cashAmount ?? 0, tax: input.totals.tax, discount: input.totals.memberDiscount, subtotal: input.totals.subtotal, totalNet: input.totals.totalPayable, lines: input.items.map((item) => ({ productId: item.isCustom ? null : item.product.id, itemName: item.product.name, quantity: item.quantity, unitPrice: item.effectiveRate, subtotal: item.quantity * item.effectiveRate })), requestId: globalThis.crypto.randomUUID() });
 }

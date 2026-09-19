@@ -100,6 +100,7 @@ import { listPurchaseRefunds, PurchaseRefundError, recordPurchaseRefund } from '
 import { closePurchaseWithPartialReceipt } from './purchaseClosure.js';
 import { cancelPurchaseWithAccounting, PurchaseCancellationError } from './purchaseCancellation.js';
 import { listInventoryMovementHistory } from './inventoryMovements.js';
+import { closeCashRegister, getCashRegisterSnapshot, listCashRegisterSummaries, openCashRegister, recordCashMovement, CashRegisterError, type DenominationCount } from './cashRegister.js';
 
 const APPLICATION_CURRENCY = 'INR (₹)';
 
@@ -174,6 +175,7 @@ function requireCapability(record: AuthorizationRecord, capability: string): voi
     'suppliers.read',
     'customers.read',
     'expenses.read',
+    'cash.read',
     'outlets.read',
     'employees.read',
     'service_persons.read',
@@ -1674,6 +1676,132 @@ export const voidTenantExpenseRecord = onCall(callableOptions, async (request) =
   try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'expenses.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const id = typeof d.id === 'string' ? d.id : ''; const reason = typeof d.reason === 'string' ? d.reason.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; if (!organizationId || !id || !reason || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'expenses.read'); await voidTenantExpense({ organizationId, id, reason }); return { success: true, organizationId, id }; } catch (error) { logCallableFailure('voidTenantExpenseRecord', error); throw new HttpsError('permission-denied', 'Unable to void the expense.'); }
 });
 
+function parseDenominationCounts(value: unknown): DenominationCount[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((entry) => ({
+    denomination: Number((entry as { denomination?: unknown } | null)?.denomination),
+    quantity: Number((entry as { quantity?: unknown } | null)?.quantity),
+  }));
+}
+
+function cashRegisterFailure(error: unknown, fallback: string): HttpsError {
+  if (error instanceof HttpsError) return error;
+  if (error instanceof CashRegisterError) {
+    if (error.code === 'INVALID_INPUT' || error.code === 'INVALID_DENOMINATION_COUNT') return new HttpsError('invalid-argument', error.message);
+    if (error.code === 'OUTLET_NOT_FOUND') return new HttpsError('not-found', error.message);
+    return new HttpsError('failed-precondition', error.message);
+  }
+  if ((error as { code?: unknown } | null)?.code === '23505') return new HttpsError('already-exists', 'This cash request has already been recorded.');
+  return new HttpsError('failed-precondition', fallback);
+}
+
+export const getTenantCashRegisterSummary = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'cash.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const businessDate = typeof d.businessDate === 'string' ? d.businessDate : undefined;
+    if (!organizationId || !outletId) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'cash.read');
+    const snapshot = await withSqlTransaction((client) => getCashRegisterSnapshot(client, { organizationId, outletId, businessDate }));
+    return { success: true, organizationId, outletId, ...snapshot };
+  } catch (error) {
+    logCallableFailure('getTenantCashRegisterSummary', error);
+    throw cashRegisterFailure(error, 'Unable to load the cash register summary.');
+  }
+});
+
+export const listTenantCashRegisterSummaries = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'cash.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const startDate = typeof d.startDate === 'string' ? d.startDate : '';
+    const endDate = typeof d.endDate === 'string' ? d.endDate : '';
+    if (!organizationId || !outletId || !startDate || !endDate) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'cash.read');
+    const summaries = await withSqlTransaction((client) => listCashRegisterSummaries(client, { organizationId, outletId, startDate, endDate }));
+    return { success: true, organizationId, outletId, startDate, endDate, summaries };
+  } catch (error) {
+    logCallableFailure('listTenantCashRegisterSummaries', error);
+    throw cashRegisterFailure(error, 'Unable to load cash summaries.');
+  }
+});
+
+export const openTenantCashRegister = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'cash.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const businessDate = typeof d.businessDate === 'string' ? d.businessDate : undefined;
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const openingNote = typeof d.openingNote === 'string' ? d.openingNote.trim() || null : null;
+    const openingCounts = parseDenominationCounts(d.openingCounts);
+    if (!organizationId || !outletId || !requestId || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'cash.read');
+    const snapshot = await withSqlTransaction((client) => openCashRegister(client, { organizationId, outletId, businessDate, openingCounts, actorFirebaseUid: actor, openingNote, requestId }));
+    return { success: true, organizationId, outletId, ...snapshot };
+  } catch (error) {
+    logCallableFailure('openTenantCashRegister', error);
+    throw cashRegisterFailure(error, 'Unable to open the cash register.');
+  }
+});
+
+export const recordTenantCashMovement = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'cash.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const businessDate = typeof d.businessDate === 'string' ? d.businessDate : undefined;
+    const movementType = d.movementType === 'CASH_IN' || d.movementType === 'CASH_OUT' ? d.movementType : '';
+    const amount = Number(d.amount);
+    const reason = typeof d.reason === 'string' ? d.reason.trim() : '';
+    const note = typeof d.note === 'string' ? d.note.trim() || null : null;
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    if (!organizationId || !outletId || !movementType || !Number.isFinite(amount) || amount <= 0 || !reason || !requestId || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'cash.read');
+    const snapshot = await withSqlTransaction((client) => recordCashMovement(client, { organizationId, outletId, businessDate, movementType, amount, reason, note, actorFirebaseUid: actor, requestId }));
+    return { success: true, organizationId, outletId, ...snapshot };
+  } catch (error) {
+    logCallableFailure('recordTenantCashMovement', error);
+    throw cashRegisterFailure(error, 'Unable to record the cash movement.');
+  }
+});
+
+export const closeTenantCashRegister = onCall(callableOptions, async (request) => {
+  try {
+    const actor = requireVerifiedFirebaseIdentity(request.auth);
+    const caller = await loadAuthorization(actor);
+    requireCapability(caller, 'cash.read');
+    const d = request.data ?? {};
+    const organizationId = typeof d.organizationId === 'string' ? d.organizationId : '';
+    const outletId = typeof d.outletId === 'string' ? d.outletId : '';
+    const businessDate = typeof d.businessDate === 'string' ? d.businessDate : undefined;
+    const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : '';
+    const closingNote = typeof d.closingNote === 'string' ? d.closingNote.trim() || null : null;
+    const closingCounts = parseDenominationCounts(d.closingCounts);
+    if (!organizationId || !outletId || !requestId || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input');
+    await requireOrganizationCapability(actor, organizationId, 'cash.read');
+    const snapshot = await withSqlTransaction((client) => closeCashRegister(client, { organizationId, outletId, businessDate, closingCounts, actorFirebaseUid: actor, closingNote, requestId }));
+    return { success: true, organizationId, outletId, ...snapshot };
+  } catch (error) {
+    logCallableFailure('closeTenantCashRegister', error);
+    throw cashRegisterFailure(error, 'Unable to close the cash register.');
+  }
+});
+
 export const completeTenantSale = onCall(callableOptions, async (request) => {
   try { const actor = requireVerifiedFirebaseIdentity(request.auth); const caller = await loadAuthorization(actor); requireCapability(caller, 'sales.read'); const d = request.data ?? {}; const organizationId = typeof d.organizationId === 'string' ? d.organizationId : ''; const outletId = typeof d.outletId === 'string' ? d.outletId : ''; const receiptNumber = typeof d.receiptNumber === 'string' ? d.receiptNumber.trim() : ''; const customerName = typeof d.customerName === 'string' ? d.customerName.trim() : ''; const staffName = typeof d.staffName === 'string' ? d.staffName.trim() : ''; const terminalId = typeof d.terminalId === 'string' ? d.terminalId.trim() : ''; const requestId = typeof d.requestId === 'string' ? d.requestId.trim() : ''; const tenderType = Object.values(SaleTenderType).includes(d.tenderType) ? d.tenderType as SaleTenderType : SaleTenderType.NONE; const n = (key: string) => Number(d[key]); if (!organizationId || !outletId || !receiptNumber || !customerName || !staffName || !terminalId || !Number.isFinite(n('totalNet')) || !/^[A-Za-z0-9._:-]{8,128}$/.test(requestId)) throw new Error('invalid input'); await requireOrganizationCapability(actor, organizationId, 'sales.read'); const result = await createTenantSale({ organizationId, outletId, receiptNumber, saleTimestamp: typeof d.saleTimestamp === 'string' ? d.saleTimestamp : new Date().toISOString(), customerId: typeof d.customerId === 'string' ? d.customerId : null, customerName, staffName, channel: typeof d.channel === 'string' ? d.channel : null, terminalId, tenderType, tax: n('tax'), discount: n('discount'), subtotal: n('subtotal'), totalNet: n('totalNet') }); return { success: true, organizationId, outletId, receiptNumber, saleId: result.data.sale_insert.id }; } catch (error) { logCallableFailure('completeTenantSale', error); throw new HttpsError('permission-denied', 'Unable to complete the sale.'); }
 });
@@ -1697,6 +1825,13 @@ export const completeTenantCheckout = onCall(callableOptions, async (request) =>
       channel: typeof d.channel === 'string' ? d.channel.trim() : 'POS',
       terminalId: typeof d.terminalId === 'string' ? d.terminalId.trim() : '',
       tenderType: typeof d.tenderType === 'string' ? d.tenderType : 'NONE',
+      cashAmount: Number.isFinite(Number(d.cashAmount))
+        ? Number(d.cashAmount)
+        : d.tenderType === 'CASH'
+          ? Number(d.totalNet)
+          : d.tenderType === 'SPLIT'
+            ? Number(d.totalNet) / 2
+            : 0,
       tax: Number(d.tax),
       discount: Number(d.discount),
       subtotal: Number(d.subtotal),

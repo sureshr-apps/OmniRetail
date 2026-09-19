@@ -9,7 +9,7 @@ interface PaymentModalProps {
   customer: Customer;
   orderNumber: string;
   fastCashAmount?: number;
-  onCompleteSale: () => Promise<void>;
+  onCompleteSale: (settlement: { cashAmount: number; cashReceived: number; changeGiven: number }) => Promise<void>;
 }
 
 export function PaymentModal({
@@ -50,7 +50,12 @@ export function PaymentModal({
     setIsSubmitting(true);
     setStage('processing');
     try {
-      await onCompleteSale();
+      const cashAmount = method === 'cash' || method === 'fast_cash'
+        ? totals.totalPayable
+        : method === 'split'
+          ? totals.totalPayable / 2
+          : 0;
+      await onCompleteSale({ cashAmount, cashReceived: cashAmount > 0 ? tenderedNum : 0, changeGiven: cashAmount > 0 ? changeDue : 0 });
       setStage('success');
     } catch {
       setStage('tender');

@@ -46,4 +46,6 @@ mutation BootstrapPlatformRbacPermissions @auth(level: NO_ACCESS) @transaction {
   rpEmployeeSuppliersRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000030" })
   rpEmployeeCustomersRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000031" })
   rpEmployeeExpensesRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000032" })
+  rpOrgCashRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000002", permissionId: "10000000-0000-4000-8000-000000000036" })
+  rpEmployeeCashRead: rolePermission_upsert(data: { roleId: "00000000-0000-4000-8000-000000000003", permissionId: "10000000-0000-4000-8000-000000000036" })
 }

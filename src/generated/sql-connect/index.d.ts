@@ -2170,6 +2170,7 @@ export interface ListTenantSalesData {
         sku: string;
       } & Product_Key;
       quantity: number;
+      refundedQty: number;
       unitPrice: number;
       subtotal: number;
     } & SaleLine_Key)[];
@@ -2526,6 +2527,16 @@ export interface SaleLineBatchAllocation_Key {
 export interface SaleLine_Key {
   id: UUIDString;
   __typename?: 'SaleLine_Key';
+}
+
+export interface SaleReturnLine_Key {
+  id: UUIDString;
+  __typename?: 'SaleReturnLine_Key';
+}
+
+export interface SaleReturn_Key {
+  id: UUIDString;
+  __typename?: 'SaleReturn_Key';
 }
 
 export interface Sale_Key {

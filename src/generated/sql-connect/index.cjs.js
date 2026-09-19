@@ -165,7 +165,7 @@ getCurrentUserAuthorizationRef.operationName = 'GetCurrentUserAuthorization';
 exports.getCurrentUserAuthorizationRef = getCurrentUserAuthorizationRef;
 
 exports.getCurrentUserAuthorization = function getCurrentUserAuthorization(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(getCurrentUserAuthorizationRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -180,7 +180,7 @@ getUserAuthorizationByFirebaseUidRef.operationName = 'GetUserAuthorizationByFire
 exports.getUserAuthorizationByFirebaseUidRef = getUserAuthorizationByFirebaseUidRef;
 
 exports.getUserAuthorizationByFirebaseUid = function getUserAuthorizationByFirebaseUid(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getUserAuthorizationByFirebaseUidRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -195,7 +195,7 @@ resolveUsernameLoginRef.operationName = 'ResolveUsernameLogin';
 exports.resolveUsernameLoginRef = resolveUsernameLoginRef;
 
 exports.resolveUsernameLogin = function resolveUsernameLogin(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(resolveUsernameLoginRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -224,7 +224,7 @@ getAppUserForBootstrapRef.operationName = 'GetAppUserForBootstrap';
 exports.getAppUserForBootstrapRef = getAppUserForBootstrapRef;
 
 exports.getAppUserForBootstrap = function getAppUserForBootstrap(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAppUserForBootstrapRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -253,7 +253,7 @@ getCurrentAppUserRef.operationName = 'GetCurrentAppUser';
 exports.getCurrentAppUserRef = getCurrentAppUserRef;
 
 exports.getCurrentAppUser = function getCurrentAppUser(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(getCurrentAppUserRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -268,7 +268,7 @@ getAppUserByFirebaseUidRef.operationName = 'GetAppUserByFirebaseUid';
 exports.getAppUserByFirebaseUidRef = getAppUserByFirebaseUidRef;
 
 exports.getAppUserByFirebaseUid = function getAppUserByFirebaseUid(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getAppUserByFirebaseUidRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -283,7 +283,7 @@ listLicensePlansRef.operationName = 'ListLicensePlans';
 exports.listLicensePlansRef = listLicensePlansRef;
 
 exports.listLicensePlans = function listLicensePlans(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listLicensePlansRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -298,7 +298,7 @@ listOrganizationLicensePlanAssignmentsRef.operationName = 'ListOrganizationLicen
 exports.listOrganizationLicensePlanAssignmentsRef = listOrganizationLicensePlanAssignmentsRef;
 
 exports.listOrganizationLicensePlanAssignments = function listOrganizationLicensePlanAssignments(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listOrganizationLicensePlanAssignmentsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -313,7 +313,7 @@ isLicensePlanLevelTakenRef.operationName = 'IsLicensePlanLevelTaken';
 exports.isLicensePlanLevelTakenRef = isLicensePlanLevelTakenRef;
 
 exports.isLicensePlanLevelTaken = function isLicensePlanLevelTaken(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(isLicensePlanLevelTakenRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -328,7 +328,7 @@ getLicensePlanRef.operationName = 'GetLicensePlan';
 exports.getLicensePlanRef = getLicensePlanRef;
 
 exports.getLicensePlan = function getLicensePlan(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getLicensePlanRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -343,7 +343,7 @@ getLicensePlanTrustedRef.operationName = 'GetLicensePlanTrusted';
 exports.getLicensePlanTrustedRef = getLicensePlanTrustedRef;
 
 exports.getLicensePlanTrusted = function getLicensePlanTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getLicensePlanTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -414,7 +414,7 @@ getLicensePlanReferencesTrustedRef.operationName = 'GetLicensePlanReferencesTrus
 exports.getLicensePlanReferencesTrustedRef = getLicensePlanReferencesTrustedRef;
 
 exports.getLicensePlanReferencesTrusted = function getLicensePlanReferencesTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getLicensePlanReferencesTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -443,7 +443,7 @@ listOrganizationsRef.operationName = 'ListOrganizations';
 exports.listOrganizationsRef = listOrganizationsRef;
 
 exports.listOrganizations = function listOrganizations(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listOrganizationsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -458,7 +458,7 @@ getOrganizationRef.operationName = 'GetOrganization';
 exports.getOrganizationRef = getOrganizationRef;
 
 exports.getOrganization = function getOrganization(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -473,7 +473,7 @@ getOrganizationTrustedRef.operationName = 'GetOrganizationTrusted';
 exports.getOrganizationTrustedRef = getOrganizationTrustedRef;
 
 exports.getOrganizationTrusted = function getOrganizationTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -488,7 +488,7 @@ listOrganizationAdministratorsRef.operationName = 'ListOrganizationAdministrator
 exports.listOrganizationAdministratorsRef = listOrganizationAdministratorsRef;
 
 exports.listOrganizationAdministrators = function listOrganizationAdministrators(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listOrganizationAdministratorsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -503,7 +503,7 @@ getOrganizationAdministratorRef.operationName = 'GetOrganizationAdministrator';
 exports.getOrganizationAdministratorRef = getOrganizationAdministratorRef;
 
 exports.getOrganizationAdministrator = function getOrganizationAdministrator(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationAdministratorRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -574,7 +574,7 @@ getOrganizationAdministratorTrustedRef.operationName = 'GetOrganizationAdministr
 exports.getOrganizationAdministratorTrustedRef = getOrganizationAdministratorTrustedRef;
 
 exports.getOrganizationAdministratorTrusted = function getOrganizationAdministratorTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationAdministratorTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -589,7 +589,7 @@ resolveOrganizationAdministratorIdentityRef.operationName = 'ResolveOrganization
 exports.resolveOrganizationAdministratorIdentityRef = resolveOrganizationAdministratorIdentityRef;
 
 exports.resolveOrganizationAdministratorIdentity = function resolveOrganizationAdministratorIdentity(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(resolveOrganizationAdministratorIdentityRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -604,7 +604,7 @@ getOrganizationLicenseRef.operationName = 'GetOrganizationLicense';
 exports.getOrganizationLicenseRef = getOrganizationLicenseRef;
 
 exports.getOrganizationLicense = function getOrganizationLicense(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationLicenseRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -619,7 +619,7 @@ getOrganizationLicenseTrustedRef.operationName = 'GetOrganizationLicenseTrusted'
 exports.getOrganizationLicenseTrustedRef = getOrganizationLicenseTrustedRef;
 
 exports.getOrganizationLicenseTrusted = function getOrganizationLicenseTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationLicenseTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -634,7 +634,7 @@ getOrganizationLicenseHistoryRef.operationName = 'GetOrganizationLicenseHistory'
 exports.getOrganizationLicenseHistoryRef = getOrganizationLicenseHistoryRef;
 
 exports.getOrganizationLicenseHistory = function getOrganizationLicenseHistory(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationLicenseHistoryRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -649,7 +649,7 @@ getOrganizationLicensePublicRef.operationName = 'GetOrganizationLicensePublic';
 exports.getOrganizationLicensePublicRef = getOrganizationLicensePublicRef;
 
 exports.getOrganizationLicensePublic = function getOrganizationLicensePublic(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationLicensePublicRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -664,7 +664,7 @@ getOrganizationLicenseHistoryPublicRef.operationName = 'GetOrganizationLicenseHi
 exports.getOrganizationLicenseHistoryPublicRef = getOrganizationLicenseHistoryPublicRef;
 
 exports.getOrganizationLicenseHistoryPublic = function getOrganizationLicenseHistoryPublic(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getOrganizationLicenseHistoryPublicRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -679,7 +679,7 @@ listOrganizationsTrustedRef.operationName = 'ListOrganizationsTrusted';
 exports.listOrganizationsTrustedRef = listOrganizationsTrustedRef;
 
 exports.listOrganizationsTrusted = function listOrganizationsTrusted(dcOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
   return executeQuery(listOrganizationsTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -694,7 +694,7 @@ listOrganizationUsersForDeletionTrustedRef.operationName = 'ListOrganizationUser
 exports.listOrganizationUsersForDeletionTrustedRef = listOrganizationUsersForDeletionTrustedRef;
 
 exports.listOrganizationUsersForDeletionTrusted = function listOrganizationUsersForDeletionTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listOrganizationUsersForDeletionTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -835,7 +835,7 @@ listTenantOutletsRef.operationName = 'ListTenantOutlets';
 exports.listTenantOutletsRef = listTenantOutletsRef;
 
 exports.listTenantOutlets = function listTenantOutlets(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantOutletsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -850,7 +850,7 @@ listTenantEmployeesRef.operationName = 'ListTenantEmployees';
 exports.listTenantEmployeesRef = listTenantEmployeesRef;
 
 exports.listTenantEmployees = function listTenantEmployees(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantEmployeesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -865,7 +865,7 @@ listTenantServicePersonsRef.operationName = 'ListTenantServicePersons';
 exports.listTenantServicePersonsRef = listTenantServicePersonsRef;
 
 exports.listTenantServicePersons = function listTenantServicePersons(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantServicePersonsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -880,7 +880,7 @@ listTenantCategoriesRef.operationName = 'ListTenantCategories';
 exports.listTenantCategoriesRef = listTenantCategoriesRef;
 
 exports.listTenantCategories = function listTenantCategories(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantCategoriesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -895,7 +895,7 @@ listTenantProductsRef.operationName = 'ListTenantProducts';
 exports.listTenantProductsRef = listTenantProductsRef;
 
 exports.listTenantProducts = function listTenantProducts(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantProductsRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -910,7 +910,7 @@ listTenantInventoryRef.operationName = 'ListTenantInventory';
 exports.listTenantInventoryRef = listTenantInventoryRef;
 
 exports.listTenantInventory = function listTenantInventory(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantInventoryRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -925,7 +925,7 @@ listTenantCustomersRef.operationName = 'ListTenantCustomers';
 exports.listTenantCustomersRef = listTenantCustomersRef;
 
 exports.listTenantCustomers = function listTenantCustomers(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantCustomersRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -940,7 +940,7 @@ listTenantCustomerPurchaseHistoryRef.operationName = 'ListTenantCustomerPurchase
 exports.listTenantCustomerPurchaseHistoryRef = listTenantCustomerPurchaseHistoryRef;
 
 exports.listTenantCustomerPurchaseHistory = function listTenantCustomerPurchaseHistory(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantCustomerPurchaseHistoryRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -955,7 +955,7 @@ listTenantSuppliersRef.operationName = 'ListTenantSuppliers';
 exports.listTenantSuppliersRef = listTenantSuppliersRef;
 
 exports.listTenantSuppliers = function listTenantSuppliers(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantSuppliersRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -970,7 +970,7 @@ listTenantPurchasesRef.operationName = 'ListTenantPurchases';
 exports.listTenantPurchasesRef = listTenantPurchasesRef;
 
 exports.listTenantPurchases = function listTenantPurchases(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantPurchasesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -985,7 +985,7 @@ listTenantExpensesRef.operationName = 'ListTenantExpenses';
 exports.listTenantExpensesRef = listTenantExpensesRef;
 
 exports.listTenantExpenses = function listTenantExpenses(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantExpensesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1056,7 +1056,7 @@ listTenantSalesRef.operationName = 'ListTenantSales';
 exports.listTenantSalesRef = listTenantSalesRef;
 
 exports.listTenantSales = function listTenantSales(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantSalesRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1099,7 +1099,7 @@ getTenantInventoryStockTrustedRef.operationName = 'GetTenantInventoryStockTruste
 exports.getTenantInventoryStockTrustedRef = getTenantInventoryStockTrustedRef;
 
 exports.getTenantInventoryStockTrusted = function getTenantInventoryStockTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantInventoryStockTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1226,7 +1226,7 @@ getTenantSupplierTrustedRef.operationName = 'GetTenantSupplierTrusted';
 exports.getTenantSupplierTrustedRef = getTenantSupplierTrustedRef;
 
 exports.getTenantSupplierTrusted = function getTenantSupplierTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantSupplierTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1283,7 +1283,7 @@ getTenantCustomerTrustedRef.operationName = 'GetTenantCustomerTrusted';
 exports.getTenantCustomerTrustedRef = getTenantCustomerTrustedRef;
 
 exports.getTenantCustomerTrusted = function getTenantCustomerTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantCustomerTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1298,7 +1298,7 @@ listTenantCategoriesTrustedRef.operationName = 'ListTenantCategoriesTrusted';
 exports.listTenantCategoriesTrustedRef = listTenantCategoriesTrustedRef;
 
 exports.listTenantCategoriesTrusted = function listTenantCategoriesTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(listTenantCategoriesTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1411,7 +1411,7 @@ getTenantProductTrustedRef.operationName = 'GetTenantProductTrusted';
 exports.getTenantProductTrustedRef = getTenantProductTrustedRef;
 
 exports.getTenantProductTrusted = function getTenantProductTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantProductTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1454,7 +1454,7 @@ getTenantMembershipTrustedRef.operationName = 'GetTenantMembershipTrusted';
 exports.getTenantMembershipTrustedRef = getTenantMembershipTrustedRef;
 
 exports.getTenantMembershipTrusted = function getTenantMembershipTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantMembershipTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1469,7 +1469,7 @@ resolveTenantEmployeeIdentityTrustedRef.operationName = 'ResolveTenantEmployeeId
 exports.resolveTenantEmployeeIdentityTrustedRef = resolveTenantEmployeeIdentityTrustedRef;
 
 exports.resolveTenantEmployeeIdentityTrusted = function resolveTenantEmployeeIdentityTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(resolveTenantEmployeeIdentityTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1694,7 +1694,7 @@ getTenantOutletTrustedRef.operationName = 'GetTenantOutletTrusted';
 exports.getTenantOutletTrustedRef = getTenantOutletTrustedRef;
 
 exports.getTenantOutletTrusted = function getTenantOutletTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantOutletTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1821,7 +1821,7 @@ getTenantEmployeeTrustedRef.operationName = 'GetTenantEmployeeTrusted';
 exports.getTenantEmployeeTrustedRef = getTenantEmployeeTrustedRef;
 
 exports.getTenantEmployeeTrusted = function getTenantEmployeeTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantEmployeeTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }
@@ -1878,7 +1878,7 @@ getTenantServicePersonTrustedRef.operationName = 'GetTenantServicePersonTrusted'
 exports.getTenantServicePersonTrustedRef = getTenantServicePersonTrustedRef;
 
 exports.getTenantServicePersonTrusted = function getTenantServicePersonTrusted(dcOrVars, varsOrOptions, options) {
-
+  
   const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
   return executeQuery(getTenantServicePersonTrustedRef(dcInstance, inputVars), inputOpts && { fetchPolicy: inputOpts.fetchPolicy });
 }

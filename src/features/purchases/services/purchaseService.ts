@@ -10,6 +10,15 @@ import { mapPurchaseRefund, normalizePurchaseRefundResponse, PurchaseRefundCalla
 export interface SupplierOption { id: string; name: string; taxId?: string; note?: string; contact?: string; }
 export interface OutletOption { id: string; name: string; isOrgWide?: boolean; }
 
+interface PurchaseActor { displayName?: string | null; username?: string | null; }
+
+export function resolvePurchaseActor(user: PurchaseActor | undefined): string {
+  const displayName = user?.displayName?.trim();
+  const username = user?.username?.trim();
+  if (!displayName && !username) throw new Error('Current user identity is unavailable.');
+  return displayName || username!;
+}
+
 export interface IPurchaseService {
   getPurchases(query?: PurchaseQuery): Promise<PurchaseQueryResult>;
   getPurchase(id: string): Promise<Purchase | null>;
@@ -82,11 +91,16 @@ class ProductionPurchaseService implements IPurchaseService {
   }
 
   async createPurchase(input: CreatePurchaseInput): Promise<Purchase> {
-    const organizationId = await this.organizationId(); const outletResult = await listTenantOutlets(getFirebaseClientServices().dataConnect, { organizationId });
+    const authorization = await getCurrentUserAuthorization(getFirebaseClientServices().dataConnect);
+    const membership = authorization.data.appUsers[0]?.organizationMemberships_on_user.find((item) => item.status === 'ACTIVE');
+    if (!membership) throw new Error('No active organization membership.');
+    const organizationId = membership.organization.id;
+    const createdBy = resolvePurchaseActor(authorization.data.appUsers[0]);
+    const outletResult = await listTenantOutlets(getFirebaseClientServices().dataConnect, { organizationId });
     const outlet = outletResult.data.outlets.find((candidate) => input.outletId ? candidate.id === input.outletId : candidate.name === input.outletName); if ((!outlet || outlet.status !== 'ACTIVE') && input.scope !== 'organization') throw new Error('Selected outlet was not found or is inactive.');
     const totals = calculatePurchaseTotals(input.items.map((item) => ({ quantity: item.quantity, unitCost: item.unitCost, discountPercent: item.discountPercent, taxRate: item.taxRate })), input.shippingFee, input.handlingFee, input.initialPaymentRecorded);
     const purchaseNumber = input.purchaseOrderNumber ?? `PO-${globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 16).toUpperCase()}`;
-    await httpsCallable(getFirebaseClientServices().functions, 'createTenantPurchaseRecord')({ organizationId, purchaseNumber, purchaseDate: input.purchaseDate, supplierId: input.supplierId, outletId: outlet?.id ?? null, scope: input.scope, paymentTerms: input.paymentTerms, subtotal: totals.subtotal, shippingFee: input.shippingFee, handlingFee: input.handlingFee, tax: totals.totalTax, totalAmount: totals.grandTotal, amountPaid: input.initialPaymentRecorded, outstandingAmount: totals.outstandingAmount, paymentStatus: totals.derivedPaymentStatus, receiptStatus: 'PENDING', status: input.status.toUpperCase(), createdBy: 'Current operator', lines: input.items.map((item) => ({ productId: item.productId, quantity: item.quantity, unitCost: item.unitCost, discountPercent: item.discountPercent, taxRate: item.taxRate, taxAmount: item.quantity * item.unitCost * item.taxRate / 100, lineTotal: item.quantity * item.unitCost * (1 - item.discountPercent / 100) })), requestId: globalThis.crypto.randomUUID() });
+    await httpsCallable(getFirebaseClientServices().functions, 'createTenantPurchaseRecord')({ organizationId, purchaseNumber, purchaseDate: input.purchaseDate, supplierId: input.supplierId, outletId: outlet?.id ?? null, scope: input.scope, paymentTerms: input.paymentTerms, subtotal: totals.subtotal, shippingFee: input.shippingFee, handlingFee: input.handlingFee, tax: totals.totalTax, totalAmount: totals.grandTotal, amountPaid: input.initialPaymentRecorded, outstandingAmount: totals.outstandingAmount, paymentStatus: totals.derivedPaymentStatus, receiptStatus: 'PENDING', status: input.status.toUpperCase(), createdBy, lines: input.items.map((item) => ({ productId: item.productId, quantity: item.quantity, unitCost: item.unitCost, discountPercent: item.discountPercent, taxRate: item.taxRate, taxAmount: item.quantity * item.unitCost * item.taxRate / 100, lineTotal: item.quantity * item.unitCost * (1 - item.discountPercent / 100) })), requestId: globalThis.crypto.randomUUID() });
     const created = (await this.all()).find((purchase) => purchase.purchaseNumber === purchaseNumber); if (!created) throw new Error('Purchase was created but could not be loaded.'); return created;
   }
 

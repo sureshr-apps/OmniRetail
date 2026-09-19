@@ -43,14 +43,14 @@ export function CreatePurchaseModal({
   }, [isOpen]);
 
   // Freight & Charges
-  const [shippingFee, setShippingFee] = useState<number>(120.0);
+  const [shippingFee, setShippingFee] = useState<number>(0);
   const [handlingFee, setHandlingFee] = useState<number>(0.0);
 
   // Settlement
   const [paymentOption, setPaymentOption] = useState<'UNPAID' | 'PARTIALLY_PAID' | 'PAID'>(
-    'PARTIALLY_PAID'
+    'UNPAID'
   );
-  const [customPaidAmount, setCustomPaidAmount] = useState<string>('1500.00');
+  const [customPaidAmount, setCustomPaidAmount] = useState<string>('0.00');
 
   useEffect(() => {
     if (!isOpen) return;

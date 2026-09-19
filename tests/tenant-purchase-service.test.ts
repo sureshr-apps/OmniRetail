@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { calculateOutstandingAmount, calculatePurchaseTotals } from '@/features/purchases/utils/calculations';
+import { resolvePurchaseActor } from '@/features/purchases/services/purchaseService';
 const source = readFileSync(new URL('../src/features/purchases/services/purchaseService.ts', import.meta.url), 'utf8');
 const modal = readFileSync(new URL('../src/features/purchases/components/CreatePurchaseModal.tsx', import.meta.url), 'utf8');
 const detailDrawer = readFileSync(new URL('../src/features/purchases/components/PurchaseDetailDrawer.tsx', import.meta.url), 'utf8');
@@ -64,6 +65,21 @@ describe('tenant purchase service adapter', () => {
     expect(modal).toContain('outlets[0]?.id ?? \'\'');
     expect(modal).not.toContain('sup-101');
     expect(modal).not.toContain('Downtown Flagship #04');
+  });
+
+  it('starts new purchases unpaid with no shipping or initial payment', () => {
+    expect(modal).toContain('useState<number>(0)');
+    expect(modal).toContain("'UNPAID'");
+    expect(modal).toContain("useState<string>('0.00')");
+  });
+
+  it('uses the authenticated user as the purchase creator', () => {
+    expect(source).toContain('const createdBy = resolvePurchaseActor(authorization.data.appUsers[0]);');
+    expect(source).toContain('createdBy, lines:');
+    expect(source).not.toContain("createdBy: 'Current operator'");
+    expect(resolvePurchaseActor({ displayName: '  Sarah Jenkins  ', username: 'sj123' })).toBe('Sarah Jenkins');
+    expect(resolvePurchaseActor({ displayName: '', username: 'sj123' })).toBe('sj123');
+    expect(() => resolvePurchaseActor(undefined)).toThrow('Current user identity is unavailable.');
   });
 
   it('selects purchase products from the loaded production catalogue', () => {

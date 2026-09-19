@@ -157,22 +157,6 @@ export function PaymentModal({
                 </div>
               )}
 
-              {method === 'card' && (
-                <div className="py-6 px-4 bg-surface-container-low rounded border border-outline-variant/30 flex flex-col items-center justify-center text-center gap-3">
-                  <div className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center animate-pulse">
-                    <span className="material-symbols-outlined text-[32px]">contactless</span>
-                  </div>
-                  <div>
-                    <p className="font-body-medium text-body-medium font-bold text-on-surface">
-                      Ready for Terminal Tap / Chip Insert
-                    </p>
-                    <p className="font-caption text-caption text-on-surface-variant mt-0.5">
-                      Present customer card on terminal REG-01 or press Authorize to complete the transaction.
-                    </p>
-                  </div>
-                </div>
-              )}
-
               {method === 'digital' && (
                 <div className="py-6 px-4 bg-surface-container-low rounded border border-outline-variant/30 flex flex-col items-center justify-center text-center gap-3">
                   <div className="w-16 h-16 rounded-lg bg-surface-container-lowest border border-outline-variant/40 flex items-center justify-center shadow-xs">

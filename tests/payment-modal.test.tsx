@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import '@testing-library/jest-dom/vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PaymentModal } from '@/features/billing/components/PaymentModal';
@@ -21,6 +22,9 @@ describe('PaymentModal checkout lifecycle', () => {
         onCompleteSale={completeSale}
       />,
     );
+
+    expect(screen.queryByText(/Ready for Terminal Tap/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Present customer card on terminal/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Authorize & Complete/i }));
     await waitFor(() => expect(completeSale).toHaveBeenCalledTimes(1));
